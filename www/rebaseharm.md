@@ -226,12 +226,12 @@ doing siloed development.  You are not sharing your intermediate work
 with collaborators.  This is not good for product quality.
 
 [Nagappan, et. al][nagappan] studied bugs in Windows Vista and found
-that best predictor of bugs is the distance on the org-chart between
+that the best predictor of bugs is the distance on the org-chart between
 the stake-holders. The bug rate is inversely related to the
 amount of communication among the engineers.
 Similar findings arise in other disciplines.  Keeping
 private branches does not prove that developers are communicating
-insufficiently, but it is a key symptom that problem.
+insufficiently, but it is a key symptom of that problem.
 
 [Weinberg][weinberg] argues programming should be "egoless."  That
 is to say, programmers should avoid linking their code with their sense of
@@ -375,7 +375,7 @@ beautiful wish, but there's a sharp limit to how far you can carry it.
 Eventually you hit the limits of human brilliance.
 
 When the operation of some bit of code is not obvious, both Fossil and
-Git let you run a [`blame`](/help?cmd=blame) on the code file to get
+Git let you run a [`blame`](/help/blame) on the code file to get
 information about each line of code, and from that which check-in last
 touched a given line of code. If you squash the check-ins on a branch
 down to a single check-in, you throw away the information leading up to

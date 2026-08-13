@@ -54,6 +54,12 @@ static int builtin_file_index(const char *zFilename){
 
 /*
 ** Return a pointer to built-in content
+**
+** If the filename contains "-vNNNNNNNN" just before the final file
+** suffix, where each N is a random digit, then omit that part of the
+** filename before doing the lookup.  The extra -vNNNNNNNN was added
+** to defeat overly aggressive caching by web browsers.  There must be
+** at least 8 digits in NNNNNNNN but more than 8 are allowed.
 */
 const unsigned char *builtin_file(const char *zFilename, int *piSize){
   int i = builtin_file_index(zFilename);
@@ -61,6 +67,16 @@ const unsigned char *builtin_file(const char *zFilename, int *piSize){
     if( piSize ) *piSize = aBuiltinFiles[i].nByte;
     return aBuiltinFiles[i].pData;
   }else{
+    const char *zV = strstr(zFilename, "-v");
+    if( zV!=0 ){
+      for(i=0; fossil_isdigit(zV[i+2]); i++){}
+      if( i>=8 && zV[i+2]=='.' ){
+        char *zNew = mprintf("%.*s%s", (int)(zV-zFilename), zFilename, zV+i+2);
+        const unsigned char *pRes = builtin_file(zNew, piSize);
+        fossil_free(zNew);
+        return pRes;
+      }
+    }
     if( piSize ) *piSize = 0;
     return 0;
   }
@@ -654,6 +670,8 @@ void builtin_emit_script_fossil_bootstrap(int addScriptTag){
        "isNew:'[+]', isModified:'[*]', isDeleted:'[-]'},\n");
     CX("confirmerButtonTicks: 3 "
        "/*default fossil.confirmer tick count.*/,\n");
+    CX("attachmentSizeLimit: %d,\n",
+       db_get_int("attachment-size-limit",0));
     /* Inject certain info about the current skin... */
     CX("skin:{");
     /* can leak a local filesystem path:
@@ -663,10 +681,37 @@ void builtin_emit_script_fossil_bootstrap(int addScriptTag){
        skin_detail_boolean("white-foreground") ? "true" : "false");
     CX("}\n"/*fossil.config.skin*/);
     CX("};\n"/* fossil.config */);
+    if( forum_statuses()->n>1 ){
+      const ForumStatusList * fsl = forum_statuses();
+      int i;
+      CX("window.fossil.config.forumStatuses = [");
+      for(i = 0; i < fsl->n; ++i){
+        const ForumStatus *fs = &fsl->aStatus[i];
+        if(i) CX(",");
+        CX("{label:%!j, value:%!j}", fs->zLabel, fs->zValue);
+      }
+      CX("];\n");
+    }
+#define JBOOL(COND) ((COND) ? "true" : "false")
     CX("window.fossil.user = {");
     CX("name: %!j,", (g.zLogin&&*g.zLogin) ? g.zLogin : "guest");
-    CX("isAdmin: %s", (g.perm.Admin || g.perm.Setup) ? "true" : "false");
+    CX("isAdmin: %s,", JBOOL(g.perm.Admin || g.perm.Setup));
+    CX("mayAttachForum: %s,", JBOOL(g.perm.AttachForum));
+    CX("enableDebug: %s,", JBOOL(g.perm.Debug || g.perm.Admin));
+    CX("isIndividual: %s", JBOOL(login_is_individual()));
     CX("};\n"/*fossil.user*/);
+    { /* Workaround for cases like:
+      ** https://fossil-scm.org/forum/forumpost/31cc00b361496cb8
+      ** Summary: custom skins which emit their own BODY need to have
+      ** the BODY element's CSS classes set so that various CSS selectors
+      ** and JS-side filters will work. */
+      char *pSlash = strchr(g.zPath,'/')/*hack taken from style.c*/;
+      if( pSlash ) *pSlash = 0;
+      CX("for(const x of [%!j, \"rpage-%j\",\"cpage-%j\"]) {"
+         "if(x) document.body.classList.add(x);};\n",
+         style_get_current_feature(), g.zPath, g.zPhase+1);
+      if( pSlash ) *pSlash = '/';
+    }
     CX("if(fossil.config.skin.isDark) "
        "document.body.classList.add('fossil-dark-style');\n");
     /*
@@ -685,6 +730,7 @@ void builtin_emit_script_fossil_bootstrap(int addScriptTag){
     ** C-runtime state... */
     builtin_request_js("fossil.bootstrap.js");
   }
+#undef JBOOL
 }
 
 /*
@@ -718,9 +764,12 @@ static int builtin_emit_fossil_js_once(const char * zName){
                         ** the final one! */
   } fjs[] = {
   /* This list ordering isn't strictly important. */
+  {"attach",         0, "dom\0"},
   {"confirmer",      0, 0},
   {"copybutton",     0, "dom\0"},
-  {"diff",           0, "dom\0fetch\0"},
+  {"diff",           0, "dom\0fetch\0storage\0"
+   /* maintenance note: "diff" needs "storage" for storing the
+   ** sbs-sync-scroll toggle. */},
   {"dom",            0, 0},
   {"fetch",          0, 0},
   {"numbered-lines", 0, "popupwidget\0copybutton\0"},

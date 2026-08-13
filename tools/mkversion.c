@@ -84,6 +84,11 @@ static void hash(const char *zIn, int N, char *zOut){
   zOut[n] = 0;
 }
 
+/* Local strcpy() clone to squelch an unwarranted warning from OpenBSD. */
+static void local_strcpy(char *dest, const char *src){
+  while( (*(dest++) = *(src++))!=0 ){}
+}
+
 int main(int argc, char *argv[]){
     FILE *m,*u,*v;
     char *z;
@@ -175,7 +180,7 @@ int main(int argc, char *argv[]){
     for(z=vx; z[0]=='0'; z++){}
     printf("#define RELEASE_VERSION_NUMBER %d%02d%02d\n", vn[0], vn[1], vn[2]);
     memset(vx,0,sizeof(vx));
-    strcpy(vx,b);
+    local_strcpy(vx,b);
     for(z=vx; z[0]; z++){
       if( z[0]=='-' ){
         z[0] = 0;

@@ -149,6 +149,8 @@ static void unversioned_write(
     db_bind_blob(&ins, ":content", pContent);
   }
   db_step(&ins);
+  admin_log("Wrote unversioned file \"%w\" with hash %!S",
+            zUVFile, blob_str(&hash));
   blob_reset(&compressed);
   blob_reset(&hash);
   db_finalize(&ins);
@@ -220,8 +222,8 @@ static int contains_whitespace(const char *zName){
 }
 
 /*
-** COMMAND: uv#
-** COMMAND: unversioned
+** COMMAND: uv#                           abbrv-subcom
+** COMMAND: unversioned                   abbrv-subcom
 **
 ** Usage: %fossil unversioned SUBCOMMAND ARGS...
 **    or: %fossil uv SUBCOMMAND ARGS..
@@ -248,6 +250,8 @@ static int contains_whitespace(const char *zName){
 **    cat FILE ...           Concatenate the content of FILEs to stdout.
 **
 **    edit FILE              Bring up FILE in a text editor for modification.
+**                           Options:
+**                             --editor NAME     Name of the text editor to use
 **
 **    export FILE OUTPUT     Write the content of FILE into OUTPUT on disk
 **
@@ -268,6 +272,7 @@ static int contains_whitespace(const char *zName){
 **                           Options:
 **                              -v|--verbose     Extra diagnostic output
 **                              -n|--dry-run     Show what would have happened
+**                              --proxy PROXY    Use the specified HTTP proxy
 **
 **    remove|rm|delete FILE ...
 **                           Remove unversioned files from the local repository.
@@ -287,6 +292,7 @@ static int contains_whitespace(const char *zName){
 **                           Options:
 **                              -v|--verbose     Extra diagnostic output
 **                              -n|--dry-run     Show what would have happened
+**                              --proxy PROXY    Use the specified HTTP proxy
 **
 **    touch FILE ...         Update the TIMESTAMP on all of the listed files
 **
@@ -316,6 +322,9 @@ void unversioned_cmd(void){
     const char *zAs;
     Blob file;
     int i;
+    i64 mxSize = sqlite3_limit(g.db,SQLITE_LIMIT_LENGTH,-1) - 850;
+                   /* Extra space for other fields      ------^^^  */
+                   /* of the UNVESIONED table row.                 */
 
     zAs = find_option("as",0,1);
     verify_all_options();
@@ -332,9 +341,15 @@ void unversioned_cmd(void){
         zError = "contain complex paths";
       }else if( contains_whitespace(zIn) ){
         zError = "contain whitespace";
+      }else if( strlen(zIn)>500 ){
+        zError = "be more than 500 bytes long";
       }
       if( zError ){
         fossil_fatal("unversioned filenames may not %s: %Q", zError, zIn);
+      }
+      if( file_size(g.argv[i], ExtFILE)>mxSize ){
+        fossil_fatal("file \"%s\" is too big; max size: %,lld bytes",
+                     g.argv[i], mxSize);
       }
       blob_init(&file,0,0);
       blob_read_from_file(&file, g.argv[i], ExtFILE);
@@ -361,13 +376,13 @@ void unversioned_cmd(void){
     char *zCmd;             /* Command to run the text editor */
     Blob content;           /* Content of the unversioned file */
 
-    verify_all_options();
-    if( g.argc!=4) usage("edit UVFILE");
-    zUVFile = g.argv[3];
     zEditor = fossil_text_editor();
     if( zEditor==0 ){
       fossil_fatal("no text editor - set the VISUAL env variable");
     }
+    verify_all_options();
+    if( g.argc!=4) usage("edit UVFILE");
+    zUVFile = g.argv[3];
     zTFile = fossil_temp_filename();
     if( zTFile==0 ) fossil_fatal("cannot find a temporary filename");
     db_begin_transaction();
@@ -754,4 +769,29 @@ void uvlist_json_page(void){
    db_finalize(&q);
    blob_appendf(&json,"]\n");
    cgi_set_content(&json);
+}
+
+
+/*
+** Get the file count and total size of unversioned files in bytes.
+**    - Return total size in bytes.
+**    - Optionally udpate filecount pointer if non-null pointer is given.
+*/
+sqlite3_int64 unversioned_stat(int *filecount){
+  sqlite3_int64 iStored=0;
+  int n=0;
+  if( db_table_exists("repository","unversioned") ){
+    Stmt q;
+    db_prepare(&q,
+        "SELECT count(*), sum(sz), sum(octet_length(content))"
+        "  FROM unversioned"
+        " WHERE length(hash)>1"
+        );
+    if( db_step(&q)==SQLITE_ROW && (n = db_column_int(&q,0))>0 ){
+      iStored = db_column_int64(&q,2);
+    }
+    db_finalize(&q);
+  }
+  if( filecount ) *filecount=n;
+  return iStored;
 }

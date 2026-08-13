@@ -44,9 +44,7 @@
      listener for the 'text-copied' event (see below). There is
      functionally no difference from setting this option or adding a
      'text-copied' event listener to the element, and this option is
-     considered to be a convenience form of that. For the sake of
-     framework-level consistency, the default value is a callback
-     which passes the copy button to fossil.dom.flashOnce().
+     considered to be a convenience form of that.
 
      Note that this function's own defaultOptions object holds default
      values for some options. Any changes made to that object affect
@@ -64,11 +62,8 @@
      not fired if copying to the clipboard fails (e.g. is not
      available in the current environment).
 
-     As a special case, the copy button's click handler is suppressed
-     (becomes a no-op) for as long as the element has the CSS class
-     "disabled". This allows elements which cannot be disabled via
-     HTML attributes, e.g. a SPAN, to act as a copy button while still
-     providing a way to disable them.
+     The copy button's click handler is suppressed (becomes a no-op)
+     for as long as the element has the "disabled" attribute.
 
      Returns the copy-initialized element.
 
@@ -78,7 +73,6 @@
        copyFromId: 'some-other-element-id'
      });
      button.addEventListener('text-copied',function(ev){
-       fossil.dom.flashOnce(ev.target);
        console.debug("Copied text:",ev.detail.text);
      });
   */
@@ -105,7 +99,7 @@
       function(ev){
         ev.preventDefault();
         ev.stopPropagation();
-        if(e.classList.contains('disabled')) return;
+        if(e.disabled) return;  /* This check is probably redundant. */
         const txt = extract.call(opt);
         if(txt && D.copyTextToClipboard(txt)){
           e.dispatchEvent(new CustomEvent('text-copied',{
@@ -118,12 +112,16 @@
     if('function' === typeof opt.oncopy){
       e.addEventListener('text-copied', opt.oncopy, false);
     }
+    /* Make sure the <button> contains a single nested <span>. */
+    if(e.childElementCount!=1 || e.firstChild.tagName!='SPAN'){
+      D.append(D.clearElement(e), D.span());
+    }
     return e;
   };
 
   F.copyButton.defaultOptions = {
     cssClass: 'copy-button',
-    oncopy: D.flashOnce.eventHandler,
+    oncopy: undefined,
     style: {/*properties copied as-is into element.style*/}
   };
   

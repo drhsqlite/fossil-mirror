@@ -1,9 +1,23 @@
-# The "diff --tk" command outputs prepends a "set fossilcmd {...}" line
-# to this file, then runs this file using "tclsh" in order to display the
-# graphical diff in a separate window.  A typical "set fossilcmd" line
-# looks like this:
+# Various diff commands ("fossil diff", "fossil stash diff", "fossil fdiff",
+# "fossil patch diff", and others) that include the --tk option, or that use "gdiff"
+# instead of diff, work by running a Tcl/Tk script which is just this script prepended
+# with some variable initializations. The key variable is fossilcmd which is
+# usually set something like this:
 #
-#     set fossilcmd {| "./fossil" diff --html -y -i -v}
+#     set fossilcmd {| "./fossil" diff --tcl -i -v}
+#
+# If there are additional command-line options or arguments, those will be appended
+# as well.  This variable becomes the argument to "open" to gather the diff
+# information that is to be displayed.
+#
+# Other variables initializations that might be prepended to this script include:
+#
+#     set debug 1
+#     set darkmode 1
+#     set remotehost hostname
+#     set remotedir  directory-on-hostname
+#
+# After prepending those "set" commands, the resulting script is run using "tclsh".
 #
 # This header comment is stripped off by the "mkbuiltin.c" program.
 #
@@ -92,34 +106,132 @@ proc getLine {difftxt N iivar} {
   return $x
 }
 
-proc readDiffs {fossilcmd} {
-  global difftxt
+proc reloadDiff {} {
+  global fossilcmd difftxt
+  unset -nocomplain difftxt
+  set idx [.txtA index @0,0]
+  readDiffs 1
+  update
+  viewDiff $idx
+}
+
+# Populate the difftxt global variable by running the fossilcmd command
+# and capturing the output.  This is a reload if $redo is 1 and the initial
+# load if $redo is 0.
+#
+proc fetchRawDiff {redo} {
+  global fossilcmd remotehost remotedir debug difftxt
+  if {![info exists remotehost] || $remotehost eq ""} {
+    if {$debug} {
+      puts "# [lrange $fossilcmd 1 end]"
+      flush stdout
+    }
+    if {[catch {
+      set in [open $fossilcmd r]
+      fconfigure $in -encoding utf-8
+      set difftxt [split [read $in] \n]
+      close $in
+    } msg]} {
+      if {$redo} {
+        tk_messageBox -type ok -title Error -message "Unable to refresh:\n$msg"
+        return 0
+      } else {
+        puts $msg
+        exit 1
+      }
+    }
+    return 0
+  } else {
+    set suffix [lrange $fossilcmd 2 end]
+    set cmd "| ssh $remotehost {cd $remotedir && fossil $suffix}"
+    if {$debug} {
+      puts "# [lrange $cmd 1 end]"
+      flush stdout
+    }
+    if {![catch {
+      set in [open $cmd r]
+      fconfigure $in -encoding utf-8
+      set difftxt [split [read $in] \n]
+      close $in
+    }]} {
+      return 1
+    }
+    set cmd "| ssh $remotehost {cd $remotedir && \
+         PATH=\$HOME/bin:/usr/local/bin:/opt/homebrew/bin:\$PATH fossil $suffix}"
+    if {$debug} {
+      puts "# [lrange $cmd 1 end]"
+      flush stdout
+    }
+    if {![catch {
+      set in [open $cmd r]
+      fconfigure $in -encoding utf-8
+      set difftxt [split [read $in] \n]
+      close $in
+    } msg]} {
+      return 1
+    }
+    if {$redo} {
+      tk_messageBox -type ok -title Error -message "Unable to refresh:\n$msg"
+      return 0
+    } else {
+      puts $msg
+      exit 1
+    }
+  }
+}
+
+proc readDiffs {redo} {
+  global fossilcmd difftxt debug
   if {![info exists difftxt]} {
-    set in [open $fossilcmd r]
-    fconfigure $in -encoding utf-8
-    set difftxt [split [read $in] \n]
-    close $in
+    fetchRawDiff $redo
   }
   set N [llength $difftxt]
   set ii 0
   set nDiffs 0
   set n1 0
-  set n2 0  
+  set n2 0
   array set widths {txt 3 ln 3 mkr 1}
-  
-  
+  if {$redo} {
+    foreach c [cols] {$c config -state normal}
+    .lnA delete 1.0 end
+    .txtA delete 1.0 end
+    .lnB delete 1.0 end
+    .txtB delete 1.0 end
+    .mkr delete 1.0 end
+    .wfiles.lb delete 0 end
+  }
+
+
   set fromIndex [lsearch -glob $fossilcmd *-from]
   set toIndex [lsearch -glob $fossilcmd *-to]
   set branchIndex [lsearch -glob $fossilcmd *-branch]
   set checkinIndex [lsearch -glob $fossilcmd *-checkin]
-  set fA {base check-in}
-  set fB {current check-out}
-  if {$fromIndex > -1} {set fA [lindex $fossilcmd $fromIndex+1]}
-  if {$toIndex > -1} {set fB [lindex $fossilcmd $toIndex+1]}
-  if {$branchIndex > -1} {set fA "branch point"; set fB "leaf of branch '[lindex $fossilcmd $branchIndex+1]'"}
-  if {$checkinIndex > -1} {set fA "primary parent"; set fB [lindex $fossilcmd $checkinIndex+1]}
-  
-  
+  if {[lsearch -glob $fossilcmd *-label]>=0
+    || [lsearch {xdiff fdiff merge-info} [lindex $fossilcmd 2]]>=0
+  } {
+    set fA {}
+    set fB {}
+  } else {
+    if {[string match *?--external-baseline* $fossilcmd]} {
+      set fA {external baseline}
+    } else {
+      set fA {base check-in}
+    }
+    set fB {current check-out}
+    if {$fromIndex > -1} {
+      set fA [lindex $fossilcmd $fromIndex+1]
+    }
+    if {$toIndex > -1} {
+      set fB [lindex $fossilcmd $toIndex+1]
+    }
+    if {$branchIndex > -1} {
+      set fA "branch point"; set fB "leaf of branch '[lindex $fossilcmd $branchIndex+1]'"
+    }
+    if {$checkinIndex > -1} {
+      set fA "primary parent"; set fB [lindex $fossilcmd $checkinIndex+1]
+    }
+  }
+
   while {[set line [getLine $difftxt $N ii]] != -1} {
     switch -- [lindex $line 0] {
       FILE {
@@ -128,10 +240,18 @@ proc readDiffs {fossilcmd} {
           if {$wx>$widths(ln)} {set widths(ln) $wx}
         }
         .lnA insert end \n fn \n -
-        .txtA insert end "[lindex $line 1] ($fA)\n" fn \n -
+        if {$fA==""} {
+          .txtA insert end "[lindex $line 1]\n" fn \n -
+        } else {
+          .txtA insert end "[lindex $line 1] ($fA)\n" fn \n -
+        }
         .mkr insert end \n fn \n -
         .lnB insert end \n fn \n -
-        .txtB insert end "[lindex $line 2] ($fB)\n" fn \n -
+        if {$fB==""} {
+          .txtB insert end "[lindex $line 2]\n" fn \n -
+        } else {
+          .txtB insert end "[lindex $line 2] ($fB)\n" fn \n -
+        }
         .wfiles.lb insert end [lindex $line 2]
         set n1 0
         set n2 0
@@ -225,8 +345,8 @@ proc readDiffs {fossilcmd} {
     }
     $c config -state disabled
   }
+  .wfiles.lb config -height $nDiffs
   if {$nDiffs <= [.wfiles.lb cget -height]} {
-    .wfiles.lb config -height $nDiffs
     grid remove .wfiles.sb
   }
 
@@ -431,7 +551,7 @@ foreach c [cols] {
 ::ttk::scrollbar .sbxB -command {.txtB xview} -orient horizontal
 frame .spacer
 
-if {[readDiffs $fossilcmd] == 0} {
+if {[readDiffs 0] == 0} {
   tk_messageBox -type ok -title $CFG(TITLE) -message "No changes"
   exit
 }
@@ -444,6 +564,8 @@ proc saveDiff {} {
   puts $out "#!/usr/bin/tclsh\n#\n# Run this script using 'tclsh' or 'wish'"
   puts $out "# to see the graphical diff.\n#"
   puts $out "set fossilcmd {}"
+  puts $out "set darkmode $::darkmode"
+  puts $out "set debug $::debug"
   puts $out "set prog [list $::prog]"
   puts $out "set difftxt \173"
   foreach e $::difftxt {puts $out [list $e]}
@@ -546,10 +668,15 @@ proc searchStep {direction incr start stop} {
   set ::search $w
 }
 ::ttk::button .bb.quit -text {Quit} -command exit
+::ttk::button .bb.reload -text {Reload} -command reloadDiff
 ::ttk::button .bb.invert -text {Invert} -command invertDiff
 ::ttk::button .bb.save -text {Save As...} -command saveDiff
 ::ttk::button .bb.search -text {Search} -command searchOnOff
-pack .bb.quit .bb.invert -side left
+pack .bb.quit -side left
+if {$fossilcmd ne ""} {
+  pack .bb.reload -side left
+}
+pack .bb.invert -side left
 if {$fossilcmd!=""} {pack .bb.save -side left}
 pack .bb.files .bb.search -side left
 grid rowconfigure . 1 -weight 1
@@ -563,6 +690,18 @@ grid .spacer -row 2 -column 2
 grid .sbxB -row 2 -column 3 -columnspan 2 -sticky ew
 
 .spacer config -height [winfo height .sbxA]
+
+set h [winfo screenheight .]
+if {$h > 1280} {
+  set w [winfo screenwidth .]; # [winfo width] == 32
+  if {$w > 2048} {
+    set w 2048
+  }
+  set g [expr {$w / 3 * 2}]x[expr {$h / 4 * 3}]
+  wm geometry . $g
+}
+
 wm deiconify .
+
 }
 eval $prog

@@ -52,9 +52,8 @@ static void collect_argv(Blob *pExtra, int iStart){
   }
 }
 
-
 /*
-** COMMAND: all
+** COMMAND: all               abbrv-subcom
 **
 ** Usage: %fossil all SUBCOMMAND ...
 **
@@ -120,7 +119,7 @@ static void collect_argv(Blob *pExtra, int iStart){
 **    sync        Run a "sync" on all repositories.  Only the --verbose
 **                and --unversioned and --share-links options are supported.
 **
-**    set         Run the "setting" or "set" commands on all repositories.
+**    set[tings]  Run the "settings" command on all repositories.
 **                This command is useful for settings like "max-loadavg" which
 **                you usually want to be the same across all repositories
 **                on a server.
@@ -160,15 +159,18 @@ static void collect_argv(Blob *pExtra, int iStart){
 ** are added back to the list of repositories by these commands.
 **
 ** Options:
-**   --dry-run         If given, display instead of run actions
+**   --dry-run         Just display commands that would have run
 **   --showfile        Show the repository or check-out being operated upon
 **   --stop-on-error   Halt immediately if any subprocess fails
+**   -s|--stop         Shorthand for "--stop-on-error"
 */
 void all_cmd(void){
   Stmt q;
   const char *zCmd;
-  char *zSyscmd;
+  char *zSyscmd = 0;
   Blob extra;
+  int bHalted = 0;
+  int rc = 0;
   int useCheckouts = 0;
   int quiet = 0;
   int dryRunFlag = 0;
@@ -179,6 +181,7 @@ void all_cmd(void){
 
   (void)find_option("dontstop",0,0);   /* Legacy.  Now the default */
   stopOnError = find_option("stop-on-error",0,0)!=0;
+  if( find_option("stop","s",0)!=0 ) stopOnError = 1;
   dryRunFlag = find_option("dry-run","n",0)!=0;
   if( !dryRunFlag ){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
@@ -315,8 +318,11 @@ void all_cmd(void){
     }
   }else if( fossil_strcmp(zCmd, "repack")==0 ){
     zCmd = "repack";
-  }else if( fossil_strcmp(zCmd, "setting")==0 ){
-    zCmd = "setting -R";
+  }else if( fossil_strcmp(zCmd, "set")==0
+            || fossil_strcmp(zCmd, "setting")==0
+            || fossil_strcmp(zCmd, "settings")==0 ){
+    zCmd = "settings -R";
+    collect_argument(&extra, "changed", 0);
     collect_argv(&extra, 3);
   }else if( fossil_strcmp(zCmd, "unset")==0 ){
     zCmd = "unset -R";
@@ -330,6 +336,8 @@ void all_cmd(void){
     collect_argument(&extra, "verbose","v");
     collect_argument(&extra, "unversioned","u");
     collect_argument(&extra, "all",0);
+    collect_argument(&extra, "quiet","q");
+    collect_argument(&extra, "ping",0);
   }else if( fossil_strcmp(zCmd, "test-integrity")==0 ){
     collect_argument(&extra, "db-only", "d");
     collect_argument(&extra, "parse", 0);
@@ -426,14 +434,30 @@ void all_cmd(void){
     fossil_fatal("\"all\" subcommand should be one of: "
       "add cache changes clean dbstat extras fts-config git ignore "
       "info list ls pull push rebuild remote "
-      "server setting sync ui unset whatis");
+      "server settings sync ui unset whatis");
   }
   verify_all_options();
-  db_multi_exec("CREATE TEMP TABLE repolist(name,tag);");
+  db_multi_exec(
+     "CREATE TEMP TABLE repolist(\n"
+     "  name TEXT, -- Filename\n"
+     "  tag TEXT,  -- Key for the GLOBAL_CONFIG table entry\n"
+     "  inode TEXT -- Unique identifier for this file\n"
+     ");\n"
+
+     /* The seenFile() table holds inode names for entries that have
+     ** already been processed.  */
+     "CREATE TEMP TABLE seenFile(x TEXT COLLATE nocase);\n"
+
+     /* The toDel() table holds the "tag" for entries that need to be
+     ** deleted because they are redundant or no longer exist */
+     "CREATE TEMP TABLE toDel(x TEXT);\n"
+  );
+  sqlite3_create_function(g.db, "inode", 1, SQLITE_UTF8, 0,
+                          file_inode_sql_func, 0, 0);
   if( useCheckouts ){
     db_multi_exec(
        "INSERT INTO repolist "
-       "SELECT DISTINCT substr(name, 7), name COLLATE nocase"
+       "SELECT substr(name, 7), name, inode(substr(name,7))"
        "  FROM global_config"
        " WHERE substr(name, 1, 6)=='ckout:'"
        " ORDER BY 1"
@@ -441,28 +465,29 @@ void all_cmd(void){
   }else{
     db_multi_exec(
        "INSERT INTO repolist "
-       "SELECT DISTINCT substr(name, 6), name COLLATE nocase"
+       "SELECT substr(name, 6), name, inode(substr(name,6))"
        "  FROM global_config"
        " WHERE substr(name, 1, 5)=='repo:'"
        " ORDER BY 1"
     );
   }
-  db_multi_exec("CREATE TEMP TABLE toDel(x TEXT)");
-  db_prepare(&q, "SELECT name, tag FROM repolist ORDER BY 1");
+  db_prepare(&q,"SELECT name, tag, inode FROM repolist ORDER BY 1");
   while( db_step(&q)==SQLITE_ROW ){
-    int rc;
     const char *zFilename = db_column_text(&q, 0);
+    const char *zInode = db_column_text(&q,2);
 #if !USE_SEE
     if( sqlite3_strglob("*.efossil", zFilename)==0 ) continue;
 #endif
     if( file_access(zFilename, F_OK)
      || !file_is_canonical(zFilename)
      || (useCheckouts && file_isdir(zFilename, ExtFILE)!=1)
+     || db_exists("SELECT 1 FROM temp.seenFile where x=%Q", zInode)
     ){
       db_multi_exec("INSERT INTO toDel VALUES(%Q)", db_column_text(&q, 1));
       nToDel++;
       continue;
     }
+    db_multi_exec("INSERT INTO seenFile(x) VALUES(%Q)", zInode);
     if( zCmd[0]=='l' ){
       fossil_print("%s\n", zFilename);
       continue;
@@ -484,14 +509,17 @@ void all_cmd(void){
       fflush(stdout);
     }
     rc = dryRunFlag ? 0 : fossil_system(zSyscmd);
-    free(zSyscmd);
     if( rc ){
-      if( stopOnError ) break;
+      if( stopOnError ){
+        bHalted = 1;
+        break;
+      }
       /* If there is an error, pause briefly, but do not stop.  The brief
       ** pause is so that if the prior command failed with Ctrl-C then there
       ** will be time to stop the whole thing with a second Ctrl-C. */
       sqlite3_sleep(330);
     }
+    fossil_free(zSyscmd);
   }
   db_finalize(&q);
 
@@ -510,4 +538,9 @@ void all_cmd(void){
       db_protect_pop();
     }
   }
+
+  if( stopOnError && bHalted ){
+    fossil_fatal("STOPPED: non-zero result code (%d) from\nSTOPPED: %s",
+                     rc, zSyscmd);
+  }    
 }

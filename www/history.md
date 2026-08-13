@@ -18,7 +18,7 @@ is still the top committer to Fossil, but there are also
 
 ## History
 
-The SQLite project start out using [CVS][300], as CVS was the most
+The SQLite project started out using [CVS][300], as CVS was the most
 commonly used version control system in that era (circa 2000).  CVS
 was an amazing version control system for its day in that it allowed
 multiple developers to be editing the same file at the same time.

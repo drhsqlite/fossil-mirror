@@ -70,7 +70,7 @@ pushing one repo’s project config up to another, for example.
 A repo’s URL aliases, [interwiki configuration](./interwiki.md), and
 [ticket customizations](./custom_tcket.wiki) also do not normally sync.
 
-[cfg]: /help?cmd=configuration
+[cfg]: /help/configuration
 
 
 
@@ -291,7 +291,7 @@ the `--no-repository` flag, which suppresses this behavior. Doing it
 this way saves you from needing to go and build a matching version of
 `sqlite3` just to restore the backup.
 
-[bu]:    /help?cmd=backup
+[bu]:    /help/backup
 [grcp]:  https://www.grc.com/passwords.htm
 [hb]:    https://brew.sh
 [hbul]:  https://docs.brew.sh/FAQ#what-does-keg-only-mean

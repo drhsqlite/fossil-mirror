@@ -96,7 +96,7 @@ Notably, the artifact file format <u>does not</u>...
   content. The file format refers to all such content solely by its
   unique hash value.
 
-- Specify any optimimizations such as storing file-level changes as
+- Specify any optimizations such as storing file-level changes as
   deltas between two versions of that content.
 
 Such aspects are all considered to be implementation details of
@@ -133,7 +133,7 @@ SCM-relevant state includes:
 - Raw file content of versioned files. These data are external to
   artifacts, which refer to them by their hashes. How they are stored
   is not the concern of the data model, but (spoiler alert!) Fossil
-  stores in them an sqlite database, one record per distinct hash, in
+  stores them in an SQLite database, one record per distinct hash, in
   its `blob` table (which we will cover more very soon).
 
 Non-SCM-relevant state includes:
@@ -277,7 +277,8 @@ relationships, including the timeline, are *transient*, how can Fossil
 distinguish between the two types of data?
 
 Fossil's artifact format is extremely rigid and is *strictly* enforced
-internally, with zero room provided for leniency. Every artifact which
+internally, with very near zero room provided for leniency (barring a
+small handful of historical compatibility cases). Every artifact which
 is internally created is re-parsed for validity before it is committed
 to the database, making it impossible that Fossil can inject an
 invalid artifact into the repository. Because of the strictness of the

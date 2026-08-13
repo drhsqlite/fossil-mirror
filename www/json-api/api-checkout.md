@@ -9,7 +9,7 @@
 
 **Request:** `/json/status`
 
-This command requires a local checkout and is analog to the "fossil
+This command requires a local checkout and is the analog to the "fossil
 status" command.
 
 **Request Options:** currently none.

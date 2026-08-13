@@ -2,22 +2,100 @@
    diff-related JS APIs for fossil.
 */
 "use strict";
+/* Locate the UI element (if any) into which we can inject some diff-related
+   UI controls. */
+window.fossil.onPageLoad(function(){
+  const potentialParents = window.fossil.page.diffControlContainers = [
+    /* CSS selectors for possible parents for injected diff-related UI
+       controls. */
+    /* Put the most likely pages at the end, as array.pop() is more
+       efficient than array.shift() (see loop below). */
+    /* /filedit */ 'body.cpage-fileedit #fileedit-tab-diff-buttons',
+    /* /wikiedit */ 'body.cpage-wikiedit #wikiedit-tab-diff-buttons',
+    /* /fdiff */ 'body.fdiff form div.submenu',
+    /* /vdiff */ 'body.vdiff form div.submenu',
+    /* /info, /vinfo, /ckout */ 'body.vinfo div.sectionmenu.info-changes-menu'
+  ];
+  window.fossil.page.diffControlContainer = undefined;
+  while( potentialParents.length ){
+    if( (window.fossil.page.diffControlContainer
+         = document.querySelector(potentialParents.pop())) ){
+      break;
+    }
+  }
+});
+
 window.fossil.onPageLoad(function(){
   /**
      Adds toggle checkboxes to each file entry in the diff views for
      /info and similar pages.
   */
+  if( !window.fossil.page.diffControlContainer ){
+    return;
+  }
   const D = window.fossil.dom;
+  const allToggles = [/*collection of all diff-toggle checkboxes*/];
+  let checkedCount =
+      0 /* When showing more than one diff, keep track of how many
+           "show/hide" checkboxes are checked so we can update the
+           "show/hide all" label dynamically. */;
+  let btnAll /* UI control to show/hide all diffs */;
+  /* Install a diff-toggle button for the given diff table element. */
   const addToggle = function(diffElem){
     const sib = diffElem.previousElementSibling,
-          btn = sib ? D.addClass(D.checkbox(true), 'diff-toggle') : 0;
+          ckbox = sib ? D.addClass(D.checkbox(true), 'diff-toggle') : 0;
     if(!sib) return;
-    D.append(sib,btn);
-    btn.addEventListener('click', function(){
-      diffElem.classList.toggle('hidden');
+    const lblToggle = D.label();
+    D.append(lblToggle, ckbox, D.text(" show/hide "));
+    allToggles.push(ckbox);
+    ++checkedCount;
+    /* Make all of the available empty space a click zone for the checkbox */
+    lblToggle.style.flexGrow = 1;
+    lblToggle.style.textAlign = 'right';
+    D.append(sib, lblToggle);
+    ckbox.addEventListener('change', function(){
+      diffElem.classList[this.checked ? 'remove' : 'add']('hidden');
+      if(btnAll){
+        checkedCount += (this.checked ? 1 : -1);
+        btnAll.innerText = (checkedCount < allToggles.length)
+          ? "Show diffs" : "Hide diffs";
+      }
+    }, false);
+    /* Extend the toggle click zone to all of the non-hyperlink
+       elements in the left of this area (filenames and hashes). */
+    sib.firstElementChild.addEventListener('click', (event)=>{
+      if( event.target===sib.firstElementChild ){
+        /* Don't respond to clicks bubbling via hyperlink children */
+        ckbox.click();;
+      }
     }, false);
   };
-  document.querySelectorAll('table.diff').forEach(addToggle);
+  if( !document.querySelector('body.fdiff') ){
+    /* Don't show the diff toggle button for /fdiff because it only
+       has a single file to show (and also a different DOM layout). */
+    document.querySelectorAll('table.diff').forEach(addToggle);
+  }
+  /**
+     Set up a "toggle all diffs" button which toggles all of the
+     above-installed checkboxes, but only if more than one diff is
+     rendered.
+  */
+  const icm = allToggles.length>1 ? window.fossil.page.diffControlContainer : 0;
+  if(icm) {
+    btnAll = D.addClass(D.a("#", "Hide diffs"), "button");
+    D.append( icm, btnAll );
+    btnAll.addEventListener('click', function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+      const show = checkedCount < allToggles.length;
+      for( const ckbox of allToggles ){
+        /* Toggle all entries to match this new state. We use click()
+           instead of ckbox.checked=... so that the on-change event handler
+           fires. */
+        if(ckbox.checked!==show) ckbox.click();
+      }
+    }, false);
+  }
 });
 
 window.fossil.onPageLoad(function(){
@@ -30,7 +108,7 @@ window.fossil.onPageLoad(function(){
         /*per /chat discussion*/
       ) || 20,
       chunkFetch: {
-        /* Default callack handlers for Diff.fetchArtifactChunk(),
+        /* Default callback handlers for Diff.fetchArtifactChunk(),
            unless overridden by options passeed to that function. */
         beforesend: function(){},
         aftersend: function(){},
@@ -108,7 +186,7 @@ window.fossil.onPageLoad(function(){
     const m = f.rx[getStart ? 'start' : 'end'].exec(td.innerText);
     return m ? +m[1] : undefined/*"shouldn't happen"*/;
   };
-  
+
   /**
      Installs chunk-loading controls into TR.diffskip element tr.
      Each instance corresponds to a single TR.diffskip element.
@@ -292,7 +370,7 @@ window.fossil.onPageLoad(function(){
     },
 
     /**
-       Callack for /jchunk responses.
+       Callback for /jchunk responses.
     */
     injectResponse: function f(fetchType/*as for fetchChunk()*/,
                                urlParam/*from fetchChunk()*/,
@@ -402,7 +480,6 @@ window.fossil.onPageLoad(function(){
         }
         td.innerHTML = content.join('');
         if(joinTr) D.remove(joinTr);
-        Diff.checkTableWidth(true);
         this.destroy();
         return this;
       }else if(this.FetchType.PrevDown===fetchType){
@@ -431,7 +508,6 @@ window.fossil.onPageLoad(function(){
           this.maybeReplaceButtons();
           this.updatePosDebug();
         }
-        Diff.checkTableWidth(true);
         return this;
       }else if(this.FetchType.NextUp===fetchType){
         /* Prepend content to next TR. */
@@ -460,7 +536,6 @@ window.fossil.onPageLoad(function(){
           this.maybeReplaceButtons();
           this.updatePosDebug();
         }
-        Diff.checkTableWidth(true);
         return this;
       }else{
         throw new Error("Unexpected 'fetchType' value.");
@@ -625,86 +700,80 @@ window.fossil.onPageLoad(function(){
   };
   Diff.setupDiffContextLoad();
 });
-
-/* Refinements to the display of unified and side-by-side diffs.
-**
-** In all cases, the table columns tagged with "difftxt" are expanded,
-** where possible, to fill the width of the screen.
-**
-** For a side-by-side diff, if either column is two wide to fit on the
-** display, scrollbars are added.  The scrollbars are linked, so that
-** both sides scroll together.  Left and right arrows also scroll.
+/*
+** For a side-by-side diff, ensure that horizontal scrolling of either
+** side of the diff is synchronized with the other side.
 */
 window.fossil.onPageLoad(function(){
-  const SCROLL_LEN = 25;
   const F = window.fossil, D = F.dom, Diff = F.diff;
-  var lastWidth;
-  Diff.checkTableWidth = function f(force){
-    if(undefined === f.contentNode){
-      f.contentNode = document.querySelector('div.content');
-    }
-    force = true;
-    const parentCS = window.getComputedStyle(f.contentNode);
-    const parentWidth = (
-      //document.body.clientWidth;
-      //parentCS.width;
-      f.contentNode.clientWidth
-        - parseFloat(parentCS.marginLeft) - parseFloat(parentCS.marginRight)
-    );
-    if( !force && parentWidth===lastWidth ) return this;
-    lastWidth = parentWidth;
-    let w = lastWidth*0.5 - 100;
-    //console.debug( "w = ",w,", lastWidth =",lastWidth," body = ",document.body.clientWidth);
-    if(force || !f.colsL){
-      f.colsL = document.querySelectorAll('td.difftxtl pre');
-    }
-    f.colsL.forEach(function(e){
-      e.style.width = w + "px";
-      e.style.maxWidth = w + "px";
-    });
-    if(force || !f.colsR){
-      f.colsR = document.querySelectorAll('td.difftxtr pre');
-    }
-    f.colsR.forEach(function(e){
-      e.style.width = w + "px";
-      e.style.maxWidth = w + "px";
-    });
-    if(force || !f.colsU){
-      f.colsU = document.querySelectorAll('td.difftxtu pre');
-    }
-    f.colsU.forEach(function(e){
-      w = lastWidth - 3; // Outer border
-      var k = e.parentElement/*TD*/;
-      while(k = k.previousElementSibling/*TD*/) w -= k.scrollWidth;
-      e.style.width = w + "px";
-      e.style.maxWidth = w + "px";
-    });
-    if(0){ // seems to be unnecessary
-      if(!f.allDiffs){
-        f.allDiffs = document.querySelectorAll('table.diff');
-      }
-      w = lastWidth;
-      f.allDiffs.forEach(function f(e){
-        if(0 && !f.$){
-          f.$ = e.getClientRects()[0];
-          console.debug("diff table w =",w," f.$x",f.$);
-          w - 2*f.$.x /* left margin (assume right==left, for simplicity) */;
-        }
-        e.style.maxWidth = w + "px";
-      });
-      //console.debug("checkTableWidth(",force,") lastWidth =",lastWidth);
-    }
-    return this;
-  };
 
+  /* Look for a parent element to hold the sbs-sync-scroll toggle
+     checkbox.  This differs per page. If we don't find one, simply
+     elide that toggle and use whatever preference the user last
+     specified (defaulting to on). */
+  let cbSync /* scroll-sync checkbox */;
+  let eToggleParent = /* element to put the sync-scroll checkbox in */
+      document.querySelector('table.diff.splitdiff')
+      ? window.fossil.page.diffControlContainer
+      : undefined;
+  const keySbsScroll = 'sync-diff-scroll' /* F.storage key for persistent user preference */;
+  if( eToggleParent ){
+    /* Add a checkbox to toggle sbs scroll sync. Remember that in
+       order to be UI-consistent in the /vdiff page we have to ensure
+       that the checkbox is to the LEFT of its label. We store the
+       sync-scroll preference in F.storage (not a cookie) so that it
+       persists across page loads and different apps. */
+    cbSync = D.checkbox(keySbsScroll, F.storage.getBool(keySbsScroll,true));
+    D.append(eToggleParent, D.append(
+      D.addClass(D.create('span'), 'input-with-label'),
+      D.append(D.create('label'),
+               cbSync, "Scroll Sync")
+    ));
+    cbSync.addEventListener('change', function(e){
+      F.storage.set(keySbsScroll, e.target.checked);
+    });
+  }
+  const useSync = cbSync ? ()=>cbSync.checked : ()=>F.storage.getBool(keySbsScroll,true);
+
+  /* Now set up the events to enable syncronized scrolling... */
   const scrollLeft = function(event){
-    //console.debug("scrollLeft",this,event);
     const table = this.parentElement/*TD*/.parentElement/*TR*/.
       parentElement/*TBODY*/.parentElement/*TABLE*/;
-    table.$txtPres.forEach((e)=>(e===this) ? 1 : (e.scrollLeft = this.scrollLeft));
+    if( useSync() ){
+      table.$txtPres.forEach((e)=>(e===this) ? 1 : (e.scrollLeft = this.scrollLeft));
+    }
     return false;
   };
-  Diff.initTableDiff = function f(diff, unifiedDiffs){
+  const SCROLL_LEN = 64/* pixels to scroll for keyboard events */;
+  const keycodes = Object.assign(Object.create(null),{
+    37/*cursor left*/: -SCROLL_LEN, 39/*cursor right*/: SCROLL_LEN
+  });
+  /** keydown handler for a diff element */
+  const handleDiffKeydown = function(e){
+    const len = keycodes[e.keyCode];
+    if( !len ) return false;
+    if( useSync() ){
+      this.$txtPres[0].scrollLeft += len;
+    }else if( this.$preCurrent ){
+      this.$preCurrent.scrollLeft += len;
+    }
+    return false;
+  };
+  /**
+     Sets up synchronized scrolling of table.splitdiff element
+     `diff`. If passed no argument, it scans the dom for elements to
+     initialize. The second argument is for this function's own
+     internal use.
+
+     It's okay (but wasteful) to pass the same element to this
+     function multiple times: it will only be set up for sync
+     scrolling the first time it's passed to this function.
+
+     Note that this setup is ignorant of the cbSync toggle: the toggle
+     is checked when scrolling, not when initializing the sync-scroll
+     capability.
+  */
+  const initTableDiff = function f(diff, unifiedDiffs){
     if(!diff){
       let i, diffs;
       diffs = document.querySelectorAll('table.splitdiff');
@@ -719,43 +788,30 @@ window.fossil.onPageLoad(function(){
     }
     diff.$txtCols = diff.querySelectorAll('td.difftxt');
     diff.$txtPres = diff.querySelectorAll('td.difftxt pre');
-    var width = 0;
-    diff.$txtPres.forEach(function(e){
-      if(width < e.scrollWidth) width = e.scrollWidth;
-    });
-    //console.debug("diff.$txtPres =",diff.$txtPres);
-    diff.$txtCols.forEach((e)=>e.style.width = width + 'px');
-    diff.$txtPres.forEach(function(e){
-      e.style.maxWidth = width + 'px';
-      e.style.width = width + 'px';
-      if(!unifiedDiffs && !e.classList.contains('scroller')){
-        D.addClass(e, 'scroller');
-        e.addEventListener('scroll', scrollLeft, false);
-      }
-    });
     if(!unifiedDiffs){
+      diff.$txtPres.forEach(function(e){
+        if(!e.classList.contains('scroller')){
+          D.addClass(e, 'scroller');
+          e.addEventListener('scroll', scrollLeft, false);
+        }
+      });
       diff.tabIndex = 0;
       if(!diff.classList.contains('scroller')){
+        /* Keyboard-based scrolling requires special-case handling to
+           ensure that we scroll the proper side of the diff when sync
+           is off. */
         D.addClass(diff, 'scroller');
-        diff.addEventListener('keydown', function(e){
-          e = e || event;
-          const len = {37: -SCROLL_LEN, 39: SCROLL_LEN}[e.keyCode];
-          if( !len ) return;
-          this.$txtPres[0].scrollLeft += len;
-          /* ^^^ bug: if there is a 2nd column and it has a scrollbar
-             but txtPres[0] does not, no scrolling happens here. We need
-             to find the widest of txtPres and scroll that one. Example:
-             Checkin a7fbefee38a1c522 file diff.c */
-          return false;
-        }, false);
+        diff.addEventListener('keydown', handleDiffKeydown, false);
+        const handleLRClick = function(ev){
+          diff.$preCurrent = this /* NOT ev.target, which is probably a child element */;
+        };
+        diff.$txtPres.forEach((e)=>e.addEventListener('click', handleLRClick, false));
       }
     }
     return this;
   }
   window.fossil.page.tweakSbsDiffs = function(){
-    document.querySelectorAll('table.splitdiff').forEach((e)=>Diff.initTableDiff(e));
-    Diff.checkTableWidth();
+    document.querySelectorAll('table.splitdiff').forEach((e)=>initTableDiff(e));
   };
-  Diff.initTableDiff().checkTableWidth();
-  window.addEventListener('resize', F.debounce(()=>Diff.checkTableWidth()));
+  initTableDiff();
 }, false);

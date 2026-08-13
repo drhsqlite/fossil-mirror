@@ -10,6 +10,8 @@
 /*#include <stdint.h> C99: fixed-size int types. */
 #include <stdio.h> /* FILE decl */
 
+#include <stdarg.h>
+
 /** @page page_cson cson JSON API
 
 cson (pronounced "season") is an object-oriented C API for generating
@@ -21,9 +23,9 @@ fetch/emit JSON data, allowing clients to easily plug in their own
 implementations. Implementations are provided for string- and
 FILE-based i/o.
 
-Project home page: http://fossil.wanderinghorse.net/repos/cson
+Project home page: https://fossil.wanderinghorse.net/r/cson
 
-Author: Stephan Beal (http://www.wanderinghorse.net/home/stephan/)
+Author: Stephan Beal (https://www.wanderinghorse.net/home/stephan/)
 
 License: Dual Public Domain/MIT
 
@@ -33,8 +35,6 @@ The full license text is at the bottom of the main header file
 Examples of how to use the library are scattered throughout
 the API documentation, in the test.c file in the source repo,
 and in the wiki on the project's home page.
-
-
 */
 
 #if defined(__cplusplus)
@@ -298,6 +298,10 @@ typedef struct cson_value cson_value;
 
 /** @var cson_rc
 
+   Deprecated: clients are encouraged to use the CSON_RC_xxx values
+   which correspond to cson_rc.xxx, as those are more efficient.  Some
+   docs and code may still refer to cson_rc, though.
+
    This object defines the error codes used by cson.
 
    Library routines which return int values almost always return a
@@ -317,10 +321,102 @@ typedef struct cson_value cson_value;
    else if( cson_rc.AllocError == rc ) { ... allocation error ... }
    ...
    @endcode
+
+   Or with the preferred/newer method:
+
+   @code
+   int rc = cson_some_func(...);
+   switch(rc){
+     case 0: ...success...;
+     case CSON_RC_ArgError: ... some argument was wrong ...
+     case CSON_RC_AllocError: ... allocation error ...
+     ...
+   }
+   @endcode
    
    The entries named Parse_XXX are generally only returned by
    cson_parse() and friends.
+
+   @deprecated
 */
+
+/**
+   The CSON_RC_xxx values are intended to replace the older
+   cson_rc.xxx values.
+*/
+enum cson_rc_values {
+  /** The generic success value. Guaranteed to be 0. */
+ CSON_RC_OK = 0,
+ /** Signifies an error in one or more arguments (e.g. NULL where it is not allowed). */
+ CSON_RC_ArgError,
+ /** Signifies that some argument is not in a valid range. */
+ CSON_RC_RangeError,
+ /** Signifies that some argument is not of the correct logical cson type. */
+ CSON_RC_TypeError,
+ /** Signifies an input/ouput error. */
+ CSON_RC_IOError,
+ /** Signifies an out-of-memory error. */
+ CSON_RC_AllocError,
+ /** Signifies that the called code is "NYI" (Not Yet Implemented). */
+ CSON_RC_NYIError,
+ /** Signifies that an internal error was triggered. If it happens, please report this as a bug! */
+ CSON_RC_InternalError,
+ /** Signifies that the called operation is not supported in the
+     current environment. e.g.  missing support from 3rd-party or
+     platform-specific code.
+ */
+ CSON_RC_UnsupportedError,
+ /**
+    Signifies that the request resource could not be found.
+ */
+ CSON_RC_NotFoundError,
+ /**
+    Signifies an unknown error, possibly because an underlying
+    3rd-party API produced an error and we have no other reasonable
+    error code to convert it to.
+ */
+ CSON_RC_UnknownError,
+ /**
+    Signifies that the parser found an unexpected character.
+ */
+ CSON_RC_Parse_INVALID_CHAR,
+ /**
+    Signifies that the parser found an invalid keyword (possibly
+    an unquoted string).
+ */
+ CSON_RC_Parse_INVALID_KEYWORD,
+ /**
+    Signifies that the parser found an invalid escape sequence.
+ */
+ CSON_RC_Parse_INVALID_ESCAPE_SEQUENCE,
+ /**
+    Signifies that the parser found an invalid Unicode character
+    sequence.
+ */
+ CSON_RC_Parse_INVALID_UNICODE_SEQUENCE,
+ /**
+    Signifies that the parser found an invalid numeric token.
+ */
+ CSON_RC_Parse_INVALID_NUMBER,
+ /**
+    Signifies that the parser reached its maximum defined
+    parsing depth before finishing the input.
+ */
+ CSON_RC_Parse_NESTING_DEPTH_REACHED,
+ /**
+    Signifies that the parser found an unclosed object or array.
+ */
+ CSON_RC_Parse_UNBALANCED_COLLECTION,
+ /**
+    Signifies that the parser found an key in an unexpected place.
+ */
+ CSON_RC_Parse_EXPECTED_KEY,
+ /**
+    Signifies that the parser expected to find a colon but
+    found none (e.g. between keys and values in an object).
+ */
+ CSON_RC_Parse_EXPECTED_COLON
+};
 
 /** @struct cson_rc_
    See \ref cson_rc for details.
@@ -399,26 +495,26 @@ static const struct cson_rc_
      */
     const int Parse_EXPECTED_COLON;
 } cson_rc = {
-0/*OK*/,
-1/*ArgError*/,
-2/*RangeError*/,
-3/*TypeError*/,
-4/*IOError*/,
-5/*AllocError*/,
-6/*NYIError*/,
-7/*InternalError*/,
-8/*UnsupportedError*/,
-9/*NotFoundError*/,
-10/*UnknownError*/,
-11/*Parse_INVALID_CHAR*/,
-12/*Parse_INVALID_KEYWORD*/,
-13/*Parse_INVALID_ESCAPE_SEQUENCE*/,
-14/*Parse_INVALID_UNICODE_SEQUENCE*/,
-15/*Parse_INVALID_NUMBER*/,
-16/*Parse_NESTING_DEPTH_REACHED*/,
-17/*Parse_UNBALANCED_COLLECTION*/,
-18/*Parse_EXPECTED_KEY*/,
-19/*Parse_EXPECTED_COLON*/
+    CSON_RC_OK,
+    CSON_RC_ArgError,
+    CSON_RC_RangeError,
+    CSON_RC_TypeError,
+    CSON_RC_IOError,
+    CSON_RC_AllocError,
+    CSON_RC_NYIError,
+    CSON_RC_InternalError,
+    CSON_RC_UnsupportedError,
+    CSON_RC_NotFoundError,
+    CSON_RC_UnknownError,
+    CSON_RC_Parse_INVALID_CHAR,
+    CSON_RC_Parse_INVALID_KEYWORD,
+    CSON_RC_Parse_INVALID_ESCAPE_SEQUENCE,
+    CSON_RC_Parse_INVALID_UNICODE_SEQUENCE,
+    CSON_RC_Parse_INVALID_NUMBER,
+    CSON_RC_Parse_NESTING_DEPTH_REACHED,
+    CSON_RC_Parse_UNBALANCED_COLLECTION,
+    CSON_RC_Parse_EXPECTED_KEY,
+    CSON_RC_Parse_EXPECTED_COLON
 };
 
 /**
@@ -673,8 +769,8 @@ typedef int (*cson_data_dest_f)( void * state, void const * src, unsigned int n 
     
     Non-parse error conditions include:
 
-    - (!tgt) or !src: cson_rc.ArgError
-    - cson_rc.AllocError can happen at any time during the input phase
+    - (!tgt) or !src: CSON_RC_ArgError
+    - CSON_RC_AllocError can happen at any time during the input phase
 
     Here's a complete example of using a custom input source:
 
@@ -694,8 +790,8 @@ typedef int (*cson_data_dest_f)( void * state, void const * src, unsigned int n 
         StringSource * ss = (StringSource*) state;
         unsigned int i;
         unsigned char * tgt = (unsigned char *)dest;
-        if( ! ss || ! n || !dest ) return cson_rc.ArgError;
-        else if( !*n ) return cson_rc.RangeError;
+        if( ! ss || ! n || !dest ) return CSON_RC_ArgError;
+        else if( !*n ) return CSON_RC_RangeError;
         for( i = 0;
              (i < *n) && (ss->pos < ss->end);
              ++i, ++ss->pos, ++tgt )
@@ -750,7 +846,7 @@ int cson_parse_FILE( cson_value ** tgt, FILE * src,
 /**
    Convenience wrapper around cson_parse_FILE() which opens the given filename.
 
-   Returns cson_rc.IOError if the file cannot be opened.
+   Returns CSON_RC_IOError if the file cannot be opened.
 
    @see cson_parse_FILE()
 */
@@ -765,7 +861,7 @@ int cson_parse_filename( cson_value ** tgt, char const * src,
    and the parser will attempt to parse exactly len bytes from src.
 
    If len is less than 2 (the minimum length of a legal top-node JSON
-   object) then cson_rc.RangeError is returned.
+   object) then CSON_RC_RangeError is returned.
 */
 int cson_parse_string( cson_value ** tgt, char const * src, unsigned int len,
                        cson_parse_opt const * opt, cson_parse_info * info );
@@ -781,7 +877,7 @@ int cson_parse_string( cson_value ** tgt, char const * src, unsigned int len,
    cson_output_opt_empty) are used.
 
    If opt->maxDepth is exceeded while traversing the value tree,
-   cson_rc.RangeError is returned.
+   CSON_RC_RangeError is returned.
 
    The destState parameter is ignored by this function and is passed
    on to the dest function.
@@ -818,7 +914,7 @@ int cson_data_dest_FILE( void * state, void const * src, unsigned int n );
 int cson_output_FILE( cson_value const * src, FILE * dest, cson_output_opt const * opt );
 /**
    Convenience wrapper around cson_output_FILE() which writes to the given filename, destroying
-   any existing contents. Returns cson_rc.IOError if the file cannot be opened.
+   any existing contents. Returns CSON_RC_IOError if the file cannot be opened.
 
    @see cson_output_FILE()
 */
@@ -949,7 +1045,7 @@ int cson_value_fetch_bool( cson_value const * val, char * v );
    NULL, null, undefined: *v is set to 0 and 0 is returned.
    
    string, object, array: *v is set to 0 and
-   cson_rc.TypeError is returned. The error may normally be safely
+   CSON_RC_TypeError is returned. The error may normally be safely
    ignored, but it is provided for those wanted to know whether a direct
    conversion was possible.
 
@@ -1180,15 +1276,15 @@ cson_value * cson_array_get( cson_array const * ar, unsigned int pos );
 
    Returns 0 on success, or non-zero on error:
 
-   - If ar is NULL: cson_rc.ArgError
+   - If ar is NULL: CSON_RC_ArgError
 
-   - If allocation fails: cson_rc.AllocError
+   - If allocation fails: CSON_RC_AllocError
 */
 int cson_array_reserve( cson_array * ar, unsigned int size );
 
 /**
    If ar is not NULL, sets *v (if v is not NULL) to the length of the array
-   and returns 0. Returns cson_rc.ArgError if ar is NULL.
+   and returns 0. Returns CSON_RC_ArgError if ar is NULL.
 */
 int cson_array_length_fetch( cson_array const * ar, unsigned int * v );
 
@@ -1245,12 +1341,12 @@ int cson_array_set( cson_array * ar, unsigned int ndx, cson_value * v );
    
    Returns 0 on success, non-zero on error. Error cases include:
 
-   - ar or v are NULL: cson_rc.ArgError
+   - ar or v are NULL: CSON_RC_ArgError
 
-   - Array cannot be expanded to hold enough elements: cson_rc.AllocError.
+   - Array cannot be expanded to hold enough elements: CSON_RC_AllocError.
 
    - Appending would cause a numeric overlow in the array's size:
-   cson_rc.RangeError.  (However, you'll get an AllocError long before
+   CSON_RC_RangeError.  (However, you'll get an AllocError long before
    that happens!)
 
    On error ownership of v is NOT modified, and the caller may still
@@ -1451,9 +1547,9 @@ void cson_free_value(cson_value * v);
    Returns 0 on success, non-0 on error. It has the following error
    cases:
 
-   - cson_rc.ArgError: obj or key are NULL or strlen(key) is 0.
+   - CSON_RC_ArgError: obj or key are NULL or strlen(key) is 0.
 
-   - cson_rc.AllocError: an out-of-memory error
+   - CSON_RC_AllocError: an out-of-memory error
 
    On error ownership of v is NOT modified, and the caller may still
    need to clean it up. For example, the following code will introduce
@@ -1502,10 +1598,10 @@ int cson_object_set_s( cson_object * obj, cson_string * key, cson_value * v );
    Removes a property from an object.
    
    If obj contains the given key, it is removed and 0 is returned. If
-   it is not found, cson_rc.NotFoundError is returned (which can
+   it is not found, CSON_RC_NotFoundError is returned (which can
    normally be ignored by client code).
 
-   cson_rc.ArgError is returned if obj or key are NULL or key has
+   CSON_RC_ArgError is returned if obj or key are NULL or key has
    a length of 0.
 
    Returns 0 if the given key is found and removed.
@@ -1565,23 +1661,23 @@ cson_value * cson_object_take( cson_object * obj, char const * key );
 
     This function searches for the given path, starting at the given object
     and traversing its properties as the path specifies. If a given part of the
-    path is not found, then this function fails with cson_rc.NotFoundError.
+    path is not found, then this function fails with CSON_RC_NotFoundError.
 
     If it finds the given path, it returns the value by assiging *tgt
     to it.  If tgt is NULL then this function has no side-effects but
     will return 0 if the given path is found within the object, so it can be used
     to test for existence without fetching it.
     
-    Returns 0 if it finds an entry, cson_rc.NotFoundError if it finds
+    Returns 0 if it finds an entry, CSON_RC_NotFoundError if it finds
     no item, and any other non-zero error code on a "real" error. Errors include:
 
-   - obj or path are NULL: cson_rc.ArgError
+   - obj or path are NULL: CSON_RC_ArgError
     
     - separator is 0, or path is an empty string or contains only
-    separator characters: cson_rc.RangeError
+    separator characters: CSON_RC_RangeError
 
     - There is an upper limit on how long a single path component may
-    be (some "reasonable" internal size), and cson_rc.RangeError is
+    be (some "reasonable" internal size), and CSON_RC_RangeError is
     returned if that length is violated.
 
     
@@ -1679,7 +1775,7 @@ enum CSON_MERGE_FLAGS {
 
    Returns 0 on success. The error conditions are:
 
-   - dest or src are NULL or (dest==src) returns cson_rc.ArgError.
+   - dest or src are NULL or (dest==src) returns CSON_RC_ArgError.
 
    - dest or src contain cyclic references - this will likely cause a
    crash due to endless recursion.
@@ -1726,7 +1822,7 @@ extern const cson_object_iterator cson_object_iterator_empty;
 
 /**
    Initializes the given iterator to point at the start of obj's
-   properties. Returns 0 on success or cson_rc.ArgError if !obj
+   properties. Returns 0 on success or CSON_RC_ArgError if !obj
    or !iter.
 
    obj must outlive iter, or results are undefined. Results are also
@@ -1893,9 +1989,9 @@ extern const cson_buffer cson_buffer_empty;
 
    On error non-zero is returned. Errors include:
 
-   - Invalid arguments: cson_rc.ArgError
+   - Invalid arguments: CSON_RC_ArgError
 
-   - Buffer cannot be expanded (runs out of memory): cson_rc.AllocError
+   - Buffer cannot be expanded (runs out of memory): CSON_RC_AllocError
    
    Example usage:
 
@@ -2001,9 +2097,9 @@ cson_size_t cson_buffer_fill( cson_buffer * buf, char c );
 
    Errors include:
 
-   - dest or src are NULL (cson_rc.ArgError)
+   - dest or src are NULL (CSON_RC_ArgError)
 
-   - Allocation error (cson_rc.AllocError)
+   - Allocation error (CSON_RC_AllocError)
 
    - src() returns an error code
 
@@ -2086,8 +2182,8 @@ int cson_buffer_fill_from( cson_buffer * dest, cson_data_source_f src, void * st
    its reference count drops to 0.
 
    Returns 0 on success. The only error conditions are if v is NULL
-   (cson_rc.ArgError) or if the reference increment would overflow
-   (cson_rc.RangeError). In theory a client would get allocation
+   (CSON_RC_ArgError) or if the reference increment would overflow
+   (CSON_RC_RangeError). In theory a client would get allocation
    errors long before the reference count could overflow (assuming
    those reference counts come from container insertions, as opposed
    to via this function).
@@ -2240,7 +2336,7 @@ cson_value * cson_array_value(cson_array const * s);
    recursively if it is a container type, with the following caveats
    and limitations:
 
-   If a given value is reference counted then it is only and multiple
+   If a given value is reference counted and encountered multiple
    times within a traversed container, each reference is counted at
    full cost. We have no way of knowing if a given reference has been
    visited already and whether it should or should not be counted, so
@@ -2320,6 +2416,165 @@ unsigned int cson_value_msize(cson_value const * v);
 int cson_parse_argv_flags( int argc, char const * const * argv,
                            cson_object ** tgt, unsigned int * count );
 
+/**
+    Return values for the cson_pack() and cson_unpack() interfaces.
+*/
+enum cson_pack_retval {
+    /** Signals an out-of-memory error. */
+    CSON_PACK_ALLOC_ERROR = -1,
+    /** Signals a syntax error in the format string. */
+    CSON_PACK_ARG_ERROR = -2,
+    /**
+        Signals an that an internal error has occurred.
+        This indicates a bug in this library.
+    */
+    CSON_PACK_INTERNAL_ERROR = -3,
+    /**
+       Signals that the JSON document does not validate agains the format
+       string passed to cson_unpack().
+    */
+    CSON_PACK_VALIDATION_ERROR = -4
+};
+
+/**
+   Construct arbitrarily complex JSON documents from native C types.
+
+   Create a new object or array and add or merge the passed values and
+   properties to it according to the supplied format string.
+
+   fmt is a format string, it must at least contain an array or object
+   specifier as its root value. Format specifiers start with a percent sign '\%'
+   followed by one or more modifiers and a type character. Object properties
+   are specified as key-value pairs where the key is specified as a string and
+   passed as an argument of const char *. Any space, tab, carriage return, line
+   feed, colon and comma characters between format specifiers are ignored.
+
+   | Type  | Description |
+   | :--:  | :---------- |
+   | s     | creates either a property name or a string value, in case of the former the corresponding argument is a pointer to const char which is a sequence of bytes specifying the name of the property that is to be created, in case of the latter the corresponding argument is a pointer to const char |
+   | d     | creates an integer value, the corresponding argument is an int |
+   | i     | ^ |
+   | f     | creates a floating point value, the corresponding argument is a double |
+   | b     | creates a boolean value, the corresponding argument is an int |
+   | N     | creates a null value |
+   | [...] | creates an array, the corresponding argument is a pointer to a cson_array |
+   | {...} | creates an array, the corresponding argument is a pointer to a cson_object |
+
+   | Modifier | Description |
+   | :------: | :---------- |
+   | l        | specifies that the following d or i specifier applies to an argument which is a pointer to long |
+   | ll       | specifies that the following d or i specifier applies to an argument which is a pointer to cson_int_t |
+
+   | Short Form | Expands to
+   | :--------: | :--------- |
+   | {...}      | %*{...} |
+   | [...]      | %*[...] |
+   | \%D        | \%lld |
+
+
+   Returns 0 on success. The error conditions are:
+
+  - CSON_PACK_ARG_ERROR: fmt contains a syntax error
+
+  - CSON_PACK_ALLOC_ERROR: a memory allocation failed
+
+  - CSON_PACK_INTERNAL_ERROR: an internal error has occurred, this is a bug in
+    cson
+
+  Example:
+  @code
+  cson_value * root_value;
+  cson_array * arr;
+  ...
+  rc = cson_pack( root_value, "{%s: %d, %s: %[]}", "foo", 42, "bar", arr );
+  if( 0 != rc ) {
+    ... error ...
+  }
+  @endcode
+*/
+int cson_pack( cson_value **root_valuep, const char *fmt, ... );
+
+/**
+   Same as cson_pack() except that it takes a va_list instead of a variable
+   number of arguments.
+*/
+int cson_vpack( cson_value **root_valuep, const char *fmt, va_list args );
+
+/**
+   Iterate over the given object or array and convert an arbitrary number of
+   JSON values into their native C types or validates them according to the
+   given format string fmt.
+
+   fmt is a format string, it must at least contain an array or object
+   specifier as its root value. Format specifiers start with a percent sign '\%'
+   followed by one or more modifiers and a type character. Object properties
+   are specified as key-value pairs where the key is specified as a string and
+   passed as an argument of const char *. Any space, tab, carriage return, line
+   feed, colon and comma characters between format specifiers are ignored.
+
+   | Type  | Description |
+   | :--:  | :---------- |
+   | s     | matches a either a property name or a string value, in case of the former the corresponding argument is a pointer to const char which is a sequence of bytes specifying the name of the property that is to be matched, in case of the latter the corresponding argument is a pointer to a pointer to const char unless the 'm' modifier is specified where the the corresponding argument is a pointer to a pointer to char |
+   | d     | matches an integer value and must be used in with the "ll" modifier, the corresponding argument is a pointer to cson_int_t |
+   | i     | ^ |
+   | f     | matches a floating point value, the corresponding argument is a pointer to double |
+   | b     | matches a boolean value, the corresponding argument is a pointer to int |
+   | N     | matches a null value |
+   | [...] | matches an array, the corresponding argument is a pointer to a pointer to a cson_array |
+   | {...} | matches an array, the corresponding argument is a pointer to a pointer to a cson_object |
+
+   | Modifier | Description |
+   | :------: | :---------- |
+   | ?        | specifies that the property reffered to by the given property name is optional |
+   | *        | suppresses assignment, only check for the presence and type of the specified value |
+   | m        | allocates a memory buffer for the extracted string |
+   | ll       | specifies that the following d or i specifier applies to an argument which is a pointer to cson_int_t |
+
+   | Short Form | Expands to
+   | :--------: | :--------- |
+   | {...}      | %*{...} |
+   | [...]      | %*[...] |
+   | \%D        | \%lld |
+
+   Returns 0 on success. The error conditions are:
+
+  - CSON_PACK_ARG_ERROR: fmt contains a syntax error
+
+  - CSON_PACK_ALLOC_ERROR: a memory allocation failed
+
+  - CSON_PACK_VALIDATION_ERROR: validation failed, the JSON document structure
+    differs from that described by the format string
+
+  - CSON_PACK_INTERNAL_ERROR: an internal error has occurred, this
+    indicates a bug in this library.
+
+  Example:
+  @code
+  cson_value * root_value;
+  cson_int_t x = 0;
+  cson_array * arr = NULL;
+  const char *str = NULL;
+  ...
+  rc = cson_unpack( root_value, "{%s: %d, %s: %[], %?s: %s}", "foo", &x, "bar", &arr, "baz", &str );
+  if( rc < 3 && rc >= 0  ) {
+    ... optional property is missing ...
+  } else if ( CSON_PACK_ALLOC_ERROR == rc ) {
+    ... out of memory error ...
+  } else if ( CSON_PACK_VALIDATION_ERROR == rc ) {
+    ... unexpected JSON document structure ...
+  } else if ( rc ) {
+    ... internal error ...
+  }
+  @endcode
+
+*/
+int cson_unpack( cson_value *root_value, const char *fmt, ... );
+
+/**
+   Same as cson_unpack() except that it takes a va_list instead of a variable
+   number of arguments.
+*/
+int cson_vunpack( cson_value *root_value, const char *fmt, va_list args );
 
 /* LICENSE
 
@@ -2418,7 +2673,7 @@ the client eventually link to (or directly embed) the sqlite3 library.
 #endif
 
 #if CSON_ENABLE_SQLITE3 /* we do this here for the sake of the amalgamation build */
-#include <sqlite3.h>
+#include "sqlite3.h"
 
 #if defined(__cplusplus)
 extern "C" {

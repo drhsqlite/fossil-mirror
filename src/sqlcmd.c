@@ -144,6 +144,8 @@ static void sqlcmd_gather_artifact_stats(
 /*
 ** Add the content(), compress(), decompress(), and
 ** gather_artifact_stats() SQL functions to database connection db.
+**
+** Also add whatis().
 */
 int add_content_sql_commands(sqlite3 *db){
   sqlite3_create_function(db, "content", 1, SQLITE_UTF8, 0,
@@ -154,6 +156,8 @@ int add_content_sql_commands(sqlite3 *db){
                           sqlcmd_decompress, 0, 0);
   sqlite3_create_function(db, "gather_artifact_stats", 0, SQLITE_UTF8, 0,
                           sqlcmd_gather_artifact_stats, 0, 0);
+  sqlite3_create_function(db, "whatis", 1, SQLITE_UTF8|SQLITE_RESULT_SUBTYPE, 0,
+                          whatis_sql_function, 0, 0);
   return SQLITE_OK;
 }
 
@@ -170,7 +174,7 @@ int add_content_sql_commands(sqlite3 *db){
 ** method other than the "fossil sql" command.  If an attacker gains access
 ** to these functions, he will be able to disable other defense mechanisms.
 **
-** This routines are for interactiving testing only.  They are experimental
+** This routines are for interactive testing only.  They are experimental
 ** and undocumented (apart from this comments) and might go away or change
 ** in future releases.
 **
@@ -223,8 +227,10 @@ static int sqlcmd_autoinit(
   g.repositoryOpen = 1;
   g.db = db;
   sqlite3_busy_timeout(db, 10000);
-  sqlite3_db_config(db, SQLITE_DBCONFIG_MAINDBNAME, "repository");
-  db_maybe_set_encryption_key(db, g.zRepositoryName);
+  if( g.zRepositoryName ){
+    sqlite3_db_config(db, SQLITE_DBCONFIG_MAINDBNAME, "repository");
+    db_maybe_set_encryption_key(db, g.zRepositoryName);
+  }
   if( g.zLocalDbName ){
     char *zSql = sqlite3_mprintf("ATTACH %Q AS 'localdb' KEY ''",
                                  g.zLocalDbName);
@@ -237,19 +243,22 @@ static int sqlcmd_autoinit(
     sqlite3_exec(db, zSql, 0, 0, 0);
     sqlite3_free(zSql);
   }
+  (void)timeline_query_for_tty();  /* Registers wiki_to_text() as side-effect */
   /* Arrange to trace close operations so that static prepared statements
   ** will get cleaned up when the shell closes the database connection */
   if( g.fSqlTrace ) mTrace |= SQLITE_TRACE_PROFILE;
   sqlite3_trace_v2(db, mTrace, db_sql_trace, 0);
-  db_protect_only(PROTECT_NONE);
-  sqlite3_set_authorizer(db, db_top_authorizer, db);
-  if( local_bSqlCmdTest ){
-    sqlite3_create_function(db, "db_protect", 1, SQLITE_UTF8, 0,
-                            sqlcmd_db_protect, 0, 0);
-    sqlite3_create_function(db, "db_protect_pop", 0, SQLITE_UTF8, 0,
-                            sqlcmd_db_protect_pop, 0, 0);
-    sqlite3_create_function(db, "shared_secret", 2, SQLITE_UTF8, 0,
-                            sha1_shared_secret_sql_function, 0, 0);
+  if( g.zRepositoryName ){
+    db_protect_only(PROTECT_NONE);
+    sqlite3_set_authorizer(db, db_top_authorizer, db);
+    if( local_bSqlCmdTest ){
+      sqlite3_create_function(db, "db_protect", 1, SQLITE_UTF8, 0,
+                              sqlcmd_db_protect, 0, 0);
+      sqlite3_create_function(db, "db_protect_pop", 0, SQLITE_UTF8, 0,
+                              sqlcmd_db_protect_pop, 0, 0);
+      sqlite3_create_function(db, "shared_secret", 2, SQLITE_UTF8, 0,
+                              sha1_shared_secret_sql_function, 0, 0);
+    }
   }
   return SQLITE_OK;
 }
@@ -315,6 +324,54 @@ static void fossil_close(int bDb, int noRepository){
   g.db = 0;
   g.repositoryOpen = 0;
   g.localOpen = 0;
+}
+
+/*
+** This routine overrides some of the prompt generation behavior in the
+** SQLite shell.  Always return a static string.  For invalid inputs,
+** return a zero-length string.  Valid inputs:
+**
+**    1      Default main prompt.
+**    2      Default continuation prompt.
+**    3      Environment variable to override main prompt ("FOSSIL_PS1")
+**    4      Environment variable to override continuatio ("FOSSIL_PS2")
+**    'A'    The name of the application.  (Nominally "Fossil")
+**    'V'    Version number including patch.  (ex: "2.29.1")
+**    'v'    Version number without patch.  (ex: "2.29")
+*/
+const char *sqlcmd_ps_appdef(int c){
+  switch( c ){
+    /* Default prompt strings */
+    case 1:   return "/e[1;34m/A-/v /e[1;/x33/:36/;m/f/e[0m-> ";
+    case 2:   return "/B/e[1;/x33/:36/;m/C/e[0m-> ";
+
+    /* Names of environment variables to override cases 1 and 2 */
+    case 3:   return "FOSSIL_PS1";
+    case 4:   return "FOSSIL_PS2";
+
+    /* Application name */
+    case 'A': return "Fossil";
+
+    /* Version numbers */
+    case 'V': return RELEASE_VERSION;
+    case 'v': {
+      const char *zFull = RELEASE_VERSION;
+      const char *zD1, *zD2;
+      size_t i;
+      static char zRelease[32];
+      zD2 = strrchr(zFull,'.');
+      zD1 = strchr(zFull,'.');
+      if( zD2==0 || zD2==zD1 ){
+        return zFull;
+      }
+      i = zD2 - zFull;
+      if( i>sizeof(zRelease)-1 ) return zFull;
+      memcpy(zRelease, zFull, i);
+      zRelease[i] = 0;
+      return zRelease;
+    }
+  }
+  return "";
 }
 
 /*
@@ -422,7 +479,7 @@ void cmd_sqlite3(void){
 #endif
   atexit(sqlcmd_atexit);
   g.zConfigDbName = zConfigDb;
-  g.argv[1] = "-quote";
+  g.argv[1] = "--noinit";
   sqlite3_shell(g.argc, g.argv);
   sqlite3_cancel_auto_extension((void(*)(void))sqlcmd_autoinit);
   fossil_close(0, noRepository);

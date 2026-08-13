@@ -144,7 +144,7 @@ Another way of thinking of this algorithm is the following:
 
 This algorithm is complex due to the need for historical compatibility.
 Originally, the database was always just "~/.fossil".  Then support
-for the FOSSIL_HOME environment variable as added.  Later, support for the
+for the FOSSIL_HOME environment variable was added.  Later, support for the
 [https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html|XDG-compatible configation filenames]
 was added.  Each of these changes needed to continue to support legacy
 installations.
@@ -164,7 +164,7 @@ location of the configuration database.  Note also that the configuration
 database file itself is called ".fossil" or "fossil.db" on unix but
 "_fossil" on windows.
 
-The [/help?cmd=info|fossil info] command will show the location of
+The [/help/info|fossil info] command will show the location of
 the configuration database on a line that starts with "config-db:".
 
 <h3>2.2 Repository Databases</h3>

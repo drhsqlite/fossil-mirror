@@ -38,7 +38,7 @@ a web browser to a fossil URL of the following form:
 The <i>&lt;baseurl&gt;</i> is the main URL used to access the fossil web server.
 For example, the <i>&lt;baseurl&gt;</i> for the fossil project itself is
 [https://fossil-scm.org/home].
-If you launch the web server using the "[/help?cmd=ui|fossil ui]" command line,
+If you launch the web server using the "[/help/ui|fossil ui]" command line,
 then the <i>&lt;baseurl&gt;</i> is usually
 <b>http://localhost:8080/</b>.
 
@@ -55,7 +55,7 @@ The "<b>ckout</b>" keywords means to
 pull the documentation file from the local source tree on disk, not
 from the any check-in.  The "<b>ckout</b>" keyword
 only works when you start your server using the 
-"[/help?cmd=server|fossil server]" or "[/help?cmd=ui|fossil ui]"
+"[/help/server|fossil server]" or "[/help?cmd=ui|fossil ui]"
 commands.  The "/doc/ckout" URL is intended to show a preview of
 the documentation you are currently editing but have not yet checked in.
 
@@ -180,13 +180,21 @@ documents.  For Wiki documents, you would need to use a relative URL.
 
 <h2 id="th1">2.3 TH1 Documents</h2>
 
-Fossil will substitute the value of [./th1.md | TH1 expressions] within
-<tt>{</tt> curly braces <tt>}</tt> into the output HTML if you have
-configured it with the <tt>--with-th1-docs</tt> option, which is
-disabled by default.
+Enabling TH1 document support requires the following:
+
+   *  Configure the build with the <code>--with-th1-docs</code> flag.
+   *  Enable the <code>th1-docs</code> setting, which is only available
+      after building with <code>--with-th1-docs</code>.
+   *  Affected files must have a <code>.th1</code> file extension.
+   *  The code to run must be embedded in blocks of
+      <code>&lt;th1>...&lt;/th1></code>.
+
+Fossil will substitute the value of [./th1.md | TH1 expressions]
+within the <code>&lt;th1>...&lt;/th1></code> blocks into
+the output HTML.
 
 Since TH1 is a full scripting language, this feature essential grants
-the ability to execute code on the server to anyone with check-in 
+the ability to execute code on the server to anyone with check-in
 privilege for the project.
 This is a security risk that needs to be carefully managed.
 The feature is off by default.

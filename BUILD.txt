@@ -44,7 +44,7 @@ For example:
   ../configure
   make
 
-This will now keep all generates files separate from the maintained
+This will now keep all generated files separate from the maintained
 source code.
 
 --------------------------------------------------------------------------

@@ -119,10 +119,13 @@ char *login_cookie_name(void){
 ** Redirect to the page specified by the "g" query parameter.
 ** Or if there is no "g" query parameter, redirect to the homepage.
 */
-static void redirect_to_g(void){
+NORETURN void login_redirect_to_g(void){
   const char *zGoto = P("g");
   if( zGoto ){
     cgi_redirectf("%R/%s",zGoto);
+  }else if( (zGoto = P("fossil-goto"))!=0 && zGoto[0]!=0 ){
+    cgi_set_cookie("fossil-goto","",0,1);
+    cgi_redirect(zGoto);
   }else{
     fossil_redirect_home();
   }
@@ -153,13 +156,19 @@ int login_is_valid_anonymous(
 ){
   const char *zPw;        /* The correct password shown in the captcha */
   int uid;                /* The user ID of anonymous */
+  int n = 0;              /* Counter of captcha-secrets */
 
   if( zUsername==0 ) return 0;
   else if( zPassword==0 ) return 0;
   else if( zCS==0 ) return 0;
   else if( fossil_strcmp(zUsername,"anonymous")!=0 ) return 0;
-  zPw = captcha_decode((unsigned int)atoi(zCS));
-  if( fossil_stricmp(zPw, zPassword)!=0 ) return 0;
+  else if( anon_cookie_lifespan()==0 ) return 0;
+  while( 1/*exit-by-break*/ ){
+    zPw = captcha_decode((unsigned int)atoi(zCS), n);
+    if( zPw==0 ) return 0;
+    if( fossil_stricmp(zPw, zPassword)==0 ) break;
+    n++;
+  }
   uid = db_int(0, "SELECT uid FROM user WHERE login='anonymous'"
                   " AND octet_length(pw)>0 AND octet_length(cap)>0");
   return uid;
@@ -192,7 +201,7 @@ static void record_login_attempt(
   int bSuccess               /* True if the attempt was a success */
 ){
   db_unprotect(PROTECT_READONLY);
-  if( db_get_boolean("access-log", 0) ){
+  if( db_get_boolean("access-log", 1) ){
     create_accesslog_table();
     db_multi_exec(
       "INSERT INTO accesslog(uname,ipaddr,success,mtime)"
@@ -286,7 +295,7 @@ char *login_gen_user_cookie_value(const char *zUsername, const char *zHash){
 ** and user.cexpire fields for the given user.
 **
 ** If zDest is not NULL then the generated cookie is copied to
-** *zDdest and ownership is transfered to the caller (who should
+** *zDdest and ownership is transferred to the caller (who should
 ** eventually pass it to free()).
 **
 ** If bSessionCookie is true, the cookie will be a session cookie,
@@ -333,29 +342,57 @@ void login_set_user_cookie(
   }
 }
 
+/*
+** SETTING: anon-cookie-lifespan      width=10 default=480
+** The number of minutes for which an anonymous login cookie is
+** valid.  Anonymous logins are prohibited if this value is zero.
+*/
+
+
+/*
+** The default lifetime of an anoymous cookie, in minutes.
+*/
+#define ANONYMOUS_COOKIE_LIFESPAN (8*60)
+
+/*
+** Return the lifetime of an anonymous cookie, in minutes.
+*/
+int anon_cookie_lifespan(void){
+  static int lifespan = -1;
+  if( lifespan<0 ){
+    lifespan = db_get_int("anon-cookie-lifespan", ANONYMOUS_COOKIE_LIFESPAN);
+    if( lifespan<0 ) lifespan = 0;
+  }
+  return lifespan;
+}
+
 /* Sets a cookie for an anonymous user login, which looks like this:
 **
 **    HASH/TIME/anonymous
 **
-** Where HASH is the sha1sum of TIME/SECRET, in which SECRET is captcha-secret.
+** Where HASH is the sha1sum of TIME/USERAGENT/SECRET, in which SECRET
+** is captcha-secret and USERAGENT is the HTTP_USER_AGENT value.
 **
 ** If zCookieDest is not NULL then the generated cookie is assigned to
 ** *zCookieDest and the caller must eventually free() it.
 **
 ** If bSessionCookie is true, the cookie will be a session cookie.
+**
+** Search for tag-20250817a to find the code that recognizes this cookie.
 */
-void login_set_anon_cookie(const char *zIpAddr, char **zCookieDest,
-                           int bSessionCookie ){
-  const char *zNow;            /* Current time (julian day number) */
+void login_set_anon_cookie(char **zCookieDest, int bSessionCookie){
+  char *zNow;                  /* Current time (Julian day number) */
   char *zCookie;               /* The login cookie */
+  const char *zUserAgent;      /* The user agent */
   const char *zCookieName;     /* Name of the login cookie */
   Blob b;                      /* Blob used during cookie construction */
-  int expires = bSessionCookie ? 0 : 6*3600;
+  int expires = bSessionCookie ? 0 : anon_cookie_lifespan();
   zCookieName = login_cookie_name();
   zNow = db_text("0", "SELECT julianday('now')");
   assert( zCookieName && zNow );
   blob_init(&b, zNow, -1);
-  blob_appendf(&b, "/%s", db_get("captcha-secret",""));
+  zUserAgent = PD("HTTP_USER_AGENT","nil");
+  blob_appendf(&b, "/%s/%z", zUserAgent, captcha_secret(0));
   sha1sum_blob(&b, &b);
   zCookie = mprintf("%s/%s/anonymous", blob_buffer(&b), zNow);
   blob_reset(&b);
@@ -365,6 +402,7 @@ void login_set_anon_cookie(const char *zIpAddr, char **zCookieDest,
   }else{
     free(zCookie);
   }
+  fossil_free(zNow);
 }
 
 /*
@@ -400,6 +438,13 @@ void login_clear_login_data(){
 ** Look at the HTTP_USER_AGENT parameter and try to determine if the user agent
 ** is a manually operated browser or a bot.  When in doubt, assume a bot.
 ** Return true if we believe the agent is a real person.
+**
+** UPDATE 2026-08-06:  Robots have recently become much more aggressive and
+** these days most of the troublesome robots do a good job of impersonating
+** humans.  Hence, this routine is much less effective that it used to be.
+** It is still useful at blocking honest (self-reporting) robots, and so we
+** keep it around for that reason.  But it is not something that one should
+** depend on as a robot defense.
 */
 static int isHuman(const char *zAgent){
   if( zAgent==0 ) return 0;  /* If no UserAgent, then probably a bot */
@@ -575,17 +620,35 @@ void login_page(void){
     login_reqpwreset_page();
     return;
   }
-  login_check_credentials();
+
+  /* If the "anon" query parameter is 1 or 2, that means rework the web-page
+  ** to make it a more user-friendly captcha.  Extraneous text and boxes
+  ** are omitted.  The user has just the captcha image and an entry box
+  ** and a "Verify" button.  Underneath is the same login page for user
+  ** "anonymous", just displayed in an easier to digest format for one-time
+  ** visitors.
+  **
+  ** anon=1 is advisory and only has effect if there is not some other login
+  ** cookie.  anon=2 means always show the captcha. 
+  */
+  anonFlag = anon_cookie_lifespan()>0 ? atoi(PD("anon","0")) : 0;
+  if( anonFlag==2 ){
+    g.zLogin = 0;
+  }else{
+    login_check_credentials();
+    if( g.zLogin!=0 ) anonFlag = 0;
+  }
+
   fossil_redirect_to_https_if_needed(1);
   sqlite3_create_function(g.db, "constant_time_cmp", 2, SQLITE_UTF8, 0,
                   constant_time_cmp_function, 0, 0);
   zUsername = P("u");
   zPasswd = P("p");
-  anonFlag = g.zLogin==0 && PB("anon");
+
   /* Handle log-out requests */
   if( P("out") && cgi_csrf_safe(2) ){
     login_clear_login_data();
-    redirect_to_g();
+    login_redirect_to_g();
     return;
   }
 
@@ -658,7 +721,7 @@ void login_page(void){
           zErrMsg = mprintf("<span class=\"loginError\">%s</span>", zErr);
           fossil_free(zErr);
         }else{
-          redirect_to_g();
+          login_redirect_to_g();
           return;
         }
       }
@@ -680,9 +743,9 @@ void login_page(void){
     rememberMe = P("remember")!=0;
   }
   if( uid>0 ){
-    login_set_anon_cookie(zIpAddr, NULL, rememberMe?0:1);
+    login_set_anon_cookie(NULL, rememberMe?0:1);
     record_login_attempt("anonymous", zIpAddr, 1);
-    redirect_to_g();
+    login_redirect_to_g();
   }
   if( zUsername!=0 && zPasswd!=0 && zPasswd[0]!=0 ){
     /* Attempting to log in as a user other than anonymous.
@@ -706,11 +769,12 @@ void login_page(void){
       ** code prefix, and LOGIN is the user name.
       */
       login_set_user_cookie(zUsername, uid, NULL, rememberMe?0:1);
-      redirect_to_g();
+      login_redirect_to_g();
     }
   }
   style_set_current_feature("login");
   style_header("Login/Logout");
+  if( anonFlag==2 ) g.zLogin = 0;
   style_adunit_config(ADUNIT_OFF);
   @ %s(zErrMsg)
   if( zGoto && !noAnon ){
@@ -722,8 +786,8 @@ void login_page(void){
       @ <p>Use a different login with greater privilege than <b>%h(g.zLogin)</b>
       @ to access <b>%h(zAbbrev)</b>.
     }else if( anonFlag ){
-      @ <p>Login as <b>anonymous</b> or any named user
-      @ to access page <b>%h(zAbbrev)</b>.
+      @ <p><b>Verify that you are human by typing in the 8-character text
+      @ password shown below.</b></p>
     }else{
       @ <p>Login as a named user to access page <b>%h(zAbbrev)</b>.
     }
@@ -742,14 +806,15 @@ void login_page(void){
   }
   if( anonFlag ){
     @ <input type="hidden" name="anon" value="1">
+    @ <input type="hidden" name="u" value="anonymous">
   }
   if( g.zLogin ){
     @ <p>Currently logged in as <b>%h(g.zLogin)</b>.
-    @ <input type="submit" name="out" value="Logout"></p>
+    @ <input type="submit" name="out" value="Logout" autofocus></p>
     @ </form>
   }else{
     unsigned int uSeed = captcha_seed();
-    if( g.zLogin==0 && (anonFlag || zGoto==0) ){
+    if( g.zLogin==0 && (anonFlag || zGoto==0) && anon_cookie_lifespan()>0 ){
       zAnonPw = db_text(0, "SELECT pw FROM user"
                            " WHERE login='anonymous'"
                            "   AND cap!=''");
@@ -757,7 +822,7 @@ void login_page(void){
       zAnonPw = 0;
     }
     @ <table class="login_out">
-    if( P("HTTPS")==0 ){
+    if( P("HTTPS")==0 && !anonFlag ){
       @ <tr><td class="form_label">Warning:</td>
       @ <td><span class='securityWarning'>
       @ Login information, including the password,
@@ -768,37 +833,51 @@ void login_page(void){
       }
       @ </span></td></tr>
     }
-    @ <tr>
-    @   <td class="form_label" id="userlabel1">User ID:</td>
-    @   <td><input type="text" id="u" aria-labelledby="userlabel1" name="u" \
-    @ size="30" value="%s(anonFlag?"anonymous":"")"></td>
-    @ </tr>
+    if( !anonFlag ){
+      @ <tr>
+      @   <td class="form_label" id="userlabel1">User ID:</td>
+      @   <td><input type="text" id="u" aria-labelledby="userlabel1" name="u" \
+      @ size="30" value="" autofocus></td>
+      @ </tr>
+    }
     @ <tr>
     @  <td class="form_label" id="pswdlabel">Password:</td>
     @  <td><input aria-labelledby="pswdlabel" type="password" id="p" \
-    @ name="p" value="" size="30">\
-    if( zAnonPw && !noAnon ){
+    @ name="p" value="" size="30"%s(anonFlag ? " autofocus" : "")>
+    if( anonFlag ){
+      @ </td></tr>
+      @ <tr>
+      @  <td></td><td>\
+      captcha_speakit_button(uSeed, "Read the password out loud");
+    }else if( zAnonPw && !noAnon ){
       captcha_speakit_button(uSeed, "Speak password for \"anonymous\"");
     }
     @ </td>
     @ </tr>
-    @ <tr>
-    @   <td></td>
-    @   <td><input type="checkbox" name="remember" value="1" \
-    @ id="remember-me" %s(rememberMe ? "checked=\"checked\"" : "")>
-    @   <label for="remember-me">Remember me?</label></td>
-    @ </tr>
-    @ <tr>
-    @   <td></td>
-    @   <td><input type="submit" name="in" value="Login">
-    @ </tr>
-    if( !noAnon && login_self_register_available(0) ){
+    if( !anonFlag ){
+      @ <tr>
+      @   <td></td>
+      @   <td><input type="checkbox" name="remember" value="1" \
+      @ id="remember-me" %s(rememberMe ? "checked=\"checked\"" : "")>
+      @   <label for="remember-me">Remember me?</label></td>
+      @ </tr>
+      @ <tr>
+      @   <td></td>
+      @   <td><input type="submit" name="in" value="Login">
+      @ </tr>
+    }else{
+      @ <tr>
+      @   <td></td>
+      @   <td><input type="submit" name="in" value="Verify that I am human">
+      @ </tr>
+    }
+    if( !anonFlag && !noAnon && login_self_register_available(0) ){
       @ <tr>
       @   <td></td>
       @   <td><input type="submit" name="self" value="Create A New Account">
       @ </tr>
     }
-    if( login_self_password_reset_available() ){
+    if( !anonFlag && login_self_password_reset_available() ){
       @ <tr>
       @   <td></td>
       @   <td><input type="submit" name="pwreset" value="Reset My Password">
@@ -806,18 +885,20 @@ void login_page(void){
     }
     @ </table>
     if( zAnonPw && !noAnon ){
-      const char *zDecoded = captcha_decode(uSeed);
+      const char *zDecoded = captcha_decode(uSeed, 0);
       int bAutoCaptcha = db_get_boolean("auto-captcha", 0);
       char *zCaptcha = captcha_render(zDecoded);
 
       @ <p><input type="hidden" name="cs" value="%u(uSeed)">
-      @ Visitors may enter <b>anonymous</b> as the user-ID with
-      @ the 8-character hexadecimal password shown below:</p>
+      if( !anonFlag ){
+        @ Visitors may enter <b>anonymous</b> as the user-ID with
+        @ the 8-character hexadecimal password shown below:</p>
+      }
       @ <div class="captcha"><table class="captcha"><tr><td>\
       @ <pre class="captcha">
       @ %h(zCaptcha)
       @ </pre></td></tr></table>
-      if( bAutoCaptcha ) {
+      if( bAutoCaptcha && !anonFlag ) {
          @ <input type="button" value="Fill out captcha" id='autofillButton' \
          @ data-af='%s(zDecoded)'>
          builtin_request_js("login.js");
@@ -827,7 +908,7 @@ void login_page(void){
     }
     @ </form>
   }
-  if( login_is_individual() ){
+  if( login_is_individual() && !anonFlag ){
     if( g.perm.EmailAlert && alert_enabled() ){
       @ <hr>
       @ <p>Configure <a href="%R/alerts">Email Alerts</a>
@@ -838,9 +919,16 @@ void login_page(void){
       @ <a href="%R/timeline?ss=v&y=f&vfx&u=%t(g.zLogin)">Forum
       @ post timeline</a> for user <b>%h(g.zLogin)</b></p>
     }
+  }
+  if( !anonFlag ){
     @ <hr><p>
     @ Select your preferred <a href="%R/skins">site skin</a>.
     @ </p>
+    @ <hr><p>
+    @ Manage your <a href="%R/cookies">cookies</a> or your
+    @ <a href="%R/tokens">access tokens</a>.</p>
+  }
+  if( login_is_individual() ){
     if( g.perm.Password ){
       char *zRPW = fossil_random_password(12);
       @ <hr>
@@ -1253,6 +1341,35 @@ static int login_basic_authentication(const char *zIpAddr){
 }
 
 /*
+** When this routine is called, we know that the request does not
+** have a login on the present repository.  This routine checks to
+** see if their login cookie might be for another member of the
+** login-group.
+**
+** If this repository is not a part of any login group, then this
+** routine always returns false.
+**
+** If this repository is part of a login group, and the login cookie
+** appears to be well-formed, then return true.  That might be a
+** false-positive, as we don't actually check to see if the login
+** cookie is valid for some other repository.  But false-positives
+** are ok.  This routine is used for robot defense only.
+*/
+int login_cookie_wellformed(void){
+  const char *zCookie;
+  int n;
+  zCookie = P(login_cookie_name());
+  if( zCookie==0 ){
+    return 0;
+  }
+  if( !db_exists("SELECT 1 FROM config WHERE name='login-group-code'") ){
+    return 0;
+  }
+  for(n=0; fossil_isXdigit(zCookie[n]); n++){}
+  return n>48 && zCookie[n]=='/' && zCookie[n+1]!=0;
+}
+
+/*
 ** This routine examines the login cookie to see if it exists and
 ** is valid.  If the login cookie checks out, it then sets global
 ** variables appropriately.
@@ -1261,8 +1378,9 @@ static int login_basic_authentication(const char *zIpAddr){
 **    g.zLogin       Database USER.LOGIN value.  NULL for user "nobody"
 **    g.perm         Permissions granted to this user
 **    g.anon         Permissions that would be available to anonymous
-**    g.isHuman      True if the user is human, not a spider or robot
+**    g.isRobot      True if the client is known to be a spider or robot
 **    g.perm         Populated based on user account's capabilities
+**    g.eAuthMethod  The mechanism used for authentication
 **
 */
 void login_check_credentials(void){
@@ -1289,7 +1407,7 @@ void login_check_credentials(void){
   if( ( cgi_is_loopback(zIpAddr)
        || (g.fSshClient & CGI_SSH_CLIENT)!=0 )
    && g.useLocalauth
-   && db_get_int("localauth",0)==0
+   && db_get_boolean("localauth",0)==0
    && P("HTTPS")==0
   ){
     char *zSeed;
@@ -1302,7 +1420,8 @@ void login_check_credentials(void){
     g.zLogin = db_text("?", "SELECT login FROM user WHERE uid=%d", uid);
     zCap = "sxy";
     g.noPswd = 1;
-    g.isHuman = 1;
+    g.isRobot = 0;
+    g.eAuthMethod = AUTH_LOCAL;
     zSeed = db_text("??", "SELECT uid||quote(login)||quote(pw)||quote(cookie)"
                           "  FROM user WHERE uid=%d", uid);
     login_create_csrf_secret(zSeed);
@@ -1330,25 +1449,37 @@ void login_check_credentials(void){
     }
     if( zUser==0 ){
       /* Invalid cookie */
-    }else if( fossil_strcmp(zUser, "anonymous")==0 ){
-      /* Cookies of the form "HASH/TIME/anonymous".  The TIME must not be
-      ** too old and the sha1 hash of TIME/SECRET must match HASH.
-      ** SECRET is the "captcha-secret" value in the repository.
+    }else if( fossil_strcmp(zUser, "anonymous")==0
+           && anon_cookie_lifespan()>0 ){
+      /* Cookies of the form "HASH/TIME/anonymous".  The TIME must
+      ** not be more than ANONYMOUS_COOKIE_LIFESPAN seconds ago and
+      ** the sha1 hash of TIME/USERAGENT/SECRET must match HASH. USERAGENT
+      ** is the HTTP_USER_AGENT of the client and SECRET is the
+      ** "captcha-secret" value in the repository.  See tag-20250817a
+      ** for the code the creates this cookie.
       */
       double rTime = atof(zArg);
+      const char *zUserAgent = PD("HTTP_USER_AGENT","nil");
       Blob b;
-      blob_zero(&b);
-      blob_appendf(&b, "%s/%s", zArg, db_get("captcha-secret",""));
-      sha1sum_blob(&b, &b);
-      if( fossil_strcmp(zHash, blob_str(&b))==0 ){
-        uid = db_int(0,
-            "SELECT uid FROM user WHERE login='anonymous'"
-            " AND octet_length(cap)>0"
-            " AND octet_length(pw)>0"
-            " AND %.17g+0.25>julianday('now')",
-            rTime
-        );
-      }
+      char *zSecret;
+      int n = 0;
+
+      do{
+        blob_zero(&b);
+        zSecret = captcha_secret(n++);
+        if( zSecret==0 ) break;
+        blob_appendf(&b, "%s/%s/%s", zArg, zUserAgent, zSecret);
+        sha1sum_blob(&b, &b);
+        if( fossil_strcmp(zHash, blob_str(&b))==0 ){
+          uid = db_int(0,
+              "SELECT uid FROM user WHERE login='anonymous'"
+              " AND octet_length(cap)>0"
+              " AND octet_length(pw)>0"
+              " AND %.17g>julianday('now')",
+              rTime+anon_cookie_lifespan()/1440.0
+          );
+        }
+      }while( uid==0 );
       blob_reset(&b);
     }else{
       /* Cookies of the form "HASH/CODE/USER".  Search first in the
@@ -1358,9 +1489,19 @@ void login_check_credentials(void){
       uid = login_find_user(zUser, zHash);
       if( uid==0 && login_transfer_credentials(zUser,zArg,zHash) ){
         uid = login_find_user(zUser, zHash);
-        if( uid ) record_login_attempt(zUser, zIpAddr, 1);
+        if( uid ){
+          record_login_attempt(zUser, zIpAddr, 1);
+        }else{
+          /* The login cookie is a valid login for project CODE, but no
+          ** user named USER exists on this repository.  Cannot login as
+          ** USER, but at least give them "anonymous" login. */
+          uid = db_int(0, "SELECT uid FROM user WHERE login='anonymous'"
+                          " AND octet_length(cap)>0"
+                          " AND octet_length(pw)>0");
+        }
       }
     }
+    if( uid ) g.eAuthMethod = AUTH_COOKIE;
     login_create_csrf_secret(zHash);
   }
 
@@ -1373,6 +1514,7 @@ void login_check_credentials(void){
       uid = db_int(0, "SELECT uid FROM user WHERE login=%Q"
                       " AND octet_length(cap)>0 AND octet_length(pw)>0",
                       zRemoteUser);
+      if( uid ) g.eAuthMethod = AUTH_ENV;
     }
   }
 
@@ -1382,6 +1524,7 @@ void login_check_credentials(void){
   */
   if( uid==0 && db_get_boolean("http_authentication_ok",0) ){
     uid = login_basic_authentication(zIpAddr);
+    if( uid ) g.eAuthMethod = AUTH_HTTP;
   }
 
   /* Check for magic query parameters "resid" (for the username) and
@@ -1400,6 +1543,7 @@ void login_check_credentials(void){
                       "      OR constant_time_cmp(pw,%Q)=0)",
                       zUsr, zSha1Pw, zPW);
       fossil_free(zSha1Pw);
+      if( uid ) g.eAuthMethod = AUTH_PW;
     }
   }
 
@@ -1415,6 +1559,12 @@ void login_check_credentials(void){
   }
 
   login_set_uid(uid, zCap);
+
+  /* Maybe restrict access by robots */
+  if( g.zLogin==0 && robot_restrict(g.zPath) ){
+    cgi_reply();
+    fossil_exit(0);
+  }
 }
 
 /*
@@ -1453,11 +1603,11 @@ int login_set_uid(int uid, const char *zCap){
     g.zLogin = 0;
   }
   if( PB("isrobot") ){
-    g.isHuman = 0;
+    g.isRobot = 1;
   }else if( g.zLogin==0 ){
-    g.isHuman = isHuman(P("HTTP_USER_AGENT"));
+    g.isRobot = !isHuman(P("HTTP_USER_AGENT"));
   }else{
-    g.isHuman = 1;
+    g.isRobot = 0;
   }
 
   /* Set the capabilities */
@@ -1471,7 +1621,7 @@ int login_set_uid(int uid, const char *zCap){
   ** are (potentially) copied to the anonymous permission set; otherwise,
   ** those will be out-of-sync.
   */
-  if( zCap[0] && !g.perm.Hyperlink && g.isHuman ){
+  if( zCap[0] && !g.perm.Hyperlink && !g.isRobot ){
     int autoLink = db_get_int("auto-hyperlink",1);
     if( autoLink==1 ){
       g.jsHref = 1;
@@ -1497,13 +1647,11 @@ int login_set_uid(int uid, const char *zCap){
   */
   zPublicPages = db_get("public-pages",0);
   if( zPublicPages!=0 ){
-    Glob *pGlob = glob_create(zPublicPages);
     const char *zUri = PD("REQUEST_URI","");
     zUri += (int)strlen(g.zTop);
-    if( glob_match(pGlob, zUri) ){
+    if( glob_multi_match(zPublicPages, zUri) ){
       login_set_capabilities(db_get("default-perms", "u"), 0);
     }
-    glob_free(pGlob);
   }
   return g.zLogin!=0;
 }
@@ -1569,7 +1717,8 @@ void login_set_capabilities(const char *zCap, unsigned flags){
                              p->ModWiki = p->ModTkt =
                              p->RdForum = p->WrForum = p->ModForum =
                              p->WrTForum = p->AdminForum = p->Chat =
-                             p->EmailAlert = p->Announce = p->Debug = 1;
+                             p->EmailAlert = p->Announce = p->AttachForum =
+                             p->Debug = 1;
                              /* Fall thru into Read/Write */
       case 'i':   p->Read = p->Write = 1;                      break;
       case 'o':   p->Read = 1;                                 break;
@@ -1605,6 +1754,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
 
       case '7':   p->EmailAlert = 1;                           break;
       case 'A':   p->Announce = 1;                             break;
+      case 'B':   p->AttachForum = 1;                          break;
       case 'C':   p->Chat = 1;                                 break;
       case 'D':   p->Debug = 1;                                break;
 
@@ -1783,7 +1933,7 @@ void login_needed(int anonOk){
     if( zQS && zQS[0] ){
       blob_appendf(&redir, "%%3f%T", zQS);
     }
-    if( anonOk ) blob_append(&redir, "&anon", 5);
+    if( anonOk ) blob_append(&redir, "&anon=1", 7);
     cgi_redirect(blob_str(&redir));
     /* NOTREACHED */
     assert(0);
@@ -1792,12 +1942,12 @@ void login_needed(int anonOk){
 
 /*
 ** Call this routine if the user lacks g.perm.Hyperlink permission.  If
-** the anonymous user has Hyperlink permission, then paint a mesage
+** the anonymous user has Hyperlink permission, then paint a message
 ** to inform the user that much more information is available by
 ** logging in as anonymous.
 */
 void login_anonymous_available(void){
-  if( !g.perm.Hyperlink && g.anon.Hyperlink ){
+  if( !g.perm.Hyperlink && g.anon.Hyperlink && anon_cookie_lifespan()>0 ){
     const char *zUrl = PD("PATH_INFO", "");
     @ <p>Many <span class="disabled">hyperlinks are disabled.</span><br>
     @ Use <a href="%R/login?anon=1&amp;g=%T(zUrl)">anonymous login</a>
@@ -1816,9 +1966,9 @@ void login_insert_csrf_secret(void){
 /*
 ** Check to see if the candidate username zUserID is already used.
 ** Return 1 if it is already in use.  Return 0 if the name is
-** available for a self-registeration.
+** available for a self-registration.
 */
-static int login_self_choosen_userid_already_exists(const char *zUserID){
+static int login_self_chosen_userid_already_exists(const char *zUserID){
   int rc = db_exists(
     "SELECT 1 FROM user WHERE login=%Q "
     "UNION ALL "
@@ -1905,19 +2055,15 @@ void test_email_used(void){
 */
 int authorized_subscription_email(const char *zEAddr){
   char *zGlob = db_get("auth-sub-email",0);
-  Glob *pGlob;
   char *zAddr;
   int rc;
 
   if( zGlob==0 || zGlob[0]==0 ) return 1;
   zGlob = fossil_strtolwr(fossil_strdup(zGlob));
-  pGlob = glob_create(zGlob);
-  fossil_free(zGlob);
-
   zAddr = fossil_strtolwr(fossil_strdup(zEAddr));
-  rc = glob_match(pGlob, zAddr);
+  rc = glob_multi_match(zGlob, zAddr);
+  fossil_free(zGlob);
   fossil_free(zAddr);
-  glob_free(pGlob);
   return rc!=0;
 }
 
@@ -2011,7 +2157,7 @@ void register_page(void){
   }else if( (uid = email_address_in_use(zEAddr))!=0 ){
     iErrLine = 3;
     zErr = "This email address is already associated with a user";
-  }else if( login_self_choosen_userid_already_exists(zUserID) ){
+  }else if( login_self_chosen_userid_already_exists(zUserID) ){
     iErrLine = 1;
     zErr = "This User ID is already taken. Choose something different.";
   }else{
@@ -2022,7 +2168,7 @@ void register_page(void){
     char *zPass = sha1_shared_secret(zPasswd, zUserID, 0);
     const char *zStartPerms = zPerms;
     if( db_get_boolean("selfreg-verify",0) ){
-      /* If email verification is required for self-registration, initalize
+      /* If email verification is required for self-registration, initialize
       ** the new user capabilities to just "7" (Sign up for email).  The
       ** full "default-perms" permissions will be added when they click
       ** the verification link on the email they are sent. */
@@ -2077,8 +2223,8 @@ void register_page(void){
                     "  AND sverified", zEAddr) ){
         /* This the case where the user was formerly a verified subscriber
         ** and here they have also registered as a user as well.  It is
-        ** not necessary to repeat the verfication step */
-        redirect_to_g();
+        ** not necessary to repeat the verification step */
+        login_redirect_to_g();
       }
       /* A verification email */
       pSender = alert_sender_new(0,0);
@@ -2107,7 +2253,7 @@ void register_page(void){
       style_finish_page();
       return;
     }
-    redirect_to_g();
+    login_redirect_to_g();
   }
 
   /* Prepare the captcha. */
@@ -2116,7 +2262,7 @@ void register_page(void){
   }else{
     uSeed = captcha_seed();
   }
-  zDecoded = captcha_decode(uSeed);
+  zDecoded = captcha_decode(uSeed, 0);
   zCaptcha = captcha_render(zDecoded);
 
   style_header("Register");
@@ -2131,7 +2277,7 @@ void register_page(void){
   @ <tr>
   @   <td class="form_label" align="right" id="uid">User ID:</td>
   @   <td><input aria-labelledby="uid" type="text" name="u" \
-  @ value="%h(zUserID)" size="30"></td>
+  @ value="%h(zUserID)" size="30" autofocus></td>
   @
   if( iErrLine==1 ){
     @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
@@ -2248,7 +2394,7 @@ void login_reqpwreset_page(void){
   }
   zEAddr = PDT("ea","");
 
-  /* Verify user imputs */
+  /* Verify user inputs */
   if( !cgi_csrf_safe(1) || P("reqpwreset")==0 ){
     /* This is the initial display of the form.  No processing or error
     ** checking is to be done. Fall through into the form display
@@ -2326,7 +2472,7 @@ void login_reqpwreset_page(void){
   }else{
     uSeed = captcha_seed();
   }
-  zDecoded = captcha_decode(uSeed);
+  zDecoded = captcha_decode(uSeed, 0);
   zCaptcha = captcha_render(zDecoded);
 
   style_header("Request Password Reset");

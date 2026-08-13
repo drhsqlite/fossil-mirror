@@ -37,7 +37,7 @@ struct Blob {
   unsigned int iCursor;          /* Next character of input to parse */
   unsigned int blobFlags;        /* One or more BLOBFLAG_* bits */
   char *aData;                   /* Where the information is stored */
-  void (*xRealloc)(Blob*, unsigned int); /* Function to reallocate the buffer */
+  void (*xRealloc)(Blob*,u64);   /* Function to reallocate the buffer */
 };
 
 /*
@@ -127,6 +127,9 @@ int fossil_islower(char c){ return c>='a' && c<='z'; }
 int fossil_isupper(char c){ return c>='A' && c<='Z'; }
 int fossil_isdigit(char c){ return c>='0' && c<='9'; }
 int fossil_isxdigit(char c){ return (c>='0' && c<='9') || (c>='a' && c<='f'); }
+int fossil_isXdigit(char c){
+   return (c>='0' && c<='9') || (c>='A' && c<='F') || (c>='a' && c<='f');
+}
 int fossil_tolower(char c){
   return fossil_isupper(c) ? c - 'A' + 'a' : c;
 }
@@ -189,7 +192,7 @@ static void blob_panic(void){
 ** If n >= MAX_BLOB_SIZE, calls blob_panic(),
 ** else this is a no-op.
 */
-static void blob_assert_safe_size(i64 n){
+static void blob_assert_safe_size(u64 n){
   if( n>=(i64)MAX_BLOB_SIZE ){
     blob_panic();
   }
@@ -204,7 +207,7 @@ static void blob_assert_safe_size(i64 n){
 ** If an OOM error occurs, an error message is printed on stderr
 ** and the program exits.
 */
-void blobReallocMalloc(Blob *pBlob, unsigned int newSize){
+void blobReallocMalloc(Blob *pBlob, u64 newSize){
   if( newSize==0 ){
     free(pBlob->aData);
     pBlob->aData = 0;
@@ -214,10 +217,10 @@ void blobReallocMalloc(Blob *pBlob, unsigned int newSize){
     pBlob->blobFlags = 0;
   }else if( newSize>pBlob->nAlloc || newSize+4000<pBlob->nAlloc ){
     char *pNew;
-    blob_assert_safe_size((i64)newSize);
+    blob_assert_safe_size(newSize);
     pNew = fossil_realloc(pBlob->aData, newSize);
     pBlob->aData = pNew;
-    pBlob->nAlloc = newSize;
+    pBlob->nAlloc = (unsigned int)newSize;
     if( pBlob->nUsed>pBlob->nAlloc ){
       pBlob->nUsed = pBlob->nAlloc;
     }
@@ -236,18 +239,18 @@ const Blob empty_blob = BLOB_INITIALIZER;
 ** A reallocation function for when the initial string is in unmanaged
 ** space.  Copy the string to memory obtained from malloc().
 */
-static void blobReallocStatic(Blob *pBlob, unsigned int newSize){
+static void blobReallocStatic(Blob *pBlob, u64 newSize){
   if( newSize==0 ){
     *pBlob = empty_blob;
   }else{
     char *pNew;
-    blob_assert_safe_size((i64)newSize);
+    blob_assert_safe_size(newSize);
     pNew = fossil_malloc( newSize );
     if( pBlob->nUsed>newSize ) pBlob->nUsed = newSize;
     memcpy(pNew, pBlob->aData, pBlob->nUsed);
     pBlob->aData = pNew;
     pBlob->xRealloc = blobReallocMalloc;
-    pBlob->nAlloc = newSize;
+    pBlob->nAlloc = (unsigned int)newSize;
   }
 }
 
@@ -334,7 +337,7 @@ void blob_zero(Blob *pBlob){
 ** necessary.
 */
 static void blob_append_full(Blob *pBlob, const char *aData, int nData){
-  sqlite3_int64 nNew;
+  u64 nNew;
   /* assert( aData!=0 || nData==0 ); // omitted for speed */
   /* blob_is_init(pBlob); // omitted for speed */
   if( nData<0 ) nData = strlen(aData);
@@ -363,7 +366,7 @@ static void blob_append_full(Blob *pBlob, const char *aData, int nData){
   pBlob->aData[pBlob->nUsed] = 0;   /* Blobs are always nul-terminated */
 }
 void blob_append(Blob *pBlob, const char *aData, int nData){
-  sqlite3_int64 nUsed;
+  u64 nUsed;
   /* assert( aData!=0 || nData==0 ); // omitted for speed */
   if( nData<=0 || pBlob==0 || pBlob->nUsed + nData >= pBlob->nAlloc ){
     blob_append_full(pBlob, aData, nData);
@@ -413,8 +416,8 @@ void blob_append_xfer(Blob *pTo, Blob *pFrom){
 ** and JSON.  Double-quotes are added to both ends.  Double-quote and
 ** backslash characters are escaped.
 */
-void blob_append_tcl_literal(Blob *pOut, const char *z, int n){
-  int i;
+void blob_append_tcl_literal(Blob *pOut, const char *z, size_t n){
+  size_t i;
   blob_append_char(pOut, '"');
   for(i=0; i<n; i++){
     char c = z[i];
@@ -432,8 +435,8 @@ void blob_append_tcl_literal(Blob *pOut, const char *z, int n){
   }
   blob_append_char(pOut, '"');
 }
-void blob_append_json_literal(Blob *pOut, const char *z, int n){
-  int i;
+void blob_append_json_literal(Blob *pOut, const char *z, size_t n){
+  size_t i;
   blob_append_char(pOut, '"');
   for(i=0; i<n; i++){
     char c = z[i];
@@ -614,7 +617,7 @@ int blob_eq_str(Blob *pBlob, const char *z, int n){
 ** Attempt to resize a blob so that its internal buffer is
 ** nByte in size.  The blob is truncated if necessary.
 */
-void blob_resize(Blob *pBlob, unsigned int newSize){
+void blob_resize(Blob *pBlob, u64 newSize){
   pBlob->xRealloc(pBlob, newSize+1);
   pBlob->nUsed = newSize;
   pBlob->aData[newSize] = 0;
@@ -635,8 +638,8 @@ void blob_resize(Blob *pBlob, unsigned int newSize){
 ** which implies that this is unconditionally failing on mingw 32-bit
 ** builds.
 */
-void blob_reserve(Blob *pBlob, unsigned int newSize){
-  blob_assert_safe_size( (i64)newSize );
+void blob_reserve(Blob *pBlob, u64 newSize){
+  blob_assert_safe_size( newSize );
   if(newSize>pBlob->nAlloc){
     pBlob->xRealloc(pBlob, newSize+1);
     pBlob->aData[newSize] = 0;
@@ -652,7 +655,6 @@ char *blob_materialize(Blob *pBlob){
   return pBlob->aData;
 }
 
-
 /*
 ** Call dehttpize on a blob.  This causes an ephemeral blob to be
 ** materialized.
@@ -664,7 +666,8 @@ void blob_dehttpize(Blob *pBlob){
 
 /*
 ** Extract N bytes from blob pFrom and use it to initialize blob pTo.
-** Return the actual number of bytes extracted.
+** Return the actual number of bytes extracted.  The cursor position
+** is advanced by the number of bytes extracted.
 **
 ** After this call completes, pTo will be an ephemeral blob.
 */
@@ -688,6 +691,53 @@ int blob_extract(Blob *pFrom, int N, Blob *pTo){
 }
 
 /*
+** Extract N **lines** of text from blob pFrom beginning at the current
+** cursor position and use that text to initialize blob pTo.  Unlike the
+** blob_extract() routine,  the cursor position is unchanged.
+**
+** pTo is assumed to be uninitialized.
+**
+** After this call completes, pTo will be an ephemeral blob.
+*/
+int blob_extract_lines(Blob *pFrom, int N, Blob *pTo){
+  int i;
+  int mx;
+  int iStart;
+  int n;
+  const char *z;
+
+  blob_zero(pTo);
+  z = pFrom->aData;
+  i = pFrom->iCursor;
+  mx = pFrom->nUsed;
+  while( N>0 ){
+    while( i<mx && z[i]!='\n' ){ i++; }
+    if( i>=mx ) break;
+    i++;
+    N--;
+  }
+  iStart = pFrom->iCursor;
+  n = blob_extract(pFrom, i-pFrom->iCursor, pTo);
+  pFrom->iCursor = iStart;
+  return n;
+}
+
+/*
+** Return the number of lines of text in the blob.  If the last
+** line is incomplete (if it does not have a \n at the end) then
+** it still counts.
+*/
+int blob_linecount(Blob *p){
+  int n = 0;
+  int i;
+  for(i=0; i<p->nUsed; i++){
+    if( p->aData[i]=='\n' ) n++;
+  }
+  if( p->nUsed>0 && p->aData[p->nUsed-1]!='\n' ) n++;
+  return n;
+}
+
+/*
 ** Rewind the cursor on a blob back to the beginning.
 */
 void blob_rewind(Blob *p){
@@ -695,10 +745,21 @@ void blob_rewind(Blob *p){
 }
 
 /*
-** Truncate a blob back to zero length
+** Truncate a blob to the specified length in bytes.
 */
 void blob_truncate(Blob *p, int sz){
   if( sz>=0 && sz<(int)(p->nUsed) ) p->nUsed = sz;
+}
+
+/*
+** Truncate a blob to the specified length in bytes. If truncation
+** results in an incomplete UTF-8 sequence at the end, remove up
+** to three more bytes back to the last complete UTF-8 sequence.
+*/
+void blob_truncate_utf8(Blob *p, int sz){
+  if( sz>=0 && sz<(int)(p->nUsed) ){
+    p->nUsed = utf8_nearest_codepoint(p->aData,sz);
+  }
 }
 
 /*
@@ -733,7 +794,7 @@ int blob_tell(Blob *p){
 ** The cursor of pFrom is left pointing at the first byte past the
 ** \n that terminated the line.
 **
-** pTo will be an ephermeral blob.  If pFrom changes, it might alter
+** pTo will be an ephemeral blob.  If pFrom changes, it might alter
 ** pTo as well.
 */
 int blob_line(Blob *pFrom, Blob *pTo){
@@ -776,7 +837,7 @@ int blob_trim(Blob *p){
 ** The cursor of pFrom is left pointing at the first character past
 ** the end of the token.
 **
-** pTo will be an ephermeral blob.  If pFrom changes, it might alter
+** pTo will be an ephemeral blob.  If pFrom changes, it might alter
 ** pTo as well.
 */
 int blob_token(Blob *pFrom, Blob *pTo){
@@ -804,7 +865,7 @@ int blob_token(Blob *pFrom, Blob *pTo){
 ** The cursor of pFrom is left pointing at the first character past
 ** the end of the token.
 **
-** pTo will be an ephermeral blob.  If pFrom changes, it might alter
+** pTo will be an ephemeral blob.  If pFrom changes, it might alter
 ** pTo as well.
 */
 int blob_sqltoken(Blob *pFrom, Blob *pTo){
@@ -832,7 +893,7 @@ int blob_sqltoken(Blob *pFrom, Blob *pTo){
 
 /*
 ** Extract everything from the current cursor to the end of the blob
-** into a new blob.  The new blob is an ephemerial reference to the
+** into a new blob.  The new blob is an ephemeral reference to the
 ** original blob.  The cursor of the original blob is unchanged.
 */
 int blob_tail(Blob *pFrom, Blob *pTo){
@@ -927,7 +988,7 @@ void blob_strip_comment_lines(Blob *pIn, Blob *pOut){
 **   -W|--width N         Width of lines in side-by-side diff
 */
 void test_strip_comment_lines_cmd(void){
-  Blob f, h;   /* unitialized */
+  Blob f, h;   /* uninitialized */
   Blob out;
   DiffConfig dCfg;
   int sbs = 0;
@@ -989,19 +1050,22 @@ int blob_is_filename(Blob *pBlob){
 }
 
 /*
-** Return true if the blob contains a valid 32-bit integer.  Store
-** the integer value in *pValue.
+** Return true if the blob contains a valid non-negative 32-bit integer
+** and store the integer value in *pValue.  If the blob is not a valid
+** non-negative 32-bit integer, return false and leave *pValue unchanged.
 */
 int blob_is_int(Blob *pBlob, int *pValue){
   const char *z = blob_buffer(pBlob);
-  int i, n, c, v;
+  int i, n, c;
+  sqlite3_uint64 v;
   n = blob_size(pBlob);
   v = 0;
   for(i=0; i<n && (c = z[i])!=0 && c>='0' && c<='9'; i++){
     v = v*10 + c - '0';
+    if( v>0x7fffffff ) return 0;
   }
   if( i==n ){
-    *pValue = v;
+    *pValue = (int)v;
     return 1;
   }else{
     return 0;
@@ -1009,23 +1073,49 @@ int blob_is_int(Blob *pBlob, int *pValue){
 }
 
 /*
-** Return true if the blob contains a valid 64-bit integer.  Store
-** the integer value in *pValue.
+** Return true if the blob contains a valid non-negative 64-bit integer
+** and store the integer value in *pValue.  If the blob is not a valid
+** non-negative 64-bit integer, return false and leave *pValue unchanged.
 */
 int blob_is_int64(Blob *pBlob, sqlite3_int64 *pValue){
   const char *z = blob_buffer(pBlob);
   int i, n, c;
-  sqlite3_int64 v;
+  sqlite3_uint64 v;
   n = blob_size(pBlob);
   v = 0;
   for(i=0; i<n && (c = z[i])!=0 && c>='0' && c<='9'; i++){
-    v = v*10 + c - '0';
+    if( v<922337203685477580ULL || (v==922337203685477580ULL && c<='7') ){
+      v = v*10 + c - '0';
+    }else{
+      return 0;
+    }
   }
   if( i==n ){
-    *pValue = v;
+    *pValue = (sqlite3_int64)v;
     return 1;
   }else{
     return 0;
+  }
+}
+
+/*
+** COMMAND: test-atoi
+**
+** Use the blob_is_int() and blob_is_int64() routines to convert arguments
+** into integers.  Used for unit testing of those routines.
+*/
+void blob_is_int_cmd(void){
+  int i;
+  for(i=2; i<g.argc; i++){
+    Blob x;
+    int i32 = 0;
+    sqlite3_int64 i64 = 0;
+    int rc;
+    blob_init(&x, g.argv[i], -1);
+    rc = blob_is_int(&x, &i32);
+    fossil_print("%20s: 32-bit %d %-10d", g.argv[i], rc, i32);
+    rc = blob_is_int64(&x, &i64);
+    fossil_print(" 64-bit %d %lld\n", rc, i64);
   }
 }
 
@@ -1757,7 +1847,7 @@ void blob_append_escaped_arg(Blob *pBlob, const char *zIn, int isFilename){
 **    --compare HEX ASCII       Verify that argument ASCII is identical to
 **                              to decoded HEX.
 **
-**    --fuzz N                  Run N fuzz cases.  Each cases is a call
+**    --fuzz N                  Run N fuzz cases.  Each case is a call
 **                              to "fossil test-escaped-arg --compare HEX ARG"
 **                              where HEX and ARG are the same argument.
 **                              The argument is chosen at random.
@@ -1945,7 +2035,7 @@ void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
     blob_reset(pBlob);
     blob_set_dynamic(pBlob, zUtf8);
   }else if( useMbcs && invalid_utf8(pBlob) ){
-#if defined(_WIN32) || defined(__CYGWIN__)
+#if defined(_WIN32)
     zUtf8 = fossil_mbcs_to_utf8(blob_str(pBlob));
     blob_reset(pBlob);
     blob_append(pBlob, zUtf8, -1);

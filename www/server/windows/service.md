@@ -41,7 +41,7 @@ system account and accessible on port 8080 by default.  `fossil winsrv` can also
 start, stop, and delete the service.  For all available options, please execute
 `fossil help winsrv` on a windows install of Fossil.
 
-If you wish to server a directory of repositories, the `fossil winsrv` command
+If you wish to serve a directory of repositories, the `fossil winsrv` command
 requires a slightly different set of options vs. `fossil server`:
 
 ```
@@ -57,14 +57,14 @@ will be a subdirectory named "fossil" in the temporary directory given
 by the Windows GetTempPath(...) API, [namely](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-gettemppathw#remarks)
 the value of the first existing environment variable from `%TMP%`, `%TEMP%`,
 `%USERPROFILE%`, and `%SystemRoot%`; you can look for their actual values in
-your system by accessing the `/test_env` webpage. 
+your system by accessing the `/test-env` webpage. 
 Excluding this subdirectory will avoid certain rare failures where the
 fossil.exe process is unable to use the directory normally during a scan.
 
 ### <a id='PowerShell'></a>Advanced service installation using PowerShell
 
 As great as `fossil winsrv` is, it does not have one to one reflection of all of
-the `fossil server` [options](/help?cmd=server).  When you need to use some of
+the `fossil server` [options](/help/server).  When you need to use some of
 the more advanced options, such as `--https`, `--skin`, or `--extroot`, you will
 need to use PowerShell to configure and install the Windows service.
 
@@ -83,7 +83,7 @@ Fossil has a preference for forward slashes.  The use of `--repolist` will make
 this a multiple repository server.  If you want to serve only a single
 repository, then leave off the `--repolist` parameter and provide the full path
 to the proper repository file. Other options are listed in the
-[fossil server](/help?cmd=server) documentation.
+[fossil server](/help/server) documentation.
 
 The service will be installed by default to use the Local Service account.
 Since Fossil only needs access to local files, this is fine and causes no

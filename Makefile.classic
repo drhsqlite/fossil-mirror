@@ -97,7 +97,7 @@ USE_LINENOISE = 1
 HOST_OS_CMD = uname -s
 HOST_OS = $(HOST_OS_CMD:sh)
 
-LIB.SunOS= -lsocket -lnsl
+LIB.SunOS= -lsocket -lnsl -lrt
 LIB += $(LIB.$(HOST_OS))
 
 TCC.DragonFly += -DUSE_PREAD

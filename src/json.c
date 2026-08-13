@@ -80,7 +80,7 @@ int json_request_is_json_api(const char * zPathInfo){
     ** https://fossil-scm.org/forum/forumpost/e4953666d6
     */
     ReCompiled * pReg = 0;
-    const char * zErr = re_compile(&pReg, "^/[^/]+/json(/.*)?", 0);
+    const char * zErr = fossil_re_compile(&pReg, "^/[^/]+/json(/.*)?", 0);
     assert(zErr==0 && "Regex compilation failed?");
     if(zErr==0 &&
          re_match(pReg, (const unsigned char *)zPathInfo, -1)){
@@ -223,10 +223,10 @@ int cson_data_dest_cgi(void * pState, void const * src, unsigned int n){
 **
 */
 char const * json_rc_cstr( int code ){
-  enum { BufSize = 12 };
+  enum { BufSize = 13 };
   static char buf[BufSize] = {'F','O','S','S','I','L','-',0};
   assert((code >= 1000) && (code <= 9999) && "Invalid Fossil/JSON code.");
-  sprintf(buf+7,"%04d", code);
+  sqlite3_snprintf((int)BufSize, buf+7,"%04d", code);
   return buf;
 }
 
@@ -242,7 +242,7 @@ char const * json_rc_cstr( int code ){
 **
 ** Returns 0 on success.
 **
-** Ownership of v is transfered to (or shared with) g.json.gc, and v
+** Ownership of v is transferred to (or shared with) g.json.gc, and v
 ** will be valid until that object is cleaned up or some internal code
 ** incorrectly removes it from the gc (which we never do). If this
 ** function fails, it is fatal to the app (as it indicates an
@@ -273,7 +273,7 @@ void json_gc_add( char const * key, cson_value * v ){
 /*
 ** Returns the value of json_rc_cstr(code) as a new JSON
 ** string, which is owned by the caller and must eventually
-** be cson_value_free()d or transfered to a JSON container.
+** be cson_value_free()d or transferred to a JSON container.
 */
 cson_value * json_rc_string( int code ){
   return cson_value_new_string( json_rc_cstr(code), 11 );
@@ -866,7 +866,7 @@ void json_warn( int code, char const * fmt, ... ){
 ** given separator character. If doDeHttp is true then each element
 ** will be passed through dehttpize(), otherwise they are used
 ** as-is. Note that tokenization happens before dehttpize(),
-** which is significant if the ENcoded tokens might contain the
+** which is significant if the encoded tokens might contain the
 ** separator character.
 **
 ** Each new element is appended to the given target array object,
@@ -1439,7 +1439,7 @@ cson_value * json_g_to_json(){
 ** it defaults to g.json.resultCode. If resultCode is (or defaults to)
 ** non-zero and payload is not NULL then this function calls
 ** cson_value_free(payload) and does not insert the payload into the
-** response. In either case, ownership of payload is transfered to (or
+** response. In either case, ownership of payload is transferred to (or
 ** shared with, if the caller holds a reference) this function.
 **
 ** pMsg is an optional message string property (resultText) of the
@@ -1645,7 +1645,7 @@ int json_set_err( int code, char const * fmt, ... ){
   fossil_free(g.zErrMsg);
   g.json.resultCode = code;
   if(!fmt || !*fmt){
-    g.zErrMsg = mprintf("%s", json_err_cstr(code));
+    g.zErrMsg = fossil_strdup(json_err_cstr(code));
   }else{
     va_list vargs;
     char * msg;
@@ -1963,7 +1963,6 @@ cson_value * json_page_cap(void){
   ADD(Setup,"setup");
   ADD(Admin,"admin");
   ADD(Password,"password");
-  ADD(Query,"query"); /* don't think this one is actually used */
   ADD(Write,"checkin");
   ADD(Read,"checkout");
   ADD(Hyperlink,"history");

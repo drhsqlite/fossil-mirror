@@ -75,7 +75,7 @@ history of that project being a valuable record.
     try to use Fossil as a system deployment tool by archiving versions
     of the OS configuration files and then unpacking them on a new
     system, the extracted project files would have read/write access by
-    the user who did the extraction, which probably isn’t want you were
+    the user who did the extraction, which probably isn’t what you were
     wanting.
 
     Even with these problems aside, do you really want a `.fslckout`
@@ -92,13 +92,13 @@ history of that project being a valuable record.
     `~/.vim`, and your user has full rights to that subdirectory.
 
 [AIF]:     https://docs.asciidoctor.org/asciidoc/latest/directives/include/
-[IGS]:     /help?cmd=ignore-glob
+[IGS]:     /help/ignore-glob
 [IFRS]:    ./image-format-vs-repo-size.md
-[tarball]: /help?cmd=tarball
-[tw]:      /help?cmd=/tarball
+[tarball]: /help/tarball
+[tw]:      /help/www/tarball
 [Vim]:     https://www.vim.org/
-[zip]:     /help?cmd=zip
-[zw]:      /help?cmd=/zip
+[zip]:     /help/zip
+[zw]:      /help/www/zip
 
 
 ## Repository <a id="repository" name="repo"></a>
@@ -197,14 +197,14 @@ move right 0.05
 box invis "clones of Fossil itself, SQLite, etc." ljust
 ```
 
-[asdis]:   /help?cmd=autosync
+[asdis]:   /help/autosync
 [backup]:  ./backup.md
 [CAP]:     ./cap-theorem.md
-[cloned]:  /help?cmd=clone
-[pull]:    /help?cmd=pull
-[push]:    /help?cmd=push
-[svrcmd]:  /help?cmd=server
-[sync]:    /help?cmd=sync
+[cloned]:  /help/clone
+[pull]:    /help/pull
+[push]:    /help/push
+[svrcmd]:  /help/server
+[sync]:    /help/sync
 
 [repository]:   #repo
 [repositories]: #repo
@@ -312,11 +312,11 @@ a single [check-out’s](#co) perspective. It is sometimes styled
   [snapshotting file system][snfs], which captures changes to everything
   on the managed storage volume.
 
-[add]:    /help?cmd=add
+[add]:    /help/add
 [ciname]: ./checkin_names.wiki
-[extras]: /help?cmd=extras
-[stash]:  /help?cmd=stash
-[undo]:   /help?cmd=undo
+[extras]: /help/extras
+[stash]:  /help/stash
+[undo]:   /help/undo
 
 
 
@@ -350,7 +350,7 @@ particular [check-in](#ci) of the [project](#project).
     without having a copy of that zip file, one cannot make check-outs
     without access to the repository file or a clone thereof.
 
-*   Because a Fossil repository is a SQLite database file, the same
+*   Because a Fossil repository is an SQLite database file, the same
     rules for avoiding data corruption apply to it. In particular, it is
     [nearly a hard requirement][h2cflp] that the repository clone be on
     the same machine as the one where you make check-outs and the
@@ -367,13 +367,13 @@ particular [check-in](#ci) of the [project](#project).
     contents. With Fossil, [different check-out workflows][cwork] are
     preferred.
 
-[commit]: /help?cmd=commit
+[commit]: /help/commit
 [cwork]:  ./ckout-workflows.md
 [h2cflp]: https://www.sqlite.org/howtocorrupt.html#_file_locking_problems
 [fpvsc]:  https://marketplace.visualstudio.com/items?itemName=koog1000.fossil
-[open]:   /help?cmd=open
+[open]:   /help/open
 [mwd]:    ./ckout-workflows.md#mcw
-[update]: /help?cmd=update
+[update]: /help/update
 
 
 ## <a id="docs"></a>Embedded Documentation

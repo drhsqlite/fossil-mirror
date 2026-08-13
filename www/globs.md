@@ -244,25 +244,25 @@ implement or support with web servers provide a mechanism to name some
 files to serve with static content where a list of glob patterns
 specifies what content may be served.
 
-[`add`]:       /help?cmd=add
-[`addremove`]: /help?cmd=addremove
-[`changes`]:   /help?cmd=changes
-[`clean`]:     /help?cmd=clean
-[`commit`]:    /help?cmd=commit
-[`extras`]:    /help?cmd=extras
-[`merge`]:     /help?cmd=merge
-[`settings`]:  /help?cmd=settings
-[`status`]:    /help?cmd=status
-[`touch`]:     /help?cmd=touch
-[`unset`]:     /help?cmd=unset
+[`add`]:       /help/add
+[`addremove`]: /help/addremove
+[`changes`]:   /help/changes
+[`clean`]:     /help/clean
+[`commit`]:    /help/commit
+[`extras`]:    /help/extras
+[`merge`]:     /help/merge
+[`settings`]:  /help/settings
+[`status`]:    /help/status
+[`touch`]:     /help/touch
+[`unset`]:     /help/unset
 
-[`tarball`]:   /help?cmd=tarball
-[`zip`]:       /help?cmd=zip
+[`tarball`]:   /help/tarball
+[`zip`]:       /help/zip
 
-[`http`]:      /help?cmd=http
-[`cgi`]:       /help?cmd=cgi
-[`server`]:    /help?cmd=server
-[`ui`]:        /help?cmd=ui
+[`http`]:      /help/http
+[`cgi`]:       /help/cgi
+[`server`]:    /help/server
+[`ui`]:        /help/ui
 
 
 ### Web Pages that Refer to Globs
@@ -279,9 +279,9 @@ of a specific checkin. They may be further restricted by query
 parameters that specify glob patterns that name files to include or
 exclude rather than taking the entire checkin.
 
-[`/timeline`]: /help?cmd=/timeline
-[`/tarball`]:  /help?cmd=/tarball
-[`/zip`]:      /help?cmd=/zip
+[`/timeline`]: /help/www/timeline
+[`/tarball`]:  /help/www/tarball
+[`/zip`]:      /help/www/zip
 
 
 ## Platform Quirks
@@ -514,8 +514,8 @@ precede the command you want to test with [`test-echo`][] like so:
 The [`test-glob`][] command is also handy to test if a string
 matches a glob pattern.
 
-[`test-echo`]: /help?cmd=test-echo
-[`test-glob`]: /help?cmd=test-glob
+[`test-echo`]: /help/test-echo
+[`test-glob`]: /help/test-glob
 
 
 ## Converting `.gitignore` to `ignore-glob`

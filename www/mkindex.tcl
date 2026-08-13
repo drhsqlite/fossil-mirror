@@ -77,6 +77,7 @@ set doclist {
   /help {Lists of Commands and Webpages}
   hints.wiki {Fossil Tips And Usage Hints}
   history.md {The Purpose And History Of Fossil}
+  hundredandone.md {101 Reasons Why Fossil Is Better Than Git}
   index.wiki {Home Page}
   inout.wiki {Import And Export To And From Git}
   interwiki.md {Interwiki Links}

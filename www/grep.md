@@ -51,7 +51,7 @@ can get the same effect on systems with a POSIX shell like so:
 
 If you run that in a check-out of the [Fossil self-hosting source
 repository][fshsr], that returns the first line of the built-in
-documentation for each Fossil command, across all historical verisons.
+documentation for each Fossil command, across all historical versions.
 
 Fossil `grep` has extensions relative to these other `grep` standards,
 such as `--verbose` to print each checkin ID considered, regardless of
@@ -101,6 +101,11 @@ POSIX compatible regular expression engine. Among them are:
 
 *   There is currently no support for POSIX character classes such as
     `[:lower:]`.
+
+*   The values of `p` and `q` in the "`{p,q}`" syntax can be no greater
+    than 999.  This is because the NFA that is used for regular expression
+    matching is proportional in size to the largest p or q value, and hence
+    allowing arbitrarily large values could result in a DoS attack.
 
 *   Fossil `grep` does not currently attempt to take your operating
     system's locale settings into account when doing this match.  Since

@@ -25,7 +25,7 @@
      with a point in time rather than a name.
   *  [./settings.wiki | Settings] control the behaviour of Fossil.
   *  [./ssl.wiki | Use SSL] to encrypt communication with the server.
-  *  The [https://fossil-scm.org/forum|Fossil forum] is, as of mid-2018,
+  *  The [https://fossil-scm.org/forum|Fossil forum] is, as of late-2024,
      the project's central communication channel. The
      [https://www.mail-archive.com/fossil-users@lists.fossil-scm.org
      | read-only mailing list archives] house discussions spanning Fossil's

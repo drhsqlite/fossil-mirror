@@ -498,7 +498,7 @@ void content_rcvid_init(const char *zSrc){
 ** and zUuid is zero then the correct zUuid is computed from pBlob.
 **
 ** If the record already exists but is a phantom, the pBlob content
-** is inserted and the phatom becomes a real record.
+** is inserted and the phantom becomes a real record.
 **
 ** The original content of pBlob is not disturbed.  The caller continues
 ** to be responsible for pBlob.  This routine does *not* take over
@@ -602,6 +602,7 @@ int content_put_ex(
     db_exec(&s1);
     rid = db_last_insert_rowid();
     if( !pBlob ){
+      assert(!"cannot happen: pBlob is always non-NULL");
       db_multi_exec("INSERT OR IGNORE INTO phantom VALUES(%d)", rid);
     }
   }
@@ -652,7 +653,7 @@ int content_put_ex(
 **
 ** The original content of pBlob is not disturbed.  The caller continues
 ** to be responsible for pBlob.  This routine does *not* take over
-** responsiblity for freeing pBlob.
+** responsibility for freeing pBlob.
 */
 int content_put(Blob *pBlob){
   return content_put_ex(pBlob, 0, 0, 0, 0);
@@ -702,20 +703,49 @@ int content_new(const char *zUuid, int isPrivate){
 /*
 ** COMMAND: test-content-put
 **
-** Usage: %fossil test-content-put FILE
+** Usage: %fossil test-content-put [OPTIONS] FILE ...
 **
-** Read the content of FILE and add it to the Blob table as a new
-** artifact using a direct call to content_put().
+** Read the content of all FILE argments and add them to the Blob
+** table as a new artifact using a direct call to content_put().
+**
+** Options:
+**
+**    --moderate           Make corresponding entries to the MODREQ table
+**    -R REPO              Add the content to repository file REPO
+**    -x|--crosslink       Assume all inputs are artifacts and crosslink them.
 */
 void test_content_put_cmd(void){
   int rid;
   Blob content;
-  if( g.argc!=3 ) usage("FILENAME");
-  db_must_be_within_tree();
+  int i;
+  int bModreq = find_option("moderate",0,0)!=0;
+  int bCrosslink = find_option("crosslink","x",0)!=0;
+  db_find_and_open_repository(0,0);
   user_select();
-  blob_read_from_file(&content, g.argv[2], ExtFILE);
-  rid = content_put(&content);
-  fossil_print("inserted as record %d\n", rid);
+  verify_all_options();
+  db_begin_transaction();
+  if( bModreq ) moderation_table_create();
+  if( bCrosslink ){
+    manifest_crosslink_begin();
+  }
+  for(i=2; i<g.argc; i++){
+    const char *zFile = g.argv[i];
+    blob_read_from_file(&content, zFile, ExtFILE);
+    rid = content_put(&content);
+    if( bCrosslink ){
+      manifest_crosslink(rid, &content, MC_NONE);
+    }else{
+      blob_reset(&content);
+    }
+    if( bModreq ){
+      db_multi_exec("INSERT INTO modreq(objid) VALUES(%d)",rid);
+    }
+    fossil_print("inserted as record %d: %s\n", rid, zFile);
+  }
+  if( bCrosslink ){
+    manifest_crosslink_end(MC_NONE);
+  }
+  db_end_transaction(0);
 }
 
 /*
@@ -794,7 +824,7 @@ void content_make_private(int rid){
 /*
 ** Try to change the storage of rid so that it is a delta from one
 ** of the artifacts given in aSrc[0]..aSrc[nSrc-1].  The aSrc[*] that
-** gives the smallest delta is choosen.
+** gives the smallest delta is chosen.
 **
 ** If rid is already a delta from some other place then no
 ** conversion occurs and this is a no-op unless force==1.  If force==1,
@@ -865,7 +895,7 @@ int content_deltify(int rid, int *aSrc, int nSrc, int force){
     if( content_is_private(srcid) && !content_is_private(rid) ) continue;
 
     /* Compute all ancestors of srcid and make sure rid is not one of them.
-    ** If rid is an ancestor of srcid, then making rid a decendent of srcid
+    ** If rid is an ancestor of srcid, then making rid a descendant of srcid
     ** would create a delta loop. */
     s = srcid;
     while( (s = delta_source_rid(s))>0 ){
@@ -948,6 +978,7 @@ static int looks_like_control_artifact(Blob *p){
   int n = blob_size(p);
   if( n<10 ) return 0;
   if( strncmp(z, "-----BEGIN PGP SIGNED MESSAGE-----", 34)==0 ) return 1;
+  if( strncmp(z, "-----BEGIN SSH SIGNED MESSAGE-----", 34)==0 ) return 1;
   if( z[0]<'A' || z[0]>'Z' || z[1]!=' ' || z[0]=='I' ) return 0;
   if( z[n-1]!='\n' ) return 0;
   return 1;
@@ -965,7 +996,7 @@ static int looks_like_control_artifact(Blob *p){
 **                       No other validation is performed.
 **    --parse            Parse all manifests, wikis, tickets, events, and
 **                       so forth, reporting any errors found.
-**    -q|--quick         Run "PRAGMA quick_check" on the database only.
+**    --quick            Run "PRAGMA quick_check" on the database only.
 **                       No other validation is performed.
 */
 void test_integrity(void){
@@ -979,7 +1010,7 @@ void test_integrity(void){
   int anCA[10];
   int bParse = find_option("parse",0,0)!=0;
   int bDbOnly = find_option("db-only","d",0)!=0;
-  int bQuick = find_option("quick","q",0)!=0;
+  int bQuick = find_option("quick",0,0)!=0;
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 2);
   if( bDbOnly || bQuick ){
     const char *zType = bQuick ? "quick" : "integrity";
@@ -1199,7 +1230,7 @@ static int check_exists(
 **
 ** Options:
 **    --notshunned          Do not report shunned artifacts
-**    --quiet               Only show output if there are errors
+**    -q|--quiet            Only show output if there are errors
 */
 void test_missing(void){
   Stmt q;
@@ -1212,7 +1243,7 @@ void test_missing(void){
   int quietFlag;
 
   if( find_option("notshunned", 0, 0)!=0 ) flags |= MISSING_SHUNNED;
-  quietFlag = find_option("quiet","q",0)!=0;
+  quietFlag = g.fQuiet;
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
   db_prepare(&q,
      "SELECT mid FROM mlink UNION "

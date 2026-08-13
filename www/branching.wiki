@@ -77,7 +77,7 @@ of knowing that Alice has already committed her changes.  Or, it could
 be that Bob has turned off "autosync" mode in Fossil.  Or, maybe Bob
 just doesn't want to merge in Alice's changes before he has saved his
 own, so he forces the commit to occur using the "--allow-fork" option to
-the <b>[/help?cmd=commit | fossil commit]</b> command.  For any of these
+the <b>[/help/commit | fossil commit]</b> command.  For any of these
 reasons, two commits against check-in 2 have occurred, so the DAG now
 has two leaves.
 
@@ -113,7 +113,7 @@ about why there are two or more leaves on that branch. Further
 justifications for intentional forking are [#forking | given below].
 
 Let us return to Figure 2. To resolve such situations before they can
-become a real problem, Alice can use the <b>[/help?cmd=merge | fossil
+become a real problem, Alice can use the <b>[/help/merge | fossil
 merge]</b> command to merge Bob's changes into her local copy of
 check-in 3. Without arguments, that command merges all leaves on the
 current branch. Alice can then verify that the merge is sensible and if
@@ -351,7 +351,7 @@ it is done purely in software in order to avoid losing information:
     If you are writing such a tool — e.g. a shell script to make
     multiple manipulations on a Fossil repo — it's better to make it
     smart enough to detect this condition and cope with it, such as
-    by making a call to <b>[/help?cmd=update | fossil update]</b>
+    by making a call to <b>[/help/update | fossil update]</b>
     and checking for a merge conflict. That said, if the alternative is
     losing information, you may feel justified in creating forks that an
     interactive user must later manually clean up with <b>fossil merge</b>
@@ -602,7 +602,7 @@ she can end up seeing Alan's check-in 3 as the latest on that branch:
     time of the update.)</p></li>
 
     <li><p>The same thing, only in a fresh checkout directory with a
-    <b>[/help?cmd=open | fossil open $REPO $BRANCH]</b> command.</p></li>
+    <b>[/help/open | fossil open $REPO $BRANCH]</b> command.</p></li>
 
     <li><p>Alan makes his check-in 3 while Betty has check-in 1 or 2 as
     the tip in her local clone, but because she's working with an
@@ -753,7 +753,7 @@ in the SQLite and Fossil repositories: "broken-build," "declined,"
 "mistake," etc. As you might guess from these names, such branch names
 are used in renaming the tip of one branch to shunt it off away from the
 mainline of that branch due to some human error. (See
-<b>[/help?cmd=amend | fossil
+<b>[/help/amend | fossil
 amend]</b> and the Fossil UI check-in amendment features.) This is a
 workaround for Fossil's [./shunning.wiki|normal inability to forget
 history]: we usually don't want to actually <i>remove</i> history, but

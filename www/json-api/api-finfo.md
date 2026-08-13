@@ -22,7 +22,7 @@ Options:
     CLI mode: `--checkin|-ci`
 -   `before=DATETIME` only lists checkins from on or before this time.\  
     CLI mode: `--before|-b`
--   `after=DATETIME` only lists checkins from on or before this time.
+-   `after=DATETIME` only lists checkins from on or after this time.
     Using this option swaps the sort order, to provide reasonable
     behaviour in conjunction with the limit option.\  
     Only one of "before" and "after" may be specified, and if both are

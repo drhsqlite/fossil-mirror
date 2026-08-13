@@ -29,3 +29,33 @@ proc parse-tclconfig-sh-file {filename} {
 	}
 	return [array get tclconfig]
 }
+
+#
+# Given a library link flag, e.g. -lfoo, returns 1 if that library can
+# actually be linked to, else returns 0.
+proc lib-actually-exists {linkFlag} {
+  cctest -link 1 -code "void libActuallyExists(void){}" -libs $linkFlag
+}
+
+#
+# Given a library flag, e.g. -lfoo, a list of libs, e.g. {-lfoo -lbar
+# -lbaz}, and a target variable name, this function appends all
+# entries of $libList which do not match $flag to $tgtVar, then
+# appends $flag to the end of $tgtVar. Returns the number of matches
+# found.
+proc move-lib-to-end {flag libList tgtVar} {
+  upvar $tgtVar tgt
+  set tgt {}
+  set found 0
+  foreach e $libList {
+    if {$flag eq $e} {
+      incr found
+    } else {
+      lappend tgt $e
+    }
+  }
+  if {$found} {
+    lappend tgt $flag
+  }
+  return $found
+}

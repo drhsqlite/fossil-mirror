@@ -26,6 +26,10 @@
 #include "th.h"
 #include "tcl.h"
 
+#if TCL_MAJOR_VERSION<9 && !defined(Tcl_Size)
+# define Tcl_Size int
+#endif
+
 /*
 ** This macro is used to verify that the header version of Tcl meets some
 ** minimum requirement.
@@ -43,12 +47,12 @@
   Tcl_Obj **objv;          \
   int obji;
 
-#define COPY_ARGV_TO_OBJV()                                         \
-  objc = argc-1;                                                    \
-  objv = (Tcl_Obj **)ckalloc((unsigned)(objc * sizeof(Tcl_Obj *))); \
-  for(obji=1; obji<argc; obji++){                                   \
-    objv[obji-1] = Tcl_NewStringObj(argv[obji], argl[obji]);        \
-    Tcl_IncrRefCount(objv[obji-1]);                                 \
+#define COPY_ARGV_TO_OBJV()                                           \
+  objc = argc-1;                                                      \
+  objv = (Tcl_Obj **)ckalloc((unsigned)(objc * sizeof(Tcl_Obj *)));   \
+  for(obji=1; obji<argc; obji++){                                     \
+    objv[obji-1] = Tcl_NewStringObj(argv[obji], TH1_LEN(argl[obji])); \
+    Tcl_IncrRefCount(objv[obji-1]);                                   \
   }
 
 #define FREE_ARGV_TO_OBJV()         \
@@ -100,7 +104,7 @@
 #      define TCL_DIRECTORY_SEP '\\'
 #    endif
 #    ifndef TCL_LIBRARY_NAME
-#      define TCL_LIBRARY_NAME "tcl87.dll\0"
+#      define TCL_LIBRARY_NAME "tcl91.dll\0"
 #    endif
 #    ifndef TCL_MINOR_OFFSET
 #      define TCL_MINOR_OFFSET (4)
@@ -119,30 +123,30 @@
 #    ifndef TCL_DIRECTORY_SEP
 #      define TCL_DIRECTORY_SEP '/'
 #    endif
-#    if defined(__CYGWIN__)
+#    if defined(__CYGWIN__) && (TCL_MAJOR_VERSION > 8)
 #      ifndef TCL_LIBRARY_NAME
-#        define TCL_LIBRARY_NAME "libtcl8.7.dll\0"
+#        define TCL_LIBRARY_NAME "cygtcl9.1.dll\0"
 #      endif
 #      ifndef TCL_MINOR_OFFSET
 #        define TCL_MINOR_OFFSET (8)
 #      endif
 #    elif defined(__APPLE__)
 #      ifndef TCL_LIBRARY_NAME
-#        define TCL_LIBRARY_NAME "libtcl8.7.dylib\0"
+#        define TCL_LIBRARY_NAME "libtcl9.1.dylib\0"
 #      endif
 #      ifndef TCL_MINOR_OFFSET
 #        define TCL_MINOR_OFFSET (8)
 #      endif
 #    elif defined(__FreeBSD__)
 #      ifndef TCL_LIBRARY_NAME
-#        define TCL_LIBRARY_NAME "libtcl87.so\0"
+#        define TCL_LIBRARY_NAME "libtcl91.so\0"
 #      endif
 #      ifndef TCL_MINOR_OFFSET
 #        define TCL_MINOR_OFFSET (7)
 #      endif
 #    else
 #      ifndef TCL_LIBRARY_NAME
-#        define TCL_LIBRARY_NAME "libtcl8.7.so\0"
+#        define TCL_LIBRARY_NAME "libtcl9.1.so\0"
 #      endif
 #      ifndef TCL_MINOR_OFFSET
 #        define TCL_MINOR_OFFSET (8)
@@ -151,6 +155,9 @@
 #  endif /* defined(_WIN32) */
 #  ifndef TCL_FINDEXECUTABLE_NAME
 #    define TCL_FINDEXECUTABLE_NAME "_Tcl_FindExecutable\0"
+#  endif
+#  ifndef TCL_ZIPFSAPPHOOK_NAME
+#    define TCL_ZIPFSAPPHOOK_NAME "_TclZipfs_AppHook\0"
 #  endif
 #  ifndef TCL_CREATEINTERP_NAME
 #    define TCL_CREATEINTERP_NAME "_Tcl_CreateInterp\0"
@@ -185,7 +192,12 @@
 ** cleanup if the Tcl stubs initialization fails somehow, the Tcl_DeleteInterp
 ** and Tcl_Finalize function types are also required.
 */
+#if TCL_MAJOR_VERSION>=9
+typedef const char *(tcl_FindExecutableProc) (const char *);
+typedef const char *(tcl_ZipfsAppHookProc) (int *, char ***);
+#else
 typedef void (tcl_FindExecutableProc) (const char *);
+#endif
 typedef Tcl_Interp *(tcl_CreateInterpProc) (void);
 typedef void (tcl_DeleteInterpProc) (Tcl_Interp *);
 typedef void (tcl_FinalizeProc) (void);
@@ -254,7 +266,7 @@ static int initTclStubs(
     return TH_ERROR;
   }
   /* NOTE: At this point, the Tcl API functions should be available. */
-  if( Tcl_PkgRequireEx(tclInterp, "Tcl", "8.4", 0, (void *)&tclStubsPtr)==0 ){
+  if( Tcl_PkgRequireEx(tclInterp, "Tcl", "8.5-", 0, (void *)&tclStubsPtr)==0 ){
     Th_ErrorMessage(interp,
         "could not initialize Tcl stubs: incompatible version",
         (const char *)"", 0);
@@ -324,23 +336,6 @@ static int canUseTip285(){
 static int createTclInterp(Th_Interp *interp, void *pContext);
 
 /*
-** Returns the TH1 return code corresponding to the specified Tcl
-** return code.
-*/
-static int getTh1ReturnCode(
-  int rc /* The Tcl return code value to convert. */
-){
-  switch( rc ){
-    case /*0*/ TCL_OK:       return /*0*/ TH_OK;
-    case /*1*/ TCL_ERROR:    return /*1*/ TH_ERROR;
-    case /*2*/ TCL_RETURN:   return /*3*/ TH_RETURN;
-    case /*3*/ TCL_BREAK:    return /*2*/ TH_BREAK;
-    case /*4*/ TCL_CONTINUE: return /*4*/ TH_CONTINUE;
-    default /*?*/:           return /*?*/ rc;
-  }
-}
-
-/*
 ** Returns the Tcl return code corresponding to the specified TH1
 ** return code.
 */
@@ -389,6 +384,8 @@ static char *getTclResult(
   int *pN
 ){
   Tcl_Obj *resultPtr;
+  Tcl_Size n;
+  char *zRes;
 
   if( !pInterp ){ /* This should not happen. */
     if( pN ) *pN = 0;
@@ -399,7 +396,9 @@ static char *getTclResult(
     if( pN ) *pN = 0;
     return 0;
   }
-  return Tcl_GetStringFromObj(resultPtr, pN);
+  zRes = Tcl_GetStringFromObj(resultPtr, &n);
+  *pN = (int)n;
+  return zRes;
 }
 
 /*
@@ -411,6 +410,9 @@ struct TclContext {
   char **argv;        /* Full copy of the original arguments. */
   void *hLibrary;     /* The Tcl library module handle. */
   tcl_FindExecutableProc *xFindExecutable; /* Tcl_FindExecutable() pointer. */
+#if TCL_MAJOR_VERSION>=9
+  tcl_ZipfsAppHookProc  *xZipfsAppHook;    /* TclZipfsAppHook() pointer. */
+#endif
   tcl_CreateInterpProc *xCreateInterp;     /* Tcl_CreateInterp() pointer. */
   tcl_DeleteInterpProc *xDeleteInterp;     /* Tcl_DeleteInterp() pointer. */
   tcl_FinalizeProc *xFinalize;             /* Tcl_Finalize() pointer. */
@@ -418,43 +420,7 @@ struct TclContext {
   int useObjProc;     /* Non-zero if an objProc can be called directly. */
   int useTip285;      /* Non-zero if TIP #285 is available. */
   const char *setup;  /* The optional Tcl setup script. */
-  tcl_NotifyProc *xPreEval;  /* Optional, called before Tcl_Eval*(). */
-  void *pPreContext;         /* Optional, provided to xPreEval(). */
-  tcl_NotifyProc *xPostEval; /* Optional, called after Tcl_Eval*(). */
-  void *pPostContext;        /* Optional, provided to xPostEval(). */
 };
-
-/*
-** This function calls the configured xPreEval or xPostEval functions, if any.
-** May have arbitrary side-effects.  This function returns the result of the
-** called notification function or the value of the rc argument if there is no
-** notification function configured.
-*/
-static int notifyPreOrPostEval(
-  int bIsPost,
-  Th_Interp *interp,
-  void *ctx,
-  int argc,
-  const char **argv,
-  int *argl,
-  int rc
-){
-  struct TclContext *tclContext = (struct TclContext *)ctx;
-  tcl_NotifyProc *xNotifyProc;
-
-  if( !tclContext ){
-    Th_ErrorMessage(interp,
-        "invalid Tcl context", (const char *)"", 0);
-    return TH_ERROR;
-  }
-  xNotifyProc = bIsPost ? tclContext->xPostEval : tclContext->xPreEval;
-  if( xNotifyProc ){
-    rc = xNotifyProc(bIsPost ?
-        tclContext->pPostContext : tclContext->pPreContext,
-        interp, ctx, argc, argv, argl, rc);
-  }
-  return rc;
-}
 
 /*
 ** TH1 command: tclEval arg ?arg ...?
@@ -487,13 +453,9 @@ static int tclEval_command(
     Th_ErrorMessage(interp, "invalid Tcl interpreter", (const char *)"", 0);
     return TH_ERROR;
   }
-  rc = notifyPreOrPostEval(0, interp, ctx, argc, argv, argl, rc);
-  if( rc!=TH_OK ){
-    return rc;
-  }
   Tcl_Preserve((ClientData)tclInterp);
   if( argc==2 ){
-    objPtr = Tcl_NewStringObj(argv[1], argl[1]);
+    objPtr = Tcl_NewStringObj(argv[1], TH1_LEN(argl[1]));
     Tcl_IncrRefCount(objPtr);
     rc = Tcl_EvalObjEx(tclInterp, objPtr, 0);
     Tcl_DecrRefCount(objPtr); objPtr = 0;
@@ -509,8 +471,6 @@ static int tclEval_command(
   zResult = getTclResult(tclInterp, &nResult);
   Th_SetResult(interp, zResult, nResult);
   Tcl_Release((ClientData)tclInterp);
-  rc = notifyPreOrPostEval(1, interp, ctx, argc, argv, argl,
-                           getTh1ReturnCode(rc));
   return rc;
 }
 
@@ -547,13 +507,9 @@ static int tclExpr_command(
     Th_ErrorMessage(interp, "invalid Tcl interpreter", (const char *)"", 0);
     return TH_ERROR;
   }
-  rc = notifyPreOrPostEval(0, interp, ctx, argc, argv, argl, rc);
-  if( rc!=TH_OK ){
-    return rc;
-  }
   Tcl_Preserve((ClientData)tclInterp);
   if( argc==2 ){
-    objPtr = Tcl_NewStringObj(argv[1], argl[1]);
+    objPtr = Tcl_NewStringObj(argv[1], TH1_LEN(argl[1]));
     Tcl_IncrRefCount(objPtr);
     rc = Tcl_ExprObj(tclInterp, objPtr, &resultObjPtr);
     Tcl_DecrRefCount(objPtr); objPtr = 0;
@@ -567,17 +523,17 @@ static int tclExpr_command(
     FREE_ARGV_TO_OBJV();
   }
   if( rc==TCL_OK ){
-    zResult = Tcl_GetStringFromObj(resultObjPtr, &nResult);
+    Tcl_Size szResult = 0;
+    zResult = Tcl_GetStringFromObj(resultObjPtr, &szResult);
+    nResult = (int)szResult;
   }else{
     zResult = getTclResult(tclInterp, &nResult);
   }
-  Th_SetResult(interp, zResult, nResult);
+  Th_SetResult(interp, zResult, (int)nResult);
   if( rc==TCL_OK ){
     Tcl_DecrRefCount(resultObjPtr); resultObjPtr = 0;
   }
   Tcl_Release((ClientData)tclInterp);
-  rc = notifyPreOrPostEval(1, interp, ctx, argc, argv, argl,
-                           getTh1ReturnCode(rc));
   return rc;
 }
 
@@ -612,16 +568,12 @@ static int tclInvoke_command(
     Th_ErrorMessage(interp, "invalid Tcl interpreter", (const char *)"", 0);
     return TH_ERROR;
   }
-  rc = notifyPreOrPostEval(0, interp, ctx, argc, argv, argl, rc);
-  if( rc!=TH_OK ){
-    return rc;
-  }
   Tcl_Preserve((ClientData)tclInterp);
 #if !defined(USE_TCL_EVALOBJV) || !USE_TCL_EVALOBJV
   if( GET_CTX_TCL_USEOBJPROC(ctx) ){
     Tcl_Command command;
     Tcl_CmdInfo cmdInfo;
-    Tcl_Obj *objPtr = Tcl_NewStringObj(argv[1], argl[1]);
+    Tcl_Obj *objPtr = Tcl_NewStringObj(argv[1], TH1_LEN(argl[1]));
     Tcl_IncrRefCount(objPtr);
     command = Tcl_GetCommandFromObj(tclInterp, objPtr);
     if( !command || Tcl_GetCommandInfoFromToken(command, &cmdInfo)==0 ){
@@ -651,8 +603,6 @@ static int tclInvoke_command(
   zResult = getTclResult(tclInterp, &nResult);
   Th_SetResult(interp, zResult, nResult);
   Tcl_Release((ClientData)tclInterp);
-  rc = notifyPreOrPostEval(1, interp, ctx, argc, argv, argl,
-                           getTh1ReturnCode(rc));
   return rc;
 }
 
@@ -733,6 +683,15 @@ static int tclMakeSafe_command(
     Tcl_RegisterChannel(NULL, Tcl_GetStdChannel(TCL_STDERR));
   }
   Tcl_Preserve((ClientData)tclInterp);
+#if ((TCL_MAJOR_VERSION==8 && TCL_MINOR_VERSION>6) \
+     || (TCL_MAJOR_VERSION>8))
+  /* TCL 8.7+ removes Tcl_MakeSafe():
+  ** https://core.tcl-lang.org/tcl/tktview?name=655300
+  ** https://core.tcl-lang.org/tips/doc/trunk/tip/624.md
+  ** 8.7 has it in the headers but not in the libs.
+  */
+#  define Tcl_MakeSafe(X) TCL_OK
+#endif
   if( Tcl_MakeSafe(tclInterp)!=TCL_OK ){
     int nResult;
     const char *zResult = getTclResult(tclInterp, &nResult);
@@ -760,6 +719,7 @@ static int Th1EvalObjCmd(
 ){
   Th_Interp *th1Interp;
   int nArg;
+  Tcl_Size szArg;
   const char *arg;
   int rc;
 
@@ -772,10 +732,11 @@ static int Th1EvalObjCmd(
     Tcl_AppendResult(interp, "invalid TH1 interpreter", NULL);
     return TCL_ERROR;
   }
-  arg = Tcl_GetStringFromObj(objv[1], &nArg);
+  arg = Tcl_GetStringFromObj(objv[1], &szArg);
+  nArg = (int)szArg;
   rc = Th_Eval(th1Interp, 0, arg, nArg);
   arg = Th_GetResult(th1Interp, &nArg);
-  Tcl_SetObjResult(interp, Tcl_NewStringObj(arg, nArg));
+  Tcl_SetObjResult(interp, Tcl_NewStringObj(arg, TH1_LEN(nArg)));
   return getTclReturnCode(rc);
 }
 
@@ -793,6 +754,7 @@ static int Th1ExprObjCmd(
 ){
   Th_Interp *th1Interp;
   int nArg;
+  Tcl_Size szArg;
   const char *arg;
   int rc;
 
@@ -805,10 +767,10 @@ static int Th1ExprObjCmd(
     Tcl_AppendResult(interp, "invalid TH1 interpreter", NULL);
     return TCL_ERROR;
   }
-  arg = Tcl_GetStringFromObj(objv[1], &nArg);
-  rc = Th_Expr(th1Interp, arg, nArg);
+  arg = Tcl_GetStringFromObj(objv[1], &szArg);
+  rc = Th_Expr(th1Interp, arg, (int)szArg);
   arg = Th_GetResult(th1Interp, &nArg);
-  Tcl_SetObjResult(interp, Tcl_NewStringObj(arg, nArg));
+  Tcl_SetObjResult(interp, Tcl_NewStringObj(arg, TH1_LEN(nArg)));
   return getTclReturnCode(rc);
 }
 
@@ -866,6 +828,9 @@ static int loadTcl(
   Th_Interp *interp,
   void **phLibrary,
   tcl_FindExecutableProc **pxFindExecutable,
+#if TCL_MAJOR_VERSION>=9
+  tcl_ZipfsAppHookProc **pxZipfsAppHook,
+#endif
   tcl_CreateInterpProc **pxCreateInterp,
   tcl_DeleteInterpProc **pxDeleteInterp,
   tcl_FinalizeProc **pxFinalize
@@ -882,6 +847,14 @@ static int loadTcl(
     return TH_ERROR;
   }
 #if defined(USE_TCL_STUBS)
+#if TCL_MAJOR_VERSION<9
+#if defined(_WIN32) || defined(__FreeBSD__)
+  aFileName[TCL_MINOR_OFFSET-1] = '0' + TCL_MAJOR_VERSION;
+#else
+  aFileName[TCL_MINOR_OFFSET-2] = '0' + TCL_MAJOR_VERSION;
+#endif
+  aFileName[TCL_MINOR_OFFSET] = '0' + TCL_MINOR_VERSION;
+#endif
   do {
     char *zFileName;
     void *hLibrary;
@@ -917,6 +890,9 @@ static int loadTcl(
     }
     if( hLibrary ){
       tcl_FindExecutableProc *xFindExecutable;
+#if TCL_MAJOR_VERSION>=9
+      tcl_ZipfsAppHookProc *xZipfsAppHook;
+#endif
       tcl_CreateInterpProc *xCreateInterp;
       tcl_DeleteInterpProc *xDeleteInterp;
       tcl_FinalizeProc *xFinalize;
@@ -931,6 +907,13 @@ static int loadTcl(
         dlclose(hLibrary); hLibrary = 0;
         return TH_ERROR;
       }
+#if TCL_MAJOR_VERSION>=9
+      procName = TCL_ZIPFSAPPHOOK_NAME;
+      xZipfsAppHook = (tcl_ZipfsAppHookProc *)dlsym(hLibrary, procName+1);
+      if( !xZipfsAppHook ){
+        xZipfsAppHook = (tcl_ZipfsAppHookProc *)dlsym(hLibrary, procName);
+      }
+#endif
       procName = TCL_CREATEINTERP_NAME;
       xCreateInterp = (tcl_CreateInterpProc *)dlsym(hLibrary, procName+1);
       if( !xCreateInterp ){
@@ -966,20 +949,26 @@ static int loadTcl(
       }
       *phLibrary = hLibrary;
       *pxFindExecutable = xFindExecutable;
+#if TCL_MAJOR_VERSION>=9
+      *pxZipfsAppHook = xZipfsAppHook;
+#endif
       *pxCreateInterp = xCreateInterp;
       *pxDeleteInterp = xDeleteInterp;
       *pxFinalize = xFinalize;
       return TH_OK;
     }
-  } while( --aFileName[TCL_MINOR_OFFSET]>'3' ); /* Tcl 8.4+ */
+  } while( --aFileName[TCL_MINOR_OFFSET]!='6' && aFileName[TCL_MINOR_OFFSET]>='0'); /* Tcl 8.6+ */
   aFileName[TCL_MINOR_OFFSET] = 'x';
   Th_ErrorMessage(interp,
-      "could not load any supported Tcl 8.x shared library \"",
+      "could not load any supported Tcl shared library \"",
       aFileName, -1);
   return TH_ERROR;
 #else
   *phLibrary = 0;
   *pxFindExecutable = Tcl_FindExecutable;
+#if TCL_MAJOR_VERSION>=9
+  *pxZipfsAppHook = (tcl_ZipfsAppHookProc *)(void *)TclZipfs_AppHook;
+#endif
   *pxCreateInterp = Tcl_CreateInterp;
   *pxDeleteInterp = Tcl_DeleteInterp;
   *pxFinalize = Tcl_Finalize;
@@ -1123,6 +1112,9 @@ static int createTclInterp(
     return TH_OK;
   }
   if( loadTcl(interp, &tclContext->hLibrary, &tclContext->xFindExecutable,
+  #if TCL_MAJOR_VERSION >= 9
+              &tclContext->xZipfsAppHook,
+  #endif
               &tclContext->xCreateInterp, &tclContext->xDeleteInterp,
               &tclContext->xFinalize)!=TH_OK ){
     return TH_ERROR;
@@ -1132,6 +1124,11 @@ static int createTclInterp(
   if( argc>0 && argv ){
     argv0 = argv[0];
   }
+#if TCL_MAJOR_VERSION>=9
+  if (tclContext->xZipfsAppHook) {
+    tclContext->xZipfsAppHook(&tclContext->argc, &tclContext->argv);
+  }
+#endif
   tclContext->xFindExecutable(argv0);
   tclInterp = tclContext->xCreateInterp();
   if( !tclInterp ){
@@ -1147,7 +1144,7 @@ static int createTclInterp(
     return TH_ERROR;
   }
 #else
-  if( !Tcl_InitStubs(tclInterp, "8.4", 0) ){
+  if( !Tcl_InitStubs(tclInterp, "8.5-", 0) ){
     Th_ErrorMessage(interp,
         "could not initialize Tcl stubs", (const char *)"", 0);
     tclContext->xDeleteInterp(tclInterp);

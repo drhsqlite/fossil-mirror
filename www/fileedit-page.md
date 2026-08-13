@@ -2,8 +2,8 @@
 
 This document describes the limitations of, caveats for, and
 disclaimers for the [](/fileedit) page, which provides users with
-[checkin privileges](./caps/index.md) basic editing features for files
-via the web interface.
+ basic editing features for files via the web interface when they
+ have [checkin privileges](./caps/index.md).
 
 # Important Caveats and Disclaimers
 
@@ -15,7 +15,7 @@ and disclaimers...
 
 In order to "activate" it, a user with [the "setup"
 permission](./caps/index.md) must set the
-[fileedit-glob](/help?cmd=fileedit-glob) repository setting to a
+[fileedit-glob](/help/fileedit-glob) repository setting to a
 comma- or newline-delimited list of globs representing a whitelist of
 files which may be edited online. Any user with commit access may then
 edit files matching one of those globs. Certain pages within the UI
@@ -221,7 +221,7 @@ contains 3 properties:
   by Fossil (by its file extension).
 
 The event listener callback shown above doesn't use the `mimetype`,
-but makes used of the other two. It fishes all `code` blocks out of
+but makes use of the other two. It fishes all `code` blocks out of
 the preview which explicitly have a CSS class named
 `language-`something, and then asks highlightjs to highlight them.
 

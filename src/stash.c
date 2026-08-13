@@ -261,6 +261,7 @@ static int stash_create(void){
   int vid;                           /* Current check-out */
 
   zComment = find_option("comment", "m", 1);
+  (void)fossil_text_editor();
   verify_all_options();
   if( zComment==0 ){
     Blob prompt;                       /* Prompt for stash comment */
@@ -366,12 +367,18 @@ static void stash_apply(int stashid, int nConflict){
           fossil_print("***** Cannot merge symlink %s\n", zNew);
         }else{
           rc = merge_3way(&a, zOPath, &b, &out, MERGE_KEEP_FILES);
-          blob_write_to_file(&out, zNPath);
+          if( rc>=0 ){
+            blob_write_to_file(&out, zNPath);
+            file_setexe(zNPath, isExec);
+          }
           blob_reset(&out);
-          file_setexe(zNPath, isExec);
         }
         if( rc ){
           fossil_print("CONFLICT %s\n", zNew);
+          if( rc<0 ){
+            fossil_print("       binary file left unchanged - resolve using "
+                "-baseline/-original/-merge\n");
+          }
           nConflict++;
         }else{
           fossil_print("MERGE %s\n", zNew);
@@ -448,20 +455,30 @@ static void stash_diff(
       Blob delta;
       int isOrigLink = file_islink(zOPath);
       db_ephemeral_blob(&q, 6, &delta);
-      if( !bWebpage ) fossil_print("CHANGED %s\n", zNew);
       if( !isOrigLink != !isLink ){
+        if( !bWebpage ) fossil_print("CHANGED %s\n", zNew);
         diff_print_index(zNew, pCfg, 0);
         diff_print_filenames(zOrig, zNew, pCfg, 0);
         printf(DIFF_CANNOT_COMPUTE_SYMLINK);
       }else{
+        int isChanged = 0;
         content_get(rid, &a);
         blob_delta_apply(&a, &delta, &b);
         if( fBaseline ){
-          diff_file_mem(&a, &b, zNew, pCfg);
-        }else{
+          if( blob_compare(&a, &b) ){
+            isChanged = 1;
+            if( !bWebpage ) fossil_print("CHANGED %s\n", zNew);
+            diff_file_mem(&a, &b, zNew, pCfg);
+          }
+        }else if( !file_same_as_blob(&b, zOPath) ){
+          isChanged = 1;
+          if( !bWebpage ) fossil_print("CHANGED %s\n", zNew);
           pCfg->diffFlags ^= DIFF_INVERT;
           diff_file(&b, zOPath, zNew, pCfg, 0);
           pCfg->diffFlags ^= DIFF_INVERT;
+        }
+        if( !bWebpage && !isChanged && pCfg->diffFlags & DIFF_VERBOSE ){
+            fossil_print("UNCHANGED %s\n", zNew);
         }
         blob_reset(&a);
         blob_reset(&b);
@@ -510,8 +527,8 @@ static int stash_get_id(const char *zStashId){
 ** Usage: %fossil stash SUBCOMMAND ARGS...
 **
 ** > fossil stash
-** > fossil stash save ?-m|--comment COMMENT? ?FILES...?
-** > fossil stash snapshot ?-m|--comment COMMENT? ?FILES...?
+** > fossil stash save ?FILES...?
+** > fossil stash snapshot ?FILES...?
 **
 **      Save the current changes in the working tree as a new stash.
 **      Then revert the changes back to the last check-in.  If FILES
@@ -519,6 +536,11 @@ static int stash_get_id(const char *zStashId){
 **      "save" verb can be omitted if and only if there are no other
 **      arguments.  The "snapshot" verb works the same as "save" but
 **      omits the revert, keeping the check-out unchanged.
+**
+**      Options:
+**         --editor NAME                  Use the NAME editor to enter comment
+**         -m|--comment COMMENT           Comment text for the new stash
+**
 **
 ** > fossil stash list|ls ?-v|--verbose? ?-W|--width NUM?
 **
@@ -546,11 +568,11 @@ static int stash_get_id(const char *zStashId){
 **      changes of STASHID.  Keep STASHID so that it can be reused
 **      This command is undoable.
 **
-** > fossil stash drop|rm ?STASHID? ?-a|--all?
+** > fossil stash drop|rm ?STASHIDs...? ?-a|--all?
 **
-**      Forget everything about STASHID.  Forget the whole stash if the
-**      -a|--all flag is used.  Individual drops are undoable but -a|--all
-**      is not.
+**      Forget everything about the given STASHIDs.  Forget the whole
+**      stash if the -a|--all flag is used.  Individual drops are
+**      undoable but -a|--all is not.
 **
 ** > fossil stash diff ?STASHID? ?DIFF-OPTIONS?
 ** > fossil stash gdiff ?STASHID? ?DIFF-OPTIONS?
@@ -558,6 +580,10 @@ static int stash_get_id(const char *zStashId){
 **      Show diffs of the current working directory and what that
 **      directory would be if STASHID were applied. With gdiff,
 **      gdiff-command is used instead of internal diff logic.
+**
+** > fossil stash rename STASHID NEW-NAME
+**
+**      Change the description of the given STASHID entry to NEW-NAME.
 */
 void stash_cmd(void){
   const char *zCmd;
@@ -758,7 +784,7 @@ void stash_cmd(void){
     if( strstr(zCmd,"show")!=0 || strstr(zCmd,"cat")!=0 ){
       fBaseline = 1;
     }
-    if( find_option("tk",0,0)!=0 ){
+    if( find_option("tk",0,0)!=0 || gdiff_using_tk(zCmd[0]=='g') ){
       db_close(0);
       diff_tk(fBaseline ? "stash show" : "stash diff", 3);
       return;
@@ -767,7 +793,13 @@ void stash_cmd(void){
     stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
     stash_diff(stashid, fBaseline, &DCfg);
   }else
-  if( strncmp(zCmd, "help", nCmd)==0 ){
+  if( strncmp(zCmd, "rename", nCmd)==0 ){
+    if( g.argc!=5 ) usage("rename STASHID NAME");
+    stashid = stash_get_id(g.argv[3]);
+    db_multi_exec("UPDATE STASH SET COMMENT=%Q WHERE stashid=%d",
+                  g.argv[4], stashid);
+  }
+  else if( strncmp(zCmd, "help", nCmd)==0 ){
     g.argv[1] = "help";
     g.argv[2] = "stash";
     g.argc = 3;

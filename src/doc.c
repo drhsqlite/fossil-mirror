@@ -172,6 +172,9 @@ static const struct {
   { "lzh",        3, "application/octet-stream"          },
   { "m",          1, "text/plain"                        },
   { "m3u",        3, "audio/x-mpegurl"                   },
+  { "m4a",        3, "audio/mp4"
+    /* Many sources call this audio/m4a, but that's
+       deprecated */                                     },
   { "man",        3, "text/plain"                        },
   { "markdown",   8, "text/x-markdown"                   },
   { "md",         2, "text/x-markdown"                   },
@@ -202,6 +205,7 @@ static const struct {
   { "odt",        3, "application/vnd.oasis.opendocument.text" },
   { "ogg",        3, "application/ogg"                   },
   { "ogm",        3, "application/ogg"                   },
+  { "otf",        3, "font/otf"                          },
   { "pbm",        3, "image/x-portable-bitmap"           },
   { "pdb",        3, "chemical/x-pdb"                    },
   { "pdf",        3, "application/pdf"                   },
@@ -255,6 +259,7 @@ static const struct {
   { "snd",        3, "audio/basic"                       },
   { "sol",        3, "application/solids"                },
   { "spl",        3, "application/x-futuresplash"        },
+  { "sql",        3, "application/sql"                   },
   { "src",        3, "application/x-wais-source"         },
   { "step",       4, "application/STEP"                  },
   { "stl",        3, "application/SLA"                   },
@@ -306,6 +311,8 @@ static const struct {
   { "xlw",        3, "application/vnd.ms-excel"          },
   { "xml",        3, "text/xml"                          },
   { "xpm",        3, "image/x-xpixmap"                   },
+  { "xsl",        3, "text/xml"                          },
+  { "xslt",       4, "text/xml"                          },
   { "xwd",        3, "image/x-xwindowdump"               },
   { "xyz",        3, "chemical/x-pdb"                    },
   { "zip",        3, "application/zip"                   },
@@ -519,16 +526,16 @@ void mimetype_list_page(void){
                             ** setting */
   mimetype_verify();
   style_header("Mimetype List");
-  @ <p>The Fossil <a href="%R/help?cmd=/doc">/doc</a> page uses filename
+  @ <p>The Fossil <a href="%R/help/www/doc">/doc</a> page uses filename
   @ suffixes and the following tables to guess at the appropriate mimetype
   @ for each document. Mimetypes may be customized and overridden using
-  @ <a href="%R/help?cmd=mimetypes">the mimetypes config setting</a>.</p>
+  @ <a href="%R/help/mimetypes">the mimetypes config setting</a>.</p>
   zCustomList = db_get("mimetypes",0);
   if( zCustomList!=0 ){
     Blob list, entry, key, val;
     @ <h1>Repository-specific mimetypes</h1>
     @ <p>The following extension-to-mimetype mappings are defined via
-    @ the <a href="%R/help?cmd=mimetypes">mimetypes setting</a>.</p>
+    @ the <a href="%R/help/mimetypes">mimetypes setting</a>.</p>
     @ <table class='sortable mimetypetable' border=1 cellpadding=0 \
     @ data-column-types='tt' data-init-sort='0'>
     @ <thead>
@@ -638,7 +645,7 @@ int doc_is_embedded_html(Blob *pContent, Blob *pTitle){
       char *zTitle = mprintf("%.*s", nValue, zValue);
       int i;
       for(i=0; fossil_isspace(zTitle[i]); i++){}
-      html_to_plaintext(zTitle+i, pTitle);
+      html_to_plaintext(zTitle+i, pTitle, 0);
       fossil_free(zTitle);
       seenTitle = 1;
       if( seenClass ) return 1;
@@ -787,7 +794,7 @@ void document_render(
   int isPopup = P("popup")!=0;
   blob_init(&title,0,0);
   if( fossil_strcmp(zMime, "text/x-fossil-wiki")==0 ){
-    Blob tail;
+    Blob tail = BLOB_INITIALIZER;
     style_adunit_config(ADUNIT_RIGHT_OK);
     if( wiki_find_title(pBody, &title, &tail) ){
       if( !isPopup ) style_header("%s", blob_str(&title));
@@ -800,11 +807,13 @@ void document_render(
       document_emit_js();
       style_finish_page();
     }
+    blob_reset(&tail);
   }else if( fossil_strcmp(zMime, "text/x-markdown")==0 ){
     Blob tail = BLOB_INITIALIZER;
     markdown_to_html(pBody, &title, &tail);
     if( !isPopup ){
       if( blob_size(&title)>0 ){
+        markdown_dehtmlize_blob(&title);
         style_header("%s", blob_str(&title));
       }else{
         style_header("%s", zDefaultTitle);
@@ -815,6 +824,7 @@ void document_render(
       document_emit_js();
       style_finish_page();
     }
+    blob_reset(&tail);
   }else if( fossil_strcmp(zMime, "text/plain")==0 ){
     style_header("%s", zDefaultTitle);
     @ <blockquote><pre>
@@ -870,8 +880,8 @@ void document_render(
 /*
 ** WEBPAGE: uv
 ** WEBPAGE: doc
-** URL: /uv/FILE
-** URL: /doc/CHECKIN/FILE
+**
+** URLs can be either /doc/CHECKIN/FILE or /uv/FILE.
 **
 ** CHECKIN can be either tag or hash prefix or timestamp identifying a
 ** particular check-in, or the name of a branch (meaning the most recent
@@ -948,6 +958,7 @@ void doc_page(void){
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_set_current_feature("doc");
   blob_init(&title, 0, 0);
+  blob_init(&filebody, 0, 0);
   zDfltTitle = isUV ? "" : "Documentation";
   db_begin_transaction();
   while( rid==0 && (++nMiss)<=count(azSuffix) ){
@@ -1047,7 +1058,7 @@ void doc_page(void){
   if( zMime==0 ){
     zMime = mimetype_from_name(zName);
   }
-  Th_Store("doc_name", zName);
+  Th_StoreUnsafe("doc_name", zName);
   if( vid ){
     Th_Store("doc_version", db_text(0, "SELECT '[' || substr(uuid,1,10) || ']'"
                                        "  FROM blob WHERE rid=%d", vid));
@@ -1058,6 +1069,8 @@ void doc_page(void){
   document_render(&filebody, zMime, zDfltTitle, zName);
   if( nMiss>=count(azSuffix) ) cgi_set_status(404, "Not Found");
   db_end_transaction(0);
+  blob_reset(&title);
+  blob_reset(&filebody);
   return;
 
   /* Jump here when unable to locate the document */
@@ -1074,6 +1087,8 @@ doc_not_found:
     @ in %z(href("%R/tree?ci=%T",zCheckin))%h(zCheckin)</a>
   }
   style_finish_page();
+  blob_reset(&title);
+  blob_reset(&filebody);
   return;
 }
 

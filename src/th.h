@@ -1,8 +1,54 @@
-
 /* This header file defines the external interface to the custom Scripting
 ** Language (TH) interpreter.  TH is very similar to Tcl but is not an
 ** exact clone.
+**
+** TH1 was original developed to run SQLite tests on SymbianOS.  This version
+** of TH1 was repurposed as a scripted language for Fossil, and was heavily
+** modified for that purpose, beginning in early 2008.
+**
+** More recently, TH1 has been enhanced to distinguish between regular text
+** and "tainted" text.  "Tainted" text is text that might have originated
+** from an outside source and hence might not be trustworthy.  To prevent
+** cross-site scripting (XSS) and SQL-injections and similar attacks,
+** tainted text should not be used for the following purposes:
+**
+**     *   executed as TH1 script or expression.
+**     *   output as HTML or Javascript
+**     *   used as part of an SQL query
+**
+** Tainted text can be converted into a safe form using commands like
+** "htmlize".  And some commands ("query" and "expr") know how to use
+** potentially tainted variable values directly, and thus can bypass
+** the restrictions above.
+**
+** Whether a string is clean or tainted is determined by its length integer.
+** TH1 limits strings to be no more than 0x0fffffff bytes bytes in length
+** (about 268MB - more than sufficient for the purposes of Fossil).  The top
+** bit of the length integer is the sign bit, of course.  The next three bits
+** are reserved.  One of those, the 0x10000000 bit, marks tainted strings.
 */
+#define TH1_MX_STRLEN     0x0fffffff      /* Maximum length of a TH1-C string */
+#define TH1_TAINT_BIT     0x10000000      /* The taint bit */
+#define TH1_SIGN          0x80000000
+
+/* Convert an integer into a string length.  Negative values remain negative */
+#define TH1_LEN(X)        ((TH1_SIGN|TH1_MX_STRLEN)&(X))
+
+/* Return true if the string is tainted */
+#define TH1_TAINTED(X)    (((X)&TH1_TAINT_BIT)!=0)
+
+/* Remove taint from a string */
+#define TH1_RM_TAINT(X)   ((X)&~TH1_TAINT_BIT)
+
+/* Add taint to a string */
+#define TH1_ADD_TAINT(X)  ((X)|TH1_TAINT_BIT)
+
+/* If B is tainted, make A tainted too */
+#define TH1_XFER_TAINT(A,B)  (A)|=(TH1_TAINT_BIT&(B))
+
+/* Check to see if a string is too big for TH1 */
+#define TH1_SIZECHECK(N)  if((N)>TH1_MX_STRLEN){Th_OversizeString();}
+void Th_OversizeString(void);
 
 /*
 ** Before creating an interpreter, the application must allocate and
@@ -25,6 +71,12 @@ typedef struct Th_Interp Th_Interp;
 */
 Th_Interp * Th_CreateInterp(Th_Vtab *);
 void Th_DeleteInterp(Th_Interp *);
+
+/*
+** Report taint in the string zStr,nStr.  That string represents "zTitle"
+** If non-zero is returned error out of the caller.
+*/
+int Th_ReportTaint(Th_Interp*,const char*,const char*zStr,int nStr);
 
 /*
 ** Evaluate an TH program in the stack frame identified by parameter
@@ -57,19 +109,6 @@ int Th_GetVar(Th_Interp *, const char *, int);
 int Th_SetVar(Th_Interp *, const char *, int, const char *, int);
 int Th_LinkVar(Th_Interp *, const char *, int, int, const char *, int);
 int Th_UnsetVar(Th_Interp *, const char *, int);
-
-/*
-** If interp has a variable with the given name, its value is returned
-** and its length is returned via *nOut if nOut is not NULL.  If
-** interp has no such var then NULL is returned without setting any
-** error state and *nOut, if not NULL, is set to 0. The returned value
-** is owned by the interpreter and may be invalidated the next time
-** the interpreter is modified.
-**
-** zVarName must be NUL-terminated.
-*/
-const char * Th_MaybeGetVar(Th_Interp *interp, const char *zVarName,
-                            int *nOut);
 
 typedef int (*Th_CommandProc)(Th_Interp *, void *, int, const char **, int *);
 

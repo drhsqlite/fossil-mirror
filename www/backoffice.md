@@ -36,11 +36,11 @@ is started to do the work.
 
 This happens for every webpage, regardless of how that webpage is launched,
 and regardless of the purpose of the webpage.  This also happens on the
-server for "[fossil sync](/help?cmd=sync)" and
-[fossil clone](/help?cmd=clone)" commands which are implemented as
+server for "[fossil sync](/help/sync)" and
+"[fossil clone](/help/clone)" commands which are implemented as
 web requests - albeit requests that the human user never sees.
 Web requests can arrive at the Fossil server via direct TCP/IP (for example
-when Fossil is started using commands like "[fossil server](/help?cmd=server)")
+when Fossil is started using commands like "[fossil server](/help/server)")
 or via [CGI](./server/any/cgi.md) or
 [SCGI](./server/any/scgi.md) or via SSH.
 A backoffice process might be started regardless of the origin of the
@@ -95,14 +95,14 @@ Automatic Backoffice Does Not Work On Some Systems
 --------------------------------------------------
 
 We have observed that the automatic backoffice does not work on
-some system - OpenBSD in particular.  We still do not understand why
+some systems - OpenBSD in particular.  We still do not understand why
 this is.  (If you have insights, please share them on the
 [Fossil Forum](https://fossil-scm.org/forum) so that we can perhaps
 fix the problem.)  For now, the backoffice must be run manually
 on OpenBSD systems.
 
-To set up fully-manual backoffice, first disable the automatic backoffice
-using the "[backoffice-disable](/help?cmd=backoffice-disable)" setting.
+To set up a fully-manual backoffice, first disable the automatic backoffice
+using the "[backoffice-disable](/help/backoffice-disable)" setting.
 
     fossil setting backoffice-disable on
 
@@ -113,14 +113,14 @@ like this:
 
 Multiple repositories can be named.  This one command will handle
 launching the backoffice for all of them.  There are additional useful
-command-line options.  See the "[fossil backoffice](/help?cmd=backoffice)"
+command-line options.  See the "[fossil backoffice](/help/backoffice)"
 documentation for details.
 
-The backoffice processes run manually using the "fossil backoffice"
-command do not normally use a lease.  That means that you run the
+The backoffice processes that are run manually using the "fossil backoffice"
+command do not normally use a lease.  That means that if you run the
 "fossil backoffice" command with --poll and you forget to disable
 automatic backoffice by setting the "backoffice-disable" flag, then
-you might have one backoffice running due command and another due
+you might have one backoffice running due to a command and another due
 to a webpage access, both at the same time.  This is harmless.  The
 only downside is that it uses extra CPU time.
 
@@ -212,7 +212,7 @@ backoffice works needs to be done.  If something is going wrong and
 backoffice leases are causing delays in webpage processing, then setting
 "backoffice-nodelay" to true can work around the problem until the bug
 can be fixed.  The "backoffice-logfile" setting is the name of a log
-file onto which is appended a short message everything a backoffice
+file onto which is appended a short message every time a backoffice
 process actually starts to do the backoffice work.  This log file can
 be used to verify that backoffice really is running, if there is any
 doubt.  The "backoffice-disable" setting prevents automatic backoffice

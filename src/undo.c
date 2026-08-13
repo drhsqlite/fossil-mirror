@@ -25,7 +25,7 @@
 ** Possible return values from the undo_maybe_save() routine.
 */
 #define UNDO_NONE     (0) /* Placeholder only used to initialize vars. */
-#define UNDO_SAVED_OK (1) /* The specified file was saved succesfully. */
+#define UNDO_SAVED_OK (1) /* The specified file was saved successfully. */
 #define UNDO_DISABLED (2) /* File not saved, subsystem is disabled. */
 #define UNDO_INACTIVE (3) /* File not saved, subsystem is not active. */
 #define UNDO_TOOBIG   (4) /* File not saved, it exceeded a size limit. */
@@ -72,7 +72,7 @@ static void undo_one(const char *zPathname, int redoFlag){
       db_ephemeral_blob(&q, 0, &new);
     }
     if( file_unsafe_in_tree_path(zFullname) ){
-      /* do nothign with this unsafe file */
+      /* do nothing with this unsafe file */
     }else if( old_exists ){
       if( new_exists ){
         fossil_print("%s   %s\n", redoFlag ? "REDO" : "UNDO", zPathname);
@@ -168,7 +168,7 @@ static void undo_all(int redoFlag){
   ncid = db_lget_int("undo_checkout", 0);
   ucid = db_lget_int("checkout", 0);
   db_lset_int("undo_checkout", ucid);
-  db_set_checkout(ncid);
+  db_set_checkout(ncid, 1);
 }
 
 /*
@@ -291,7 +291,7 @@ void undo_save(const char *zPathname){
 ** The return value of this function will always be one of the
 ** following codes:
 **
-** UNDO_SAVED_OK: The specified file was saved succesfully.
+** UNDO_SAVED_OK: The specified file was saved successfully.
 **
 ** UNDO_DISABLED: The specified file was NOT saved, because the
 **                "undo subsystem" is disabled.  This error may

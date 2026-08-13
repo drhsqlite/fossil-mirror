@@ -313,10 +313,13 @@ SQLITE_OPTIONS = /DNDEBUG=1 \
                  /DSQLITE_MAX_EXPR_DEPTH=0 \
                  /DSQLITE_ENABLE_LOCKING_STYLE=0 \
                  /DSQLITE_DEFAULT_FILE_FORMAT=4 \
+                 /DSQLITE_ENABLE_DBSTAT_VTAB \
                  /DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                  /DSQLITE_ENABLE_FTS4 \
-                 /DSQLITE_ENABLE_DBSTAT_VTAB \
                  /DSQLITE_ENABLE_FTS5 \
+                 /DSQLITE_ENABLE_MATH_FUNCTIONS \
+                 /DSQLITE_ENABLE_PERCENTILE \
+                 /DSQLITE_ENABLE_SETLK_TIMEOUT \
                  /DSQLITE_ENABLE_STMTVTAB \
                  /DSQLITE_HAVE_ZLIB \
                  /DSQLITE_ENABLE_DBPAGE_VTAB \
@@ -338,10 +341,13 @@ SHELL_OPTIONS = /DNDEBUG=1 \
                 /DSQLITE_MAX_EXPR_DEPTH=0 \
                 /DSQLITE_ENABLE_LOCKING_STYLE=0 \
                 /DSQLITE_DEFAULT_FILE_FORMAT=4 \
+                /DSQLITE_ENABLE_DBSTAT_VTAB \
                 /DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                 /DSQLITE_ENABLE_FTS4 \
-                /DSQLITE_ENABLE_DBSTAT_VTAB \
                 /DSQLITE_ENABLE_FTS5 \
+                /DSQLITE_ENABLE_MATH_FUNCTIONS \
+                /DSQLITE_ENABLE_PERCENTILE \
+                /DSQLITE_ENABLE_SETLK_TIMEOUT \
                 /DSQLITE_ENABLE_STMTVTAB \
                 /DSQLITE_HAVE_ZLIB \
                 /DSQLITE_ENABLE_DBPAGE_VTAB \
@@ -353,6 +359,7 @@ SHELL_OPTIONS = /DNDEBUG=1 \
                 /DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE) \
                 /DSQLITE_SHELL_DBNAME_PROC=sqlcmd_get_dbname \
                 /DSQLITE_SHELL_INIT_PROC=sqlcmd_init_proc \
+                /DSQLITE_PS_APPDEF=sqlcmd_ps_appdef \
                 /Daccess=file_access \
                 /Dsystem=fossil_system \
                 /Dgetenv=fossil_getenv \
@@ -445,6 +452,7 @@ SRC   = "$(OX)\add_.c" \
         "$(OX)\manifest_.c" \
         "$(OX)\markdown_.c" \
         "$(OX)\markdown_html_.c" \
+        "$(OX)\match_.c" \
         "$(OX)\md5_.c" \
         "$(OX)\merge_.c" \
         "$(OX)\merge3_.c" \
@@ -464,6 +472,7 @@ SRC   = "$(OX)\add_.c" \
         "$(OX)\regexp_.c" \
         "$(OX)\repolist_.c" \
         "$(OX)\report_.c" \
+        "$(OX)\robot_.c" \
         "$(OX)\rss_.c" \
         "$(OX)\schema_.c" \
         "$(OX)\search_.c" \
@@ -506,6 +515,7 @@ SRC   = "$(OX)\add_.c" \
         "$(OX)\winhttp_.c" \
         "$(OX)\xfer_.c" \
         "$(OX)\xfersetup_.c" \
+        "$(OX)\xsystem_.c" \
         "$(OX)\zip_.c" \
         "$(SRCDIR_extsrc)\pikchr.c"
 
@@ -568,6 +578,7 @@ EXTRA_FILES   = "$(SRCDIR)\..\extsrc\pikchr-worker.js" \
         "$(SRCDIR)\diff.js" \
         "$(SRCDIR)\diff.tcl" \
         "$(SRCDIR)\forum.js" \
+        "$(SRCDIR)\fossil.attach.js" \
         "$(SRCDIR)\fossil.bootstrap.js" \
         "$(SRCDIR)\fossil.confirmer.js" \
         "$(SRCDIR)\fossil.copybutton.js" \
@@ -581,6 +592,7 @@ EXTRA_FILES   = "$(SRCDIR)\..\extsrc\pikchr-worker.js" \
         "$(SRCDIR)\fossil.page.forumpost.js" \
         "$(SRCDIR)\fossil.page.pikchrshow.js" \
         "$(SRCDIR)\fossil.page.pikchrshowasm.js" \
+        "$(SRCDIR)\fossil.page.ticket.js" \
         "$(SRCDIR)\fossil.page.whistory.js" \
         "$(SRCDIR)\fossil.page.wikiedit.js" \
         "$(SRCDIR)\fossil.pikchr.js" \
@@ -594,6 +606,7 @@ EXTRA_FILES   = "$(SRCDIR)\..\extsrc\pikchr-worker.js" \
         "$(SRCDIR)\login.js" \
         "$(SRCDIR)\markdown.md" \
         "$(SRCDIR)\menu.js" \
+        "$(SRCDIR)\merge.tcl" \
         "$(SRCDIR)\scroll.js" \
         "$(SRCDIR)\skin.js" \
         "$(SRCDIR)\sorttable.js" \
@@ -616,6 +629,7 @@ EXTRA_FILES   = "$(SRCDIR)\..\extsrc\pikchr-worker.js" \
         "$(SRCDIR)\style.admin_log.css" \
         "$(SRCDIR)\style.chat.css" \
         "$(SRCDIR)\style.fileedit.css" \
+        "$(SRCDIR)\style.forum.css" \
         "$(SRCDIR)\style.pikchrshow.css" \
         "$(SRCDIR)\style.uvlist.css" \
         "$(SRCDIR)\style.wikiedit.css" \
@@ -709,6 +723,7 @@ OBJ   = "$(OX)\add$O" \
         "$(OX)\manifest$O" \
         "$(OX)\markdown$O" \
         "$(OX)\markdown_html$O" \
+        "$(OX)\match$O" \
         "$(OX)\md5$O" \
         "$(OX)\merge$O" \
         "$(OX)\merge3$O" \
@@ -729,6 +744,7 @@ OBJ   = "$(OX)\add$O" \
         "$(OX)\regexp$O" \
         "$(OX)\repolist$O" \
         "$(OX)\report$O" \
+        "$(OX)\robot$O" \
         "$(OX)\rss$O" \
         "$(OX)\schema$O" \
         "$(OX)\search$O" \
@@ -776,6 +792,7 @@ OBJ   = "$(OX)\add$O" \
         "$(OX)\winhttp$O" \
         "$(OX)\xfer$O" \
         "$(OX)\xfersetup$O" \
+        "$(OX)\xsystem$O" \
         "$(OX)\zip$O" \
         "$(OX)\fossil.res"
 
@@ -958,6 +975,7 @@ APPTARGETS = $(APPTARGETS) openssl
 	echo "$(OX)\manifest.obj" >> $@
 	echo "$(OX)\markdown.obj" >> $@
 	echo "$(OX)\markdown_html.obj" >> $@
+	echo "$(OX)\match.obj" >> $@
 	echo "$(OX)\md5.obj" >> $@
 	echo "$(OX)\merge.obj" >> $@
 	echo "$(OX)\merge3.obj" >> $@
@@ -978,6 +996,7 @@ APPTARGETS = $(APPTARGETS) openssl
 	echo "$(OX)\regexp.obj" >> $@
 	echo "$(OX)\repolist.obj" >> $@
 	echo "$(OX)\report.obj" >> $@
+	echo "$(OX)\robot.obj" >> $@
 	echo "$(OX)\rss.obj" >> $@
 	echo "$(OX)\schema.obj" >> $@
 	echo "$(OX)\search.obj" >> $@
@@ -1025,6 +1044,7 @@ APPTARGETS = $(APPTARGETS) openssl
 	echo "$(OX)\winhttp.obj" >> $@
 	echo "$(OX)\xfer.obj" >> $@
 	echo "$(OX)\xfersetup.obj" >> $@
+	echo "$(OX)\xsystem.obj" >> $@
 	echo "$(OX)\zip.obj" >> $@
 	echo $(LIBS) >> $@
 
@@ -1198,6 +1218,7 @@ realclean: clean
 	echo "$(SRCDIR)\diff.js" >> $@
 	echo "$(SRCDIR)\diff.tcl" >> $@
 	echo "$(SRCDIR)\forum.js" >> $@
+	echo "$(SRCDIR)\fossil.attach.js" >> $@
 	echo "$(SRCDIR)\fossil.bootstrap.js" >> $@
 	echo "$(SRCDIR)\fossil.confirmer.js" >> $@
 	echo "$(SRCDIR)\fossil.copybutton.js" >> $@
@@ -1211,6 +1232,7 @@ realclean: clean
 	echo "$(SRCDIR)\fossil.page.forumpost.js" >> $@
 	echo "$(SRCDIR)\fossil.page.pikchrshow.js" >> $@
 	echo "$(SRCDIR)\fossil.page.pikchrshowasm.js" >> $@
+	echo "$(SRCDIR)\fossil.page.ticket.js" >> $@
 	echo "$(SRCDIR)\fossil.page.whistory.js" >> $@
 	echo "$(SRCDIR)\fossil.page.wikiedit.js" >> $@
 	echo "$(SRCDIR)\fossil.pikchr.js" >> $@
@@ -1224,6 +1246,7 @@ realclean: clean
 	echo "$(SRCDIR)\login.js" >> $@
 	echo "$(SRCDIR)\markdown.md" >> $@
 	echo "$(SRCDIR)\menu.js" >> $@
+	echo "$(SRCDIR)\merge.tcl" >> $@
 	echo "$(SRCDIR)\scroll.js" >> $@
 	echo "$(SRCDIR)\skin.js" >> $@
 	echo "$(SRCDIR)\sorttable.js" >> $@
@@ -1246,6 +1269,7 @@ realclean: clean
 	echo "$(SRCDIR)\style.admin_log.css" >> $@
 	echo "$(SRCDIR)\style.chat.css" >> $@
 	echo "$(SRCDIR)\style.fileedit.css" >> $@
+	echo "$(SRCDIR)\style.forum.css" >> $@
 	echo "$(SRCDIR)\style.pikchrshow.css" >> $@
 	echo "$(SRCDIR)\style.uvlist.css" >> $@
 	echo "$(SRCDIR)\style.wikiedit.css" >> $@
@@ -1763,6 +1787,12 @@ realclean: clean
 "$(OX)\markdown_html_.c" : "$(SRCDIR)\markdown_html.c"
 	"$(OBJDIR)\translate$E" $** > $@
 
+"$(OX)\match$O" : "$(OX)\match_.c" "$(OX)\match.h"
+	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\match_.c"
+
+"$(OX)\match_.c" : "$(SRCDIR)\match.c"
+	"$(OBJDIR)\translate$E" $** > $@
+
 "$(OX)\md5$O" : "$(OX)\md5_.c" "$(OX)\md5.h"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\md5_.c"
 
@@ -1875,6 +1905,12 @@ realclean: clean
 	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\report_.c"
 
 "$(OX)\report_.c" : "$(SRCDIR)\report.c"
+	"$(OBJDIR)\translate$E" $** > $@
+
+"$(OX)\robot$O" : "$(OX)\robot_.c" "$(OX)\robot.h"
+	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\robot_.c"
+
+"$(OX)\robot_.c" : "$(SRCDIR)\robot.c"
 	"$(OBJDIR)\translate$E" $** > $@
 
 "$(OX)\rss$O" : "$(OX)\rss_.c" "$(OX)\rss.h"
@@ -2129,6 +2165,12 @@ realclean: clean
 "$(OX)\xfersetup_.c" : "$(SRCDIR)\xfersetup.c"
 	"$(OBJDIR)\translate$E" $** > $@
 
+"$(OX)\xsystem$O" : "$(OX)\xsystem_.c" "$(OX)\xsystem.h"
+	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\xsystem_.c"
+
+"$(OX)\xsystem_.c" : "$(SRCDIR)\xsystem.c"
+	"$(OBJDIR)\translate$E" $** > $@
+
 "$(OX)\zip$O" : "$(OX)\zip_.c" "$(OX)\zip.h"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\zip_.c"
 
@@ -2224,6 +2266,7 @@ realclean: clean
 			"$(OX)\manifest_.c":"$(OX)\manifest.h" \
 			"$(OX)\markdown_.c":"$(OX)\markdown.h" \
 			"$(OX)\markdown_html_.c":"$(OX)\markdown_html.h" \
+			"$(OX)\match_.c":"$(OX)\match.h" \
 			"$(OX)\md5_.c":"$(OX)\md5.h" \
 			"$(OX)\merge_.c":"$(OX)\merge.h" \
 			"$(OX)\merge3_.c":"$(OX)\merge3.h" \
@@ -2243,6 +2286,7 @@ realclean: clean
 			"$(OX)\regexp_.c":"$(OX)\regexp.h" \
 			"$(OX)\repolist_.c":"$(OX)\repolist.h" \
 			"$(OX)\report_.c":"$(OX)\report.h" \
+			"$(OX)\robot_.c":"$(OX)\robot.h" \
 			"$(OX)\rss_.c":"$(OX)\rss.h" \
 			"$(OX)\schema_.c":"$(OX)\schema.h" \
 			"$(OX)\search_.c":"$(OX)\search.h" \
@@ -2285,6 +2329,7 @@ realclean: clean
 			"$(OX)\winhttp_.c":"$(OX)\winhttp.h" \
 			"$(OX)\xfer_.c":"$(OX)\xfer.h" \
 			"$(OX)\xfersetup_.c":"$(OX)\xfersetup.h" \
+			"$(OX)\xsystem_.c":"$(OX)\xsystem.h" \
 			"$(OX)\zip_.c":"$(OX)\zip.h" \
 			"$(SRCDIR_extsrc)\pikchr.c":"$(OX)\pikchr.h" \
 			"$(SRCDIR_extsrc)\sqlite3.h" \

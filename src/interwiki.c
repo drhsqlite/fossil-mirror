@@ -163,11 +163,11 @@ static int interwiki_valid_name(const char *zName){
 ** Manage the "intermap" that defines the mapping from interwiki tags
 ** to complete URLs for interwiki links.
 **
-** >  fossil interwiki delete TAG ...
+** > fossil interwiki delete TAG ...
 **
 **        Delete one or more interwiki maps.
 **
-** >  fossil interwiki edit TAG --base URL --hash PATH --wiki PATH
+** > fossil interwiki edit TAG --base URL --hash PATH --wiki PATH
 **
 **        Create an interwiki referenced call TAG.  The base URL is
 **        the --base option, which is required.  The --hash and --wiki
@@ -175,7 +175,7 @@ static int interwiki_valid_name(const char *zName){
 **        and must be unique.  A new entry is created if it does not
 **        already exit.
 **
-** >  fossil interwiki list
+** > fossil interwiki list
 **
 **        Show all interwiki mappings.
 */
@@ -277,9 +277,10 @@ void interwiki_append_map_table(Blob *out){
     "  FROM config WHERE name glob 'interwiki:*' AND json_valid(value)"
     " ORDER BY name;"
   );
+  blob_append(out, "<blockquote>", -1);
   while( db_step(&q)==SQLITE_ROW ){
     if( n==0 ){
-      blob_appendf(out, "<blockquote><table>\n");
+      blob_appendf(out, "<table>\n");
     }
     blob_appendf(out,"<tr><td>%h</td><td>&nbsp;&rarr;&nbsp;</td>",
        db_column_text(&q,0));

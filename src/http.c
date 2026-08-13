@@ -23,12 +23,6 @@
 
 #ifdef _WIN32
 #include <io.h>
-#ifndef isatty
-#define isatty(d) _isatty(d)
-#endif
-#ifndef fileno
-#define fileno(s) _fileno(s)
-#endif
 #endif
 
 
@@ -60,13 +54,17 @@ static int traceCnt = 0;
 **       login LOGIN NONCE SIGNATURE
 **
 ** The LOGIN is the user id of the client.  NONCE is the sha1 checksum
-** of all payload that follows the login card.  SIGNATURE is the sha1
-** checksum of the nonce followed by the user password.
+** of all payload that follows the login card.  Randomness for the
+** NONCE must be provided in the payload (in xfer.c) (e.g. by
+** appending a timestamp or random bytes as a comment line to the
+** payload).  SIGNATURE is the sha1 checksum of the nonce followed by
+** the fossil-hashed version of the user's password.
 **
-** Write the constructed login card into pLogin.  pLogin is initialized
-** by this routine.
+** Write the constructed login card into pLogin. The result does not
+** have an EOL added to it because which type of EOL it needs has to
+** be determined later.  pLogin is initialized by this routine.
 */
-static void http_build_login_card(Blob *pPayload, Blob *pLogin){
+static void http_build_login_card(Blob * const pPayload, Blob * const pLogin){
   Blob nonce;          /* The nonce */
   const char *zLogin;  /* The user login name */
   const char *zPw;     /* The user password */
@@ -75,10 +73,10 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
 
   blob_zero(pLogin);
   if( g.url.user==0 || fossil_strcmp(g.url.user, "anonymous")==0 ){
-     return;  /* If no login card for users "nobody" and "anonymous" */
+     return;  /* No login card for users "nobody" and "anonymous" */
   }
   if( g.url.isSsh ){
-     return;  /* If no login card for SSH: */
+     return;  /* No login card for SSH: */
   }
   blob_zero(&nonce);
   blob_zero(&pw);
@@ -126,7 +124,7 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
 
   blob_append(&pw, zPw, -1);
   sha1sum_blob(&pw, &sig);
-  blob_appendf(pLogin, "login %F %b %b\n", zLogin, &nonce, &sig);
+  blob_appendf(pLogin, "login %F %b %b", zLogin, &nonce, &sig);
   blob_reset(&pw);
   blob_reset(&sig);
   blob_reset(&nonce);
@@ -135,19 +133,28 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
 /*
 ** Construct an appropriate HTTP request header.  Write the header
 ** into pHdr.  This routine initializes the pHdr blob.  pPayload is
-** the complete payload (including the login card) already compressed.
+** the complete payload (including the login card if pLogin is NULL or
+** empty) already compressed.
 */
 static void http_build_header(
   Blob *pPayload,              /* the payload that will be sent */
   Blob *pHdr,                  /* construct the header here */
+  Blob *pLogin,                /* Login card header value or NULL */
   const char *zAltMimetype     /* Alternative mimetype */
 ){
   int nPayload = pPayload ? blob_size(pPayload) : 0;
+  const char *zPath;
 
   blob_zero(pHdr);
-  blob_appendf(pHdr, "%s %s%s HTTP/1.0\r\n",
-               nPayload>0 ? "POST" : "GET", g.url.path,
-               g.url.path[0]==0 ? "/" : "");
+  if( g.url.subpath ){
+    zPath = g.url.subpath;
+  }else if( g.url.path==0 || g.url.path[0]==0 ){
+    zPath = "/";
+  }else{
+    zPath = g.url.path;
+  }
+  blob_appendf(pHdr, "%s %s HTTP/1.1\r\n",
+               nPayload>0 ? "POST" : "GET", zPath);
   if( g.url.proxyAuth ){
     blob_appendf(pHdr, "Proxy-Authorization: %s\r\n", g.url.proxyAuth);
   }
@@ -158,8 +165,15 @@ static void http_build_header(
     fossil_free(zEncoded);
   }
   blob_appendf(pHdr, "Host: %s\r\n", g.url.hostname);
+  blob_appendf(pHdr, "Connection: close\r\n");
   blob_appendf(pHdr, "User-Agent: %s\r\n", get_user_agent());
   if( g.url.isSsh ) blob_appendf(pHdr, "X-Fossil-Transport: SSH\r\n");
+  if( g.syncInfo.fLoginCardMode>0
+      && nPayload>0 && pLogin && blob_size(pLogin) ){
+    /* Add sync login card via a transient cookie. We can only do this
+       if we know the remote supports it. */
+    blob_appendf(pHdr, "Cookie: x-f-l-c=%T\r\n", blob_str(pLogin));
+  }
   if( nPayload ){
     if( zAltMimetype ){
       blob_appendf(pHdr, "Content-Type: %s\r\n", zAltMimetype);
@@ -208,7 +222,7 @@ char *prompt_for_httpauth_creds(void){
   char *zPw;
   char *zPrompt;
   char *zHttpAuth = 0;
-  if( !isatty(fileno(stdin)) ) return 0;
+  if( !fossil_isatty(fossil_fileno(stdin)) ) return 0;
   zPrompt = mprintf("\n%s authorization required by\n%s\n",
     g.url.isHttps==1 ? "Encrypted HTTPS" : "Unencrypted HTTP", g.url.canonical);
   fossil_print("%s", zPrompt);
@@ -235,7 +249,7 @@ char *prompt_for_httpauth_creds(void){
 }
 
 /*
-** Send content pSend to the the server identified by g.url using the
+** Send content pSend to the server identified by g.url using the
 ** external program given by g.zHttpCmd.  Capture the reply from that
 ** program and load it into pReply.
 **
@@ -342,7 +356,7 @@ void test_ssh_needs_path(void){
   }
 }
 
-/* Add an approprate PATH= argument to the SSH command under construction
+/* Add an appropriate PATH= argument to the SSH command under construction
 ** in pCmd.
 **
 ** About This Feature
@@ -393,7 +407,7 @@ void test_ssh_needs_path(void){
 **      HOSTNAME.
 */
 void ssh_add_path_argument(Blob *pCmd){
-  blob_append_escaped_arg(pCmd, 
+  blob_append_escaped_arg(pCmd,
      "PATH=$HOME/bin:/usr/local/bin:/opt/homebrew/bin:$PATH", 1);
 }
 
@@ -444,6 +458,7 @@ int http_exchange(
   int i;                /* Loop counter */
   int isError = 0;      /* True if the reply is an error message */
   int isCompressed = 1; /* True if the reply is compressed */
+  int isChunked = 0;    /* True if Transfer-Encoding: chunked */
 
   if( g.zHttpCmd!=0 ){
     /* Handle the --transport-command option for "fossil sync" and similar */
@@ -455,6 +470,7 @@ int http_exchange(
   */
   if( g.url.isSsh
    && (g.url.flags & URL_SSH_RETRY)==0
+   && g.db!=0
    && ssh_needs_path_argument(g.url.hostname, -1)
   ){
     g.url.flags |= URL_SSH_PATH;
@@ -464,24 +480,42 @@ int http_exchange(
     fossil_warning("%s", transport_errmsg(&g.url));
     return 1;
   }
-
   /* Construct the login card and prepare the complete payload */
+  blob_zero(&login);
   if( blob_size(pSend)==0 ){
     blob_zero(&payload);
   }else{
-    blob_zero(&login);
     if( mHttpFlags & HTTP_USE_LOGIN ) http_build_login_card(pSend, &login);
-    if( g.fHttpTrace || (mHttpFlags & HTTP_NOCOMPRESS)!=0 ){
-      payload = login;
-      blob_append(&payload, blob_buffer(pSend), blob_size(pSend));
+    if( g.syncInfo.fLoginCardMode ){
+      /* The login card will be sent via an HTTP header and/or URL flag. */
+      if( g.fHttpTrace || (mHttpFlags & HTTP_NOCOMPRESS)!=0 ){
+        /* Maintenance note: we cannot blob_swap(pSend,&payload) here
+        ** because the HTTP 401 and redirect response handling below
+        ** needs pSend unmodified. payload won't be modified after
+        ** this point, so we can make it a proxy for pSend for
+        ** zero heap memory. */
+        blob_init(&payload, blob_buffer(pSend), blob_size(pSend));
+      }else{
+        blob_compress(pSend, &payload);
+      }
     }else{
-      blob_compress2(&login, pSend, &payload);
-      blob_reset(&login);
+      /* Prepend the login card (if set) to the payload */
+      if( blob_size(&login) ){
+        blob_append_char(&login, '\n');
+      }
+      if( g.fHttpTrace || (mHttpFlags & HTTP_NOCOMPRESS)!=0 ){
+        payload = login;
+        login = empty_blob/*transfer ownership*/;
+        blob_append(&payload, blob_buffer(pSend), blob_size(pSend));
+      }else{
+        blob_compress2(&login, pSend, &payload);
+        blob_reset(&login);
+      }
     }
   }
 
   /* Construct the HTTP request header */
-  http_build_header(&payload, &hdr, zAltMimetype);
+  http_build_header(&payload, &hdr, &login, zAltMimetype);
 
   /* When tracing, write the transmitted HTTP message both to standard
   ** output and into a file.  The file can then be used to drive the
@@ -520,6 +554,9 @@ int http_exchange(
   blob_reset(&hdr);
   blob_reset(&payload);
   transport_flip(&g.url);
+  if( mHttpFlags & HTTP_VERBOSE ){
+    fossil_print("IP-Address: %s\n", g.zIpAddr);
+  }
 
   /*
   ** Read and interpret the server reply
@@ -533,6 +570,15 @@ int http_exchange(
     }
     if( fossil_strnicmp(zLine, "http/1.", 7)==0 ){
       if( sscanf(zLine, "HTTP/1.%d %d", &iHttpVersion, &rc)!=2 ) goto write_err;
+      if( rc/100==1 ){
+        /* Parse and discard an unexpected 1xx interim reply, most commonly
+        ** "100 Continue". Skip the remaining header lines of the reply.
+        ** A 1xx reply has no body.) */
+        while( (zLine = transport_receive_line(&g.url))!=0 && zLine[0]!=0 ){}
+        iHttpVersion = -1; /* Ensures correct error msg if connection drops */
+        if( zLine==0 ) goto write_err;
+        continue;
+      }
       if( rc==401 ){
         if( fSeenHttpAuth++ < MAX_HTTP_AUTH ){
           if( g.zHttpAuth ){
@@ -548,7 +594,9 @@ int http_exchange(
         int ii;
         for(ii=7; zLine[ii] && zLine[ii]!=' '; ii++){}
         while( zLine[ii]==' ' ) ii++;
-        fossil_warning("server says: %s", &zLine[ii]);
+        if( (mHttpFlags & HTTP_QUIET)==0 ){
+          fossil_warning("server says: %s", &zLine[ii]);
+        }
         goto write_err;
       }
       if( iHttpVersion==0 ){
@@ -570,6 +618,20 @@ int http_exchange(
     }else if( fossil_strnicmp(zLine, "content-length:", 15)==0 ){
       for(i=15; fossil_isspace(zLine[i]); i++){}
       iLength = atoi(&zLine[i]);
+    }else if( fossil_strnicmp(zLine, "transfer-encoding:", 18)==0 ){
+      /* Fossil never sends a "transfer-encoding:" request header, so we may
+      ** reject any encoding other than "chunked", including "gzip, chunked",
+      ** "superchunked", "deflate" etc. */
+      int bOk = 0;
+      for(i=18; fossil_isspace(zLine[i]); i++){}
+      if( fossil_strnicmp(&zLine[i], "chunked", 7)==0 ){
+        bOk = zLine[i+7]==0;
+      }
+      if( !bOk ){
+        fossil_warning("unsupported transfer-encoding: %s", &zLine[18]);
+        goto write_err;
+      }
+      isChunked = 1;
     }else if( fossil_strnicmp(zLine, "connection:", 11)==0 ){
       if( sqlite3_strlike("%close%", &zLine[11], 0)==0 ){
         closeConnection = 1;
@@ -580,9 +642,12 @@ int http_exchange(
                 fossil_strnicmp(zLine, "location:", 9)==0 ){
       int i, j;
       int wasHttps;
+      int priorUrlFlags;
 
       if ( --maxRedirect == 0){
-        fossil_warning("redirect limit exceeded");
+        if( (mHttpFlags & HTTP_QUIET)==0 ){
+          fossil_warning("redirect limit exceeded");
+        }
         goto write_err;
       }
       for(i=9; zLine[i] && zLine[i]==' '; i++){}
@@ -599,18 +664,25 @@ int http_exchange(
         fossil_print("redirect with status %d to %s\n", rc, &zLine[i]);
       }
       if( g.url.isFile || g.url.isSsh ){
-        fossil_warning("cannot redirect from %s to %s", g.url.canonical,
-                       &zLine[i]);
+        if( (mHttpFlags & HTTP_QUIET)==0 ){
+          fossil_warning("cannot redirect from %s to %s", g.url.canonical,
+                         &zLine[i]);
+        }
         goto write_err;
       }
       wasHttps = g.url.isHttps;
+      priorUrlFlags = g.url.flags;
       url_parse(&zLine[i], 0);
       if( wasHttps && !g.url.isHttps ){
-        fossil_warning("cannot redirect from HTTPS to HTTP");
+        if( (mHttpFlags & HTTP_QUIET)==0 ){
+          fossil_warning("cannot redirect from HTTPS to HTTP");
+        }
         goto write_err;
       }
       if( g.url.isSsh || g.url.isFile ){
-        fossil_warning("cannot redirect to %s", &zLine[i]);
+        if( (mHttpFlags & HTTP_QUIET)==0 ){
+          fossil_warning("cannot redirect to %s", &zLine[i]);
+        }
         goto write_err;
       }
       transport_close(&g.url);
@@ -618,7 +690,10 @@ int http_exchange(
       fSeenHttpAuth = 0;
       if( g.zHttpAuth ) free(g.zHttpAuth);
       g.zHttpAuth = get_httpauth();
-      if( rc==301 || rc==308 ) url_remember();
+      if( (rc==301 || rc==308) && (priorUrlFlags & URL_REMEMBER)!=0 ){
+        g.url.flags |= URL_REMEMBER;
+        url_remember();
+      }
       return http_exchange(pSend, pReply, mHttpFlags,
                            maxRedirect, zAltMimetype);
     }else if( fossil_strnicmp(zLine, "content-type: ", 14)==0 ){
@@ -648,15 +723,17 @@ int http_exchange(
     ){
       /* Retry after flipping the SSH_PATH setting */
       transport_close(&g.url);
-      fossil_print(
-        "First attempt to run fossil on %s using SSH failed.\n"
-        "Retrying %s the PATH= argument.\n",
-        g.url.hostname,
-        (g.url.flags & URL_SSH_PATH)!=0 ? "without" : "with"
-      );
+      if( (mHttpFlags & HTTP_QUIET)==0 ){
+        fossil_print(
+          "First attempt to run fossil on %s using SSH failed.\n"
+          "Retrying %s the PATH= argument.\n",
+          g.url.hostname,
+          (g.url.flags & URL_SSH_PATH)!=0 ? "without" : "with"
+        );
+      }
       g.url.flags ^= URL_SSH_PATH|URL_SSH_RETRY;
       rc = http_exchange(pSend,pReply,mHttpFlags,0,zAltMimetype);
-      if( rc==0 ){
+      if( rc==0 && g.db!=0 ){
         (void)ssh_needs_path_argument(g.url.hostname,
                                 (g.url.flags & URL_SSH_PATH)!=0);
       }
@@ -664,7 +741,9 @@ int http_exchange(
     }else{
       /* The problem could not be corrected by retrying.  Report the
       ** the error. */
-      if( g.url.isSsh && !g.fSshTrace ){
+      if( mHttpFlags & HTTP_QUIET ){
+        /* no-op */
+      }else if( g.url.isSsh && !g.fSshTrace ){
         fossil_warning("server did not reply: "
                        " rerun with --sshtrace for diagnostics");
       }else{
@@ -674,7 +753,14 @@ int http_exchange(
     }
   }
   if( rc!=200 ){
+    if( mHttpFlags & HTTP_QUIET ) goto write_err;
     fossil_warning("\"location:\" missing from %d redirect reply", rc);
+    goto write_err;
+  }
+
+  if( isChunked && iLength>=0 ){
+    /* RFC 7230 says to reject in this case */
+    fossil_warning("reply has both content-length and transfer-encoding");
     goto write_err;
   }
 
@@ -682,7 +768,69 @@ int http_exchange(
   ** Extract the reply payload that follows the header
   */
   blob_zero(pReply);
-  if( iLength==0 ){
+  if( isChunked ){
+    /* Decode an HTTP/1.1 "Transfer-Encoding: chunked" reply body.  Each
+    ** chunk is a hex length on its own line (optionally followed by a
+    ** ";extension" that is ignored), then that many payload bytes, then a
+    ** bare CRLF.  A zero-length chunk terminates the body, after which any
+    ** trailer header lines are read and discarded up to the blank line. */
+    char *zChunk;
+    int sawTerminator = 0;  /* True once the 0-length chunk is seen */
+    while( (zChunk = transport_receive_line(&g.url))!=0 && zChunk[0]!=0 ){
+      i64 nChunk;           /* Size of this chunk in bytes (wide, unclamped) */
+      i64 nPrior;           /* Bytes already in pReply (matches blob nUsed) */
+      char *zEnd = 0;       /* End of the hex digits actually parsed */
+      while( fossil_isspace(zChunk[0]) ) zChunk++;
+      nChunk = strtoll(zChunk, &zEnd, 16);
+      if( zEnd==zChunk ){
+        /* No hex digit consumed: a blank or malformed chunk-size line, which
+        ** is the symptom of a connection that closed mid-stream.  Treat it as
+        ** a truncated (failed) */
+        fossil_warning("chunked reply: missing or malformed chunk size");
+        goto write_err;
+      }
+      if( nChunk<0 || nChunk>0x7fffffff ){
+        /* Negative, or larger than we will ever accept in one chunk. */
+        fossil_warning("chunked reply: invalid chunk size");
+        goto write_err;
+      }
+      if( nChunk==0 ){
+        /* Final chunk: consume trailer lines up to the terminating blank. */
+        sawTerminator = 1;
+        while( (zChunk = transport_receive_line(&g.url))!=0 && zChunk[0]!=0 ){}
+        break;
+      }
+      nPrior = blob_size(pReply);
+      /* Grow the reply buffer, then restore nUsed, so that on error the
+      ** blob's reported size is bytes received not claimed chunk length */
+      blob_resize(pReply, (u64)(nPrior+nChunk));
+      pReply->nUsed = (unsigned int)nPrior;
+      {
+        unsigned int nRemaining = (unsigned int)nChunk;
+        /* transport_receive() may return short; loop until the chunk is
+        ** full. */
+        while( nRemaining>0 ){
+          int nGot;
+          nGot = transport_receive(&g.url, &pReply->aData[nPrior], nRemaining);
+          if( nGot<=0 ){
+            fossil_warning("chunked reply truncated");
+            goto write_err;
+          }
+          nPrior += nGot;
+          nRemaining -= nGot;
+          pReply->nUsed = (unsigned int)nPrior;
+        }
+      }
+      transport_receive_line(&g.url); /* CRLF that follows the chunk data */
+    }
+    if( !sawTerminator ){
+      /* The loop exited without ever seeing the 0-length terminator chunk,
+      ** meaning the peer closed before the body was complete.  A truncated
+      ** sync must be an error, never silent success. */
+      fossil_warning("chunked reply ended without terminator");
+      goto write_err;
+    }
+  }else if( iLength==0 ){
     /* No content to read */
   }else if( iLength>0 ){
     /* Read content of a known length */
@@ -693,15 +841,17 @@ int http_exchange(
       fossil_print("Reply received: %d of %d bytes\n", iRecvLen, iLength);
     }
     if( iRecvLen != iLength ){
+      if( mHttpFlags & HTTP_QUIET ) goto write_err;
       fossil_warning("response truncated: got %d bytes of %d",
                      iRecvLen, iLength);
       goto write_err;
     }
-  }else if( closeConnection ){
+  }else{
     /* Read content until end-of-file */
     int iRecvLen;         /* Received length of the reply payload */
     unsigned int nReq = 1000;
     unsigned int nPrior = 0;
+    closeConnection = 1;
     do{
       nReq *= 2;
       blob_resize(pReply, nPrior+nReq);
@@ -712,9 +862,6 @@ int http_exchange(
     if( mHttpFlags & HTTP_VERBOSE ){
       fossil_print("Reply received: %u bytes (w/o content-length)\n", nPrior);
     }
-  }else{
-    assert( iLength<0 && !closeConnection );
-    fossil_warning("\"content-length\" missing from %d keep-alive reply", rc);
   }
   if( isError ){
     char *z;
@@ -728,7 +875,13 @@ int http_exchange(
       z[j] = z[i];
     }
     z[j] = 0;
-    fossil_warning("server sends error: %s", z);
+    if( mHttpFlags & HTTP_QUIET ){
+      /* no-op */
+    }else if( mHttpFlags & HTTP_VERBOSE ){
+      fossil_warning("server sends error: %s", z);
+    }else{
+      fossil_warning("server sends error");
+    }
     goto write_err;
   }
   if( isCompressed ) blob_uncompress(pReply, pReply);
@@ -754,6 +907,7 @@ int http_exchange(
   ** Jump to here if an error is seen.
   */
 write_err:
+  g.iResultCode = 1;
   transport_close(&g.url);
   return 1;
 }
@@ -764,7 +918,7 @@ write_err:
 ** Usage: %fossil test-httpmsg ?OPTIONS? URL ?PAYLOAD? ?OUTPUT?
 **
 ** Send an HTTP message to URL and get the reply. PAYLOAD is a file containing
-** the payload, or "-" to read payload from standard input.  a POST message
+** the payload, or "-" to read payload from standard input.  A POST message
 ** is sent if PAYLOAD is specified and is non-empty.  If PAYLOAD is omitted
 ** or is an empty file, then a GET message is sent.
 **
@@ -776,7 +930,9 @@ write_err:
 ** Options:
 **     --compress                 Use ZLIB compression on the payload
 **     --mimetype TYPE            Mimetype of the payload
+**     --no-cert-verify           Disable TLS cert verification
 **     --out FILE                 Store the reply in FILE
+**     --subpath PATH             HTTP request path for ssh: and file: URLs
 **     -v                         Verbose output
 **     --xfer                     PAYLOAD in a Fossil xfer protocol message
 */
@@ -784,6 +940,7 @@ void test_httpmsg_command(void){
   const char *zMimetype;
   const char *zInFile;
   const char *zOutFile;
+  const char *zSubpath;
   Blob in, out;
   unsigned int mHttpFlags = HTTP_GENERIC|HTTP_NOCOMPRESS;
 
@@ -791,10 +948,18 @@ void test_httpmsg_command(void){
   zOutFile = find_option("out","o",1);
   if( find_option("verbose","v",0)!=0 ) mHttpFlags |= HTTP_VERBOSE;
   if( find_option("compress",0,0)!=0 ) mHttpFlags &= ~HTTP_NOCOMPRESS;
+  if( find_option("no-cert-verify",0,0)!=0 ){
+    #ifdef FOSSIL_ENABLE_SSL
+    ssl_disable_cert_verification();
+    #endif
+  }
   if( find_option("xfer",0,0)!=0 ){
     mHttpFlags |= HTTP_USE_LOGIN;
     mHttpFlags &= ~HTTP_GENERIC;
   }
+  if( find_option("ipv4",0,0) ) g.eIPvers = 1;
+  if( find_option("ipv6",0,0) ) g.eIPvers = 2;
+  zSubpath = find_option("subpath",0,1);
   verify_all_options();
   if( g.argc<3 || g.argc>5 ){
     usage("URL ?PAYLOAD? ?OUTPUT?");
@@ -809,7 +974,11 @@ void test_httpmsg_command(void){
   }
   url_parse(g.argv[2], 0);
   if( g.url.protocol[0]!='h' ){
-    fossil_fatal("the %s command supports only http: and https:", g.argv[1]);
+    if( zSubpath==0 ){
+      fossil_fatal("the --subpath option is required for %s://",g.url.protocol);
+    }else{
+      g.url.subpath = fossil_strdup(zSubpath);
+    }
   }
   if( zInFile ){
     blob_read_from_file(&in, zInFile, ExtFILE);

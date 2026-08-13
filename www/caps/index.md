@@ -296,7 +296,7 @@ can’t clone from a read-only repo DB file over a local file path.
 
 Even more surprising to you may be the fact that user caps do not affect
 cloning and syncing over SSH! (Not unless you go [out of your way][sshfc]
-patch around it, at any rate.) When you make a change to such a
+to patch around it, at any rate.) When you make a change to such a
 repository, the stock Fossil behavior is that the change first goes to the
 local repo clone where file system
 permissions are all that matter, but then upon sync, the situation is

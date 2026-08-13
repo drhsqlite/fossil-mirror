@@ -30,6 +30,7 @@
 */
 #ifdef _WIN32
 # include <windows.h>
+# include <io.h>
 #else
 # include <sys/time.h>
 # include <sys/resource.h>
@@ -39,6 +40,28 @@
 # include <fcntl.h>
 # include <errno.h>
 #endif
+
+/*
+** Returns the same as the platform's isatty() or _isatty() function.
+*/
+int fossil_isatty(int fd){
+#ifdef _WIN32
+  return _isatty(fd);
+#else
+  return isatty(fd);
+#endif
+}
+
+/*
+** Returns the same as the platform's fileno() or _fileno() function.
+*/
+int fossil_fileno(FILE *p){
+#ifdef _WIN32
+  return _fileno(p);
+#else
+  return fileno(p);
+#endif
+}
 
 /*
 ** Exit.  Take care to close the database first.
@@ -152,6 +175,34 @@ void fossil_secure_free_page(void *p, size_t n){
 }
 
 /*
+** Duplicate a string.
+*/
+char *fossil_strndup(const char *zOrig, ssize_t len){
+  char *z = 0;
+  if( zOrig ){
+    if( len<0 ) len = strlen(zOrig);
+    z = fossil_malloc( len+1 );
+    memcpy(z, zOrig, len);
+    z[len] = 0;
+  }
+  return z;
+}
+char *fossil_strdup(const char *zOrig){
+  return fossil_strndup(zOrig, -1);
+}
+char *fossil_strdup_nn(const char *zOrig){
+  if( zOrig==0 ) return fossil_strndup("", 0);
+  return fossil_strndup(zOrig, -1);
+}
+
+/*
+** strcpy() workalike to squelch an unwarranted warning from OpenBSD.
+*/
+void fossil_strcpy(char *dest, const char *src){
+  while( (*(dest++) = *(src++))!=0 ){}
+}
+
+/*
 ** Translate every upper-case character in the input string into
 ** its equivalent lower-case.
 */
@@ -185,7 +236,7 @@ static int safeCmdStrTest = 0;
 ** Check the input string to ensure that it is safe to pass into system().
 ** A string is unsafe for system() on unix if it contains any of the following:
 **
-**   *  Any occurrance of '$' or '`' except single-quoted or after \
+**   *  Any occurrence of '$' or '`' except single-quoted or after \
 **   *  Any of the following characters, unquoted:  ;|& or \n except
 **      these characters are allowed as the very last character in the
 **      string.
@@ -617,28 +668,46 @@ int fossil_all_whitespace(const char *z){
 ** not found.
 **
 ** Search algorithm:
-** (1) The local "editor" setting
-** (2) The global "editor" setting
-** (3) The VISUAL environment variable
-** (4) The EDITOR environment variable
-** (5) (Windows only:) "notepad.exe"
+** (1) The value of the --editor command-line argument
+** (2) The local "editor" setting
+** (3) The global "editor" setting
+** (4) The VISUAL environment variable
+** (5) The EDITOR environment variable
+** (6) Any of several common editors that might be available, such as:
+**        notepad, nano, pico, jove, edit, vi, vim, ed
+**
+** The search only occurs once, the first time this routine is called.
+** Second and subsequent invocations always return the same value.
 */
 const char *fossil_text_editor(void){
-  const char *zEditor = db_get("editor", 0);
+  static const char *zEditor = 0;
+  const char *azStdEd[] = {
+#ifdef _WIN32
+    "notepad",
+#endif
+    "nano", "pico", "jove", "edit", "vi", "vim", "ed"
+  };
+  int i = 0;
+  if( zEditor==0 ){
+    zEditor = find_option("editor",0,1);
+  }
+  if( zEditor==0 ){
+    zEditor = db_get("editor", 0);
+  }
   if( zEditor==0 ){
     zEditor = fossil_getenv("VISUAL");
   }
   if( zEditor==0 ){
     zEditor = fossil_getenv("EDITOR");
   }
-#if defined(_WIN32) || defined(__CYGWIN__)
-  if( zEditor==0 ){
-    zEditor = mprintf("%s\\notepad.exe", fossil_getenv("SYSTEMROOT"));
-#if defined(__CYGWIN__)
-    zEditor = fossil_utf8_to_path(zEditor, 0);
-#endif
+  while( zEditor==0 && i<count(azStdEd) ){
+    if( fossil_app_on_path(azStdEd[i],0) ){
+      zEditor = azStdEd[i];
+    }else{
+      i++;
+    }
   }
-#endif
+  if( zEditor && is_false(zEditor) ) zEditor = 0;
   return zEditor;
 }
 
@@ -837,6 +906,48 @@ void test_random_password(void){
 }
 
 /*
+** Generate a version 4 ("random"), variant 1 UUID (RFC 9562, Section 5.4).
+**
+** Format: xxxxxxxx-xxxx-Mxxx-Nxxx-xxxxxxxxxxxx
+**           where  M=4  and  N=8, 9, a, or b    (this leaves 122 random bits)
+*/
+char* fossil_generate_uuid() {
+  static const char zDigits[] = "0123456789abcdef";
+  unsigned char aBlob[16];
+  unsigned char zStr[37];
+  unsigned char *p = zStr;
+  int i, k;
+
+  sqlite3_randomness(16, aBlob);
+  aBlob[6] = (aBlob[6]&0x0f) | 0x40; /* Version byte:  0100 xxxx */
+  aBlob[8] = (aBlob[8]&0x3f) | 0x80; /* Variant byte:  10xx xxxx */
+
+  for(i=0, k=0x550; i<16; i++, k=k>>1){
+    if( k&1 ){
+      *p++ = '-';                    /* Add a dash after byte 4, 6, 8, and 12 */
+    }
+    *p++ = zDigits[aBlob[i]>>4];
+    *p++ = zDigits[aBlob[i]&0xf];
+  }
+  *p = 0;
+
+  return fossil_strdup((char*)zStr);
+}
+
+/*
+** COMMAND: test-generate-uuid
+**
+** Usage: %fossil test-generate-uuid
+**
+** Generate a version 4 ("random"), variant 1 UUID (RFC 9562, Section 5.4):
+**
+**     xxxxxxxx-xxxx-Mxxx-Nxxx-xxxxxxxxxxxx  - where  M=4  and  N=8, 9, a, or b
+*/
+void test_generate_uuid(void){
+  fossil_print("%s\n", fossil_generate_uuid());
+}
+
+/*
 ** Return the number of decimal digits in a nonnegative integer.  This is useful
 ** when formatting text.
 */
@@ -846,31 +957,48 @@ int fossil_num_digits(int n){
        : n<10000000 ? 7 : n<100000000 ? 8 : n<1000000000 ? 9 : 10;
 }
 
-#if !defined(_WIN32)
-#if !defined(__DARWIN__) && !defined(__APPLE__) && !defined(__HAIKU__)
 /*
 ** Search for an executable on the PATH environment variable.
 ** Return true (1) if found and false (0) if not found.
+**
+** Print the full pathname of the first location if ePrint==1.  Print
+** all pathnames for the executable if ePrint==2 or more.
 */
-static int binaryOnPath(const char *zBinary){
+int fossil_app_on_path(const char *zBinary, int ePrint){
   const char *zPath = fossil_getenv("PATH");
   char *zFull;
   int i;
   int bExists;
+  int bFound = 0;
   while( zPath && zPath[0] ){
+#ifdef _WIN32
+    while( zPath[0]==';' ) zPath++;
+    for(i=0; zPath[i] && zPath[i]!=';'; i++){}
+    zFull = mprintf("%.*s\\%s.exe", i, zPath, zBinary);
+    bExists = file_access(zFull, R_OK);
+    if( bExists!=0 ){
+      fossil_free(zFull);
+      zFull = mprintf("%.*s\\%s.bat", i, zPath, zBinary);
+      bExists = file_access(zFull, R_OK);
+    }
+#else
     while( zPath[0]==':' ) zPath++;
     for(i=0; zPath[i] && zPath[i]!=':'; i++){}
     zFull = mprintf("%.*s/%s", i, zPath, zBinary);
     bExists = file_access(zFull, X_OK);
+#endif
+    if( bExists==0 && ePrint ){
+      fossil_print("%s\n", zFull);
+    }
     fossil_free(zFull);
-    if( bExists==0 ) return 1;
+    if( bExists==0 ){
+      if( ePrint<2 ) return 1;
+      bFound = 1;
+    }
     zPath += i;
   }
-  return 0;
+  return bFound;
 }
-#endif
-#endif
-
 
 /*
 ** Return the name of a command that will launch a web-browser.
@@ -889,11 +1017,12 @@ const char *fossil_web_browser(void){
     int i;
     zBrowser = "echo";
     for(i=0; i<count(azBrowserProg); i++){
-      if( binaryOnPath(azBrowserProg[i]) ){
+      if( fossil_app_on_path(azBrowserProg[i],0) ){
         zBrowser = azBrowserProg[i];
         break;
       }
     }
+    zBrowser = mprintf("%s 2>/dev/null", zBrowser);
   }
 #endif
   return zBrowser;

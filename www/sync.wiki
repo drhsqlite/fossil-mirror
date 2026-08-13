@@ -26,11 +26,11 @@ Each repository also has local state.  The local state determines
 the web-page formatting preferences, authorized users, ticket formats,
 and similar information that varies from one repository to another.
 The local state is not usually transferred during a sync.  Except,
-some local state is transferred during a [/help?cmd=clone|clone]
+some local state is transferred during a [/help/clone|clone]
 in order to initialize the local state of the new repository.  Also,
 an administrator can sync local state using
-the [/help?cmd=configuration|config push] and
-[/help?cmd=configuration|config pull]
+the [/help/configuration|config push] and
+[/help/configuration|config pull]
 commands.
 
 <h3 id="crdt">1.1 Conflict-Free Replicated Datatypes</h3>
@@ -58,9 +58,9 @@ issues one or more HTTP requests and receives replies for each
 request.
 
 The server might be running as an independent server
-using the [/help?cmd=server|"fossil server" command], or it
+using the [/help/server|"fossil server" command], or it
 might be launched from inetd or xinetd using the
-["fossil http" command|/help?cmd=http].  Or the server might
+[/help/http|"fossil http" command].  Or the server might
 be [./server/any/cgi.md|launched from CGI] or from
 [./server/any/scgi.md|SCGI].
 (See "[./server/|How To Configure A Fossil Server]" for details.)
@@ -69,8 +69,8 @@ for incoming HTTP requests is immaterial to this protocol.
 The important point is that the server is listening for requests and
 the client is the issuer of the requests.
 
-A single [/help?cmd=push|push], 
-[/help?cmd=pull|pull], or [/help?cmd=sync|sync]
+A single [/help/push|push],
+[/help/pull|pull], or [/help?cmd=sync|sync]
 might involve multiple HTTP requests.
 The client maintains state between all requests.  But on the server
 side, each request is independent.  The server does not preserve
@@ -152,12 +152,12 @@ The client modifies the URL by appending the method name "<b>/xfer</b>"
 to the end.  For example, if the URL specified on the client command
 line is
 
-<pre>https://fossil-scm.org/fossil</pre>
+<pre>https://fossil-scm.org/home</pre>
 
 Then the URL that is really used to do the synchronization will
 be:
 
-<pre>https://fossil-scm.org/fossil/xfer</pre>
+<pre>https://fossil-scm.org/home/xfer</pre>
 
 <h3 id="req-format">2.2 HTTP Request Format</h3>
 
@@ -165,7 +165,7 @@ The client always sends a POST request to the server.  The
 general format of the POST request is as follows:
 
 <pre>
-POST /fossil/xfer HTTP/1.0
+POST /home/xfer HTTP/1.0
 Host: fossil-scm.hwaci.com:80
 Content-Type: application/x-fossil
 Content-Length: 4216
@@ -222,22 +222,34 @@ cards.  Each login card has the following format:
 
 <pre><b>login</b>  <i>userid  nonce  signature</i></pre>
 
-The userid is the name of the user that is requesting service
-from the server.  The nonce is the SHA1 hash of the remainder of
-the message - all text that follows the newline character that
-terminates the login card.  The signature is the SHA1 hash of
-the concatenation of the nonce and the users password.
+The userid is the name of the user that is requesting service from the
+server, encoded in "fossilized" form (exactly as described for <a
+href="#error">the error card</a>).  The nonce is the SHA1 hash of the
+remainder of the message - all text that follows the newline character
+that terminates the login card.  The signature is the SHA1 hash of the
+concatenation of the nonce and the users password.
 
-For each login card, the server looks up the user and verifies
-that the nonce matches the SHA1 hash of the remainder of the
-message.  It then checks the signature hash to make sure the
-signature matches.  If everything
-checks out, then the client is granted all privileges of the
-specified user.
+When receving a login card, the server looks up the user and verifies
+that the nonce matches the SHA1 hash of the remainder of the message.
+It then checks the signature hash to make sure the signature matches.
+If everything checks out, then the client is granted all privileges of
+the specified user.
 
-Privileges are cumulative.  There can be multiple successful
-login cards.  The session privilege is the union of all
-privileges from all login cards.
+Only one login card is permitted. A second login card will trigger
+a sync error. (Prior to 2025-07-21, the protocol permitted multiple
+logins, treating the login as the union of all privileges from all
+login cards. That capability was never used and has been removed.)
+
+As of version 2.27, Fossil supports transfering of the login card
+externally to the request payload via a Cookie HTTP header:
+
+<verbatim>
+  Cookie: x-f-l-c=...
+</verbatim>
+
+Where "..." is the URL-encoded login cookie. <code>x-f-l-c</code> is
+short for X-Fossil-Login-Cookie.
+
 
 <h3 id="file">3.3 File Cards</h3>
 
@@ -252,7 +264,7 @@ The "uvfile" name is an abbreviation for "unversioned file".
 
 For sync protocols, artifacts are transferred using "file"
 cards.  File cards come in two different formats depending
-on whether the artifact is sent directly or as a 
+on whether the artifact is sent directly or as a
 [./delta_format.wiki|delta] from some
 other artifact.
 
@@ -275,7 +287,7 @@ The last argument of the file card is the number of bytes of
 payload that immediately follow the file card.  If the file
 card has only two arguments, that means the payload is the
 complete content of the artifact.  If the file card has three
-arguments, then the payload is a 
+arguments, then the payload is a
 [./delta_format.wiki|delta] and the second argument is
 the ID of another artifact that is the source of the delta.
 
@@ -288,8 +300,12 @@ and be able to apply them when their source arrives.
 
 A client that sends a clone protocol version "3" or greater will
 receive artifacts as "cfile" cards while cloning.  This card was
-introduced to improve the speed of the transfer of content by sending the
-compressed artifact directly from the server database to the client.
+introduced to improve the speed of the transfer of content by sending
+the compressed artifact directly from the server database to the
+client.  In this case, the containing response body is <em>not</em>
+compressed separately because the vast majority of the response is
+already compressed in cfile cards. In practice, version "3" is
+significantly faster than version "2".
 
 Compressed File cards are similar to File cards, sharing the same
 in-line "payload" data characteristics and also the same treatment of
@@ -413,7 +429,7 @@ cards
 
 The sequence-number sent is the number
 of artifacts received so far.  For the first clone message, the
-sequence number is 0.  The server will respond by sending file
+sequence number is 1.  The server will respond by sending file
 cards for some number of artifacts up to the maximum message size.
 
 The server will also send a single "clone_seqno" card to the client
@@ -520,7 +536,7 @@ English (including the dialect spoken by the original author of Fossil).
 
 <h4>3.7.1 Unversioned Gimme Cards</h4>
 
-Sync synchronizing unversioned content, the client may send "uvgimme"
+When synchronizing unversioned content, the client may send "uvgimme"
 cards to the server.  A uvgimme card requests that the server send
 unversioned content to the client.  The format of a uvgimme card is
 as follows:
@@ -572,7 +588,7 @@ The reqconfig card is normally sent in response to the
 <b>reqconfig</b> <i>configuration-name</i>
 </pre>
 
-As of 2018-06-04, the configuration-name must be one of the
+As of 2024-10-22, the configuration-name must be one of the
 following values:
 
 <table border=0 align="center">
@@ -580,26 +596,39 @@ following values:
 <ul>
 <li> css
 <li> header
+<li> mainmenu
 <li> footer
 <li> details
+<li> js
+<li> default-skin
 <li> logo-mimetype
 <li> logo-image
 <li> background-mimetype
 <li> background-image
-<li> index-page
+<li> icon-mimetype
+<li> icon-image
 <li> timeline-block-markup
+<li> timeline-date-format
+<li> timeline-default-style
+<ul></td><td valign="top"><ul>
+<li> timeline-dwelltime
+<li> timeline-closetime
+<li> timeline-hard-newlines
 <li> timeline-max-comment
 <li> timeline-plaintext
+<li> timeline-truncate-at-blank
+<li> timeline-tslink-info
+<li> timeline-utc
 <li> adunit
 <li> adunit-omit-if-admin
 <li> adunit-omit-if-user
-<ul></td><td valign="top"><ul>
-<li> th1-docs
+<li> default-csp
+<li> sitemap-extra
+<li> safe-html
 <li> th1-hooks
-<li> th1-setup
-<li> tcl
-<li> tcl-setup
+<li> th1-uri-regexp
 <li> project-name
+<ul></td><td valign="top"><ul>
 <li> short-project-name
 <li> project-description
 <li> index-page
@@ -609,15 +638,18 @@ following values:
 <li> ignore-glob
 <li> keep-glob
 <li> crlf-glob
-<ul></td><td valign="top"><ul>
 <li> crnl-glob
 <li> encoding-glob
 <li> empty-dirs
 <li> <s title="removed 2020-08, version 2.12.1">allow-symlinks</s>
 <li> dotfiles
 <li> parent-project-code
-<li> parent-projet-name
+<li> parent-project-name
+<ul></td><td valign="top"><ul>
 <li> hash-policy
+<li> comment-format
+<li> mimetypes
+<li> forbid-delta-manifests
 <li> mv-rm-files
 <li> ticket-table
 <li> ticket-common
@@ -625,12 +657,13 @@ following values:
 <li> ticket-newpage
 <li> ticket-viewpage
 <li> ticket-editpage
-<ul></td><td valign="top"><ul>
 <li> ticket-reportlist
 <li> ticket-report-template
 <li> ticket-key-template
 <li> ticket-title-expr
 <li> ticket-closed-expr
+<ul></td><td valign="top"><ul>
+<li> user-color-map
 <li> xfer-common-script
 <li> xfer-push-script
 <li> xfer-commit-script
@@ -639,6 +672,9 @@ following values:
 <li> @user
 <li> @concealed
 <li> @shun
+<li> @alias
+<li> @subscriber
+<li> @interwiki
 </ul></td></tr>
 </table>
 
@@ -771,6 +807,14 @@ any lock on any check-in previously held by that client.
 The ci-unlock pragma helps to avoid false-positive lock warnings
 that might arise if a check-in is aborted and then restarted
 on a branch.
+
+<li><b>req-clusters</b> A client sends the "req-clusters" pragma
+to the server to ask the server to reply with "igot" cards for
+every [./fileformat.wiki#cluster|cluster artifact] that it holds.  The
+client typically does this when it thinks that it might be attempting
+to pull a long chain of cluster artifacts.  Sending the artifacts
+all at once can dramatically reduce the number of round trip
+messages needed to complete the synchronization.
 </ol>
 
 <h3 id="comment">3.12 Comment Cards</h3>
@@ -863,7 +907,7 @@ of clusters to find every artifact in the repository.
 <h3 id="pull-strategy">5.1 Pull</h3>
 
 A typical pull operation proceeds as shown below.  Details
-of the actual implementation may very slightly but the gist of
+of the actual implementation may vary slightly but the gist of
 a pull is captured in the following steps:
 
 <ol>
@@ -1012,7 +1056,7 @@ Here are the key points of the synchronization protocol:
     <li> <b>push</b> <i>servercode projectcode</i>
     <li> <b>pull</b> <i>servercode projectcode</i>
     <li> <b>clone</b>
-    <li> <b>clone_seqno</b> <i>sequence-number</i>
+    <li> <b>clone</b> <i>protocol-version sequence-number</i>
     <li> <b>file</b> <i>artifact-id size</i> <b>\n</b> <i>content</i>
     <li> <b>file</b> <i>artifact-id delta-artifact-id size</i> <b>\n</b> <i>content</i>
     <li> <b>cfile</b> <i>artifact-id size</i> <b>\n</b> <i>content</i>
@@ -1073,4 +1117,4 @@ CMD is given three arguments:
 In a complex debugging situation, you can run the command
 "fossil sync --transport-command ./debugging_script" where
 "debugging_script" is some script of your own that invokes
-the anomolous behavior your are trying to debug.
+the anomalous behavior you are trying to debug.

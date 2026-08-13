@@ -353,7 +353,8 @@ static void rebuild_step(int rid, int size, Blob *pBase){
 ** and attach it to the very first check-in.
 */
 static void rebuild_tag_trunk(void){
-  int tagid = db_int(0, "SELECT 1 FROM tag WHERE tagname='sym-trunk'");
+  const char *zMainBranch = db_main_branch();
+  int tagid = db_int(0, "SELECT 1 FROM tag WHERE tagname='sym-%q'",zMainBranch);
   int rid;
   char *zUuid;
 
@@ -365,8 +366,8 @@ static void rebuild_tag_trunk(void){
   /* Add the trunk tag to the root of the whole tree */
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   if( zUuid==0 ) return;
-  tag_add_artifact("sym-", "trunk", zUuid, 0, 2, 0, 0);
-  tag_add_artifact("", "branch", zUuid, "trunk", 2, 0, 0);
+  tag_add_artifact("sym-", zMainBranch, zUuid, 0, 2, 0, 0);
+  tag_add_artifact("", "branch", zUuid, zMainBranch, 2, 0, 0);
 }
 
 /*
@@ -392,21 +393,27 @@ int rebuild_db(int doOut, int doClustering){
   rebuild_update_schema();
   blob_init(&sql, 0, 0);
   db_unprotect(PROTECT_ALL);
+#ifndef SQLITE_PREPARE_DONT_LOG
+  g.dbIgnoreErrors++;
+#endif
   db_prepare(&q,
-     "SELECT name FROM sqlite_schema /*scan*/"
-     " WHERE type='table'"
+     "SELECT name FROM pragma_table_list /*scan*/"
+     " WHERE schema='repository' AND type IN ('table','virtual')"
      " AND name NOT IN ('admin_log', 'blob','delta','rcvfrom','user','alias',"
                        "'config','shun','private','reportfmt',"
                        "'concealed','accesslog','modreq',"
                        "'purgeevent','purgeitem','unversioned',"
                        "'subscriber','pending_alert','chat')"
      " AND name NOT GLOB 'sqlite_*'"
-     " AND name NOT GLOB 'fx_*'"
+     " AND name NOT GLOB 'fx_*';"
   );
   while( db_step(&q)==SQLITE_ROW ){
     blob_appendf(&sql, "DROP TABLE IF EXISTS \"%w\";\n", db_column_text(&q,0));
   }
   db_finalize(&q);
+#ifndef SQLITE_PREPARE_DONT_LOG
+  g.dbIgnoreErrors--;
+#endif
   db_multi_exec("%s", blob_str(&sql)/*safe-for-%s*/);
   blob_reset(&sql);
   db_multi_exec("%s", zRepositorySchema2/*safe-for-%s*/);
@@ -1410,7 +1417,7 @@ void reconstruct_cmd(void) {
 /*
 ** COMMAND: deconstruct*
 **
-** Usage %fossil deconstruct ?OPTIONS? DESTINATION
+** Usage: %fossil deconstruct ?OPTIONS? DESTINATION
 **
 ** This command exports all artifacts of a given repository and writes all
 ** artifacts to the file system.  The DESTINATION directory will be populated

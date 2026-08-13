@@ -96,7 +96,7 @@ void stats_for_email(void){
    && (zDir = db_get("email-send-dir",0))!=0
   ){
     @ Written to files in "%h(zDir)"
-    @ (%,d(file_directory_size(zDir,0,1)) messages)
+    @ (%,d(file_directory_list(zDir,0,1,0,0)) messages)
   }else
   if( fossil_strcmp(zDest,"relay")==0
    && (zRelay = db_get("email-send-relayhost",0))!=0
@@ -168,7 +168,7 @@ void stat_page(void){
     style_submenu_element("Table Sizes", "repo-tabsize");
   }
   if( g.perm.Admin || g.perm.Setup || db_get_boolean("test_env_enable",0) ){
-    style_submenu_element("Environment", "test_env");
+    style_submenu_element("Environment", "test-env");
   }
   @ <table class="label-value">
   fsize = file_size(g.zRepositoryName, ExtFILE);
@@ -207,17 +207,11 @@ void stat_page(void){
       @ %d(a):%d(b)
       @ </td></tr>
     }
-    if( db_table_exists("repository","unversioned") ){
-      Stmt q;
-      char zStored[100];
-      db_prepare(&q,
-        "SELECT count(*), sum(sz), sum(octet_length(content))"
-        "  FROM unversioned"
-        " WHERE length(hash)>1"
-      );
-      if( db_step(&q)==SQLITE_ROW && (n = db_column_int(&q,0))>0 ){
-        sqlite3_int64 iStored, pct;
-        iStored = db_column_int64(&q,2);
+    { /* Unversioned Files stat (if any) */
+      sqlite3_int64 iStored = unversioned_stat(&n);
+      if( n>0 ){
+        sqlite3_int64 pct;
+        char zStored[100];
         pct = (iStored*100 + fsize/2)/fsize;
         approxSizeName(sizeof(zStored), zStored, iStored);
         @ <tr><th>Unversioned&nbsp;Files:</th><td>
@@ -225,7 +219,6 @@ void stat_page(void){
         @ %s(zStored) compressed, %d(pct)%% of total repository space
         @ </td></tr>
       }
-      db_finalize(&q);
     }
     @ <tr><th>Number&nbsp;Of&nbsp;Check-ins:</th><td>
     n = db_int(0, "SELECT count(*) FROM event WHERE type='ci' /*scan*/");
@@ -270,12 +263,14 @@ void stat_page(void){
   z = db_text(0, "SELECT timediff('now',(SELECT min(mtime) FROM event));");
   sscanf(z, "+%d-%d-%d", &Y, &M, &D);
   if( Y>0 ){
-    @ %d(Y) years, \
+    @ %d(Y) year%s(Y==1?"":"s") \
   }
   if( M>0 ){
-    @ %d(M) months, \
+    @ %d(M) month%s(M==1?"":"s") \
   }
-  @ %d(D) days
+  if( D>0 || (Y==0 && M==0) ){
+    @ %d(D) day%s(D==1?"":"s")
+  }
   @ </td></tr>
   p = db_get("project-code", 0);
   if( p ){
@@ -295,6 +290,7 @@ void stat_page(void){
   @ <tr><th>SQLite&nbsp;Version:</th><td>%.19s(sqlite3_sourceid())
   @ [%.10s(&sqlite3_sourceid()[20])] (%s(sqlite3_libversion()))
   @ <a href='version?verbose'>(details)</a></td></tr>
+  @ <tr><th>Pikchr&nbsp;Version:</th><td>%s(pikchr_version())</td></tr>
   if( g.perm.Admin ){
     const char *zCgi = P("SERVER_SOFTWARE");
     @ <tr><th>OpenSSL&nbsp;Version:</th>
@@ -353,14 +349,14 @@ void stat_page(void){
 **   --db-verify          Run a full verification of the repository integrity.
 **                        This involves decoding and reparsing all artifacts
 **                        and can take significant time.
-**   --omit-version-info  Omit the SQLite and Fossil version information
+**   --omit-version-info  Omit the SQLite, Fossil, Pikchr version information
 */
 void dbstat_cmd(void){
   i64 t, fsize;
   int n, m;
   int szMax, szAvg;
   int brief;
-  int omitVers;            /* Omit Fossil and SQLite version information */
+  int omitVers;            /* Omit Fossil, SQLite, Pikchr version information */
   int dbCheck;             /* True for the --db-check option */
   const int colWidth = -19 /* printf alignment/width for left column */;
   const char *p, *z;
@@ -409,6 +405,17 @@ void dbstat_cmd(void){
       }
       a = t/fsize;
       fossil_print("%*s%d:%d\n", colWidth, "compression-ratio:", a, b);
+    }
+    { /* Unversioned Files stat (if any) */
+      sqlite3_int64 iStored = unversioned_stat(&n);
+      if( n>0 ){
+        sqlite3_int64 pct;
+        char zStored[100];
+        pct = (iStored*100 + fsize/2)/fsize;
+        approxSizeName(sizeof(zStored), zStored, iStored);
+        fossil_print("%*s%d files, %s compressed, %d%% of total repository space\n",
+            colWidth, "unversioned-files:", n, zStored, pct);
+      }
     }
     n = db_int(0, "SELECT COUNT(*) FROM event e WHERE e.type='ci'");
     fossil_print("%*s%,d\n", colWidth, "check-ins:", n);
@@ -469,6 +476,9 @@ void dbstat_cmd(void){
                  colWidth, "sqlite-version:",
                  sqlite3_sourceid(), &sqlite3_sourceid()[20],
                  sqlite3_libversion());
+    fossil_print("%*s%s\n",
+                 colWidth, "pikchr-version:",
+                 pikchr_version());
   }
   fossil_print("%*s%,d pages, %d bytes/pg, %,d free pages, "
                "%s, %s mode\n",
@@ -503,7 +513,7 @@ void dbstat_cmd(void){
 ** Algorithm:
 **
 ** The public URL is given by the email-url property.  But it is only
-** returned if there have been one more more accesses (as recorded by
+** returned if there have been one or more accesses (as recorded by
 ** "baseurl:URL" entries in the CONFIG table).
 */
 const char *public_url(void){
@@ -864,17 +874,51 @@ void repo_stat1_page(void){
 void repo_tabsize_page(void){
   int nPageFree;
   sqlite3_int64 fsize;
+  int bDetail = 0;
   char zBuf[100];
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   cgi_check_for_malice();
+#if defined(SQLITE_VERSION_NUMBER) && SQLITE_VERSION_NUMBER>=3054000
+  if( g.perm.Admin && (bDetail = atoi(PD("detail","0")))!=0 ){
+    extern int sqlite3_diskused_init(
+       sqlite3*,
+       char**,
+       const sqlite3_api_routines*
+    );
+    sqlite3_diskused_init(g.db,0,0);
+  }
+#endif
   style_set_current_feature("stat");
   style_header("Repository Table Sizes");
   style_adunit_config(ADUNIT_RIGHT_OK);
   style_submenu_element("Stat", "stat");
+  if( bDetail ){
+    const char *zFName;
+    Stmt q;
+    zFName = sqlite3_db_filename(g.db, "repository");
+    @ <h1>%h(zFName)</h1>
+    db_prepare(&q, "SELECT diskused('repository')");
+    if( db_step(&q)==SQLITE_ROW ){
+      @ <pre>%h(db_column_text(&q,0))</pre>
+    }
+    db_finalize(&q);
+    if( g.localOpen ){
+      zFName = sqlite3_db_filename(g.db, "localdb");
+      @ <h1>%h(zFName)</h1>
+      db_prepare(&q, "SELECT diskused('localdb')");
+      if( db_step(&q)==SQLITE_ROW ){
+        @ <pre>%h(db_column_text(&q,0))</pre>
+      }
+      db_finalize(&q);
+    }
+    style_finish_page();
+    return;
+  }
   if( g.perm.Admin ){
     style_submenu_element("Schema", "repo_schema");
+    style_submenu_element("Details", "repo-tabsize?detail=1");
   }
   db_multi_exec(
     "CREATE TEMP TABLE trans(name TEXT PRIMARY KEY,tabname TEXT)WITHOUT ROWID;"

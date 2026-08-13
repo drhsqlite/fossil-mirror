@@ -182,7 +182,7 @@ table.timelineTable {
   cellpadding: 0;
   font-family: "courier new";
   border-spacing: 0px 2px;
-  // border-collapse: collapse;
+  /* border-collapse: collapse; */
 }
 
 .timelineSelected {
@@ -453,4 +453,8 @@ table.numbered-lines td.line-numbers span.selected-line {
 body.branch .brlist > table > tbody > tr:hover:not(.selected),
 body.branch .brlist > table > tbody > tr.selected {
   background-color: #7EA2D9;
+}
+
+p.noMoreShun {
+  color: #e5e500;
 }

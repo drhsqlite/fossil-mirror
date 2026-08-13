@@ -123,10 +123,10 @@ void shun_page(void){
       for( p = zUuid ; *p ; p += strlen(p)+1 ){
         @ %s(p)<br>
       }
-      @ will no longer be shunned.  But they may not exist in the repository.
-      @ It may be necessary to rebuild the repository using the
-      @ <b>fossil rebuild</b> command-line before the artifact content
-      @ can pulled in from other repositories.</p>
+      @ will no longer be shunned but they may not exist in the repository.
+      @ It may be necessary to rebuild the repository
+      @ before the artifact content can be pulled in
+      @ from other repositories.</p>
     }
   }
   if( zUuid && P("add") && cgi_csrf_safe(2) ){
@@ -375,7 +375,7 @@ void rcvfromlist_page(void){
     login_needed(0);
     return;
   }
-  style_header("Artifact Receipts");
+  style_header("Xfer Log");
   style_submenu_element("Log-Menu", "setup-logmenu");
   if( showAll ){
     ofst = 0;
@@ -417,8 +417,9 @@ void rcvfromlist_page(void){
     showAll ? -1 : perScreen+1, ofst
   );
   @ <p>Whenever new artifacts are added to the repository, either by
-  @ push or using the web interface, an entry is made in the RCVFROM table
-  @ to record the source of that artifact.  This log facilitates
+  @ push or using the web interface or by "fossil commit" or similar,
+  @ an entry is made in the RCVFROM table
+  @ to record the source of those artifacts.  This log facilitates
   @ finding and fixing attempts to inject illicit content into the
   @ repository.</p>
   @

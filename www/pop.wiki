@@ -1,6 +1,6 @@
 <title>Principles Of Operation</title>
 
-This page attempts to define the foundational principals upon
+This page attempts to define the foundational principles upon
 which Fossil is built.
 
   *  A project consists of source files, wiki pages, and

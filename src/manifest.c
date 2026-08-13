@@ -320,14 +320,18 @@ static void remove_pgp_signature(const char **pz, int *pn){
   const char *z = *pz;
   int n = *pn;
   int i;
-  if( strncmp(z, "-----BEGIN PGP SIGNED MESSAGE-----", 34)!=0 ) return;
-  for(i=34; i<n && !after_blank_line(z+i); i++){}
+  if( strncmp(z, "-----BEGIN PGP SIGNED MESSAGE-----", 34)==0 ) i = 34;
+  else if( strncmp(z, "-----BEGIN SSH SIGNED MESSAGE-----", 34)==0 ) i = 34;
+  else return;
+  for(; i<n && !after_blank_line(z+i); i++){}
   if( i>=n ) return;
   z += i;
   n -= i;
   *pz = z;
   for(i=n-1; i>=0; i--){
-    if( z[i]=='\n' && strncmp(&z[i],"\n-----BEGIN PGP SIGNATURE-", 25)==0 ){
+    if( z[i]=='\n' &&
+        (strncmp(&z[i],"\n-----BEGIN PGP SIGNATURE-----", 29)==0
+         || strncmp(&z[i],"\n-----BEGIN SSH SIGNATURE-----", 29)==0 )){
       n = i+1;
       break;
     }
@@ -944,8 +948,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       ** Create or cancel a tag or property.  The tagname is fossil-encoded.
       ** The first character of the name must be either "+" to create a
       ** singleton tag, "*" to create a propagating tag, or "-" to create
-      ** anti-tag that undoes a prior "+" or blocks propagation of of
-      ** a "*".
+      ** anti-tag that undoes a prior "+" or blocks propagation of a "*".
       **
       ** The tag is applied to <uuid>.  If <uuid> is "*" then the tag is
       ** applied to the current manifest.  If <value> is provided then
@@ -1127,16 +1130,12 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   return p;
 
 manifest_syntax_error:
-  {
-    char *zUuid = rid_to_uuid(rid);
+  if(pErr!=0){
+    char *zUuid = rid>0 ? rid_to_uuid(rid) : 0;
     if( zUuid ){
-      if(pErr!=0){
-        blob_appendf(pErr, "artifact [%s] ", zUuid);
-      }
+      blob_appendf(pErr, "artifact [%s] ", zUuid);
       fossil_free(zUuid);
     }
-  }
-  if(pErr!=0){
     if( zErr ){
       blob_appendf(pErr, "line %d: %s", lineNo, zErr);
     }else{
@@ -2336,7 +2335,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   int parentid = 0;
   int permitHooks = (flags & MC_PERMIT_HOOKS);
   const char *zScript = 0;
-  const char *zUuid = 0;
+  char *zUuid = 0;
 
   if( g.fSqlTrace ){
     fossil_trace("-- manifest_crosslink(%d)\n", rid);
@@ -2372,7 +2371,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   if( p->type==CFTYPE_MANIFEST ){
     if( permitHooks ){
       zScript = xfer_commit_code();
-      zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+      zUuid = rid_to_uuid(rid);
     }
     if( p->nCherrypick && db_table_exists("repository","cherrypick") ){
       int i;
@@ -2629,22 +2628,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   if( p->type==CFTYPE_ATTACHMENT ){
     char *zComment = 0;
     const char isAdd = (p->zAttachSrc && p->zAttachSrc[0]) ? 1 : 0;
-    /* We assume that we're attaching to a wiki page until we
-    ** prove otherwise (which could on a later artifact if we
-    ** process the attachment artifact before the artifact to
-    ** which it is attached!) */
-    char attachToType = 'w';
-    if( fossil_is_artifact_hash(p->zAttachTarget) ){
-      if( db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'",
-            p->zAttachTarget)
-        ){
-        attachToType = 't';          /* Attaching to known ticket */
-      }else if( db_exists("SELECT 1 FROM tag WHERE tagname='event-%q'",
-                  p->zAttachTarget)
-            ){
-        attachToType = 'e';          /* Attaching to known tech note */
-      }
-    }
+    char attachToType = 0;
     db_multi_exec(
        "INSERT INTO attachment(attachid, mtime, src, target,"
                               "filename, comment, user)"
@@ -2660,36 +2644,78 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
        p->zAttachTarget, p->zAttachName,
        p->zAttachTarget, p->zAttachName
     );
-    if( 'w' == attachToType ){
-      if( isAdd ){
-        zComment = mprintf(
-             "Add attachment [/artifact/%!S|%h] to wiki page [%h]",
-             p->zAttachSrc, p->zAttachName, p->zAttachTarget);
-      }else{
-        zComment = mprintf("Delete attachment \"%h\" from wiki page [%h]",
-             p->zAttachName, p->zAttachTarget);
-      }
-    }else if( 'e' == attachToType ){
-      if( isAdd ){
-        zComment = mprintf(
-          "Add attachment [/artifact/%!S|%h] to tech note [/technote/%!S|%S]",
-          p->zAttachSrc, p->zAttachName, p->zAttachTarget, p->zAttachTarget);
-      }else{
-        zComment = mprintf(
-             "Delete attachment \"/artifact/%!S|%h\" from"
-             " tech note [/technote/%!S|%S]",
-             p->zAttachName, p->zAttachName,
-             p->zAttachTarget,p->zAttachTarget);
-      }
-    }else{
-      if( isAdd ){
-        zComment = mprintf(
-             "Add attachment [/artifact/%!S|%h] to ticket [%!S|%S]",
-             p->zAttachSrc, p->zAttachName, p->zAttachTarget, p->zAttachTarget);
-      }else{
-        zComment = mprintf("Delete attachment \"%h\" from ticket [%!S|%S]",
-             p->zAttachName, p->zAttachTarget, p->zAttachTarget);
-      }
+    switch( attachment_target_type(p->zAttachTarget, 1) ){
+      case 0:
+        /* It is possible that p->zAttachTarget is not yet in this
+        ** copy of the repository. If we cannot identify it yet,
+        ** generate a generic /artifact link to it instead of a
+        ** type-specific link or an error message. */
+        attachToType = 'a';
+        if( isAdd ){
+          zComment = mprintf(
+            "Add attachment [/artifact/%!S|%h] to [/artifact/%!S|%h]",
+            p->zAttachSrc, p->zAttachName,
+            p->zAttachTarget, p->zAttachTarget);
+        }else{
+          zComment = mprintf("Delete attachment \"%h\" from "
+                             "[/artifact/%!S|%h",
+                             p->zAttachName, p->zAttachTarget,
+                             p->zAttachTarget);
+        }
+        break;
+      case CFTYPE_WIKI:
+        attachToType = 'w';
+        if( isAdd ){
+          zComment = mprintf(
+            "Add attachment [/artifact/%!S|%h] to wiki page [%h]",
+            p->zAttachSrc, p->zAttachName, p->zAttachTarget);
+        }else{
+          zComment = mprintf("Delete attachment \"%h\" from "
+                             "wiki page [%h]",
+                             p->zAttachName, p->zAttachTarget);
+        }
+        break;
+      case CFTYPE_EVENT:
+        attachToType = 'e';
+        if( isAdd ){
+          zComment = mprintf(
+            "Add attachment [/artifact/%!S|%h] to tech note "
+            "[/technote/%!S|%S]",
+            p->zAttachSrc, p->zAttachName, p->zAttachTarget, p->zAttachTarget);
+        }else{
+          zComment = mprintf(
+            "Delete attachment \"/artifact/%!S|%h\" from"
+            " tech note [/technote/%!S|%S]",
+            p->zAttachName, p->zAttachName,
+            p->zAttachTarget,p->zAttachTarget);
+        }
+        break;
+      case CFTYPE_TICKET:
+        attachToType = 't';
+        if( isAdd ){
+          zComment = mprintf(
+            "Add attachment [/artifact/%!S|%h] to ticket [%!S|%S]",
+            p->zAttachSrc, p->zAttachName, p->zAttachTarget, p->zAttachTarget);
+        }else{
+          zComment = mprintf(
+            "Delete attachment \"%h\" from ticket [%!S|%S]",
+            p->zAttachName, p->zAttachTarget, p->zAttachTarget);
+        }
+        break;
+      case CFTYPE_FORUM:
+        attachToType = 'f';
+        if( isAdd ){
+          zComment = mprintf(
+            "Add attachment [/artifact/%!S|%h] to forum post "
+            "[/forumpost/%!S|%S]",
+            p->zAttachSrc, p->zAttachName, p->zAttachTarget, p->zAttachTarget);
+        }else{
+          zComment = mprintf(
+            "Delete attachment \"%h\" from forum post "
+            "[/forumpost/%!S|%S]",
+            p->zAttachName, p->zAttachTarget, p->zAttachTarget);
+        }
+        break;
     }
     assert( manifest_event_triggers_are_enabled );
     db_multi_exec(
@@ -2724,14 +2750,15 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
             " WHERE event.type='ci' AND event.objid=blob.rid"
             " AND blob.uuid=%Q", zTagUuid) ){
           zScript = xfer_commit_code();
-          zUuid = zTagUuid;
+          fossil_free(zUuid);
+          zUuid = fossil_strdup(zTagUuid);
         }
       }
       zName = p->aTag[i].zName;
       zValue = p->aTag[i].zValue;
       if( strcmp(zName, "*branch")==0 ){
         blob_appendf(&comment,
-           " Move to branch [/timeline?r=%h&nd&dp=%!S&unhide | %h].",
+           " Move to branch [/timeline?r=%t&nd&dp=%!S&unhide | %h].",
            zValue, zTagUuid, zValue);
         branchMove = 1;
         continue;
@@ -2807,6 +2834,8 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     int froot, fprev, firt;
     char *zFType;
     char *zTitle;
+
+    assert( 0==zUuid );
     schema_forum();
     search_doc_touch('f', rid, 0);
     froot = p->zThreadRoot ? uuid_to_rid(p->zThreadRoot, 1) : rid;
@@ -2879,6 +2908,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       rc = xfer_run_script(zScript, zUuid, 0);
     }
   }
+  fossil_free(zUuid);
   if( p->type==CFTYPE_MANIFEST ){
     manifest_cache_insert(p);
   }else{
@@ -2904,4 +2934,321 @@ void test_crosslink_cmd(void){
   rid = name_to_rid(g.argv[2]);
   content_get(rid, &content);
   manifest_crosslink(rid, &content, MC_NONE);
+}
+
+/*
+** For a given CATYPE_... value, returns a human-friendly name, or
+** NULL if typeId is unknown or is CFTYPE_ANY. The names returned by
+** this function are geared towards use with artifact_to_json(), and
+** may differ from some historical uses. e.g. CFTYPE_CONTROL artifacts
+** are called "tag" artifacts by this function.
+*/
+const char * artifact_type_to_name(int typeId){
+  switch(typeId){
+    case CFTYPE_MANIFEST: return "checkin";
+    case CFTYPE_CLUSTER: return "cluster";
+    case CFTYPE_CONTROL: return "tag";
+    case CFTYPE_WIKI: return "wiki";
+    case CFTYPE_TICKET: return "ticket";
+    case CFTYPE_ATTACHMENT: return "attachment";
+    case CFTYPE_EVENT: return "technote";
+    case CFTYPE_FORUM: return "forumpost";
+  }
+  return NULL;
+}
+
+/*
+** Creates a JSON representation of p, appending it to b.
+**
+** b is not cleared before rendering, so the caller needs to do that
+** if it's important for their use case.
+**
+** Pedantic note: this routine traverses p->aFile directly, rather
+** than using manifest_file_next(), so that delta manifests are
+** rendered as-is instead of containing their derived F-cards. If that
+** policy is ever changed, p will need to be non-const.
+*/
+void artifact_to_json(Manifest const *p, Blob *b){
+  int i;
+
+  blob_append_literal(b, "{");
+  blob_appendf(b, "\"uuid\":\"%z\"", rid_to_uuid(p->rid));
+  /*blob_appendf(b, ", \"rid\": %d", p->rid); not portable across repos*/
+  blob_appendf(b, ",\"type\":%!j", artifact_type_to_name(p->type));
+#define ISA(TYPE) if( p->type==TYPE )
+#define CARD_LETTER(LETTER) \
+  blob_append_literal(b, ",\"" #LETTER "\":")
+#define CARD_STR(LETTER, VAL) \
+  assert( VAL ); CARD_LETTER(LETTER); blob_appendf(b, "%!j", VAL)
+#define CARD_STR2(LETTER, VAL) \
+  if( VAL ) { CARD_STR(LETTER, VAL); } (void)0
+#define STR_OR_NULL(VAL)                 \
+  if( VAL ) blob_appendf(b, "%!j", VAL); \
+  else blob_append(b, "null", 4)
+#define KVP_STR(ADDCOMMA, KEY,VAL)  \
+  if(ADDCOMMA) blob_append_char(b, ','); \
+  blob_appendf(b, "%!j:", #KEY);   \
+  STR_OR_NULL(VAL)
+
+  ISA( CFTYPE_ATTACHMENT ){
+    CARD_LETTER(A);
+    blob_append_char(b, '{');
+    KVP_STR(0, filename, p->zAttachName);
+    KVP_STR(1, target, p->zAttachTarget);
+    KVP_STR(1, source, p->zAttachSrc);
+    blob_append_char(b, '}');
+  }
+  CARD_STR2(B, p->zBaseline);
+  CARD_STR2(C, p->zComment);
+  CARD_LETTER(D); blob_appendf(b, "%f", p->rDate);
+  ISA( CFTYPE_EVENT ){
+    blob_appendf(b, ", \"E\":{\"time\":%f,\"id\":%!j}",
+                 p->rEventDate, p->zEventId);
+  }
+  ISA( CFTYPE_MANIFEST ){
+    CARD_LETTER(F);
+    blob_append_char(b, '[');
+    for( i = 0; i < p->nFile; ++i ){
+      ManifestFile const * const pF = &p->aFile[i];
+      if( i>0 ) blob_append_char(b, ',');
+      blob_append_char(b, '{');
+      KVP_STR(0, name, pF->zName);
+      KVP_STR(1, uuid, pF->zUuid);
+      KVP_STR(1, perm, pF->zPerm);
+      KVP_STR(1, rename, pF->zPrior);
+      blob_append_char(b, '}');
+    }
+    /* Special case: model check-ins with no F-card as having an empty
+    ** array, rather than no F-cards, to hypothetically simplify
+    ** handling in JSON queries. */
+    blob_append_char(b, ']');
+  }
+  CARD_STR2(G, p->zThreadRoot);
+  ISA( CFTYPE_FORUM ){
+    CARD_LETTER(H);
+    STR_OR_NULL( (p->zThreadTitle && *p->zThreadTitle) ? p->zThreadTitle : NULL);
+    CARD_STR2(I, p->zInReplyTo);
+  }
+  if( p->nField ){
+    CARD_LETTER(J);
+    blob_append_char(b, '[');
+    for( i = 0; i < p->nField; ++i ){
+      const char * zName = p->aField[i].zName;
+      if( i>0 ) blob_append_char(b, ',');
+      blob_append_char(b, '{');
+      KVP_STR(0, name, '+'==*zName ? &zName[1] : zName);
+      KVP_STR(1, value, p->aField[i].zValue);
+      blob_appendf(b, ",\"append\":%s", '+'==*zName ? "true" : "false");
+      blob_append_char(b, '}');
+    }
+    blob_append_char(b, ']');
+  }
+  CARD_STR2(K, p->zTicketUuid);
+  CARD_STR2(L, p->zWikiTitle);
+  ISA( CFTYPE_CLUSTER ){
+    CARD_LETTER(M);
+    blob_append_char(b, '[');
+    for( i = 0; i < p->nCChild; ++i ){
+      if( i>0 ) blob_append_char(b, ',');
+      blob_appendf(b, "%!j", p->azCChild[i]);
+    }
+    blob_append_char(b, ']');
+  }
+  CARD_STR2(N, p->zMimetype);
+  ISA( CFTYPE_MANIFEST || p->nParent>0 ){
+    CARD_LETTER(P);
+    blob_append_char(b, '[');
+    for( i = 0; i < p->nParent; ++i ){
+      if( i>0 ) blob_append_char(b, ',');
+      blob_appendf(b, "%!j", p->azParent[i]);
+    }
+    /* Special case: model check-ins with no P-card as having an empty
+    ** array, as per F-cards. */
+    blob_append_char(b, ']');
+  }
+  if( p->nCherrypick ){
+    CARD_LETTER(Q);
+    blob_append_char(b, '[');
+    for( i = 0; i < p->nCherrypick; ++i ){
+      if( i>0 ) blob_append_char(b, ',');
+      blob_append_char(b, '{');
+      blob_appendf(b, "\"type\":\"%c\"", p->aCherrypick[i].zCPTarget[0]);
+      KVP_STR(1, target, &p->aCherrypick[i].zCPTarget[1]);
+      KVP_STR(1, base, p->aCherrypick[i].zCPBase);
+      blob_append_char(b, '}');
+    }
+    blob_append_char(b, ']');
+  }
+  CARD_STR2(R, p->zRepoCksum);
+  if( p->nTag ){
+    CARD_LETTER(T);
+    blob_append_char(b, '[');
+    for( i = 0; i < p->nTag; ++i ){
+      const char *zName = p->aTag[i].zName;
+      if( i>0 ) blob_append_char(b, ',');
+      blob_append_char(b, '{');
+      blob_appendf(b, "\"type\":\"%c\"", *zName);
+      KVP_STR(1, name, &zName[1]);
+      KVP_STR(1, target, p->aTag[i].zUuid ? p->aTag[i].zUuid : "*")
+        /* We could arguably resolve the "*" as null or p's uuid. */;
+      KVP_STR(1, value, p->aTag[i].zValue);
+      blob_append_char(b, '}');
+    }
+    blob_append_char(b, ']');
+  }
+  CARD_STR2(U, p->zUser);
+  if( p->zWiki || CFTYPE_WIKI==p->type || CFTYPE_FORUM==p->type
+      || CFTYPE_EVENT==p->type ){
+    CARD_LETTER(W);
+    STR_OR_NULL((p->zWiki && *p->zWiki) ? p->zWiki : NULL);
+  }
+  blob_append_literal(b, "}");
+#undef CARD_FMT
+#undef CARD_LETTER
+#undef CARD_STR
+#undef CARD_STR2
+#undef ISA
+#undef KVP_STR
+#undef STR_OR_NULL
+}
+
+/*
+** Convenience wrapper around artifact_to_json() which expects rid to
+** be the blob.rid of any artifact type. If it can load a Manifest
+** with that rid, it returns rid, else it returns 0.
+*/
+int artifact_to_json_by_rid(int rid, Blob *pOut){
+  Manifest * const p = manifest_get(rid, CFTYPE_ANY, 0);
+  if( p ){
+    artifact_to_json(p, pOut);
+    manifest_destroy(p);
+  }else{
+    rid = 0;
+  }
+  return rid;
+}
+
+/*
+** Convenience wrapper around artifact_to_json() which accepts any
+** artifact name which is legal for symbolic_name_to_rid(). On success
+** it returns the rid of the artifact. Returns 0 if no such artifact
+** exists and a negative value if the name is ambiguous.
+**
+** pOut is not cleared before rendering, so the caller needs to do
+** that if it's important for their use case.
+*/
+int artifact_to_json_by_name(const char *zName, Blob *pOut){
+  const int rid = symbolic_name_to_rid(zName, 0);
+  return rid>0
+    ? artifact_to_json_by_rid(rid, pOut)
+    : rid;
+}
+
+/*
+** SQLite UDF for artifact_to_json(). Its single argument should be
+** either an INTEGER (blob.rid value) or a TEXT symbolic artifact
+** name, as per symbolic_name_to_rid(). If an artifact is found then
+** the result of the UDF is that JSON as a string, else it evaluates
+** to NULL.
+*/
+void artifact_to_json_sql_func(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  int rid = 0;
+  Blob b = empty_blob;
+
+  if(1 != argc){
+    goto error_usage;
+  }
+  switch( sqlite3_value_type(argv[0]) ){
+    case SQLITE_INTEGER:
+      rid = artifact_to_json_by_rid(sqlite3_value_int(argv[0]), &b);
+      break;
+    case SQLITE_TEXT:{
+      const char * z = (const char *)sqlite3_value_text(argv[0]);
+      if( z ){
+        rid = artifact_to_json_by_name(z, &b);
+      }
+      break;
+    }
+    default:
+      goto error_usage;
+  }
+  if( rid>0 ){
+    sqlite3_result_text(context, blob_str(&b), blob_size(&b),
+                        SQLITE_TRANSIENT);
+    blob_reset(&b);
+  }else{
+    /* We should arguably error out if rid<0 (ambiguous name) */
+    sqlite3_result_null(context);
+  }
+  return;
+error_usage:
+  sqlite3_result_error(context, "Expecting one argument: blob.rid or "
+                       "artifact symbolic name", -1);
+}
+
+
+
+/*
+** COMMAND: test-artifact-to-json
+**
+** Usage:  %fossil test-artifact-to-json ?-pretty|-p? symbolic-name [...names]
+**
+** Tests the artifact_to_json() and artifact_to_json_by_name() APIs.
+*/
+void test_manifest_to_json(void){
+  int i;
+  Blob b = empty_blob;
+  Stmt q;
+  const int bPretty = find_option("pretty","p",0)!=0;
+  int nErr = 0;
+
+  db_find_and_open_repository(0,0);
+  db_prepare(&q, "select json_pretty(:json)");
+  for( i=2; i<g.argc; ++i ){
+    char const *zName = g.argv[i];
+    const int rc = artifact_to_json_by_name(zName, &b);
+    if( rc<=0 ){
+      ++nErr;
+      fossil_warning("Error reading artifact %Q", zName);
+      continue;
+    }else if( bPretty ){
+      db_bind_blob(&q, ":json", &b);
+      b.nUsed = 0;
+      db_step(&q);
+      db_column_blob(&q, 0, &b);
+      db_reset(&q);
+    }
+    fossil_print("%b\n", &b);
+    blob_reset(&b);
+  }
+  db_finalize(&q);
+  if( nErr ){
+    fossil_warning("Error count: %d", nErr);
+  }
+}
+
+/*
+** Given the RID of an artifact, if that artifact type supports
+** P-cards then this returns the root-most RID of the P-card chain by
+** traversing the plink table, considering only primary parents. If
+** rid refers to anything other than such an artifact, or if the
+** artifact has no primary parent, rid is returned as-is.
+*/
+int rid_root_parent(int rid){
+  Stmt q;
+  db_prepare(
+    &q, "SELECT pid FROM plink WHERE isprim AND cid=:cid"
+  );
+  db_bind_int(&q, ":cid", rid);
+  while( SQLITE_ROW==db_step(&q) ){
+    rid = db_column_int(&q, 0);
+    db_reset(&q);
+    db_bind_int(&q, ":cid", rid);
+  }
+  db_finalize(&q);
+  return rid;
 }

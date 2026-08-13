@@ -188,16 +188,25 @@ static unsigned int getInt(const char **pz, int *pLen){
     25, 26, 27, 28, 29, 30, 31, 32,   33, 34, 35, -1, -1, -1, -1, 36,
     -1, 37, 38, 39, 40, 41, 42, 43,   44, 45, 46, 47, 48, 49, 50, 51,
     52, 53, 54, 55, 56, 57, 58, 59,   60, 61, 62, -1, -1, -1, 63, -1,
+
+    -1, -1, -1, -1, -1, -1, -1, -1,   -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1,   -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1,   -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1,   -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1,   -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1,   -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1,   -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1,   -1, -1, -1, -1, -1, -1, -1, -1,
   };
   unsigned int v = 0;
   int c;
   unsigned char *z = (unsigned char*)*pz;
-  unsigned char *zStart = z;
-  while( (c = zValue[0x7f&*(z++)])>=0 ){
-     v = (v<<6) + c;
+  unsigned char *zEnd = z + (*pLen);
+  while( z<zEnd && (c = zValue[*z])>=0 ){
+    v = (v<<6) + c;
+    z++;
   }
-  z--;
-  *pLen -= z - zStart;
+  *pLen -= (int)(z - (unsigned char*)*pz);
   *pz = (char*)z;
   return v;
 }
@@ -227,55 +236,57 @@ static int digit_count(int v){
 static unsigned int checksum(const char *zIn, size_t N){
   static const int byteOrderTest = 1;
   const unsigned char *z = (const unsigned char *)zIn;
-  const unsigned char *zEnd = (const unsigned char*)&zIn[N&~3];
   unsigned sum = 0;
-  assert( (z - (const unsigned char*)0)%4==0 );  /* Four-byte alignment */
-  if( 0==*(char*)&byteOrderTest ){
-    /* This is a big-endian machine */
-    while( z<zEnd ){
-      sum += *(unsigned*)z;
-      z += 4;
+  if( N>0 ){
+    const unsigned char *zEnd = (const unsigned char*)&zIn[N&~3];
+    assert( (z - (const unsigned char*)0)%4==0 );  /* Four-byte alignment */
+    if( 0==*(char*)&byteOrderTest ){
+      /* This is a big-endian machine */
+      while( z<zEnd ){
+        sum += *(unsigned*)z;
+        z += 4;
+      }
+    }else{
+      /* A little-endian machine */
+  #if GCC_VERSION>=4003000
+      while( z<zEnd ){
+        sum += __builtin_bswap32(*(unsigned*)z);
+        z += 4;
+      }
+  #elif defined(_MSC_VER) && _MSC_VER>=1300
+      while( z<zEnd ){
+        sum += _byteswap_ulong(*(unsigned*)z);
+        z += 4;
+      }
+  #else
+      unsigned sum0 = 0;
+      unsigned sum1 = 0;
+      unsigned sum2 = 0;
+      while(N >= 16){
+        sum0 += ((unsigned)z[0] + z[4] + z[8] + z[12]);
+        sum1 += ((unsigned)z[1] + z[5] + z[9] + z[13]);
+        sum2 += ((unsigned)z[2] + z[6] + z[10]+ z[14]);
+        sum  += ((unsigned)z[3] + z[7] + z[11]+ z[15]);
+        z += 16;
+        N -= 16;
+      }
+      while(N >= 4){
+        sum0 += z[0];
+        sum1 += z[1];
+        sum2 += z[2];
+        sum  += z[3];
+        z += 4;
+        N -= 4;
+      }
+      sum += (sum2 << 8) + (sum1 << 16) + (sum0 << 24);
+  #endif
     }
-  }else{
-    /* A little-endian machine */
-#if GCC_VERSION>=4003000
-    while( z<zEnd ){
-      sum += __builtin_bswap32(*(unsigned*)z);
-      z += 4;
+    switch(N&3){
+      case 3:   sum += (z[2] << 8);
+      case 2:   sum += (z[1] << 16);
+      case 1:   sum += (z[0] << 24);
+      default:  ;
     }
-#elif defined(_MSC_VER) && _MSC_VER>=1300
-    while( z<zEnd ){
-      sum += _byteswap_ulong(*(unsigned*)z);
-      z += 4;
-    }
-#else
-    unsigned sum0 = 0;
-    unsigned sum1 = 0;
-    unsigned sum2 = 0;
-    while(N >= 16){
-      sum0 += ((unsigned)z[0] + z[4] + z[8] + z[12]);
-      sum1 += ((unsigned)z[1] + z[5] + z[9] + z[13]);
-      sum2 += ((unsigned)z[2] + z[6] + z[10]+ z[14]);
-      sum  += ((unsigned)z[3] + z[7] + z[11]+ z[15]);
-      z += 16;
-      N -= 16;
-    }
-    while(N >= 4){
-      sum0 += z[0];
-      sum1 += z[1];
-      sum2 += z[2];
-      sum  += z[3];
-      z += 4;
-      N -= 4;
-    }
-    sum += (sum2 << 8) + (sum1 << 16) + (sum0 << 24);
-#endif
-  }
-  switch(N&3){
-    case 3:   sum += (z[2] << 8);
-    case 2:   sum += (z[1] << 16);
-    case 1:   sum += (z[0] << 24);
-    default:  ;
   }
   return sum;
 }
@@ -316,7 +327,7 @@ static unsigned int checksum(const char *zIn, size_t N){
 **
 **     NNN;
 **
-** In this case, NNN is a 32-bit bigendian checksum of the output file
+** In this case, NNN is a 32-bit big endian checksum of the output file
 ** that can be used to verify that the delta applied correctly.  All
 ** numbers are in base-64.
 **
@@ -537,7 +548,7 @@ int delta_create(
 int delta_output_size(const char *zDelta, int lenDelta){
   int size;
   size = getInt(&zDelta, &lenDelta);
-  if( *zDelta!='\n' ){
+  if( lenDelta<=0 || *zDelta!='\n' ){
     /* ERROR: size integer not terminated by "\n" */
     return -1;
   }
@@ -572,21 +583,23 @@ int delta_apply(
   int lenDelta,          /* Length of the delta */
   char *zOut             /* Write the output into this preallocated buffer */
 ){
-  unsigned int limit;
-  unsigned int total = 0;
+  sqlite3_uint64 limit;
+  sqlite3_uint64 total = 0;
+
 #ifdef FOSSIL_ENABLE_DELTA_CKSUM_TEST
   char *zOrigOut = zOut;
 #endif
 
   limit = getInt(&zDelta, &lenDelta);
-  if( *zDelta!='\n' ){
+  if( lenDelta<=0 || *zDelta!='\n' ){
     /* ERROR: size integer not terminated by "\n" */
     return -1;
   }
-  zDelta++; lenDelta--;
-  while( *zDelta && lenDelta>0 ){
+  zDelta++; lenDelta--;  /* Skip the \n */
+  while( lenDelta>0 && zDelta[0] ){
     unsigned int cnt, ofst;
     cnt = getInt(&zDelta, &lenDelta);
+    if( lenDelta<=0 ) return -1;
     switch( zDelta[0] ){
       case '@': {
         zDelta++; lenDelta--;
@@ -602,7 +615,7 @@ int delta_apply(
           /* ERROR: copy exceeds output file size */
           return -1;
         }
-        if( (int)(ofst+cnt) > lenSrc ){
+        if( (u64)ofst+(u64)cnt > (u64)lenSrc ){
           /* ERROR: copy extends past end of input */
           return -1;
         }
@@ -618,7 +631,7 @@ int delta_apply(
           return -1;
         }
         DEBUG1( printf("INSERT %d\n", cnt); )
-        if( (int)cnt>lenDelta ){
+        if( cnt>lenDelta ){
           /* ERROR: insert count exceeds size of delta */
           return -1;
         }
@@ -668,19 +681,20 @@ int delta_analyze(
   unsigned int nCopy = 0;
 
   (void)getInt(&zDelta, &lenDelta);
-  if( *zDelta!='\n' ){
+  if( lenDelta<=0 || *zDelta!='\n' ){
     /* ERROR: size integer not terminated by "\n" */
     return -1;
   }
   zDelta++; lenDelta--;
-  while( *zDelta && lenDelta>0 ){
+  while( lenDelta>0 && *zDelta ){
     unsigned int cnt;
     cnt = getInt(&zDelta, &lenDelta);
+    if( lenDelta<=0 ) break;
     switch( zDelta[0] ){
       case '@': {
         zDelta++; lenDelta--;
         (void)getInt(&zDelta, &lenDelta);
-        if( lenDelta>0 && zDelta[0]!=',' ){
+        if( lenDelta<=0 || zDelta[0]!=',' ){
           /* ERROR: copy command not terminated by ',' */
           return -1;
         }
@@ -691,7 +705,7 @@ int delta_analyze(
       case ':': {
         zDelta++; lenDelta--;
         nInsert += cnt;
-        if( (int)cnt>lenDelta ){
+        if( (i64)cnt>(i64)lenDelta ){
           /* ERROR: insert count exceeds size of delta */
           return -1;
         }

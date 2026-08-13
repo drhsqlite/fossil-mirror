@@ -122,7 +122,12 @@
     delete PS._config;
   }
 
-  PS.worker = new Worker('builtin/extsrc/pikchr-worker.js');
+  /* Randomize the name of the worker script so that it is never cached.
+  ** The Fossil /builtin method will automatically remove the "-v000000000"
+  ** part of the filename, resolving it to just "pikchr-worker.js". */
+  PS.worker = new Worker('builtin/extsrc/pikchr-worker-v'+
+                         (Math.floor(Math.random()*10000000000) + 1000000000)+
+                        '.js');
   PS.worker.onmessage = (ev)=>PS.runMsgHandlers(ev.data);
   PS.addMsgHandler('stdout', console.log.bind(console));
   PS.addMsgHandler('stderr', console.error.bind(console));
@@ -174,9 +179,9 @@
   /**
      The 'pikchr-ready' event is fired (with no payload) when the
      wasm module has finished loading. */
-  PS.addMsgHandler('pikchr-ready', function(){
+  PS.addMsgHandler('pikchr-ready', function(event){
     PS.clearMsgHandlers('pikchr-ready');
-    F.page.onPikchrshowLoaded();
+    F.page.onPikchrshowLoaded(event.data);
   });
 
   /**
@@ -184,7 +189,7 @@
      worker module is loaded. This function removes itself when it's
      called.
   */
-  F.page.onPikchrshowLoaded = function(){
+  F.page.onPikchrshowLoaded = function(pikchrVersion){
     delete this.onPikchrshowLoaded;
     // Unhide all elements which start out hidden
     EAll('.initially-hidden').forEach((e)=>e.classList.remove('initially-hidden'));
@@ -208,7 +213,7 @@
     };
     const setCurrentText = function(txt){
       taInput.value = txt;
-      renderCurrentText();        
+      renderCurrentText();
     };
     PS.e.btnRender.addEventListener('click',function(ev){
       ev.preventDefault();
@@ -309,7 +314,6 @@
       }
     }.bind(PS));
     F.copyButton(PS.e.previewCopyButton, {copyFromElement: PS.e.outText});
-    PS.e.previewModeLabel.addEventListener('click', ()=>PS.e.previewCopyButton.click(), false);
 
     PS.addMsgHandler('working',function f(ev){
       switch(ev.data){
@@ -430,8 +434,23 @@
       }, false);
     });
 
+    if(window.sessionStorage){
+      /* If sessionStorage['pikchr-xfer'] exists and the "fromSession"
+         URL argument was passed to this page, load the pikchr source
+         from the session. This is used by the "open in pikchrshow"
+         link in the forum. */
+      const src = window.sessionStorage.getItem('pikchr-xfer');
+      if( src && (new URL(self.location.href).searchParams).has('fromSession') ){
+        taInput.value =  src;
+        window.sessionStorage.removeItem('pikchr-xfer');
+      }
+    }
+    D.append(E('fieldset.options > div'),
+             D.append(D.addClass(D.span(), 'labeled-input'),
+                      'pikchr v. '+pikchrVersion));
+
     PS.e.btnRender.click();
-    
+
     /** Debounce handler for auto-rendering while typing. */
     const debounceAutoRender = F.debounce(function f(){
       if(!PS._isDirty) return;
@@ -514,7 +533,7 @@
 
 
   /**
-     Predefined scripts. Each entry is an object:
+     Predefined example pikchr scripts. Each entry is an object:
 
      {
      name: required string,
@@ -620,7 +639,7 @@ text "Examples Of Pikchr Objects" big bold  at .8cm above north of AllObjects
     # fill in content for the Alice lane
     right
 A1: circle rad 0.1in at end of first line + (0.2,-0.2) \
-       fill white thickness 1.5px "1" 
+       fill white thickness 1.5px "1"
     arrow right 50%
     circle same "2"
     arrow right until even with first box.e - (0.65,0.0)

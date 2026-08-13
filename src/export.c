@@ -30,7 +30,7 @@ static struct {
 
 #if INTERFACE
 /*
-** Each line in a git-fast-export "marK" file is an instance of
+** Each line in a git-fast-export "mark" file is an instance of
 ** this object.
 */
 struct mark_t {
@@ -60,7 +60,7 @@ static void print_person(const char *zUser){
   db_bind_text(&q, ":user", zUser);
   if( db_step(&q)!=SQLITE_ROW ){
     db_reset(&q);
-    zName = mprintf("%s", zUser);
+    zName = fossil_strdup(zUser);
     for(i=j=0; zName[i]; i++){
       if( zName[i]!='<' && zName[i]!='>' && zName[i]!='"' ){
         zName[j++] = zName[i];
@@ -104,7 +104,7 @@ static void print_person(const char *zUser){
   }
   if( zContact[i]==0 ){
     /* No email address found. Take as user info if not empty */
-    zName = mprintf("%s", zContact[0] ? zContact : zUser);
+    zName = fossil_strdup(zContact[0] ? zContact : zUser);
     for(i=j=0; zName[i]; i++){
       if( zName[i]!='<' && zName[i]!='>' && zName[i]!='"' ){
         zName[j++] = zName[i];
@@ -151,7 +151,7 @@ static void print_person(const char *zUser){
      }
   }
 
-  if( zName==NULL ) zName = mprintf("%s", zUser);
+  if( zName==NULL ) zName = fossil_strdup(zUser);
   for(i=j=0; zName[i]; i++){
      if( zName[i]!='<' && zName[i]!='>' && zName[i]!='"' ){
          zName[j++] = zName[i];
@@ -174,7 +174,7 @@ static void print_person(const char *zUser){
 ** the branch or tag part of the reference.
 */
 static void print_ref(const char *zRef){
-  char *zEncoded = mprintf("%s", zRef);
+  char *zEncoded = fossil_strdup(zRef);
   int i, w;
   if (zEncoded[0]=='@' && zEncoded[1]=='\0'){
     putchar(REFREPLACEMENT);
@@ -483,6 +483,8 @@ void export_marks(FILE* f, Bag *blobs, Bag *vers){
 /*
 ** COMMAND: export*
 **
+** Usage: %fossil export --git [REPOSITORY]
+**
 ** This command is deprecated.  Use "fossil git export" instead.
 */
 void export_cmd(void){
@@ -491,6 +493,7 @@ void export_cmd(void){
   unsigned int unused_mark = 1;
   const char *markfile_in;
   const char *markfile_out;
+  const char *zMainBranch = db_main_branch();
 
   bag_init(&blobs);
   bag_init(&vers);
@@ -500,7 +503,7 @@ void export_cmd(void){
   markfile_out = find_option("export-marks", 0, 1);
 
   if( !(gexport.zTrunkName = find_option("rename-trunk", 0, 1)) ){
-    gexport.zTrunkName = "trunk";
+    gexport.zTrunkName = fossil_strdup(zMainBranch);
   }
 
   db_find_and_open_repository(0, 2);
@@ -629,7 +632,7 @@ void export_cmd(void){
     db_bind_int(&q2, ":rid", ckinId);
     db_step(&q2);
     db_reset(&q2);
-    if( zBranch==0 || fossil_strcmp(zBranch, "trunk")==0 ){
+    if( zBranch==0 || fossil_strcmp(zBranch, zMainBranch)==0 ){
       zBranch = gexport.zTrunkName;
     }
     zMark = mark_name_from_rid(ckinId, &unused_mark);
@@ -758,7 +761,7 @@ void export_cmd(void){
 ** order.  "Topological order" means that every parent check-in comes
 ** before all of its children.  Topological order is *almost* the same
 ** thing as "ORDER BY event.mtime".  Differences only arise when there
-** are timewarps.  In as much as Git hates timewarps, we have to compute
+** are timewarps.  Inasmuch as Git hates timewarps, we have to compute
 ** a correct topological order when doing an export.
 **
 ** Since mtime is a usually already nearly in topological order, the
@@ -857,8 +860,8 @@ void test_topological_sort(void){
 #define VERB_EXTRA  3
 static int gitmirror_verbosity = VERB_NORMAL;
 
-/* The main branch in the Git repository.  The "trunk" branch of
-** Fossil is renamed to be this branch name.
+/* The main branch in the Git repository.  The main branch of the
+** Fossil repository (usually "trunk") is renamed to be this branch name.
 */
 static const char *gitmirror_mainbranch = 0;
 
@@ -1074,8 +1077,7 @@ static int gitmirror_send_checkin(
   FILE *xCmd,           /* Write fast-import text on this pipe */
   int rid,              /* BLOB.RID for the check-in to export */
   const char *zUuid,    /* BLOB.UUID for the check-in to export */
-  int *pnLimit,         /* Stop when the counter reaches zero */
-  int fManifest         /* MFESTFLG_* values */
+  int *pnLimit          /* Stop when the counter reaches zero */
 ){
   Manifest *pMan;       /* The check-in to be output */
   int i;                /* Loop counter */
@@ -1089,6 +1091,9 @@ static int gitmirror_send_checkin(
   int bPhantomOk;       /* True if phantom files should be ignored */
   char buf[24];
   char *zEmail;         /* Contact info for Git committer field */
+  int fManifest;        /* Should the manifest files be included? */
+  int fPManifest = 0;   /* OR of the manifest files for all parents */
+  const char *zMainBranch;
 
   pMan = manifest_get(rid, CFTYPE_MANIFEST, 0);
   if( pMan==0 ){
@@ -1106,7 +1111,7 @@ static int gitmirror_send_checkin(
       int prid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q",
                         pMan->azParent[i]);
       int rc = gitmirror_send_checkin(xCmd, prid, pMan->azParent[i],
-                                      pnLimit, fManifest);
+                                      pnLimit);
       if( rc || *pnLimit<=0 ){
         manifest_destroy(pMan);
         return 1;
@@ -1148,10 +1153,11 @@ static int gitmirror_send_checkin(
     "SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0 AND rid=%d",
     TAG_BRANCH, rid
   );
-  if( fossil_strcmp(zBranch,"trunk")==0 ){
+  zMainBranch = db_main_branch();
+  if( fossil_strcmp(zBranch, zMainBranch)==0 ){
     assert( gitmirror_mainbranch!=0 );
     fossil_free(zBranch);
-    zBranch = mprintf("%s",gitmirror_mainbranch);
+    zBranch = fossil_strdup(gitmirror_mainbranch);
   }else if( zBranch==0 ){
     zBranch = mprintf("unknown");
   }else{
@@ -1215,6 +1221,7 @@ static int gitmirror_send_checkin(
   for(i=0; i<pMan->nParent; i++){
     char *zOther = gitmirror_find_mark(pMan->azParent[i],0,0);
     if( zOther==0 ) continue;
+    fPManifest |= db_get_manifest_setting(pMan->azParent[i]);
     if( iParent<0 ){
       iParent = i;
       fprintf(xCmd, "from %s\n", zOther);
@@ -1271,6 +1278,7 @@ static int gitmirror_send_checkin(
   pMan = 0;
 
   /* Include Fossil-generated auxiliary files in the check-in */
+  fManifest = db_get_manifest_setting(zUuid);
   if( fManifest & MFESTFLG_RAW ){
     Blob manifest;
     content_get(rid, &manifest);
@@ -1278,10 +1286,14 @@ static int gitmirror_send_checkin(
     fprintf(xCmd,"M 100644 inline manifest\ndata %d\n%s\n",
       blob_strlen(&manifest), blob_str(&manifest));
     blob_reset(&manifest);
+  }else if( fPManifest & MFESTFLG_RAW ){
+    fprintf(xCmd, "D manifest\n");
   }
   if( fManifest & MFESTFLG_UUID ){
     int n = (int)strlen(zUuid);
     fprintf(xCmd,"M 100644 inline manifest.uuid\ndata %d\n%s\n\n", n+1, zUuid);
+  }else if( fPManifest & MFESTFLG_UUID ){
+    fprintf(xCmd, "D manifest.uuid\n");
   }
   if( fManifest & MFESTFLG_TAGS ){
     Blob tagslist;
@@ -1290,6 +1302,8 @@ static int gitmirror_send_checkin(
     fprintf(xCmd,"M 100644 inline manifest.tags\ndata %d\n%s\n",
       blob_strlen(&tagslist), blob_str(&tagslist));
     blob_reset(&tagslist);
+  }else if( fPManifest & MFESTFLG_TAGS ){
+    fprintf(xCmd, "D manifest.tags\n");
   }
 
   /* The check-in is finished, so decrement the counter */
@@ -1383,7 +1397,6 @@ void gitmirror_export_command(void){
   int rc;                         /* Result code */
   int bForce;                     /* Do the export and sync even if no changes*/
   int bNeedRepack = 0;            /* True if we should run repack at the end */
-  int fManifest;                  /* Current "manifest" setting */
   int bIfExists;                  /* The --if-mirrored flag */
   FILE *xCmd;                     /* Pipe to the "git fast-import" command */
   FILE *pMarks;                   /* Git mark files */
@@ -1402,6 +1415,7 @@ void gitmirror_export_command(void){
   bForce = find_option("force","f",0)!=0;
   bIfExists = find_option("if-mirrored",0,0)!=0;
   gitmirror_verbosity = VERB_NORMAL;
+  if( g.fQuiet ){ gitmirror_verbosity--; }  /* Global option not repeatable. */
   while( find_option("quiet","q",0)!=0 ){ gitmirror_verbosity--; }
   while( find_option("verbose","v",0)!=0 ){ gitmirror_verbosity++; }
   verify_all_options();
@@ -1521,9 +1535,6 @@ void gitmirror_export_command(void){
     return;
   }
 
-  /* Do we need to include manifest files in the clone? */
-  fManifest = db_get_manifest_setting();
-
   /* Change to the MIRROR directory so that the Git commands will work */
   rc = file_chdir(zMirror, 0);
   if( rc ) fossil_fatal("cannot change the working directory to \"%s\"",
@@ -1579,7 +1590,7 @@ void gitmirror_export_command(void){
     double rMTime = db_column_double(&q, 1);
     const char *zUuid = db_column_text(&q, 2);
     if( rMTime>rEnd ) rEnd = rMTime;
-    rc = gitmirror_send_checkin(xCmd, rid, zUuid, &nLimit, fManifest);
+    rc = gitmirror_send_checkin(xCmd, rid, zUuid, &nLimit);
     if( rc ) break;
     gitmirror_message(VERB_NORMAL,"%d/%d      \r", nTotal-nLimit, nTotal);
     fflush(stdout);
@@ -1744,7 +1755,7 @@ void gitmirror_status_command(void){
                     ** from "fossil all" and should modify output accordingly */
 
   db_find_and_open_repository(0, 0);
-  bQuiet = find_option("quiet","q",0)!=0;
+  bQuiet = g.fQuiet;
   bByAll = find_option("by-all",0,0)!=0;
   verify_all_options();
   zMirror = db_get("last-git-export-repo", 0);

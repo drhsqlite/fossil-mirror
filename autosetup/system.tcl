@@ -19,7 +19,7 @@
 ## mandir
 ## includedir
 #
-# If '--prefix' is not supplied, it defaults to '/usr/local' unless 'defaultprefix' is defined *before*
+# If '--prefix' is not supplied, it defaults to '/usr/local' unless 'options-defaults { prefix ... }' is used *before*
 # including the 'system' module.
 
 if {[is-defined defaultprefix]} {
@@ -27,7 +27,7 @@ if {[is-defined defaultprefix]} {
 	options-defaults [list prefix [get-define defaultprefix]]
 }
 
-module-options [subst -noc -nob {
+options {
 	host:host-alias =>		{a complete or partial cpu-vendor-opsys for the system where
 							the application will run (defaults to the same value as --build)}
 	build:build-alias =>	{a complete or partial cpu-vendor-opsys for the system
@@ -52,7 +52,10 @@ module-options [subst -noc -nob {
 	maintainer-mode=0
 	dependency-tracking=0
 	silent-rules=0
-}]
+	program-prefix:
+	program-suffix:
+	program-transform-name:
+}
 
 # @check-feature name { script }
 #
@@ -206,7 +209,12 @@ proc include-file {infile mapping} {
 				}
 			}
 			continue
-		} elseif {[regexp {^@include\s+(.*)} $line -> filearg]} {
+		}
+		# Only continue if the stack contains all "true"
+		if {"0" in $condstack} {
+			continue
+		}
+		if {[regexp {^@include\s+(.*)} $line -> filearg]} {
 			set incfile [string map $mapping $filearg]
 			if {[file exists $incfile]} {
 				lappend ::autosetup(deps) [file-normalize $incfile]
@@ -215,12 +223,9 @@ proc include-file {infile mapping} {
 				user-error "$infile:$linenum: Include file $incfile is missing"
 			}
 			continue
-		} elseif {[regexp {^@define\s+(\w+)\s+(.*)} $line -> var val]} {
-			define $var $val
-			continue
 		}
-		# Only output this line if the stack contains all "true"
-		if {"0" in $condstack} {
+		if {[regexp {^@define\s+(\w+)\s+(.*)} $line -> var val]} {
+			define $var $val
 			continue
 		}
 		lappend result $line

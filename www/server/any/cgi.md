@@ -40,7 +40,9 @@ again, may be different for a particular configuration:
     writable so that SQLite can write its journal files. When using
     another access control system, such as AppArmor or SELinux, it may
     be necessary to explicitly permit that account to read and write
-    the necessary files.
+    the necessary files. Also verify a possible _systemd_ sandboxing of
+    the web server service, especially the combination of _ProtectSystem_,
+    _ProtectHome_, and _ReadWriteDirectories_/_ReadWritePaths_. 
 
 *   Fossil must be able to create temporary files in a
     [directory that varies by host OS](../../env-opts.md#temp). When the

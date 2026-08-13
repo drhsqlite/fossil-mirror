@@ -102,11 +102,11 @@ static struct {
   { "background-image",       CONFIGSET_SKIN },
   { "icon-mimetype",          CONFIGSET_SKIN },
   { "icon-image",             CONFIGSET_SKIN },
-  { "timeline-block-markup",  CONFIGSET_SKIN },
   { "timeline-date-format",   CONFIGSET_SKIN },
   { "timeline-default-style", CONFIGSET_SKIN },
   { "timeline-dwelltime",     CONFIGSET_SKIN },
   { "timeline-closetime",     CONFIGSET_SKIN },
+  { "timeline-hard-newlines", CONFIGSET_SKIN },
   { "timeline-max-comment",   CONFIGSET_SKIN },
   { "timeline-plaintext",     CONFIGSET_SKIN },
   { "timeline-truncate-at-blank", CONFIGSET_SKIN },
@@ -119,19 +119,10 @@ static struct {
   { "sitemap-extra",          CONFIGSET_SKIN },
   { "safe-html",              CONFIGSET_SKIN },
 
-#ifdef FOSSIL_ENABLE_TH1_DOCS
-  { "th1-docs",               CONFIGSET_TH1 },
-#endif
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
   { "th1-hooks",              CONFIGSET_TH1 },
 #endif
-  { "th1-setup",              CONFIGSET_TH1 },
   { "th1-uri-regexp",         CONFIGSET_TH1 },
-
-#ifdef FOSSIL_ENABLE_TCL
-  { "tcl",                    CONFIGSET_TH1 },
-  { "tcl-setup",              CONFIGSET_TH1 },
-#endif
 
   { "project-name",           CONFIGSET_PROJ },
   { "short-project-name",     CONFIGSET_PROJ },
@@ -154,6 +145,8 @@ static struct {
   { "mimetypes",              CONFIGSET_PROJ },
   { "forbid-delta-manifests", CONFIGSET_PROJ },
   { "mv-rm-files",            CONFIGSET_PROJ },
+  { "forum-statuses",         CONFIGSET_PROJ },
+  { "path-to-tag",            CONFIGSET_PROJ },
   { "ticket-table",           CONFIGSET_TKT  },
   { "ticket-common",          CONFIGSET_TKT  },
   { "ticket-change",          CONFIGSET_TKT  },
@@ -240,13 +233,31 @@ const char *configure_inop_rhs(int iMask){
 ** export the property.  In other words, the requesting side has presented
 ** login credentials and has sufficient capabilities to access the requested
 ** information.
+**
+** Settings which are specifically flagged as sensitive will (as of
+** 2024-10-15) cause this function to return 0, regardless of user
+** permissions. As an example, if the th1-setup setting were not
+** sensitive then a malicious repo admin could set that to include
+** arbitrary TCL code and affect users who configure fossil with the
+** --with-tcl flag.
 */
 int configure_is_exportable(const char *zName){
   int i;
   int n = strlen(zName);
+  Setting *pSet;
   if( n>2 && zName[0]=='\'' && zName[n-1]=='\'' ){
+    char * zCpy;
     zName++;
     n -= 2;
+    zCpy = fossil_strndup(zName, (ssize_t)n);
+    pSet = db_find_setting(zCpy, 0);
+    fossil_free(zCpy);
+  }else{
+    pSet = db_find_setting(zName, 0);
+  }
+  if( pSet && pSet->sensitive ){
+    /* https://fossil-scm.org/forum/forumpost/6179500deadf6ec7 */
+    return 0;
   }
   for(i=0; i<count(aConfig); i++){
     if( strncmp(zName, aConfig[i].zName, n)==0 && aConfig[i].zName[n]==0 ){
@@ -363,9 +374,13 @@ static int safeInt(const char *z){
 **    /reportfmt  $MTIME $TITLE owner $VALUE cols $VALUE sqlcode $VALUE jx $JSON
 **    /concealed  $MTIME $HASH content $VALUE
 **    /subscriber $SMTIME $SEMAIL suname $V ...
+**
+** NAME-specific notes:
+**
+**  - /reportftm's $MTIME is in Julian, not the Unix epoch.
 */
 void configure_receive(const char *zName, Blob *pContent, int groupMask){
-  int checkMask;   /* Masks for which we must first check existance of tables */
+  int checkMask;   /* Masks for which we must first check existence of tables */
 
   checkMask = CONFIGSET_SCRIBER;
   if( zName[0]=='/' ){
@@ -415,6 +430,11 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
     if( nToken<2 ) return;
     if( aType[ii].zName[0]=='/' ){
       thisMask = configure_is_exportable(azToken[1]);
+      if( 0==thisMask ){
+        fossil_warning("Skipping non-exportable setting: %s = %s",
+                       azToken[1], nToken>3 ? azToken[3] : "?");
+        /* Will be skipped below */
+      }
     }else{
       thisMask = configure_is_exportable(aType[ii].zName);
     }
@@ -682,6 +702,11 @@ int configure_send_group(
                  " WHERE name=:name AND mtime>=%lld", iStart);
   for(ii=0; ii<count(aConfig); ii++){
     if( (aConfig[ii].groupMask & groupMask)!=0 && aConfig[ii].zName[0]!='@' ){
+      const Setting * pSet = db_find_setting(aConfig[ii].zName, 0);
+      if( pSet && pSet->sensitive ){
+        /* https://fossil-scm.org/forum/forumpost/6179500deadf6ec7 */
+        continue;
+      }
       db_bind_text(&q, ":name", aConfig[ii].zName);
       while( db_step(&q)==SQLITE_ROW ){
         blob_appendf(&rec,"%s %s value %s",
@@ -799,6 +824,8 @@ static void export_config(
 **         the remote repository at URL.
 **
 ** Options:
+**    --proxy PROXY              Use PROXY as http proxy during sync operation
+**                               (used by pull, push and sync subcommands)
 **    -R|--repository REPO       Affect repository REPO with changes
 **
 ** See also: [[settings]], [[unset]]
@@ -871,6 +898,7 @@ void configuration_cmd(void){
     if( g.url.protocol==0 ) fossil_fatal("no server URL specified");
     user_select();
     url_enable_proxy("via proxy: ");
+    g.zHttpAuth = get_httpauth();
     if( overwriteFlag ) mask |= CONFIGSET_OVERWRITE;
     if( strncmp(zMethod, "push", n)==0 ){
       client_sync(0,0,(unsigned)mask,0,0);

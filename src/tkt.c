@@ -104,7 +104,7 @@ static void getAllTicketFields(void){
       aField = fossil_realloc(aField, sizeof(aField[0])*(nField+10) );
     }
     aField[nField].zBsln = 0;
-    aField[nField].zName = mprintf("%s", zFieldName);
+    aField[nField].zName = fossil_strdup(zFieldName);
     aField[nField].mUsed = USEDBY_TICKET;
     nField++;
   }
@@ -147,7 +147,7 @@ static void getAllTicketFields(void){
       aField = fossil_realloc(aField, sizeof(aField[0])*(nField+10) );
     }
     aField[nField].zBsln = 0;
-    aField[nField].zName = mprintf("%s", zFieldName);
+    aField[nField].zName = fossil_strdup(zFieldName);
     aField[nField].mUsed = USEDBY_TICKETCHNG;
     nField++;
   }
@@ -190,10 +190,15 @@ static void initializeVariablesFromDb(void){
   const char *zName;
   Stmt q;
   int i, n, size, j;
+  const char *zCTimeColumn = haveTicketCTime ? "tkt_ctime" : "tkt_mtime";
 
   zName = PD("name","-none-");
-  db_prepare(&q, "SELECT datetime(tkt_mtime,toLocal()) AS tkt_datetime, *"
+  db_prepare(&q, "SELECT datetime(tkt_mtime,toLocal()) AS tkt_datetime, "
+                 "datetime(%s,toLocal()) AS tkt_datetime_creation, "
+                 "julianday('now') - tkt_mtime, "
+                 "julianday('now') - %s, *"
                  "  FROM ticket WHERE tkt_uuid GLOB '%q*'",
+                 zCTimeColumn/*safe-for-%s*/, zCTimeColumn/*safe-for-%s*/,
                  zName);
   if( db_step(&q)==SQLITE_ROW ){
     n = db_column_count(&q);
@@ -207,17 +212,20 @@ static void initializeVariablesFromDb(void){
         zVal = zRevealed = db_reveal(zVal);
       }
       if( (j = fieldId(zName))>=0 ){
-        aField[j].zValue = mprintf("%s", zVal);
+        aField[j].zValue = fossil_strdup(zVal);
       }else if( memcmp(zName, "tkt_", 4)==0 && Th_Fetch(zName, &size)==0 ){
+        /* TICKET table columns that begin with "tkt_" are always safe */
         Th_Store(zName, zVal);
       }
       free(zRevealed);
     }
+    Th_Store("tkt_mage", human_readable_age(db_column_double(&q, 2)));
+    Th_Store("tkt_cage", human_readable_age(db_column_double(&q, 3)));
   }
   db_finalize(&q);
   for(i=0; i<nField; i++){
     if( Th_Fetch(aField[i].zName, &size)==0 ){
-      Th_Store(aField[i].zName, aField[i].zValue);
+      Th_StoreUnsafe(aField[i].zName, aField[i].zValue);
     }
   }
 }
@@ -230,7 +238,7 @@ static void initializeVariablesFromCGI(void){
   const char *z;
 
   for(i=0; (z = cgi_parameter_name(i))!=0; i++){
-    Th_Store(z, P(z));
+    Th_StoreUnsafe(z, P(z));
   }
 }
 
@@ -743,9 +751,12 @@ void tktview_page(void){
   if( g.anon.NewTkt ){
     style_submenu_element("New Ticket", "%R/tktnew");
   }
+  zFullName = db_text(0,
+       "SELECT tkt_uuid FROM ticket"
+       " WHERE tkt_uuid GLOB '%q*'", zUuid);
   if( g.anon.ApndTkt && g.anon.Attach ){
-    style_submenu_element("Attach", "%R/attachadd?tkt=%T&from=%R/tktview/%t",
-        zUuid, zUuid);
+    style_submenu_element("Attach", "%R/attachadd?target=%T&from=%R/tktview/%t",
+        zFullName, zUuid);
   }
   if( P("plaintext") ){
     style_submenu_element("Formatted", "%R/tktview/%s", zUuid);
@@ -779,12 +790,18 @@ void tktview_page(void){
   Th_Render(zScript);
   if( g.thTrace ) Th_Trace("END_TKTVIEW<br>\n", -1);
 
-  zFullName = db_text(0,
-       "SELECT tkt_uuid FROM ticket"
-       " WHERE tkt_uuid GLOB '%q*'", zUuid);
   if( zFullName ){
-    attachment_list(zFullName, "<hr><h2>Attachments:</h2><ul>");
+    char * z = mprintf(
+      "<h2><a href='%R/attachlist?tkt=%t'>Attachments</a>:</h2>",
+      zFullName
+    );
+    attachment_list(zFullName, z, 1);
+    fossil_free(z);
   }
+
+  builtin_fossil_js_bundle_or("dom", "storage", NULL);
+  builtin_request_js("fossil.page.ticket.js");
+  builtin_fulfill_js_requests();
 
   style_finish_page();
 }
@@ -811,11 +828,11 @@ static int appendRemarkCmd(
   }
   if( g.thTrace ){
     Th_Trace("append_field %#h {%#h}<br>\n",
-              argl[1], argv[1], argl[2], argv[2]);
+              TH1_LEN(argl[1]), argv[1], TH1_LEN(argl[2]), argv[2]);
   }
   for(idx=0; idx<nField; idx++){
-    if( memcmp(aField[idx].zName, argv[1], argl[1])==0
-        && aField[idx].zName[argl[1]]==0 ){
+    if( memcmp(aField[idx].zName, argv[1], TH1_LEN(argl[1]))==0
+        && aField[idx].zName[TH1_LEN(argl[1])]==0 ){
       break;
     }
   }
@@ -931,6 +948,7 @@ static int submitTicketCmd(
     if( aField[i].zAppend ) continue;
     zValue = Th_Fetch(aField[i].zName, &nValue);
     if( zValue ){
+      nValue = TH1_LEN(nValue);
       while( nValue>0 && fossil_isspace(zValue[nValue-1]) ){ nValue--; }
       if( ((aField[i].mUsed & USEDBY_TICKETCHNG)!=0 && nValue>0)
        || memcmp(zValue, aField[i].zValue, nValue)!=0
@@ -1025,28 +1043,30 @@ void tktnew_page(void){
     @ <input type="hidden" name="date_override" value="%h(P("date_override"))">
   }
   zScript = ticket_newpage_code();
+  Th_Store("private_contact", "");
   if( g.zLogin && g.zLogin[0] ){
-    int nEmail = 0;
-    (void)Th_MaybeGetVar(g.interp, "private_contact", &nEmail);
-    uid = nEmail>0
-      ? 0 : db_int(0, "SELECT uid FROM user WHERE login=%Q", g.zLogin);
+    uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", g.zLogin);
     if( uid ){
       char * zEmail =
         db_text(0, "SELECT find_emailaddr(info) FROM user WHERE uid=%d",
                 uid);
       if( zEmail ){
-        Th_Store("private_contact", zEmail);
+        Th_StoreUnsafe("private_contact", zEmail);
         fossil_free(zEmail);
       }
     }
   }
-  Th_Store("login", login_name());
+  Th_StoreUnsafe("login", login_name());
   Th_Store("date", db_text(0, "SELECT datetime('now')"));
   Th_CreateCommand(g.interp, "submit_ticket", submitTicketCmd,
                    (void*)&zNewUuid, 0);
   if( g.thTrace ) Th_Trace("BEGIN_TKTNEW_SCRIPT<br>\n", -1);
   if( Th_Render(zScript)==TH_RETURN && !g.thTrace && zNewUuid ){
-    cgi_redirect(mprintf("%R/tktview/%s", zNewUuid));
+    if( P("submitandnew") ){
+      cgi_redirect(mprintf("%R/tktnew/%s", zNewUuid));
+    }else{
+      cgi_redirect(mprintf("%R/tktview/%s", zNewUuid));
+    }
     return;
   }
   captcha_generate(0);
@@ -1111,7 +1131,7 @@ void tktedit_page(void){
   form_begin(0, "%R/%s", g.zPath);
   @ <input type="hidden" name="name" value="%s(zName)">
   zScript = ticket_editpage_code();
-  Th_Store("login", login_name());
+  Th_StoreUnsafe("login", login_name());
   Th_Store("date", db_text(0, "SELECT datetime('now')"));
   Th_CreateCommand(g.interp, "append_field", appendRemarkCmd, 0, 0);
   Th_CreateCommand(g.interp, "submit_ticket", submitTicketCmd, (void*)&zName,0);
@@ -1205,7 +1225,7 @@ void tkt_draw_timeline(int tagid, const char *zType){
   www_print_timeline(&q,
     TIMELINE_ARTID | TIMELINE_DISJOINT | TIMELINE_GRAPH | TIMELINE_NOTKT |
     TIMELINE_REFS,
-    0, 0, 0, 0, 0, 0);
+    0);
   db_finalize(&q);
   fossil_free(zFullUuid);
 }
@@ -1507,7 +1527,7 @@ void ticket_output_change_artifact(
 **
 **     Options:
 **       -l|--limit LIMITCHAR
-**       -q|--quote
+**       --quote
 **       -R|--repository REPO
 **
 **     Run the ticket report, identified by the report format title
@@ -1515,7 +1535,7 @@ void ticket_output_change_artifact(
 **     using TAB as separator. The separator can be changed using
 **     the -l or --limit option.
 **
-**     If TICKETFILTER is given on the commandline, the query is
+**     If TICKETFILTER is given on the command line, the query is
 **     limited with a new WHERE-condition.
 **       example:  Report lists a column # with the uuid
 **                 TICKETFILTER may be [#]='uuuuuuuuu'
@@ -1542,8 +1562,8 @@ void ticket_output_change_artifact(
 **
 **     List all ticket reports defined in the fossil repository.
 **
-** > fossil ticket set TICKETUUID (FIELD VALUE)+ ?-q|--quote?
-** > fossil ticket change TICKETUUID (FIELD VALUE)+ ?-q|--quote?
+** > fossil ticket set TICKETUUID (FIELD VALUE)+ ?--quote?
+** > fossil ticket change TICKETUUID (FIELD VALUE)+ ?--quote?
 **
 **     Change ticket identified by TICKETUUID to set the values of
 **     each field FIELD to VALUE.
@@ -1554,12 +1574,12 @@ void ticket_output_change_artifact(
 **     or substituted in customized installations.
 **
 **     If you use +FIELD, the VALUE is appended to the field FIELD.  You
-**     can use more than one field/value pair on the commandline.  Using
+**     can use more than one field/value pair on the command line.  Using
 **     --quote enables the special character decoding as in "ticket
 **     show", which allows setting multiline text or text with special
 **     characters.
 **
-** > fossil ticket add FIELD VALUE ?FIELD VALUE .. ? ?-q|--quote?
+** > fossil ticket add FIELD VALUE ?FIELD VALUE .. ? ?--quote?
 **
 **     Like set, but create a new ticket with the given values.
 **
@@ -1629,7 +1649,7 @@ void ticket_cmd(void){
     /* add a new ticket or set fields on existing tickets */
     tTktShowEncoding tktEncoding;
 
-    tktEncoding = find_option("quote","q",0) ? tktFossilize : tktNoTab;
+    tktEncoding = find_option("quote",0,0) ? tktFossilize : tktNoTab;
 
     if( strncmp(g.argv[2],"show",n)==0 ){
       if( g.argc==3 ){
@@ -1778,7 +1798,7 @@ void ticket_cmd(void){
         }
         zFValue = g.argv[i++];
         if( tktEncoding == tktFossilize ){
-          zFValue=mprintf("%s",zFValue);
+          zFValue=fossil_strdup(zFValue);
           defossilize(zFValue);
         }
         append = (zFName[0] == '+');

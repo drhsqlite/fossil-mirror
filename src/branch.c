@@ -22,6 +22,18 @@
 #include <assert.h>
 
 /*
+** Return the name of the main branch.  Cache the result.
+**
+** This is the current value of the "main-branch" setting, or its default
+** value (historically, and as of 2025-10-28: "trunk") if not set.
+*/
+const char *db_main_branch(void){
+  static char *zMainBranch = 0;
+  if( zMainBranch==0 ) zMainBranch = db_get("main-branch", 0);
+  return zMainBranch;
+}
+
+/*
 ** Return true if zBr is the branch name associated with check-in with
 ** blob.uuid value of zUuid
 */
@@ -55,9 +67,7 @@ char *branch_of_rid(int rid){
   }
   db_reset(&q);
   if( zBr==0 ){
-    static char *zMain = 0;
-    if( zMain==0 ) zMain = db_get("main-branch",0);
-    zBr = fossil_strdup(zMain);
+    zBr = fossil_strdup(db_main_branch());
   }
   return zBr;
 }
@@ -85,6 +95,7 @@ void branch_new(void){
   int isPrivate = 0;     /* True if the branch should be private */
 
   noSign = find_option("nosign","",0)!=0;
+  if( find_option("nosync",0,0) ) g.fNoSync = 1;
   zColor = find_option("bgcolor","c",1);
   isPrivate = find_option("private",0,0)!=0;
   zDateOvrd = find_option("date-override",0,1);
@@ -223,7 +234,7 @@ void branch_new(void){
 **      mtime          Time of last check-in on this branch
 **      isclosed       True if the branch is closed
 **      mergeto        Another branch this branch was merged into
-**      nckin          Number of checkins on this branch
+**      nckin          Number of check-ins on this branch
 **      ckin           Hash of the last check-in on this branch
 **      isprivate      True if the branch is private
 **      bgclr          Background color for this branch
@@ -549,7 +560,7 @@ static void branch_cmd_hide(int nStartAtArg, int fHide){
 /*
 ** Implementation of (branch close|reopen) subcommands. nStartAtArg is
 ** the g.argv index to start reading branch/check-in names. The given
-** checkins are closed if fClose is true, else their "closed" tag (if
+** check-ins are closed if fClose is true, else their "closed" tag (if
 ** any) is cancelled. Fails fatally on error.
 */
 static void branch_cmd_close(int nStartAtArg, int fClose){
@@ -599,7 +610,7 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 ** Run various subcommands to manage branches of the open repository or
 ** of the repository identified by the -R or --repository option.
 **
-** >  fossil branch close|reopen ?OPTIONS? BRANCH-NAME ?...BRANCH-NAMES?
+** > fossil branch close|reopen ?OPTIONS? BRANCH-NAME ?...BRANCH-NAMES?
 **
 **       Adds or cancels the "closed" tag to one or more branches.
 **       It accepts arbitrary unambiguous symbolic names but
@@ -613,22 +624,22 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 **         --date-override DATE  DATE to use instead of 'now'
 **         --user-override USER  USER to use instead of the current default
 **
-** >  fossil branch current
+** > fossil branch current
 **
 **        Print the name of the branch for the current check-out
 **
-** >  fossil branch hide|unhide ?OPTIONS? BRANCH-NAME ?...BRANCH-NAMES?
+** > fossil branch hide|unhide ?OPTIONS? BRANCH-NAME ?...BRANCH-NAMES?
 **
 **       Adds or cancels the "hidden" tag for the specified branches or
 **       or check-in IDs. Accepts the same options as the close
 **       subcommand.
 **
-** >  fossil branch info BRANCH-NAME
+** > fossil branch info BRANCH-NAME
 **
 **        Print information about a branch
 **
-** >  fossil branch list|ls ?OPTIONS? ?GLOB?
-** >  fossil branch lsh ?OPTIONS? ?LIMIT?
+** > fossil branch list|ls ?OPTIONS? ?GLOB?
+** > fossil branch lsh ?OPTIONS? ?LIMIT?
 **
 **        List all branches.
 **
@@ -641,8 +652,8 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 **          -r               Reverse the sort order
 **          -t               Show recently changed branches first
 **          --self           List only branches where you participate
-**          --username USER  List only branches where USER participate
-**          --users N        List up to N users partipiating
+**          --username USER  List only branches where USER participates
+**          --users N        List up to N users participating
 **
 **        The current branch is marked with an asterisk.  Private branches are
 **        marked with a hash sign.
@@ -654,22 +665,24 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 **        but no GLOB argument.  All other options are supported, with -t being
 **        an implied no-op.
 **
-** >  fossil branch new BRANCH-NAME BASIS ?OPTIONS?
+** > fossil branch new BRANCH-NAME BASIS ?OPTIONS?
 **
 **        Create a new branch BRANCH-NAME off of check-in BASIS.
+**
+**        This command is available for people who want to create a branch
+**        in advance.  But  the use of this command is discouraged.  The
+**        preferred idiom in Fossil is to create new branches at the point
+**        of need, using the "--branch NAME" option to the "fossil commit"
+**        command.
 **
 **        Options:
 **          --private             Branch is private (i.e., remains local)
 **          --bgcolor COLOR       Use COLOR instead of automatic background
-**          --nosign              Do not sign contents on this branch
+**          --nosign              Do not sign the manifest for the check-in
+**                                that creates this branch
+**          --nosync              Do not auto-sync prior to creating the branch
 **          --date-override DATE  DATE to use instead of 'now'
 **          --user-override USER  USER to use instead of the current default
-**
-**        DATE may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
-**        year-month-day form, it may be truncated, the "T" may be
-**        replaced by a space, and it may also name a timezone offset
-**        from UTC as "-HH:MM" (westward) or "+HH:MM" (eastward).
-**        Either no timezone suffix or "Z" means UTC.
 **
 ** Options:
 **    -R|--repository REPO       Run commands on repository REPO
@@ -836,13 +849,16 @@ static void new_brlist_page(void){
   Stmt q;
   double rNow;
   int show_colors = PB("colors");
+  const char *zMainBranch;
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_set_current_feature("branch");
   style_header("Branches");
   style_adunit_config(ADUNIT_RIGHT_OK);
   style_submenu_checkbox("colors", "Use Branch Colors", 0, 0);
+
   login_anonymous_available();
+  zMainBranch = db_main_branch();
 
   brlist_create_temp_table();
   db_prepare(&q, "SELECT * FROM tmp_brlist ORDER BY mtime DESC");
@@ -869,8 +885,9 @@ static void new_brlist_page(void){
     char *zAge = human_readable_age(rNow - rMtime);
     sqlite3_int64 iMtime = (sqlite3_int64)(rMtime*86400.0);
     if( zMergeTo && zMergeTo[0]==0 ) zMergeTo = 0;
-    if( zBgClr == 0 ){
-      if( zBranch==0 || strcmp(zBranch,"trunk")==0 ){
+    if( zBgClr ) zBgClr = reasonable_bg_color(zBgClr, 0);
+    if( zBgClr==0 ){
+      if( zBranch==0 || strcmp(zBranch, zMainBranch)==0 ){
         zBgClr = 0;
       }else{
         zBgClr = hash_color(zBranch);
@@ -1017,36 +1034,43 @@ void brlist_page(void){
 ** the timeline of a "brlist" page.  Add some additional hyperlinks
 ** to the end of the line.
 */
-static void brtimeline_extra(int rid){
-  Stmt q;
-  if( !g.perm.Hyperlink ) return;
-  db_prepare(&q,
-    "SELECT substr(tagname,5) FROM tagxref, tag"
-    " WHERE tagxref.rid=%d"
-    "   AND tagxref.tagid=tag.tagid"
-    "   AND tagxref.tagtype>0"
-    "   AND tag.tagname GLOB 'sym-*'",
-    rid
-  );
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zTagName = db_column_text(&q, 0);
-    @  %z(href("%R/timeline?r=%T",zTagName))[timeline]</a>
+static void brtimeline_extra(
+  Stmt *pQuery,               /* Current row of the timeline query */
+  int tmFlags,                /* Flags to www_print_timeline() */
+  const char *zThisUser,      /* Suppress links to this user */
+  const char *zThisTag        /* Suppress links to this tag */
+){
+  int rid;
+  int tmFlagsNew;
+  char *zBrName;
+
+  if( (tmFlags & TIMELINE_INLINE)!=0 ){
+    tmFlagsNew = (tmFlags & ~TIMELINE_VIEWS) | TIMELINE_MODERN;
+    cgi_printf("(");
+  }else{
+    tmFlagsNew = tmFlags;
   }
-  db_finalize(&q);
+  timeline_extra(pQuery,tmFlagsNew,zThisUser,zThisTag);
+
+  if( !g.perm.Hyperlink ) return;
+  rid = db_column_int(pQuery,0);
+  zBrName = branch_of_rid(rid);
+  @  branch:&nbsp;<span class='timelineHash'>\
+  @ %z(href("%R/timeline?r=%T",zBrName))%h(zBrName)</a></span>
+  if( (tmFlags & TIMELINE_INLINE)!=0 ){
+    cgi_printf(")");
+  }
 }
 
 /*
 ** WEBPAGE: brtimeline
 **
-** Show a timeline of all branches
+** List the first check of every branch, starting with the most recent
+** and going backwards in time.
 **
 ** Query parameters:
 **
-**     ng            No graph
-**     nohidden      Hide check-ins with "hidden" tag
-**     onlyhidden    Show only check-ins with "hidden" tag
-**     brbg          Background color by branch name
-**     ubg           Background color by user name
+**    ubg            Color the graph by user, not by branch.
 */
 void brtimeline_page(void){
   Blob sql = empty_blob;
@@ -1054,13 +1078,15 @@ void brtimeline_page(void){
   int tmFlags;                            /* Timeline display flags */
   int fNoHidden = PB("nohidden")!=0;      /* The "nohidden" query parameter */
   int fOnlyHidden = PB("onlyhidden")!=0;  /* The "onlyhidden" query parameter */
+  TimelineXtra xtra;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  if( robot_restrict("timelineX") ) return;
 
   style_set_current_feature("branch");
   style_header("Branches");
-  style_submenu_element("List", "brlist");
+  style_submenu_element("Branch List", "brlist");
   login_anonymous_available();
   timeline_ss_submenu();
   cgi_check_for_malice();
@@ -1081,10 +1107,58 @@ void brtimeline_page(void){
   /* Always specify TIMELINE_DISJOINT, or graph_finish() may fail because of too
   ** many descenders to (off-screen) parents. */
   tmFlags = TIMELINE_DISJOINT | TIMELINE_NOSCROLL;
-  if( PB("ng")==0 ) tmFlags |= TIMELINE_GRAPH;
-  if( PB("brbg")!=0 ) tmFlags |= TIMELINE_BRCOLOR;
-  if( PB("ubg")!=0 ) tmFlags |= TIMELINE_UCOLOR;
-  www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0, brtimeline_extra);
+  if( PB("ubg")!=0 ){
+    tmFlags |= TIMELINE_UCOLOR;
+  }else{
+    tmFlags |= TIMELINE_BRCOLOR;
+  }
+  memset(&xtra, 0, sizeof(xtra));
+  xtra.xExtra = brtimeline_extra;
+  www_print_timeline(&q, tmFlags, &xtra);
   db_finalize(&q);
   style_finish_page();
+}
+
+/*
+** Generate a multichoice submenu for the few recent active branches. zName is
+** the query parameter used to select the current check-in. zCI is optional and
+** represent the currently selected check-in, so if it is a check-in hash
+** instead of a branch, it can be part of the multichoice menu.
+*/
+void generate_branch_submenu_multichoice(
+    const char* zName,    /* Query parameter name */
+    const char* zCI       /* Current check-in */
+){
+  Stmt q;
+  const int brFlags = BRL_ORDERBY_MTIME | BRL_OPEN_ONLY;
+  static const char *zBranchMenuList[32*2]; /* 2 per entries */
+  const int nLimit = count(zBranchMenuList)/2;
+  int i = 0;
+
+  if( zName == 0 ) zName = "ci";
+
+  branch_prepare_list_query(&q, brFlags, 0, nLimit, 0);
+  zBranchMenuList[i++] = "";
+  zBranchMenuList[i++] = "All Check-ins";
+
+  if( zCI ){
+    zCI = fossil_strdup(zCI);
+    zBranchMenuList[i++] = zCI;
+    zBranchMenuList[i++] = zCI;
+  }
+  /* If current check-in is not "tip", add it to the list */
+  if( zCI==0 || strcmp(zCI, "tip") ){
+    zBranchMenuList[i++] = "tip";
+    zBranchMenuList[i++] = "tip";
+  }
+  while( i/2 < nLimit && db_step(&q)==SQLITE_ROW ){
+    const char* zBr = fossil_strdup(db_column_text(&q, 0));
+    /* zCI is already in the list, don't add it twice */
+    if( zCI==0 || strcmp(zBr, zCI) ){
+      zBranchMenuList[i++] = zBr;
+      zBranchMenuList[i++] = zBr;
+    }
+  }
+  db_finalize(&q);
+  style_submenu_multichoice(zName, i/2, zBranchMenuList, 0);
 }

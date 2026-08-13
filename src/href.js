@@ -3,8 +3,8 @@
 ** action= set to the login page.  The real values for href= and action=
 ** are held in data-href= and data-action=.  The following code moves
 ** data-href= into href= and data-action= into action= for all
-** <a> and <form> elements, after delay and maybe also after mouse
-** movement is seen.
+** <a> and <form> elements, after CSS has been loaded, and after a delay,
+** and maybe also after mouse movement is seen.
 **
 ** Before sourcing this script, create a separate <script> element
 ** (with type='application/json' to avoid Content Security Policy issues)
@@ -20,16 +20,19 @@
 var antiRobot = 0;
 function antiRobotGo(){
   if( antiRobot!=3 ) return;
-  antiRobot = 7;
-  var anchors = document.getElementsByTagName("a");
-  for(var i=0; i<anchors.length; i++){
-    var j = anchors[i];
-    if(j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
-  }
-  var forms = document.getElementsByTagName("form");
-  for(var i=0; i<forms.length; i++){
-    var j = forms[i];
-    if(j.hasAttribute("data-action")) j.action=j.getAttribute("data-action");
+  var z = window.getComputedStyle(document.body).zIndex;
+  if( z==='0' || z===0 ){
+    antiRobot = 7;
+    var anchors = document.getElementsByTagName("a");
+    for(var i=0; i<anchors.length; i++){
+      var j = anchors[i];
+      if(j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+    }
+    var forms = document.getElementsByTagName("form");
+    for(var i=0; i<forms.length; i++){
+      var j = forms[i];
+      if(j.hasAttribute("data-action")) j.action=j.getAttribute("data-action");
+    }
   }
 }
 function antiRobotDefense(){
@@ -58,6 +61,7 @@ function antiRobotDefense(){
   }else{
     antiRobot |= 1;
   }
+  window.addEventListener('load',antiRobotGo);
   antiRobotGo();
 }
 antiRobotDefense();

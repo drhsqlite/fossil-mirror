@@ -168,11 +168,11 @@ struct deltaparsevtab_vtab {
 struct deltaparsevtab_cursor {
   sqlite3_vtab_cursor base;  /* Base class - must be first */
   char *aDelta;              /* The delta being parsed */
-  int nDelta;                /* Number of bytes in the delta */
-  int iCursor;               /* Current cursor location */
+  i64 iCursor;               /* Current cursor location */
+  i64 iNext;                 /* Next cursor value */
+  i64 nDelta;                /* Number of bytes in the delta */
   int eOp;                   /* Name of current operator */
   unsigned int a1, a2;       /* Arguments to current operator */
-  int iNext;                 /* Next cursor value */
 };
 
 /* Operator names:
@@ -253,6 +253,7 @@ static int deltaparsevtabConnect(
     *ppVtab = (sqlite3_vtab*)pNew;
     if( pNew==0 ) return SQLITE_NOMEM;
     memset(pNew, 0, sizeof(*pNew));
+    sqlite3_vtab_config(db, SQLITE_VTAB_INNOCUOUS);
   }
   return rc;
 }
@@ -271,7 +272,7 @@ static int deltaparsevtabDisconnect(sqlite3_vtab *pVtab){
 */
 static int deltaparsevtabOpen(sqlite3_vtab *p, sqlite3_vtab_cursor **ppCursor){
   deltaparsevtab_cursor *pCur;
-  pCur = sqlite3_malloc( sizeof(*pCur) );
+  pCur = sqlite3_malloc64( sizeof(*pCur) );
   if( pCur==0 ) return SQLITE_NOMEM;
   memset(pCur, 0, sizeof(*pCur));
   *ppCursor = &pCur->base;
@@ -298,21 +299,31 @@ static int deltaparsevtabNext(sqlite3_vtab_cursor *cur){
   int i = 0;
 
   pCur->iCursor = pCur->iNext;
+  if( pCur->iCursor >= pCur->nDelta ){
+    pCur->eOp = DELTAPARSE_OP_ERROR;
+    pCur->iNext = pCur->nDelta;
+    return SQLITE_OK;
+  }
   z = pCur->aDelta + pCur->iCursor;
   pCur->a1 = deltaGetInt(&z, &i);
   switch( z[0] ){
     case '@': {
       z++;
+      if( pCur->iNext>=pCur->nDelta ){
+        pCur->eOp = DELTAPARSE_OP_ERROR;
+        pCur->iNext = pCur->nDelta;
+        break;
+      }
       pCur->a2 = deltaGetInt(&z, &i);
       pCur->eOp = DELTAPARSE_OP_COPY;
-      pCur->iNext = (int)(&z[1] - pCur->aDelta);
+      pCur->iNext = (i64)(&z[1] - pCur->aDelta);
       break;
     }
     case ':': {
       z++;
       pCur->a2 = (unsigned int)(z - pCur->aDelta);
       pCur->eOp = DELTAPARSE_OP_INSERT;
-      pCur->iNext = (int)(&z[pCur->a1] - pCur->aDelta);
+      pCur->iNext = (i64)(&z[pCur->a1] - pCur->aDelta);
       break;
     }
     case ';': {
@@ -356,8 +367,12 @@ static int deltaparsevtabColumn(
       if( pCur->eOp==DELTAPARSE_OP_COPY ){
         sqlite3_result_int(ctx, pCur->a2);
       }else if( pCur->eOp==DELTAPARSE_OP_INSERT ){
-        sqlite3_result_blob(ctx, pCur->aDelta+pCur->a2, pCur->a1,
-                            SQLITE_TRANSIENT);
+        if( (i64)pCur->a2 + (i64)pCur->a1 > pCur->nDelta ){
+          sqlite3_result_zeroblob(ctx, pCur->a1);
+        }else{
+          sqlite3_result_blob(ctx, pCur->aDelta+pCur->a2, pCur->a1,
+                              SQLITE_TRANSIENT);
+        }
       }
       break;
     }
@@ -385,7 +400,7 @@ static int deltaparsevtabRowid(sqlite3_vtab_cursor *cur, sqlite_int64 *pRowid){
 */
 static int deltaparsevtabEof(sqlite3_vtab_cursor *cur){
   deltaparsevtab_cursor *pCur = (deltaparsevtab_cursor*)cur;
-  return pCur->eOp==DELTAPARSE_OP_EOF;
+  return pCur->eOp==DELTAPARSE_OP_EOF || pCur->iCursor>=pCur->nDelta;
 }
 
 /*
@@ -428,7 +443,7 @@ static int deltaparsevtabFilter(
     return SQLITE_OK;
   }
   a++;
-  pCur->iNext = (unsigned int)(a - pCur->aDelta);
+  pCur->iNext = (i64)(a - pCur->aDelta);
   return SQLITE_OK;
 }
 
@@ -496,15 +511,16 @@ static sqlite3_module deltaparsevtabModule = {
 ** Invoke this routine to register the various delta functions.
 */
 int deltafunc_init(sqlite3 *db){
+  static const int enc = SQLITE_UTF8|SQLITE_INNOCUOUS;
   int rc = SQLITE_OK;
-  rc = sqlite3_create_function(db, "delta_create", 2, SQLITE_UTF8, 0,
+  rc = sqlite3_create_function(db, "delta_create", 2, enc, 0,
                                deltaCreateFunc, 0, 0);
   if( rc==SQLITE_OK ){
-    rc = sqlite3_create_function(db, "delta_apply", 2, SQLITE_UTF8, 0,
+    rc = sqlite3_create_function(db, "delta_apply", 2, enc, 0,
                                  deltaApplyFunc, 0, 0);
   }
   if( rc==SQLITE_OK ){
-    rc = sqlite3_create_function(db, "delta_output_size", 1, SQLITE_UTF8, 0,
+    rc = sqlite3_create_function(db, "delta_output_size", 1, enc, 0,
                                  deltaOutputSizeFunc, 0, 0);
   }
   if( rc==SQLITE_OK ){

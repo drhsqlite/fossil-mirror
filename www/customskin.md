@@ -25,14 +25,14 @@ subfolders holding at least these five files:
    * js.txt
 
 Try out the built-in skins by using the --skin option on the
-[fossil ui](/help?cmd=ui) or [fossil server](/help?cmd=server) commands.
+[fossil ui](/help/ui) or [fossil server](/help/server) commands.
 
 ## <a id="sharing"></a>Sharing Skins
 
 The skin of a repository is not part of the versioned state and does not
 "push" or "pull" like checked-in files.  The skin is local to the
 repository.  However, skins can be shared between repositories using
-the [fossil config](/help?cmd=configuration) command.
+the [fossil config](/help/configuration) command.
 The "fossil config push skin" command will send the local skin to a remote
 repository and the "fossil config pull skin" command will import a skin
 from a remote repository.  The "fossil config export skin FILENAME"
@@ -306,12 +306,13 @@ new live skin that most users see.
 
 An alternative approach is to copy the five control files for your
 baseline skin into a temporary working directory (here called
-"./newskin") and then launch the [fossil ui](/help?cmd=ui) command
+"./newskin") and then launch the [fossil ui](/help/ui) command
 with the "--skin ./newskin" option.  If the argument to the --skin
 option contains a "/" character, then the five control files are
 read out of the directory named.  You can then edit the control
 files in the ./newskin folder using you favorite text editor, and
 press "Reload" on your browser to see the effects.
+
 
 ### Disabling The Web Browser Cache During Development
 
@@ -337,17 +338,18 @@ into the output stream, the text is run through a
      or to inhibit or enable the output of subsequent text.
 
   *  Text of the form "$NAME" or "$&lt;NAME&gt;" is replaced with
-     the value of the TH1 variable NAME.
+     the value of the TH1 variable NAME.  See the [TH1 Variables](#vars)
+     section for more information on the two possible variable formats.
 
 For example, first few lines of a typical Skin Header will look
 like this:
 
-    <div class="header">
+    <header>
       <div class="title"><h1>$<project_name></h1>$<title>/div>
 
 After variables are substituted by TH1, that will look more like this:
 
-    <div class="header">
+    <header>
       <div class="title"><h1>Project Name</h1>Page Title</div>
 
 As you can see, two TH1 variable substitutions were done.
@@ -426,13 +428,27 @@ Before expanding the TH1 within the header and footer, Fossil first
 initializes a number of TH1 variables to values that depend on
 repository settings and the specific page being generated.
 
+Variables holding text that is loaded from "external, potentially untrusted"
+sources (including the repository settings) are treated as [tainted strings]
+(./th1.md#taint) and must be noted in the `$<NAME>` form, instead of `$NAME`,
+or they may trigger an error (see the linked document for details).  The
+`$<NAME>` form corresponds to the TH1 statement `puts [ htmlize "$NAME" ]`,
+where the [htmlize](./th1.md#htmlize) function escapes the tainted string,
+making it safe for output in HTML code.
+
+
    *   **`project_name`** - The project_name variable is filled with the
        name of the project as configured under the Admin/Configuration
-       menu.
+       menu.  This is a [tainted string](./th1.md#taint) variable and must
+       be used as `$<project_name>`.
 
    *   **`project_description`** - The project_description variable is
        filled with the description of the project as configured under
-       the Admin/Configuration menu.
+       the Admin/Configuration menu.  This is a [tainted string]
+       (./th1.md#taint) variable and must be used as `$<project_description>`.
+
+   *   **`mainmenu`** - The mainmenu variable contains a TCL list with the main
+       menu entries.  See the [mainmenu](/help/mainmenu) setting for details.
 
    *   **`title`** - The title variable holds the title of the page being
        generated.
@@ -457,6 +473,17 @@ repository settings and the specific page being generated.
    *   **`current_page`** - The name of the page currently being processed,
        without the leading "/" and without query parameters.
        Examples:  "timeline", "doc/trunk/README.txt", "wiki".
+
+   *   **`current_checkin`** - The [check-in name](./checkin_names.wiki) to
+       which the current
+         [/ci](/help/www/ci),
+         [/dir](/help/www/dir),
+         [/tree](/help/www/tree),
+         [/timeline](/help/www/timeline) or
+         [/vinfo](/help/www/vinfo)
+       page refers, or undefined for all other pages.  This variable is
+       derived from query parameters and is therefore a [tainted string]
+       (./th1.md#taint).
 
    *   **`csrf_token`** - A token used to prevent cross-site request forgery.
 
@@ -516,7 +543,7 @@ can serve as a starting point for future work:
        be named exactly "css.txt", "footer.txt", and "header.txt" and that
        they all be in the same directory.
 
-   2.  Run the [fossil ui](/help?cmd=ui) command with an extra
+   2.  Run the [fossil ui](/help/ui) command with an extra
        option "--skin SKINDIR" where SKINDIR is the name of the directory
        in which the three txt files were stored in step 1.   This will bring
        up the Fossil website using the tree files in SKINDIR.
@@ -528,7 +555,42 @@ can serve as a starting point for future work:
    4.  Copy/paste the resulting css.txt, details.txt,
        header.txt, and footer.txt files
        into the CSS, details, header, and footer configuration screens
-       under the Admin/Skins menu.
+       under the Admin/Skins menu. Alternately, import them using the
+       process described below.
+
+An alternative to step 4 is to convert the skin files into a form
+which can be imported into a repository using `fossil config import`.
+It requires compiling [a small tool from the fossil source
+tree](/file/tools/skintxt2config.c):
+
+>
+```
+$ cc -o s2c /path/to/fossil/checkout/tools/skintxt2config.c
+```
+
+With that in place, the custom skin files can be converted with:
+
+>
+```
+$ ./s2c yourskin/*.txt > skin.config
+```
+
+It can be imported into an arbitrary fossil repository with:
+
+>
+```
+$ fossil config import skin.config
+```
+
+And it can be pushed to a remote repository with:
+
+>
+```
+$ fossil config push skin
+```
+
+That approach has proven to be an effective way to locally develop
+skin changes then push them to a "live" site.
 
 
 ## See Also

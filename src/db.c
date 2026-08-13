@@ -128,6 +128,16 @@ static void db_err(const char *zFormat, ...){
     @ error Database\serror:\s%F(z)
     cgi_reply();
   }
+  if( strstr(z,"attempt to write a readonly database") ){
+    static const char *azDbNames[] = { "repository", "localdb", "configdb" };
+    int i;
+    for(i=0; i<3; i++){
+      if( sqlite3_db_readonly(g.db, azDbNames[i])==1 ){
+        z = mprintf("\"%s\" is readonly.\n%s", 
+                     sqlite3_db_filename(g.db,azDbNames[i]), z);
+      }
+    }
+  }
   fossil_fatal("Database error: %s", z);
 }
 
@@ -172,6 +182,8 @@ static struct DbLocalData {
   int bProtectTriggers;     /* True if protection triggers already exist */
   int nProtect;             /* Slots of aProtect used */
   unsigned aProtect[12];    /* Saved values of protectMask */
+  int pauseDmlLog;          /* Ignore pDmlLog if positive */
+  Blob *pDmlLog;            /* Append DML statements here, of not NULL */
 } db = {
   PROTECT_USER|PROTECT_CONFIG|PROTECT_BASELINE,  /* protectMask */
   0, 0, 0, 0, 0, 0, 0, {{0}}, {0}, {0}, 0, 0, 0, 0, 0, 0, 0, 0, 0, {0}};
@@ -646,6 +658,39 @@ void db_clear_authorizer(void){
 #endif
 
 /*
+** If zSql is a DML statement, append it db.pDmlLog.
+*/
+static void db_append_dml(const char *zSql){
+  size_t nSql;
+  if( db.pDmlLog==0 ) return;
+  if( db.pauseDmlLog ) return;
+  if( zSql==0 ) return;
+  nSql = strlen(zSql);
+  while( nSql>0 && fossil_isspace(zSql[0]) ){ nSql--; zSql++; }
+  while( nSql>0 && fossil_isspace(zSql[nSql-1]) ) nSql--;
+  if( nSql<6 ) return;
+  if( fossil_strnicmp(zSql, "SELECT", 6)==0 ) return;
+  if( fossil_strnicmp(zSql, "PRAGMA", 6)==0 ) return;
+  blob_append(db.pDmlLog, zSql, nSql);
+  if( zSql[nSql-1]!=';' ) blob_append_char(db.pDmlLog, ';');
+  blob_append_char(db.pDmlLog, '\n');
+}
+
+/*
+** Set the Blob to which DML statement text should be appended.  Set it
+** to zero to stop appending DML statement text.
+*/
+void db_append_dml_to_blob(Blob *pBlob){
+  db.pDmlLog = pBlob;
+}
+
+/*
+** Pause or unpause the DML log
+*/
+void db_pause_dml_log(void){    db.pauseDmlLog++; }
+void db_unpause_dml_log(void){  db.pauseDmlLog--; }
+
+/*
 ** Prepare a Stmt.  Assume that the Stmt is previously uninitialized.
 ** If the input string contains multiple SQL statements, only the first
 ** one is processed.  All statements beyond the first are silently ignored.
@@ -660,6 +705,7 @@ int db_vprepare(Stmt *pStmt, int flags, const char *zFormat, va_list ap){
   va_end(ap);
   zSql = blob_str(&pStmt->sql);
   db.nPrepare++;
+  db_append_dml(zSql);
   if( flags & DB_PREPARE_PERSISTENT ){
     prepFlags = SQLITE_PREPARE_PERSISTENT;
   }
@@ -898,7 +944,7 @@ int db_column_count(Stmt *pStmt){
   return sqlite3_column_count(pStmt->pStmt);
 }
 char *db_column_malloc(Stmt *pStmt, int N){
-  return mprintf("%s", db_column_text(pStmt, N));
+  return fossil_strdup_nn(db_column_text(pStmt, N));
 }
 void db_column_blob(Stmt *pStmt, int N, Blob *pBlob){
   blob_append(pBlob, sqlite3_column_blob(pStmt->pStmt, N),
@@ -1049,6 +1095,7 @@ int db_exec_sql(const char *z){
       db_err("%s: {%s}", sqlite3_errmsg(g.db), z);
     }else if( pStmt ){
       db.nPrepare++;
+      db_append_dml(sqlite3_sql(pStmt));
       while( sqlite3_step(pStmt)==SQLITE_ROW ){}
       rc = sqlite3_finalize(pStmt);
       if( rc ) db_err("%s: {%.*s}", sqlite3_errmsg(g.db), (int)(zEnd-z), z);
@@ -1183,8 +1230,8 @@ void db_blob(Blob *pResult, const char *zSql, ...){
 /*
 ** Execute a query.  Return the first column of the first row
 ** of the result set as a string.  Space to hold the string is
-** obtained from malloc().  If the result set is empty, return
-** zDefault instead.
+** obtained from fossil_strdup() and should be freed using fossil_free().
+** If the result set is empty, return a copy of zDefault instead.
 */
 char *db_text(const char *zDefault, const char *zSql, ...){
   va_list ap;
@@ -1194,11 +1241,9 @@ char *db_text(const char *zDefault, const char *zSql, ...){
   db_vprepare(&s, 0, zSql, ap);
   va_end(ap);
   if( db_step(&s)==SQLITE_ROW ){
-    z = mprintf("%s", sqlite3_column_text(s.pStmt, 0));
-  }else if( zDefault ){
-    z = mprintf("%s", zDefault);
+    z = fossil_strdup_nn((const char*)sqlite3_column_text(s.pStmt, 0));
   }else{
-    z = 0;
+    z = fossil_strdup(zDefault);
   }
   db_finalize(&s);
   return z;
@@ -1286,6 +1331,7 @@ void db_checkin_mtime_function(
 **     symbolic_name_to_rid('trunk');
 **     symbolic_name_to_rid('trunk','w');
 **
+** Its result is either an RID or NULL.
 */
 void db_sym2rid_function(
   sqlite3_context *context,
@@ -1316,6 +1362,46 @@ void db_sym2rid_function(
   }
 }
 
+
+/*
+** SETTING: timeline-utc      boolean default=on
+**
+** If the timeline-utc setting is true, then Fossil tries to understand
+** and display all time values using UTC.  If this setting is false, Fossil
+** tries to understand and display time values using the local timezone.
+**
+** The word "timeline" in the name of this setting is historical.
+** This setting applies to all user interfaces of Fossil,
+** not just the timeline.
+**
+** Note that when accessing Fossil using the web interface, the localtime
+** used is the localtime on the server, not on the client.
+*/
+/*
+** Return true if Fossil is set to display times as UTC.  Return false
+** if it wants to display times using the local timezone.
+**
+** False is returned if display is set to localtime even if the localtime
+** happens to be the same as UTC.
+*/
+int fossil_ui_utctime(void){
+  if( g.fTimeFormat==0 ){
+    if( db_get_int("timeline-utc", 1) ){
+      g.fTimeFormat = 1; /* UTC */
+    }else{
+      g.fTimeFormat = 2; /* Localtime */
+    }
+  }
+  return g.fTimeFormat==1;
+}
+
+/*
+** Return true if Fossil is set to display times using the local timezone.
+*/
+int fossil_ui_localtime(void){
+  return fossil_ui_utctime()==0;
+}
+
 /*
 ** The toLocal() SQL function returns a string that is an argument to a
 ** date/time function that is appropriate for modifying the time for display.
@@ -1331,14 +1417,7 @@ void db_tolocal_function(
   int argc,
   sqlite3_value **argv
 ){
-  if( g.fTimeFormat==0 ){
-    if( db_get_int("timeline-utc", 1) ){
-      g.fTimeFormat = 1;
-    }else{
-      g.fTimeFormat = 2;
-    }
-  }
-  if( g.fTimeFormat==1 ){
+  if( fossil_ui_utctime() ){
     sqlite3_result_text(context, "0 seconds", -1, SQLITE_STATIC);
   }else{
     sqlite3_result_text(context, "localtime", -1, SQLITE_STATIC);
@@ -1360,14 +1439,7 @@ void db_fromlocal_function(
   int argc,
   sqlite3_value **argv
 ){
-  if( g.fTimeFormat==0 ){
-    if( db_get_int("timeline-utc", 1) ){
-      g.fTimeFormat = 1;
-    }else{
-      g.fTimeFormat = 2;
-    }
-  }
-  if( g.fTimeFormat==1 ){
+  if( fossil_ui_utctime() ){
     sqlite3_result_text(context, "0 seconds", -1, SQLITE_STATIC);
   }else{
     sqlite3_result_text(context, "utc", -1, SQLITE_STATIC);
@@ -1439,7 +1511,7 @@ void db_obscure(
   }else{
     zTemp = unobscure((char*)zIn);
   }
-  strcpy(zOut, zTemp);
+  fossil_strcpy(zOut, zTemp);
   fossil_free(zTemp);
   sqlite3_result_text(context, zOut, strlen(zOut), sqlite3_free);
 }
@@ -1528,20 +1600,27 @@ static int uintNocaseCollFunc(
 */
 void db_add_aux_functions(sqlite3 *db){
   sqlite3_create_collation(db, "uintnocase", SQLITE_UTF8,0,uintNocaseCollFunc);
-  sqlite3_create_function(db, "checkin_mtime", 2, SQLITE_UTF8, 0,
-                          db_checkin_mtime_function, 0, 0);
-  sqlite3_create_function(db, "symbolic_name_to_rid", 1, SQLITE_UTF8, 0,
-                          db_sym2rid_function, 0, 0);
-  sqlite3_create_function(db, "symbolic_name_to_rid", 2, SQLITE_UTF8, 0,
-                          db_sym2rid_function, 0, 0);
-  sqlite3_create_function(db, "now", 0, SQLITE_UTF8, 0,
+  sqlite3_create_function(db, "checkin_mtime", 2,
+                          SQLITE_UTF8|SQLITE_DETERMINISTIC|SQLITE_INNOCUOUS,
+                          0, db_checkin_mtime_function, 0, 0);
+  sqlite3_create_function(db, "symbolic_name_to_rid", 1,
+                          SQLITE_UTF8|SQLITE_DETERMINISTIC|SQLITE_INNOCUOUS,
+                          0, db_sym2rid_function, 0, 0);
+  sqlite3_create_function(db, "symbolic_name_to_rid", 2,
+                          SQLITE_UTF8|SQLITE_DETERMINISTIC|SQLITE_INNOCUOUS,
+                          0, db_sym2rid_function, 0, 0);
+  sqlite3_create_function(db, "now", 0,
+                          SQLITE_UTF8|SQLITE_INNOCUOUS, 0,
                           db_now_function, 0, 0);
-  sqlite3_create_function(db, "toLocal", 0, SQLITE_UTF8, 0,
-                          db_tolocal_function, 0, 0);
-  sqlite3_create_function(db, "fromLocal", 0, SQLITE_UTF8, 0,
-                          db_fromlocal_function, 0, 0);
-  sqlite3_create_function(db, "hextoblob", 1, SQLITE_UTF8, 0,
-                          db_hextoblob, 0, 0);
+  sqlite3_create_function(db, "toLocal", 0,
+                          SQLITE_UTF8|SQLITE_DETERMINISTIC|SQLITE_INNOCUOUS,
+                          0, db_tolocal_function, 0, 0);
+  sqlite3_create_function(db, "fromLocal", 0,
+                          SQLITE_UTF8|SQLITE_DETERMINISTIC|SQLITE_INNOCUOUS,
+                          0, db_fromlocal_function, 0, 0);
+  sqlite3_create_function(db, "hextoblob", 1,
+                          SQLITE_UTF8|SQLITE_DETERMINISTIC|SQLITE_INNOCUOUS,
+                          0, db_hextoblob, 0, 0);
   sqlite3_create_function(db, "capunion", 1, SQLITE_UTF8, 0,
                           0, capability_union_step, capability_union_finalize);
   sqlite3_create_function(db, "fullcap", 1, SQLITE_UTF8, 0,
@@ -1561,6 +1640,10 @@ void db_add_aux_functions(sqlite3 *db){
   sqlite3_create_function(db, "chat_msg_from_event", 4,
         SQLITE_UTF8 | SQLITE_INNOCUOUS, 0,
         chat_msg_from_event, 0, 0);
+  sqlite3_create_function(db, "inode", 1, SQLITE_UTF8, 0,
+                          file_inode_sql_func,0,0);
+  sqlite3_create_function(db, "artifact_to_json", 1, SQLITE_UTF8, 0,
+                          artifact_to_json_sql_func,0,0);
 
 }
 
@@ -1638,7 +1721,7 @@ void db_setup_for_saved_encryption_key(){
 
 /*
 ** This function arranges for the database encryption key to be securely
-** saved in non-pagable memory (on platforms where this is possible).
+** saved in non-pageable memory (on platforms where this is possible).
 */
 static void db_save_encryption_key(
   Blob *pKey
@@ -2107,7 +2190,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
     sqlite3_appendvfs_init(0,0,0);
     g.zVfsName = "apndvfs";
   }
-  blob_zero(&bNameCheck);
+  blob_reset(&bNameCheck);
   rc = sqlite3_open_v2(
        zDbName, &db,
        SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
@@ -2451,7 +2534,7 @@ static int isValidLocalDb(const char *zDbName){
   if( lsize%1024!=0 || lsize<4096 ) return 0;
   db_open_or_attach(zDbName, "localdb");
 
-  /* Check to see if the check-out database has the lastest schema changes.
+  /* Check to see if the check-out database has the latest schema changes.
   ** The most recent schema change (2019-01-19) is the addition of the
   ** vmerge.mhash and vfile.mhash fields.  If the schema has the vmerge.mhash
   ** column, assume everything else is up-to-date.
@@ -2536,7 +2619,7 @@ int db_open_local_v2(const char *zDbName, int bRootOnly){
           return 0; /* Configuration could not be opened */
         }
         /* Found a valid check-out database file */
-        g.zLocalDbName = mprintf("%s", zPwd);
+        g.zLocalDbName = fossil_strdup(zPwd);
         zPwd[n] = 0;
         while( n>0 && zPwd[n-1]=='/' ){
           n--;
@@ -2627,9 +2710,14 @@ is_repo_end:
 
 /*
 ** COMMAND: test-is-repo
+** Usage: %fossil test-is-repo FILENAME...
+**
+** Test whether the specified files look like a SQLite database
+** containing a Fossil repository schema.
 */
 void test_is_repo(void){
   int i;
+  verify_all_options();
   for(i=2; i<g.argc; i++){
     fossil_print("%s: %s\n",
        db_looks_like_a_repository(g.argv[i]) ? "yes" : " no",
@@ -2672,7 +2760,7 @@ void db_open_repository(const char *zDbName){
       fossil_fatal("not a valid repository: %s", zDbName);
     }
   }
-  g.zRepositoryName = mprintf("%s", zDbName);
+  g.zRepositoryName = fossil_strdup(zDbName);
   db_open_or_attach(g.zRepositoryName, "repository");
   g.repositoryOpen = 1;
   sqlite3_file_control(g.db, "repository", SQLITE_FCNTL_DATA_VERSION,
@@ -2699,7 +2787,7 @@ void db_open_repository(const char *zDbName){
   if( g.localOpen ){
 
     /* If the repository database that was just opened has been
-    ** eplaced by a clone of the same project, with different RID
+    ** replaced by a clone of the same project, with different RID
     ** values, then renumber the RID values stored in various tables
     ** of the check-out database, so that the repository and check-out
     ** databases align.
@@ -3131,19 +3219,12 @@ void db_initial_setup(
   db_set("content-schema", CONTENT_SCHEMA, 0);
   db_set("aux-schema", AUX_SCHEMA_MAX, 0);
   db_set("rebuilt", get_version(), 0);
-  db_set("admin-log", "1", 0);
-  db_set("access-log", "1", 0);
   db_multi_exec(
       "INSERT INTO config(name,value,mtime)"
       " VALUES('server-code', lower(hex(randomblob(20))),now());"
       "INSERT INTO config(name,value,mtime)"
       " VALUES('project-code', lower(hex(randomblob(20))),now());"
   );
-  if( !db_is_global("autosync") ) db_set_int("autosync", 1, 0);
-  if( !db_is_global("localauth") ) db_set_int("localauth", 0, 0);
-  if( !db_is_global("timeline-plaintext") ){
-    db_set_int("timeline-plaintext", 1, 0);
-  }
   db_create_default_users(0, zDefaultUser);
   if( zDefaultUser ) g.zLogin = zDefaultUser;
   user_select();
@@ -3301,7 +3382,7 @@ void create_repository_cmd(void){
   fossil_print("project-id: %s\n", db_get("project-code", 0));
   fossil_print("server-id:  %s\n", db_get("server-code", 0));
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
-  fossil_print("admin-user: %s (initial password is \"%s\")\n",
+  fossil_print("admin-user: %s (initial remote-access password is \"%s\")\n",
                g.zLogin, zPassword);
   hash_user_password(g.zLogin);
 }
@@ -3498,7 +3579,7 @@ char *db_conceal(const char *zContent, int n){
 /*
 ** Attempt to look up the input in the CONCEALED table.  If found,
 ** and if the okRdAddr permission is enabled then return the
-** original value for which the input is a hash.  If okRdAddr is
+** original value for which the input is a hash.  If g.perm.RdAddr is
 ** false or if the lookup fails, return the original string content.
 **
 ** In either case, the string returned is stored in space obtained
@@ -3512,7 +3593,7 @@ char *db_reveal(const char *zKey){
     zOut = 0;
   }
   if( zOut==0 ){
-    zOut = mprintf("%s", zKey);
+    zOut = fossil_strdup_nn(zKey);
   }
   return zOut;
 }
@@ -3521,12 +3602,12 @@ char *db_reveal(const char *zKey){
 ** Return true if the string zVal represents "true" (or "false").
 */
 int is_truth(const char *zVal){
-  static const char *const azOn[] = { "on", "yes", "true", "1" };
+  static const char *const azOn[] = { "on", "yes", "true" };
   int i;
   for(i=0; i<count(azOn); i++){
     if( fossil_stricmp(zVal,azOn[i])==0 ) return 1;
   }
-  return 0;
+  return atoi(zVal);
 }
 int is_false(const char *zVal){
   static const char *const azOff[] = { "off", "no", "false", "0" };
@@ -3574,8 +3655,19 @@ void db_swap_connections(void){
 ** non-versioned value for this setting.  If both a versioned and a
 ** non-versioned value exist and are not equal, then a warning message
 ** might be generated.
+**
+** zCkin is normally NULL.  In that case, the versioned setting is
+** take from the local check-out, if a local checkout exists, or from
+** check-in named by the g.zOpenRevision global variable.  If zCkin is
+** not NULL, then zCkin is the name of the specific check-in from which
+** versioned setting value is taken.  When zCkin is not NULL, the cache
+** is bypassed.
 */
-char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
+char *db_get_versioned(
+  const char *zName,
+  char *zNonVersionedSetting,
+  const char *zCkin
+){
   char *zVersionedSetting = 0;
   int noWarn = 0;
   int found = 0;
@@ -3585,51 +3677,53 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
   } *cacheEntry = 0;
   static struct _cacheEntry *cache = 0;
 
-  if( !g.localOpen && g.zOpenRevision==0 ) return zNonVersionedSetting;
-  /* Look up name in cache */
-  cacheEntry = cache;
-  while( cacheEntry!=0 ){
-    if( fossil_strcmp(cacheEntry->zName, zName)==0 ){
-      zVersionedSetting = fossil_strdup(cacheEntry->zValue);
-      break;
-    }
-    cacheEntry = cacheEntry->next;
+  if( !g.localOpen && g.zOpenRevision==0 && zCkin==0 ){
+    return zNonVersionedSetting;
   }
+
+  /* Look up name in cache */
+  if( zCkin==0 ){
+    cacheEntry = cache;
+    while( cacheEntry!=0 ){
+      if( fossil_strcmp(cacheEntry->zName, zName)==0 ){
+        zVersionedSetting = fossil_strdup(cacheEntry->zValue);
+        break;
+      }
+      cacheEntry = cacheEntry->next;
+    }
+  }
+
   /* Attempt to read value from file in check-out if there wasn't a cache hit.*/
   if( cacheEntry==0 ){
     Blob versionedPathname;
     Blob setting;
-    blob_zero(&versionedPathname);
-    blob_zero(&setting);
-    blob_appendf(&versionedPathname, "%s.fossil-settings/%s",
-                 g.zLocalRoot, zName);
-    if( !g.localOpen ){
+    blob_init(&versionedPathname, 0, 0);
+    blob_init(&setting, 0, 0);
+    if( !g.localOpen || zCkin!=0 ){
       /* Repository is in the process of being opened, but files have not been
        * written to disk. Load from the database. */
-      Blob noWarnFile;
-      if( historical_blob(g.zOpenRevision, blob_str(&versionedPathname),
-          &setting, 0) ){
+      blob_appendf(&versionedPathname, ".fossil-settings/%s", zName);
+      if( historical_blob(zCkin ? zCkin : g.zOpenRevision,
+                          blob_str(&versionedPathname),
+                          &setting, 0)
+      ){
         found = 1;
       }
-      /* See if there's a no-warn flag */
-      blob_append(&versionedPathname, ".no-warn", -1);
-      blob_zero(&noWarnFile);
-      if( historical_blob(g.zOpenRevision, blob_str(&versionedPathname),
-          &noWarnFile, 0) ){
-        noWarn = 1;
-      }
-      blob_reset(&noWarnFile);
-    }else if( file_size(blob_str(&versionedPathname), ExtFILE)>=0 ){
-      /* File exists, and contains the value for this setting. Load from
-      ** the file. */
-      const char *zFile = blob_str(&versionedPathname);
-      if( blob_read_from_file(&setting, zFile, ExtFILE)>=0 ){
-        found = 1;
-      }
-      /* See if there's a no-warn flag */
-      blob_append(&versionedPathname, ".no-warn", -1);
+    }else{
+      blob_appendf(&versionedPathname, "%s.fossil-settings/%s",
+                   g.zLocalRoot, zName);
       if( file_size(blob_str(&versionedPathname), ExtFILE)>=0 ){
-        noWarn = 1;
+        /* File exists, and contains the value for this setting. Load from
+        ** the file. */
+        const char *zFile = blob_str(&versionedPathname);
+        if( blob_read_from_file(&setting, zFile, ExtFILE)>=0 ){
+          found = 1;
+        }
+        /* See if there's a no-warn flag */
+        blob_append(&versionedPathname, ".no-warn", -1);
+        if( file_size(blob_str(&versionedPathname), ExtFILE)>=0 ){
+          noWarn = 1;
+        }
       }
     }
     blob_reset(&versionedPathname);
@@ -3640,16 +3734,23 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
       zVersionedSetting = fossil_strdup(blob_str(&setting));
     }
     blob_reset(&setting);
+
     /* Store result in cache, which can be the value or 0 if not found */
-    cacheEntry = (struct _cacheEntry*)fossil_malloc(sizeof(struct _cacheEntry));
-    cacheEntry->next = cache;
-    cacheEntry->zName = zName;
-    cacheEntry->zValue = fossil_strdup(zVersionedSetting);
-    cache = cacheEntry;
+    if( zCkin==0 ){
+      cacheEntry = (struct _cacheEntry*)fossil_malloc(sizeof(*cacheEntry));
+      cacheEntry->next = cache;
+      cacheEntry->zName = zName;
+      cacheEntry->zValue = fossil_strdup(zVersionedSetting);
+      cache = cacheEntry;
+    }
   }
+
   /* Display a warning? */
-  if( zVersionedSetting!=0 && zNonVersionedSetting!=0
-   && zNonVersionedSetting[0]!='\0' && !noWarn
+  if( zVersionedSetting!=0
+   && zNonVersionedSetting!=0
+   && zNonVersionedSetting[0]!='\0'
+   && zCkin==0
+   && !noWarn
   ){
     /* There's a versioned setting, and a non-versioned setting. Tell
     ** the user about the conflict */
@@ -3662,6 +3763,7 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
         g.zLocalRoot, zName, g.zLocalRoot, zName, zName
     );
   }
+
   /* Prefer the versioned setting */
   return ( zVersionedSetting!=0 ) ? zVersionedSetting : zNonVersionedSetting;
 }
@@ -3705,7 +3807,7 @@ char *db_get(const char *zName, const char *zDefault){
     /* This is a versionable setting, try and get the info from a
     ** checked-out file */
     char * zZ = z;
-    z = db_get_versioned(zName, z);
+    z = db_get_versioned(zName, z, 0);
     if(zZ != z){
       fossil_free(zZ);
     }
@@ -3846,7 +3948,7 @@ int db_get_boolean(const char *zName, int dflt){
   return dflt;
 }
 int db_get_versioned_boolean(const char *zName, int dflt){
-  char *zVal = db_get_versioned(zName, 0);
+  char *zVal = db_get_versioned(zName, 0, 0);
   if( zVal==0 ) return dflt;
   if( is_truth(zVal) ) return 1;
   if( is_false(zVal) ) return 0;
@@ -3975,10 +4077,26 @@ char *db_get_for_subsystem(const char *zName, const char *zSubsys){
 ** to enable a manifest type.  This system puts certain boundary conditions on
 ** which letters can be used to represent flags (any permutation of flags must
 ** not be able to fully form one of the boolean values).
+**
+** "manifest" is a versionable setting.  But we do not issue a warning
+** if there is a conflict.  Instead, the value returned is the value for
+** the versioned setting if the versioned setting exists, or the ordinary
+** setting otherwise.
+**
+** The argument zCkin is the specific check-in for which we want the
+** manifest setting.
 */
-int db_get_manifest_setting(void){
+int db_get_manifest_setting(const char *zCkin){
   int flg;
-  char *zVal = db_get("manifest", 0);
+  char *zVal;
+  
+  /* Look for the versioned setting first */
+  zVal = db_get_versioned("manifest", 0, zCkin);
+
+  if( zVal==0 && g.repositoryOpen ){
+    /* No versioned setting, look for the repository setting second */
+    zVal = db_text(0, "SELECT value FROM config WHERE name='manifest'");
+  }
   if( zVal==0 || is_false(zVal) ){
     return 0;
   }else if( is_truth(zVal) ){
@@ -3994,6 +4112,33 @@ int db_get_manifest_setting(void){
     zVal++;
   }
   return flg;
+}
+
+/*
+** COMMAND: test-manifest-setting
+**
+** Usage: %fossil test-manifest-setting VERSION VERSION ...
+**
+** Display the value for the "manifest" setting for various versions
+** of the repository.
+*/
+void test_manfest_setting_cmd(void){
+  int i;
+  db_find_and_open_repository(0, 0);
+  for(i=2; i<g.argc; i++){
+    int m = db_get_manifest_setting(g.argv[i]);
+    fossil_print("%s:\n", g.argv[i]);
+    fossil_print("   flags = 0x%02x\n", m);
+    if( m & MFESTFLG_RAW ){
+      fossil_print("   manifest\n");
+    }
+    if( m & MFESTFLG_UUID ){
+      fossil_print("   manifest.uuid\n");
+    }
+    if( m & MFESTFLG_TAGS ){
+      fossil_print("   manifest.tags\n");
+    }
+  }
 }
 
 
@@ -4084,7 +4229,7 @@ void db_record_repository_filename(const char *zName){
 **
 ** REPOSITORY can be the filename for a repository that already exists on the
 ** local machine or it can be a URI for a remote repository.  If REPOSITORY
-** is a URI in one of the formats recognized by the [[clone]] command, then
+** is a URI in one of the formats recognized by the [[clone]] command, the
 ** remote repo is first cloned, then the clone is opened. The clone will be
 ** stored in the current directory, or in DIR if the "--repodir DIR" option
 ** is used. The name of the clone will be taken from the last term of the URI.
@@ -4108,6 +4253,12 @@ void db_record_repository_filename(const char *zName){
 **   --nested          Allow opening a repository inside an opened check-out
 **   --nosync          Do not auto-sync the repository prior to opening even
 **                     if the autosync setting is on.
+**   --proxy PROXY     Use PROXY as http proxy during sync operation
+**   --reopen REPO     "Reopen" an existing checkout to use a different
+**                     repository file REPO. Useful to reconnect an existing
+**                     checkout to a repository after the original repository
+**                     file is moved. CAUTION: may lose stash and bisect
+**                     history.
 **   --repodir DIR     If REPOSITORY is a URI that will be cloned, store
 **                     the clone in DIR rather than in "."
 **   --setmtime        Set timestamps of all files to match their SCM-side
@@ -4131,10 +4282,19 @@ void cmd_open(void){
   const char *zWorkDir;          /* --workdir value */
   const char *zRepo = 0;         /* Name of the repository file */
   const char *zRepoDir = 0;      /* --repodir value */
+  const char *zReopen = 0;       /* --reopen REPOFILE */
   char *zPwd;                    /* Initial working directory */
   int isUri = 0;                 /* True if REPOSITORY is a URI */
   int nLocal;                    /* Number of preexisting files in cwd */
   int bVerbose = 0;              /* --verbose option for clone */
+
+  zReopen = find_option("reopen",0,1);
+  if( 0!=zReopen ){
+    g.argc = 3;
+    g.argv[2] = (char*)zReopen;
+    move_repo_cmd();
+    return;
+  }
 
   url_proxy_options();
   emptyFlag = find_option("empty",0,0)!=0;
@@ -4184,7 +4344,7 @@ void cmd_open(void){
   }
   if( keepFlag==0
    && bForce==0
-   && (nLocal = file_directory_size(".", 0, 1))>0
+   && (nLocal = file_directory_list(".", 0, 1, 2, 0))>0
    && (nLocal>1 || isUri || !file_in_cwd(zRepo))
   ){
     fossil_fatal("directory %s is not empty\n"
@@ -4211,8 +4371,11 @@ void cmd_open(void){
       fossil_fatal("unable to deduce a repository name from the url \"%s\"",
                    zUri);
     }
-    if( zRepoDir==0 ) zRepoDir = zPwd;
-    zRepo = mprintf("%s/%s.fossil", zRepoDir, zNewBase);
+    if( zRepoDir==0 ){
+      zRepo = mprintf("%s.fossil", zNewBase);
+    }else{
+      zRepo = mprintf("%s/%s.fossil", zRepoDir, zNewBase);
+    }
     fossil_free(zNewBase);
     blob_init(&cmd, 0, 0);
     blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
@@ -4245,7 +4408,7 @@ void cmd_open(void){
     if( g.argc==4 ){
       g.zOpenRevision = g.argv[3];
     }else if( db_exists("SELECT 1 FROM event WHERE type='ci'") ){
-      g.zOpenRevision = db_get("main-branch", 0);
+      g.zOpenRevision = fossil_strdup(db_main_branch());
     }
     if( autosync_loop(SYNC_PULL, !bForce, "open") && !bForce ){
       fossil_fatal("unable to auto-sync the repository");
@@ -4267,7 +4430,7 @@ void cmd_open(void){
   db_open_local(0);
   db_lset("repository", zRepo);
   db_record_repository_filename(zRepo);
-  db_set_checkout(0);
+  db_set_checkout(0, 0); /* manifest files handled by checkout_cmd */
   azNewArgv[0] = g.argv[0];
   g.argv = azNewArgv;
   if( !emptyFlag ){
@@ -4296,10 +4459,31 @@ void cmd_open(void){
 }
 
 /*
+** Return true if pSetting has its default value assuming its
+** current value is zVal.
+*/
+int setting_has_default_value(const Setting *pSetting, const char *zVal){
+  if( zVal==0 ) return 1;
+  if( pSetting->def==0 ) return 0;
+  if( pSetting->width==0 ){
+    return is_false(pSetting->def)==is_false(zVal);
+  }
+  if( fossil_strcmp(pSetting->def, zVal)==0 ) return 1;
+  if( is_false(zVal) && is_false(pSetting->def) ) return 1;
+  if( is_truth(zVal) && is_truth(pSetting->def) ) return 1;
+  return 0;
+}
+
+/*
 ** Print the current value of a setting identified by the pSetting
 ** pointer.
+**
+** Only show the value, not the setting name, if valueOnly is true.
+**
+** Show nothing if bIfChng is true and the setting is not currently set
+** or is set to its default value.
 */
-void print_setting(const Setting *pSetting, int valueOnly){
+void print_setting(const Setting *pSetting, int valueOnly, int bIfChng){
   Stmt q;
   int versioned = 0;
   if( pSetting->versionable && g.localOpen ){
@@ -4314,7 +4498,12 @@ void print_setting(const Setting *pSetting, int valueOnly){
     blob_reset(&versionedPathname);
   }
   if( valueOnly && versioned ){
-    fossil_print("%s\n", db_get_versioned(pSetting->name, NULL));
+    const char *zVal = db_get_versioned(pSetting->name, NULL, NULL);
+    if( !bIfChng || (zVal!=0 && fossil_strcmp(zVal, pSetting->def)!=0) ){
+      fossil_print("%s\n", db_get_versioned(pSetting->name, NULL, NULL));
+    }else{
+      versioned = 0;
+    }
     return;
   }
   if( g.repositoryOpen ){
@@ -4331,16 +4520,43 @@ void print_setting(const Setting *pSetting, int valueOnly){
     );
   }
   if( db_step(&q)==SQLITE_ROW ){
-    if( valueOnly ){
+    const char *zVal = db_column_text(&q,1);
+    if( bIfChng && setting_has_default_value(pSetting,zVal) ){
+      if( versioned ){
+        fossil_print("%-24s (versioned)\n", pSetting->name);
+        versioned = 0;
+      }
+    }else if( valueOnly ){
       fossil_print("%s\n", db_column_text(&q, 1));
     }else{
-      fossil_print("%-20s %-8s %s\n", pSetting->name, db_column_text(&q, 0),
-          db_column_text(&q, 1));
+      const char *zVal = (const char*)db_column_text(&q,1);
+      const char *zName = (const char*)db_column_text(&q,0);
+      if( zVal==0 ) zVal = "NULL";
+      if( strchr(zVal,'\n')==0 ){
+        fossil_print("%-24s %-11s %s\n", pSetting->name, zName, zVal);
+      }else{
+        fossil_print("%-24s %-11s\n", pSetting->name, zName);
+        while( zVal[0] ){
+          const char *zNL = strchr(zVal, '\n');
+          if( zNL==0 ){
+            fossil_print("    %s\n", zVal);
+            break;
+          }else{
+            int n = (int)(zNL - zVal);
+            while( n>0 && fossil_isspace(zVal[n-1]) ){ n--; }
+            fossil_print("    %.*s\n", n, zVal);
+            zVal = zNL+1;
+          }
+        }
+      }
     }
+  }else if( bIfChng ){
+    /* Display nothing */
+    versioned = 0;
   }else if( valueOnly ){
     fossil_print("\n");
   }else{
-    fossil_print("%-20s\n", pSetting->name);
+    fossil_print("%-24s\n", pSetting->name);
   }
   if( versioned ){
     fossil_print("  (overridden by contents of file .fossil-settings/%s)\n",
@@ -4358,7 +4574,7 @@ void print_setting(const Setting *pSetting, int valueOnly){
 ** If var is 0, the settings name is used.
 **
 ** width is the length for the edit field on the behavior page, 0 is
-** used for on/off checkboxes. A negative value indicates that that
+** used for on/off checkboxes. A negative value indicates that the
 ** page should not render this setting. Such values may be rendered
 ** separately/manually on another page, e.g., /setup_access, and are
 ** exposed via the CLI settings command.
@@ -4377,17 +4593,18 @@ struct Setting {
   char sensitive;       /* True if this a security-sensitive setting */
   const char *def;      /* Default value */
 };
+
 #endif /* INTERFACE */
 
 /*
-** SETTING: access-log      boolean default=off
+** SETTING: access-log      boolean default=on
 **
 ** When the access-log setting is enabled, all login attempts (successful
 ** and unsuccessful) on the web interface are recorded in the "access" table
 ** of the repository.
 */
 /*
-** SETTING: admin-log       boolean default=off
+** SETTING: admin-log       boolean default=on
 **
 ** When the admin-log setting is enabled, configuration changes are recorded
 ** in the "admin_log" table of the repository.
@@ -4560,30 +4777,27 @@ struct Setting {
 /*
 ** SETTING: clearsign       boolean default=off
 ** When enabled, fossil will attempt to sign all commits
-** with gpg.  When disabled, commits will be unsigned.
+** with gpg or ssh.  When disabled, commits will be unsigned.
 */
 /*
 ** SETTING: comment-format  width=16 default=1
-** Set the default options for printing timeline comments to the console.
-**
-** The global --comfmtflags command-line option (or alias --comment-format)
-** overrides this setting.
+** Set the algorithm for printing timeline comments to the console.
 **
 ** Possible values are:
-**    1     Activate the legacy comment printing format (default).
+**    1     Use the original comment printing algorithm:
+**             *   Leading and trailing whitespace is removed
+**             *   Internal whitespace is converted into a single space (0x20)
+**             *   Line breaks occurs at whitespace or hyphens if possible
+**          This is the recommended value and the default.
 **
 ** Or a bitwise combination of the following flags:
-**    0     Activate the newer (non-legacy) comment printing format.
 **    2     Trim leading and trailing CR and LF characters.
 **    4     Trim leading and trailing white space characters.
 **    8     Attempt to break lines on word boundaries.
 **   16     Break lines before the original comment embedded in other text.
 **
-** Note: To preserve line breaks, activate the newer (non-legacy) comment
-** printing format (i.e. set to "0", or a combination not including "1").
-**
-** Note: The options for timeline comments displayed on the web UI can be
-** configured through the /setup_timeline web page.
+** Note: To preserve line breaks and/or other whitespace within comment text,
+** make this setting some integer value that omits the "1" bit.
 */
 /*
 ** SETTING: crlf-glob       width=40 versionable block-text
@@ -4633,12 +4847,20 @@ struct Setting {
 ** SETTING: editor          width=32 sensitive
 ** The value is an external command that will launch the
 ** text editor command used for check-in comments.
+**
+** If this value is not set, then environment variables VISUAL and
+** EDITOR are consulted, in that order.  If neither of those are set,
+** then a search is made for common text editors, including
+** "notepad", "nano", "pico", "jove", "edit", "vi", "vim", and "ed".
+**
+** If this setting is false ("off", "no", "false", or "0") then no
+** text editor is used.
 */
 /*
 ** SETTING: empty-dirs      width=40 versionable block-text
 ** The value is a list of pathnames parsed according to the same rules as
 ** the *-glob settings.  On update and checkout commands, if no directory
-** exists with that name, an empty directory will be be created, even if
+** exists with that name, an empty directory will be created, even if
 ** it must create one or more parent directories.
 */
 /*
@@ -4683,16 +4905,10 @@ struct Setting {
 ** manifest.
 */
 /*
-** SETTING: forum-close-policy    boolean default=off
-** If true, forum moderators may close/re-open forum posts, and reply
-** to closed posts. If false, only administrators may do so. Note that
-** this only affects the forum web UI, not post-closing tags which
-** arrive via the command-line or from synchronization with a remote.
-*/
-/*
-** SETTING: gdiff-command    width=40 default=gdiff sensitive
+** SETTING: gdiff-command    width=40 sensitive
 ** The value is an external command to run when performing a graphical
-** diff. If undefined, text diff will be used.
+** diff. If undefined, a --tk diff is done if commands "tclsh" and "wish"
+** are on PATH, or a --by diff is done if "tclsh" or "wish" are unavailable.
 */
 /*
 ** SETTING: gmerge-command   width=40 sensitive
@@ -4833,7 +5049,8 @@ struct Setting {
 /*
 ** SETTING: pgp-command      width=40 sensitive
 ** Command used to clear-sign manifests at check-in.
-** Default value is "gpg --clearsign -o"
+** Default value is "gpg --clearsign -o".
+** For SSH, use e.g. "ssh-keygen -q -Y sign -n fossilscm -f ~/.ssh/id_ed25519"
 */
 /*
 ** SETTING: proxy            width=32 default=system
@@ -4842,11 +5059,15 @@ struct Setting {
 ** used.
 */
 /*
-** SETTING: redirect-to-https   default=0 width=-1
-** Specifies whether or not to redirect http:// requests to
-** https:// URIs. A value of 0 (the default) means not to
+** SETTING: redirect-to-https   default=0 width=2
+** Specifies whether or not to redirect unencrypted "http://" requests to
+** encrypted "https://" URIs. A value of 0 (the default) means do not
 ** redirect, 1 means to redirect only the /login page, and 2
 ** means to always redirect.
+**
+** For security, a value of 2 is recommended.  The default value is 0
+** because not all sites are TLS-capable.  But you should definitely enable
+** TLS and change this setting to 2 for all public-facing repositories.
 */
 /*
 ** SETTING: relative-paths   boolean default=on
@@ -4875,7 +5096,8 @@ struct Setting {
 ** repository with a non-zero "repolist-skin" value is used as the skin
 ** for the repository list page.  If none of the repositories on the list
 ** have a non-zero "repolist-skin" setting then the repository list is
-** displayed using unadorned HTML ("skinless").
+** displayed using unadorned HTML ("skinless"), with the page title taken
+** from the FOSSIL_REPOLIST_TITLE environment variable.
 **
 ** If repolist-skin has a value of 2, then the repository is omitted from
 ** the list in use cases 1 through 4, but not for 5 and 6.
@@ -4968,7 +5190,7 @@ struct Setting {
 */
 #endif
 /*
-** SETTING: th1-setup        width=40 block-text
+** SETTING: th1-setup        width=40 block-text sensitive
 ** This is the setup script to be evaluated after creating
 ** and initializing the TH1 interpreter.  By default, this
 ** is empty and no extra setup is performed.
@@ -5080,9 +5302,10 @@ Setting *db_find_setting(const char *zName, int allowPrefix){
 ** on the local settings.  Use the --global option to change global settings.
 **
 ** Options:
+**   --changed  Only show settings if the value differs from the default
+**   --exact    Only consider exact name matches
 **   --global   Set or unset the given property globally instead of
 **              setting or unsetting it for the open repository only
-**   --exact    Only consider exact name matches
 **   --value    Only show the value of a given property (implies --exact)
 **
 ** See also: [[configuration]]
@@ -5090,6 +5313,7 @@ Setting *db_find_setting(const char *zName, int allowPrefix){
 void setting_cmd(void){
   int i;
   int globalFlag = find_option("global","g",0)!=0;
+  int bIfChng = find_option("changed",0,0)!=0;
   int exactFlag = find_option("exact",0,0)!=0;
   int valueFlag = find_option("value",0,0)!=0;
   /* Undocumented "--test-for-subsystem SUBSYS" option used to test
@@ -5114,12 +5338,11 @@ void setting_cmd(void){
     if( g.argc!=3 ){
       fossil_fatal("--value is only supported when qurying a given property");
     }
-    exactFlag = 1;
   }
 
   if( g.argc==2 ){
     for(i=0; i<nSetting; i++){
-      print_setting(&aSetting[i], 0);
+      print_setting(&aSetting[i], 0, bIfChng);
     }
   }else if( g.argc==3 || g.argc==4 ){
     const char *zName = g.argv[2];
@@ -5174,7 +5397,7 @@ void setting_cmd(void){
           }
           fossil_print("\n");
         }else{
-          print_setting(pSetting, valueFlag);
+          print_setting(pSetting, valueFlag, bIfChng);
         }
         pSetting++;
       }
@@ -5358,13 +5581,13 @@ void test_database_name_cmd(void){
 
 /*
 ** Compute a "fingerprint" on the repository.  A fingerprint is used
-** to verify that that the repository has not been replaced by a clone
-** of the same repository.  More precisely, a fingerprint are used to
+** to verify that the repository has not been replaced by a clone
+** of the same repository.  More precisely, a fingerprint is used to
 ** verify that the mapping between SHA3 hashes and RID values is unchanged.
 **
 ** The check-out database ("localdb") stores RID values.  When associating
 ** a check-out database against a repository database, it is useful to verify
-** the fingerprint so that we know tha the RID values in the check-out
+** the fingerprint so that we know that the RID values in the check-out
 ** database still correspond to the correct entries in the BLOB table of
 ** the repository.
 **
@@ -5424,7 +5647,7 @@ char *db_fingerprint(int rcvid, int iVersion){
 ** Usage: %fossil test-fingerprint ?RCVID?
 **
 ** Display the repository fingerprint using the supplied RCVID or
-** using the latest RCVID if not is given on the command line.
+** using the latest RCVID if none is given on the command line.
 ** Show both the legacy and the newer version of the fingerprint,
 ** and the currently stored fingerprint if there is one.
 */
@@ -5448,11 +5671,14 @@ void test_fingerprint(void){
 
 /*
 ** Set the value of the "checkout" entry in the VVAR table.
+** If bWriteManifest is non-zero then also attempt to write the manifest
+** files to disk.
 **
 ** Also set "fingerprint" and "checkout-hash".
 */
-void db_set_checkout(int rid){
+void db_set_checkout(int rid, int bWriteManifest){
   char *z;
+  if( bWriteManifest ) manifest_to_disk(rid);
   db_lset_int("checkout", rid);
   if (rid != 0) {
     z = db_text(0,"SELECT uuid FROM blob WHERE rid=%d",rid);

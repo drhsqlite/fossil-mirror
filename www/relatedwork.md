@@ -68,7 +68,7 @@
 [db2w]:          https://youtu.be/2eaQzahCeh4
 [emacsfsl]:      https://chiselapp.com/user/venks/repository/emacs-fossil/doc/tip/README.md
 [floss26]:       https://twit.tv/shows/floss-weekly/episodes/26
-[fnc]:           https://fnc.bsdbox.org
+[fnc]:           https://fnc.sh
 [fsl]:           http://fossil.0branch.com/fsl
 [Fuel]:          https://fuel-scm.org/fossil/index
 [Git]:           https://git-scm.com

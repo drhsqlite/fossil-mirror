@@ -25,7 +25,7 @@
 ** Explain what type of sync operation is about to occur
 */
 static void sync_explain(unsigned syncFlags){
-  if( g.url.isAlias ){
+  if( (g.url.isAlias || g.url.useProxy) && (syncFlags & SYNC_QUIET)==0 ){
     const char *url;
     if( g.url.useProxy ){
       url = g.url.proxyUrlCanonical;
@@ -38,6 +38,8 @@ static void sync_explain(unsigned syncFlags){
       fossil_print("Push to %s\n", url);
     }else if( syncFlags & SYNC_PULL ){
       fossil_print("Pull from %s\n", url);
+    }else if( syncFlags & SYNC_PING ){
+      fossil_print("Ping %s\n", url);
     }
   }
 }
@@ -309,7 +311,7 @@ static void process_sync_args(
   ** REPLY is a temporary filename in which COMMAND should write the
   ** content of the reply from the server.
   **
-  ** CMD is reponsible for HTTP redirects.  The following Fossil command
+  ** CMD is responsible for HTTP redirects.  The following Fossil command
   ** can be used for CMD to achieve a working sync:
   **
   **      fossil test-httpmsg --xfer
@@ -465,13 +467,15 @@ void push_cmd(void){
 /*
 ** COMMAND: sync
 **
-** Usage: %fossil sync ?URL? ?options?
+** Usage: %fossil sync ?REMOTE? ?options?
 **
 ** Synchronize all sharable changes between the local repository and a
-** remote repository.  Sharable changes include public check-ins and
-** edits to wiki pages, tickets, forum posts, and technical notes.
+** remote repository, with the remote provided as a URL or a
+** configured remote name (see the [[remote]] command).  Sharable
+** changes include public check-ins and edits to wiki pages, tickets,
+** forum posts, and technical notes.
 **
-** If URL is not specified, then the URL from the most recent clone, push,
+** If REMOTE is not specified, then the URL from the most recent clone, push,
 ** pull, remote, or sync command is used.  See "fossil help clone" for
 ** details on the URL formats.
 **
@@ -482,8 +486,10 @@ void push_cmd(void){
 **   --ipv4                     Use only IPv4, not IPv6
 **   --no-http-compression      Do not compress HTTP traffic
 **   --once                     Do not remember URL for subsequent syncs
+**   --ping                     Just verify that the server is alive
 **   --proxy PROXY              Use the specified HTTP proxy
 **   --private                  Sync private branches too
+**   -q|--quiet                 Omit all output
 **   -R|--repository REPO       Local repository to sync with
 **   --ssl-identity FILE        Local SSL credentials, if requested by remote
 **   --ssh-command SSH          Use SSH as the "ssh" command
@@ -503,14 +509,22 @@ void sync_cmd(void){
   if( find_option("unversioned","u",0)!=0 ){
     syncFlags |= SYNC_UNVERSIONED;
   }
+  if( find_option("ping",0,0)!=0 ){
+    syncFlags = SYNC_PING;
+  }
+  if( g.fQuiet ){
+    syncFlags |= SYNC_QUIET;
+  }
   process_sync_args(&configFlags, &syncFlags, 0, 0);
 
   /* We should be done with options.. */
   verify_all_options();
 
-  if( db_get_boolean("dont-push",0) ) syncFlags &= ~SYNC_PUSH;
-  if( (syncFlags & SYNC_PUSH)==0 ){
-    fossil_warning("pull only: the 'dont-push' option is set");
+  if( (syncFlags & SYNC_PING)==0 ){
+    if( db_get_boolean("dont-push",0) ) syncFlags &= ~SYNC_PUSH;
+    if( (syncFlags & SYNC_PUSH)==0 ){
+      fossil_warning("pull only: the 'dont-push' option is set");
+    }
   }
   client_sync_all_urls(syncFlags, configFlags, 0, 0);
 }

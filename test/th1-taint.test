@@ -1,0 +1,84 @@
+#
+# Copyright (c) 2025 D. Richard Hipp
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the Simplified BSD License (also
+# known as the "2-Clause License" or "FreeBSD License".)
+#
+# This program is distributed in the hope that it will be useful,
+# but without any warranty; without even the implied warranty of
+# merchantability or fitness for a particular purpose.
+#
+# Author contact information:
+#   drh@hwaci.com
+#   http://www.hwaci.com/drh/
+#
+############################################################################
+#
+# TH1 Commands
+#
+
+set path [file dirname [info script]]; test_setup
+
+proc taint-test {testnum th1script expected} {
+  global fossilexe
+  set rc [catch {exec $fossilexe test-th-eval $th1script} got]
+  if {$rc} {
+    test th1-taint-$testnum 0
+    puts $got
+    return
+  }
+  if {$got ne $expected} {
+    test th1-taint-$testnum 0
+    puts " Expected: $expected"
+    puts " Got:      $got"
+  } else {
+    test th1-taint-$testnum 1
+  }
+}
+
+taint-test 10 {string is tainted abcd} 0
+taint-test 20 {string is tainted [taint abcd]} 1
+taint-test 30 {string is tainted [untaint [taint abcd]]} 0
+taint-test 40 {string is tainted [untaint abcde]} 0
+taint-test 50 {string is tainted "abc[taint def]ghi"} 1
+taint-test 60 {set t1 [taint abc]; string is tainted "123 $t1 456"} 1
+
+taint-test 100 {set t1 [taint abc]; lappend t1 def; string is tainted $t1} 1
+taint-test 110 {set t1 abc; lappend t1 [taint def]; string is tainted $t1} 1
+
+taint-test 200 {string is tainted [list abc def ghi]} 0
+taint-test 210 {string is tainted [list [taint abc] def ghi]} 1
+taint-test 220 {string is tainted [list abc [taint def] ghi]} 1
+taint-test 230 {string is tainted [list abc def [taint ghi]]} 1
+
+taint-test 300 {
+  set res {}
+  foreach x [list abc [taint def] ghi] {
+    lappend res [string is tainted $x]
+  }
+  set res
+} {1 1 1}
+taint-test 310 {
+  set res {}
+  foreach {x y} [list abc [taint def] ghi jkl] {
+    lappend res [string is tainted $x] [string is tainted $y]
+  }
+  set res
+} {1 1 1 1}
+
+taint-test 400 {string is tainted [lindex "abc [taint def] ghi" 0]} 1
+taint-test 410 {string is tainted [lindex "abc [taint def] ghi" 1]} 1
+taint-test 420 {string is tainted [lindex "abc [taint def] ghi" 2]} 1
+taint-test 430 {string is tainted [lindex "abc [taint def] ghi" 3]} 0
+
+taint-test 500 {string is tainted [string index [taint abcdefg] 3]} 1
+  
+taint-test 600 {string is tainted [string range [taint abcdefg] 3 5]} 1
+
+taint-test 700 {string is tainted [string trim [taint "  abcdefg  "]]} 1
+taint-test 710 {string is tainted [string trimright [taint "  abcdefg  "]]} 1
+taint-test 720 {string is tainted [string trimleft [taint "  abcdefg  "]]} 1
+  
+
+test_cleanup

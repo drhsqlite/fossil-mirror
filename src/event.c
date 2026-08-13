@@ -119,7 +119,11 @@ void event_page(void){
     style_finish_page();
     return;
   }
-  zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+  zUuid = rid_to_uuid(rid);
+  zFullId = db_text(0, "SELECT SUBSTR(tagname,7)"
+                       "  FROM tag"
+                       " WHERE tagname GLOB 'event-%q*'",
+                    zId);
   zVerbose = P("v");
   if( !zVerbose ){
     zVerbose = P("verbose");
@@ -159,7 +163,7 @@ void event_page(void){
     style_submenu_element("Edit", "%R/technoteedit?name=%!S", zId);
     if( g.perm.Attach ){
       style_submenu_element("Attach",
-           "%R/attachadd?technote=%!S&from=%R/technote/%!S", zId, zId);
+           "%R/attachadd?target=%s&from=%R/technote/%!S", zFullId, zId);
     }
   }
   zETime = db_text(0, "SELECT datetime(%.17g)", pTNote->rEventDate);
@@ -227,11 +231,14 @@ void event_page(void){
     @ %h(blob_str(&fullbody))
     @ </pre>
   }
-  zFullId = db_text(0, "SELECT SUBSTR(tagname,7)"
-                       "  FROM tag"
-                       " WHERE tagname GLOB 'event-%q*'",
-                    zId);
-  attachment_list(zFullId, "<hr><h2>Attachments:</h2><ul>");
+  {
+    char * z = mprintf(
+      "<h2><a href='%R/attachlist?technote=%t'>Attachments</a>:</h2>",
+      zFullId
+    );
+    attachment_list(zFullId, z, 1);
+    fossil_free(z);
+  }
   document_emit_js();
   style_finish_page();
   manifest_destroy(pTNote);
@@ -384,7 +391,7 @@ void eventedit_page(void){
   int isNew = 0;
 
   if( zBody ){
-    zBody = mprintf("%s", zBody);
+    zBody = fossil_strdup(zBody);
   }
   login_check_credentials();
   zId = P("name");
@@ -427,7 +434,7 @@ void eventedit_page(void){
     if( zClr && zClr[0] ){
       const char * zRequestMethod = P("REQUEST_METHOD");
       if(zRequestMethod && 'G'==zRequestMethod[0]){
-        /* Apply saved color by defaut for GET requests
+        /* Apply saved color by default for GET requests
         ** (e.g., an Edit menu link).
         */
         zClrFlag = " checked";

@@ -6,7 +6,7 @@ The [/uv/download.html|Download] page for the Fossil self-hosting
 repository is implemented using [./unvers.wiki|unversioned files].
 The "download.html" screen itself, and the various build products
 are all stored as unversioned content.  The download.html page
-uses XMLHttpRequest() to retrieve the [/help?cmd=/juvlist|/juvlist] webpage
+uses XMLHttpRequest() to retrieve the [/help/www/juvlist|/juvlist] webpage
 for a list of all unversioned files.  Javascript in the
 [/uv/download.js?mimetype=text/plain|download.js] file (which is
 sourced by "download.html") then figures out which unversioned files are
@@ -15,16 +15,16 @@ download page.
 
 Except, the "Source Tarball" download products are not stored as
 unversioned files.  They are computed on-demand by the
-[/help?cmd=/tarball|/tarball web page].
+[/help/www/tarball|/tarball web page].
 
 When a new version is generated, the developers use the
-[/help?cmd=uv|fossil uv edit] command to make minor changes
+[/help/uv|fossil uv edit] command to make minor changes
 to the "[/uv/download.js?mimetype=text/plain|download.js]"
 file so that it knows about the
 new version number.  Then the developers run
-the [/help?cmd=uv|fossil uv add] command for each
+the [/help/uv|fossil uv add] command for each
 build product.  Finally, the
-[/help?cmd=uv|fossil uv sync] command is run to push all
+[/help/uv|fossil uv sync] command is run to push all
 the content up to servers.  All
 [./selfhost.wiki|three self-hosting repositories] for Fossil
 are updated automatically.
@@ -53,7 +53,7 @@ how this &lt;div class='fossil-doc'&gt; markup works.
 
 With each new release, the "releases" variable in the javascript on
 the [/uv/download.js?mimetype=text/plain|download.js] page is
-edited (using "[/help?cmd=uv|fossil uv edit download.js]") to add
+edited (using "[/help/uv|fossil uv edit download.js]") to add
 details of the release.
 
 When the JavaScript in the "download.js" file runs, it requests
@@ -67,8 +67,8 @@ binary for Linux is compiled on Linux, the precompiled binary for Windows
 is compiled on Windows11, and so forth.  After a new release is tagged,
 the release manager goes around to each of the target platforms, checks
 out the release and compiles it, then runs
-[/help?cmd=uv|fossil uv add] for the build product followed by
-[/help?cmd=uv|fossil uv sync] to push the new build product to the
+[/help/uv|fossil uv add] for the build product followed by
+[/help/uv|fossil uv sync] to push the new build product to the
 [./selfhost.wiki|various servers].  This process is repeated for
 each build product.
 
@@ -76,12 +76,12 @@ When older builds are retired from the download page, the
 [/uv/download.js?mimetype=text/plain|download.js] page is again
 edited to remove the corresponding entry from the "release" variable
 and the edit is synced using
-[/help?cmd=uv|fossil uv sync].  This causes the build products to
+[/help/uv|fossil uv sync].  This causes the build products to
 disappear from the download page immediately.  But those build products
 are still taking up space in the unversioned content table of the
 server repository.  To purge the obsolete build products, one or
-more [/help?cmd=uv|fossil uv rm] commands are run, followed by
-another [/help?cmd=uv|fossil uv sync].  It is important to purge
+more [/help/uv|fossil uv rm] commands are run, followed by
+another [/help/uv|fossil uv sync].  It is important to purge
 obsolete build products since they take up a lot of space.
 At [/repo-tabsize] you can see that the unversioned table takes up
 a substantial fraction of the repository.

@@ -259,7 +259,7 @@ static void SHA1Final(unsigned char *digest, SHA1Context *context){
                 ((context->state[i>>2] >> ((3-(i & 3)) * 8) ) & 255);
     }
 }
-#endif /* Built-in SHA1 implemenation */
+#endif /* Built-in SHA1 implementation */
 
 /*
 ** Convert a digest into base-16.  digest should be declared as
@@ -422,7 +422,7 @@ char *sha1sum(const char *zIn){
   SHA1Update(&ctx, (unsigned const char*)zIn, strlen(zIn));
   SHA1Final(zResult, &ctx);
   DigestToBase16(zResult, zDigest);
-  return mprintf("%s", zDigest);
+  return fossil_strdup(zDigest);
 }
 
 /*
@@ -461,7 +461,7 @@ char *sha1_shared_secret(
       ** known.  Use the cleartext password, since that is all we have.
       */
       if( zProjectId==0 ){
-        return mprintf("%s", zPw);
+        return fossil_strdup(zPw);
       }
     }
     zProjCode = zProjectId;
@@ -473,7 +473,7 @@ char *sha1_shared_secret(
   SHA1Update(&ctx, (unsigned const char*)zPw, strlen(zPw));
   SHA1Final(zResult, &ctx);
   DigestToBase16(zResult, zDigest);
-  return mprintf("%s", zDigest);
+  return fossil_strdup(zDigest);
 }
 
 /*

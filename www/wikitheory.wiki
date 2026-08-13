@@ -26,7 +26,7 @@ are also more widely known, and are thus provided as an alternative.
 <h2>Stand-alone Wiki Pages</h2>
 
 Each wiki page has its own revision history which is independent of
-the sequence of check-ins (check-ins).  Wiki pages can branch and merge
+the sequence of check-ins.  Wiki pages can branch and merge
 just like check-ins, though as of this writing (2008-07-29) there is
 no mechanism in the user interface to support branching and merging.
 The current implementation of the wiki shows the version of the wiki
@@ -86,5 +86,5 @@ timelines and info screens.  Examples:
       [/wiki?name=checkin/19c60b7fc9e2400e56a6f938bbad0e34ca746ca2eabdecac10945539f1f5e8c6&p|checkin/19c60b7fc9e2...]
       wiki page in the "About" section.
 
-This special wiki pages are very useful for recording historical
+These special wiki pages are very useful for recording historical
 notes.

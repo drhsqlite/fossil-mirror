@@ -13,7 +13,7 @@
 XBCC = $(BCC) $(BCCFLAGS)
 XTCC = $(TCC) $(CFLAGS_INCLUDE) -I$(OBJDIR) $(TCCFLAGS)
 
-TESTFLAGS := -quiet
+TESTFLAGS = -quiet
 
 SRC = \
   $(SRCDIR)/add.c \
@@ -101,6 +101,7 @@ SRC = \
   $(SRCDIR)/manifest.c \
   $(SRCDIR)/markdown.c \
   $(SRCDIR)/markdown_html.c \
+  $(SRCDIR)/match.c \
   $(SRCDIR)/md5.c \
   $(SRCDIR)/merge.c \
   $(SRCDIR)/merge3.c \
@@ -120,6 +121,7 @@ SRC = \
   $(SRCDIR)/regexp.c \
   $(SRCDIR)/repolist.c \
   $(SRCDIR)/report.c \
+  $(SRCDIR)/robot.c \
   $(SRCDIR)/rss.c \
   $(SRCDIR)/schema.c \
   $(SRCDIR)/search.c \
@@ -162,6 +164,7 @@ SRC = \
   $(SRCDIR)/winhttp.c \
   $(SRCDIR)/xfer.c \
   $(SRCDIR)/xfersetup.c \
+  $(SRCDIR)/xsystem.c \
   $(SRCDIR)/zip.c
 
 EXTRA_FILES = \
@@ -224,6 +227,7 @@ EXTRA_FILES = \
   $(SRCDIR)/diff.js \
   $(SRCDIR)/diff.tcl \
   $(SRCDIR)/forum.js \
+  $(SRCDIR)/fossil.attach.js \
   $(SRCDIR)/fossil.bootstrap.js \
   $(SRCDIR)/fossil.confirmer.js \
   $(SRCDIR)/fossil.copybutton.js \
@@ -237,6 +241,7 @@ EXTRA_FILES = \
   $(SRCDIR)/fossil.page.forumpost.js \
   $(SRCDIR)/fossil.page.pikchrshow.js \
   $(SRCDIR)/fossil.page.pikchrshowasm.js \
+  $(SRCDIR)/fossil.page.ticket.js \
   $(SRCDIR)/fossil.page.whistory.js \
   $(SRCDIR)/fossil.page.wikiedit.js \
   $(SRCDIR)/fossil.pikchr.js \
@@ -250,6 +255,7 @@ EXTRA_FILES = \
   $(SRCDIR)/login.js \
   $(SRCDIR)/markdown.md \
   $(SRCDIR)/menu.js \
+  $(SRCDIR)/merge.tcl \
   $(SRCDIR)/scroll.js \
   $(SRCDIR)/skin.js \
   $(SRCDIR)/sorttable.js \
@@ -272,6 +278,7 @@ EXTRA_FILES = \
   $(SRCDIR)/style.admin_log.css \
   $(SRCDIR)/style.chat.css \
   $(SRCDIR)/style.fileedit.css \
+  $(SRCDIR)/style.forum.css \
   $(SRCDIR)/style.pikchrshow.css \
   $(SRCDIR)/style.uvlist.css \
   $(SRCDIR)/style.wikiedit.css \
@@ -365,6 +372,7 @@ TRANS_SRC = \
   $(OBJDIR)/manifest_.c \
   $(OBJDIR)/markdown_.c \
   $(OBJDIR)/markdown_html_.c \
+  $(OBJDIR)/match_.c \
   $(OBJDIR)/md5_.c \
   $(OBJDIR)/merge_.c \
   $(OBJDIR)/merge3_.c \
@@ -384,6 +392,7 @@ TRANS_SRC = \
   $(OBJDIR)/regexp_.c \
   $(OBJDIR)/repolist_.c \
   $(OBJDIR)/report_.c \
+  $(OBJDIR)/robot_.c \
   $(OBJDIR)/rss_.c \
   $(OBJDIR)/schema_.c \
   $(OBJDIR)/search_.c \
@@ -426,6 +435,7 @@ TRANS_SRC = \
   $(OBJDIR)/winhttp_.c \
   $(OBJDIR)/xfer_.c \
   $(OBJDIR)/xfersetup_.c \
+  $(OBJDIR)/xsystem_.c \
   $(OBJDIR)/zip_.c
 
 OBJ = \
@@ -514,6 +524,7 @@ OBJ = \
  $(OBJDIR)/manifest.o \
  $(OBJDIR)/markdown.o \
  $(OBJDIR)/markdown_html.o \
+ $(OBJDIR)/match.o \
  $(OBJDIR)/md5.o \
  $(OBJDIR)/merge.o \
  $(OBJDIR)/merge3.o \
@@ -533,6 +544,7 @@ OBJ = \
  $(OBJDIR)/regexp.o \
  $(OBJDIR)/repolist.o \
  $(OBJDIR)/report.o \
+ $(OBJDIR)/robot.o \
  $(OBJDIR)/rss.o \
  $(OBJDIR)/schema.o \
  $(OBJDIR)/search.o \
@@ -575,8 +587,9 @@ OBJ = \
  $(OBJDIR)/winhttp.o \
  $(OBJDIR)/xfer.o \
  $(OBJDIR)/xfersetup.o \
+ $(OBJDIR)/xsystem.o \
  $(OBJDIR)/zip.o
-all:	$(OBJDIR) $(APPNAME)
+all:	$(APPNAME)
 
 install:	all
 	mkdir -p $(INSTALLDIR)
@@ -585,25 +598,28 @@ install:	all
 codecheck:	$(TRANS_SRC) $(OBJDIR)/codecheck1
 	$(OBJDIR)/codecheck1 $(TRANS_SRC)
 
-$(OBJDIR):
-	-mkdir $(OBJDIR)
-
 $(OBJDIR)/translate:	$(SRCDIR_tools)/translate.c
+	-mkdir -p $(OBJDIR)
 	$(XBCC) -o $(OBJDIR)/translate $(SRCDIR_tools)/translate.c
 
 $(OBJDIR)/makeheaders:	$(SRCDIR_tools)/makeheaders.c
+	-mkdir -p $(OBJDIR)
 	$(XBCC) -o $(OBJDIR)/makeheaders $(SRCDIR_tools)/makeheaders.c
 
 $(OBJDIR)/mkindex:	$(SRCDIR_tools)/mkindex.c
+	-mkdir -p $(OBJDIR)
 	$(XBCC) -o $(OBJDIR)/mkindex $(SRCDIR_tools)/mkindex.c
 
 $(OBJDIR)/mkbuiltin:	$(SRCDIR_tools)/mkbuiltin.c
+	-mkdir -p $(OBJDIR)
 	$(XBCC) -o $(OBJDIR)/mkbuiltin $(SRCDIR_tools)/mkbuiltin.c
 
 $(OBJDIR)/mkversion:	$(SRCDIR_tools)/mkversion.c
+	-mkdir -p $(OBJDIR)
 	$(XBCC) -o $(OBJDIR)/mkversion $(SRCDIR_tools)/mkversion.c
 
 $(OBJDIR)/codecheck1:	$(SRCDIR_tools)/codecheck1.c
+	-mkdir -p $(OBJDIR)
 	$(XBCC) -o $(OBJDIR)/codecheck1 $(SRCDIR_tools)/codecheck1.c
 
 # Run the test suite.
@@ -619,7 +635,7 @@ $(OBJDIR)/codecheck1:	$(SRCDIR_tools)/codecheck1.c
 # TESTFLAGS can also include names of specific test files to limit
 # the run to just those test cases.
 #
-test:	$(OBJDIR) $(APPNAME)
+test:	$(APPNAME)
 	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME) $(TESTFLAGS)
 
 $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(OBJDIR)/mkversion $(OBJDIR)/phony.h
@@ -645,10 +661,13 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_MAX_EXPR_DEPTH=0 \
                  -DSQLITE_ENABLE_LOCKING_STYLE=0 \
                  -DSQLITE_DEFAULT_FILE_FORMAT=4 \
+                 -DSQLITE_ENABLE_DBSTAT_VTAB \
                  -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                  -DSQLITE_ENABLE_FTS4 \
-                 -DSQLITE_ENABLE_DBSTAT_VTAB \
                  -DSQLITE_ENABLE_FTS5 \
+                 -DSQLITE_ENABLE_MATH_FUNCTIONS \
+                 -DSQLITE_ENABLE_PERCENTILE \
+                 -DSQLITE_ENABLE_SETLK_TIMEOUT \
                  -DSQLITE_ENABLE_STMTVTAB \
                  -DSQLITE_HAVE_ZLIB \
                  -DSQLITE_ENABLE_DBPAGE_VTAB \
@@ -670,10 +689,13 @@ SHELL_OPTIONS = -DNDEBUG=1 \
                 -DSQLITE_MAX_EXPR_DEPTH=0 \
                 -DSQLITE_ENABLE_LOCKING_STYLE=0 \
                 -DSQLITE_DEFAULT_FILE_FORMAT=4 \
+                -DSQLITE_ENABLE_DBSTAT_VTAB \
                 -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                 -DSQLITE_ENABLE_FTS4 \
-                -DSQLITE_ENABLE_DBSTAT_VTAB \
                 -DSQLITE_ENABLE_FTS5 \
+                -DSQLITE_ENABLE_MATH_FUNCTIONS \
+                -DSQLITE_ENABLE_PERCENTILE \
+                -DSQLITE_ENABLE_SETLK_TIMEOUT \
                 -DSQLITE_ENABLE_STMTVTAB \
                 -DSQLITE_HAVE_ZLIB \
                 -DSQLITE_ENABLE_DBPAGE_VTAB \
@@ -684,7 +706,8 @@ SHELL_OPTIONS = -DNDEBUG=1 \
                 -DSQLITE_OMIT_LOAD_EXTENSION=1 \
                 -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE) \
                 -DSQLITE_SHELL_DBNAME_PROC=sqlcmd_get_dbname \
-                -DSQLITE_SHELL_INIT_PROC=sqlcmd_init_proc
+                -DSQLITE_SHELL_INIT_PROC=sqlcmd_init_proc \
+                -DSQLITE_PS_APPDEF=sqlcmd_ps_appdef
 
 # Setup the options used to compile the included Pikchr formatter.
 PIKCHR_OPTIONS = -DPIKCHR_TOKEN_LIMIT=10000
@@ -706,7 +729,7 @@ SQLITE3_OBJ   = $(SQLITE3_OBJ.$(SQLITE3_ORIGIN))
 # to 1. If it is set to 0, then there is no need to build or link
 # the linenoise.o object.
 LINENOISE_DEF.0 =
-LINENOISE_DEF.1 = -DHAVE_LINENOISE
+LINENOISE_DEF.1 = -DHAVE_LINENOISE=2
 LINENOISE_DEF.  = $(LINENOISE_DEF.0)
 LINENOISE_OBJ.0 =
 LINENOISE_OBJ.1 = $(OBJDIR)/linenoise.o
@@ -849,6 +872,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/manifest_.c:$(OBJDIR)/manifest.h \
 	$(OBJDIR)/markdown_.c:$(OBJDIR)/markdown.h \
 	$(OBJDIR)/markdown_html_.c:$(OBJDIR)/markdown_html.h \
+	$(OBJDIR)/match_.c:$(OBJDIR)/match.h \
 	$(OBJDIR)/md5_.c:$(OBJDIR)/md5.h \
 	$(OBJDIR)/merge_.c:$(OBJDIR)/merge.h \
 	$(OBJDIR)/merge3_.c:$(OBJDIR)/merge3.h \
@@ -868,6 +892,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/regexp_.c:$(OBJDIR)/regexp.h \
 	$(OBJDIR)/repolist_.c:$(OBJDIR)/repolist.h \
 	$(OBJDIR)/report_.c:$(OBJDIR)/report.h \
+	$(OBJDIR)/robot_.c:$(OBJDIR)/robot.h \
 	$(OBJDIR)/rss_.c:$(OBJDIR)/rss.h \
 	$(OBJDIR)/schema_.c:$(OBJDIR)/schema.h \
 	$(OBJDIR)/search_.c:$(OBJDIR)/search.h \
@@ -910,6 +935,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/winhttp_.c:$(OBJDIR)/winhttp.h \
 	$(OBJDIR)/xfer_.c:$(OBJDIR)/xfer.h \
 	$(OBJDIR)/xfersetup_.c:$(OBJDIR)/xfersetup.h \
+	$(OBJDIR)/xsystem_.c:$(OBJDIR)/xsystem.h \
 	$(OBJDIR)/zip_.c:$(OBJDIR)/zip.h \
 	$(SRCDIR_extsrc)/pikchr.c:$(OBJDIR)/pikchr.h \
 	$(SRCDIR_extsrc)/sqlite3.h \
@@ -1599,6 +1625,14 @@ $(OBJDIR)/markdown_html.o:	$(OBJDIR)/markdown_html_.c $(OBJDIR)/markdown_html.h 
 
 $(OBJDIR)/markdown_html.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/match_.c:	$(SRCDIR)/match.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/match.c >$@
+
+$(OBJDIR)/match.o:	$(OBJDIR)/match_.c $(OBJDIR)/match.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/match.o -c $(OBJDIR)/match_.c
+
+$(OBJDIR)/match.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/md5_.c:	$(SRCDIR)/md5.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/md5.c >$@
 
@@ -1750,6 +1784,14 @@ $(OBJDIR)/report.o:	$(OBJDIR)/report_.c $(OBJDIR)/report.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/report.o -c $(OBJDIR)/report_.c
 
 $(OBJDIR)/report.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/robot_.c:	$(SRCDIR)/robot.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/robot.c >$@
+
+$(OBJDIR)/robot.o:	$(OBJDIR)/robot_.c $(OBJDIR)/robot.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/robot.o -c $(OBJDIR)/robot_.c
+
+$(OBJDIR)/robot.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/rss_.c:	$(SRCDIR)/rss.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/rss.c >$@
@@ -2087,6 +2129,14 @@ $(OBJDIR)/xfersetup.o:	$(OBJDIR)/xfersetup_.c $(OBJDIR)/xfersetup.h $(SRCDIR)/co
 
 $(OBJDIR)/xfersetup.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/xsystem_.c:	$(SRCDIR)/xsystem.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/xsystem.c >$@
+
+$(OBJDIR)/xsystem.o:	$(OBJDIR)/xsystem_.c $(OBJDIR)/xsystem.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/xsystem.o -c $(OBJDIR)/xsystem_.c
+
+$(OBJDIR)/xsystem.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/zip_.c:	$(SRCDIR)/zip.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/zip.c >$@
 
@@ -2096,38 +2146,48 @@ $(OBJDIR)/zip.o:	$(OBJDIR)/zip_.c $(OBJDIR)/zip.h $(SRCDIR)/config.h
 $(OBJDIR)/zip.h:	$(OBJDIR)/headers
 
 $(SQLITE3_OBJ):	$(SQLITE3_SRC)
+	-mkdir -p $(OBJDIR)
 	$(XTCC) $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SEE_FLAGS) \
 		-c $(SQLITE3_SRC) -o $@
 $(OBJDIR)/shell.o:	$(SQLITE3_SHELL_SRC) $(SRCDIR_extsrc)/sqlite3.h
+	-mkdir -p $(OBJDIR)
 	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) $(SEE_FLAGS) $(LINENOISE_DEF.$(USE_LINENOISE)) -c $(SQLITE3_SHELL_SRC) -o $@
 
 $(OBJDIR)/linenoise.o:	$(SRCDIR_extsrc)/linenoise.c $(SRCDIR_extsrc)/linenoise.h
+	-mkdir -p $(OBJDIR)
 	$(XTCC) -c $(SRCDIR_extsrc)/linenoise.c -o $@
 
 $(OBJDIR)/th.o:	$(SRCDIR)/th.c
+	-mkdir -p $(OBJDIR)
+
 	$(XTCC) -c $(SRCDIR)/th.c -o $@
 
 $(OBJDIR)/th_lang.o:	$(SRCDIR)/th_lang.c
+	-mkdir -p $(OBJDIR)
+
 	$(XTCC) -c $(SRCDIR)/th_lang.c -o $@
 
 $(OBJDIR)/th_tcl.o:	$(SRCDIR)/th_tcl.c
+	-mkdir -p $(OBJDIR)
+
 	$(XTCC) -c $(SRCDIR)/th_tcl.c -o $@
 
 
-$(OBJDIR)/pikchr.o:	$(SRCDIR_extsrc)/pikchr.c
+$(OBJDIR)/pikchr.o:	$(SRCDIR_extsrc)/pikchr.c $(OBJDIR)/mkversion
 	$(XTCC) $(PIKCHR_OPTIONS) -c $(SRCDIR_extsrc)/pikchr.c -o $@
 
-$(OBJDIR)/cson_amalgamation.o: $(SRCDIR_extsrc)/cson_amalgamation.c
+$(OBJDIR)/cson_amalgamation.o: $(SRCDIR_extsrc)/cson_amalgamation.c $(OBJDIR)/mkversion
 	$(XTCC) -c $(SRCDIR_extsrc)/cson_amalgamation.c -o $@
 
-$(SRCDIR_extsrc)/pikchr.js: $(SRCDIR_extsrc)/pikchr.c
+$(SRCDIR_extsrc)/pikchr.js: $(SRCDIR_extsrc)/pikchr.c $(MAKEFILE_LIST)
 	$(EMCC_WRAPPER) -o $@ $(EMCC_OPT) --no-entry \
-        -sEXPORTED_RUNTIME_METHODS=cwrap,setValue,getValue,stackSave,stackRestore \
-        -sEXPORTED_FUNCTIONS=_pikchr $(SRCDIR_extsrc)/pikchr.c \
+        -sEXPORTED_RUNTIME_METHODS=cwrap,ccall,setValue,getValue,stackSave,stackAlloc,stackRestore \
+        -sEXPORTED_FUNCTIONS=_pikchr,_pikchr_version $(SRCDIR_extsrc)/pikchr.c \
         -sENVIRONMENT=web \
         -sMODULARIZE \
         -sEXPORT_NAME=initPikchrModule \
         --minify 0
+	$(TCLSH) $(TOPDIR)/tools/randomize-js-names.tcl $(SRCDIR_extsrc)
 	@chmod -x $(SRCDIR_extsrc)/pikchr.wasm
 wasm: $(SRCDIR_extsrc)/pikchr.js
 

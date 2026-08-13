@@ -23,12 +23,6 @@
 
 #ifdef _WIN32
 #include <io.h>
-#ifndef isatty
-#define isatty(d) _isatty(d)
-#endif
-#ifndef fileno
-#define fileno(s) _fileno(s)
-#endif
 #endif
 
 #if INTERFACE
@@ -66,6 +60,7 @@ struct UrlData {
   char *canonical;      /* Canonical representation of the URL */
   char *proxyAuth;      /* Proxy-Authorizer: string */
   char *fossil;         /* The fossil query parameter on ssh: */
+  char *subpath;        /* Secondary HTTP request path for ssh: and file: */
   char *pwConfig;       /* CONFIG table entry that gave us the password */
   unsigned flags;       /* Boolean flags controlling URL processing */
   int useProxy;         /* Used to remember that a proxy is in use */
@@ -235,13 +230,13 @@ void url_parse_local(
       pUrlData->hostname = pUrlData->name;
     }
     dehttpize(pUrlData->name);
-    pUrlData->path = mprintf("%s", &zUrl[i]);
+    pUrlData->path = fossil_strdup(&zUrl[i]);
     for(i=0; pUrlData->path[i] && pUrlData->path[i]!='?'; i++){}
     if( pUrlData->path[i] ){
       pUrlData->path[i] = 0;
       i++;
     }
-    zExe = mprintf("");
+    zExe = fossil_strdup("");
     while( pUrlData->path[i]!=0 ){
       char *zName, *zValue;
       zName = &pUrlData->path[i];
@@ -283,7 +278,7 @@ void url_parse_local(
     }
     if( pUrlData->isSsh && pUrlData->path[1] ){
       char *zOld = pUrlData->path;
-      pUrlData->path = mprintf("%s", zOld+1);
+      pUrlData->path = fossil_strdup(zOld+1);
       fossil_free(zOld);
     }
     free(zLogin);
@@ -294,10 +289,10 @@ void url_parse_local(
     }else{
       i = 5;
     }
-    zFile = mprintf("%s", &zUrl[i]);
+    zFile = fossil_strdup(&zUrl[i]);
   }else if( file_isfile(zUrl, ExtFILE) ){
     pUrlData->isFile = 1;
-    zFile = mprintf("%s", zUrl);
+    zFile = fossil_strdup(zUrl);
   }else if( file_isdir(zUrl, ExtFILE)==1 ){
     zFile = mprintf("%s/FOSSIL", zUrl);
     if( file_isfile(zFile, ExtFILE) ){
@@ -326,7 +321,8 @@ void url_parse_local(
          && (urlFlags & URL_PROMPT_PW)!=0 ){
     url_prompt_for_password_local(pUrlData);
   }else if( pUrlData->user!=0 && ( urlFlags & URL_ASK_REMEMBER_PW ) ){
-    if( isatty(fileno(stdin)) && ( urlFlags & URL_REMEMBER_PW )==0 ){
+    if( fossil_isatty(fossil_fileno(stdin))
+        && ( urlFlags & URL_REMEMBER_PW )==0 ){
       if( save_password_prompt(pUrlData->passwd) ){
         pUrlData->flags = urlFlags |= URL_REMEMBER_PW;
       }else{
@@ -413,6 +409,7 @@ void url_unparse(UrlData *p){
   fossil_free(p->user);
   fossil_free(p->passwd);
   fossil_free(p->fossil);
+  fossil_free(p->subpath);
   fossil_free(p->pwConfig);
   memset(p, 0, sizeof(*p));
 }
@@ -490,6 +487,7 @@ void urlparse_print(int showPw){
   fossil_print("g.url.pwConfig  = %s\n", g.url.pwConfig);
   fossil_print("g.url.canonical = %s\n", g.url.canonical);
   fossil_print("g.url.fossil    = %s\n", g.url.fossil);
+  fossil_print("g.url.subpath   = %s\n", g.url.subpath);
   fossil_print("g.url.flags     = 0x%04x\n", g.url.flags);
   fossil_print("url_full(g.url) = %z\n", url_full(&g.url));
 }
@@ -552,6 +550,8 @@ static const char *zProxyOpt = 0;
 **
 **    --ipv4               Disallow IPv6.  Use only IPv4.
 **
+**    --ipv6               Disallow IPv4.  Use only IPv6.
+**
 **    --accept-any-cert    Disable server SSL cert validation. Accept
 **                         any SSL cert that the server provides.
 **                         WARNING: this option opens you up to
@@ -560,7 +560,8 @@ static const char *zProxyOpt = 0;
 void url_proxy_options(void){
   zProxyOpt = find_option("proxy", 0, 1);
   if( find_option("nosync",0,0) ) g.fNoSync = 1;
-  if( find_option("ipv4",0,0) ) g.fIPv4 = 1;
+  if( find_option("ipv4",0,0) ) g.eIPvers = 1;
+  if( find_option("ipv6",0,0) ) g.eIPvers = 2;
 #ifdef FOSSIL_ENABLE_SSL
   if( find_option("accept-any-cert",0,0) ){
     ssl_disable_cert_verification();
@@ -737,7 +738,7 @@ char *url_render(
 */
 void url_prompt_for_password_local(UrlData *pUrlData){
   if( pUrlData->isSsh || pUrlData->isFile ) return;
-  if( isatty(fileno(stdin))
+  if( fossil_isatty(fossil_fileno(stdin))
    && (pUrlData->flags & URL_PROMPT_PW)!=0
    && (pUrlData->flags & URL_PROMPTED)==0
   ){
@@ -798,7 +799,7 @@ void url_remember(void){
 void url_get_password_if_needed(void){
   if( (g.url.user && g.url.user[0])
    && (g.url.passwd==0 || g.url.passwd[0]==0)
-   && isatty(fileno(stdin))
+   && fossil_isatty(fossil_fileno(stdin))
   ){
     url_prompt_for_password();
   }

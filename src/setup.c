@@ -40,22 +40,22 @@ void setup_incr_cfgcnt(void){
 
 /*
 ** Output a single entry for a menu generated using an HTML table.
-** If zLink is not NULL or an empty string, then it is the page that
+** If zLink is neither NULL nor an empty string, then it is the page that
 ** the menu entry will hyperlink to.  If zLink is NULL or "", then
 ** the menu entry has no hyperlink - it is disabled.
 */
 void setup_menu_entry(
   const char *zTitle,
   const char *zLink,
-  const char *zDesc
+  const char *zDesc  /* Caution!  Rendered using %s.  May contain raw HTML. */
 ){
   @ <tr><td valign="top" align="right">
   if( zLink && zLink[0] ){
     @ <a href="%s(zLink)"><nobr>%h(zTitle)</nobr></a>
   }else{
-    @ %h(zTitle)
+    @ <nobr>%h(zTitle)</nobr>
   }
-  @ </td><td width="5"></td><td valign="top">%h(zDesc)</td></tr>
+  @ </td><td width="5"></td><td valign="top">%s(zDesc)</td></tr>
 }
 
 
@@ -120,6 +120,8 @@ void setup_page(void){
   }
   setup_menu_entry("Timeline", "setup_timeline",
     "Timeline display preferences");
+  setup_menu_entry("Tarballs and ZIPs", "setup_download",
+    "Preferences for auto-generated tarballs and ZIP files");
   if( setup_user ){
     setup_menu_entry("Login-Group", "setup_login_group",
       "Manage single sign-on between this repository and others"
@@ -142,8 +144,10 @@ void setup_page(void){
   if( setup_user ){
     setup_menu_entry("Notification", "setup_notification",
       "Automatic notifications of changes via outbound email");
+#if 0  /* Disabled for now.  Does this even work? */
     setup_menu_entry("Transfers", "xfersetup",
       "Configure the transfer system for this repository");
+#endif
   }
   setup_menu_entry("Skins", "setup_skin_admin",
     "Select and/or modify the web interface \"skins\"");
@@ -185,13 +189,14 @@ void setup_page(void){
 /*
 ** WEBPAGE: setup-logmenu
 **
-** Show a menu of available log renderings accessible to an administrator, 
+** Show a menu of available log renderings accessible to an administrator,
 ** together with a succinct explanation of each.
 **
 ** This page is only accessible by administrators.
 */
 void setup_logmenu_page(void){
   Blob desc;
+  int bErrLog;                 /* True if Error Log enabled */
   blob_init(&desc, 0, 0);
 
   /* Administrator access only */
@@ -202,50 +207,68 @@ void setup_logmenu_page(void){
   }
   style_header("Log Menu");
   @ <table border="0" cellspacing="3">
-  setup_menu_entry("Admin Log", "admin_log",
-    "The admin log records configuration changes to the repository.\n"
-    "The admin log is stored in the \"admin_log\" table of the repository.\n"
+
+  if( db_get_boolean("admin-log",1)==0 ){
+    blob_appendf(&desc,
+      "The admin log records configuration changes to the repository.\n"
+      "<b>Disabled</b>:  Turn on the "
+      " <a href='%R/setup_settings'>admin-log setting</a> to enable."
+    );
+    setup_menu_entry("Admin Log", 0, blob_str(&desc));
+    blob_reset(&desc);
+  }else{
+    setup_menu_entry("Admin Log", "admin_log",
+      "The admin log records configuration changes to the repository\n"
+      "in the \"admin_log\" table.\n"
+    );
+  }
+  setup_menu_entry("Xfer Log", "rcvfromlist",
+    "The artifact log records when new content is added in the\n"
+    "\"rcvfrom\" table.\n"
   );
-  setup_menu_entry("Artifact Log", "rcvfromlist",
-    "The artifact log records when new content is added to the repository.\n"
-    "The time and date and origin of the new content is entered into the\n"
-    "Log.  The artifact log is always on and is stored in the \"rcvfrom\"\n"
-    "table of the repository.\n"
-  );
+  if( db_get_boolean("access-log",1) ){
+    setup_menu_entry("User Log", "user_log",
+      "Login attempts recorded in the \"accesslog\" table."
+    );
+  }else{
+    blob_appendf(&desc,
+      "Login attempts recorded in the \"accesslog\" table.\n"
+      "<b>Disabled</b>:  Turn on the "
+      "<a href='%R/setup_settings'>access-log setting</a> to enable."
+    );
+    setup_menu_entry("User Log", 0, blob_str(&desc));
+    blob_reset(&desc);
+  }
 
   blob_appendf(&desc,
-    "The error log is a separate text file to which warning and error\n"
+    "A separate text file to which warning and error\n"
     "messages are appended.  A single error log can and often is shared\n"
     "across multiple repositories.\n"
   );
   if( g.zErrlog==0 || fossil_strcmp(g.zErrlog,"-")==0 ){
-    blob_appendf(&desc,"The error log is disabled for this repository.");
+    blob_appendf(&desc,"<b>Disabled</b>: "
+                       "To enable the error log ");
+    if( fossil_strcmp(g.zCmdName, "cgi")==0 ){
+      blob_appendf(&desc,
+        "make an entry like \"errorlog: <i>FILENAME</i>\""
+        " in the CGI script at %h",
+        P("SCRIPT_FILENAME")
+      );
+    }else{
+      blob_appendf(&desc,
+        " add the \"--errorlog <i>FILENAME</i>\" option to the\n"
+        "\"%h %h\" command that launched the server.",
+        g.argv[0], g.zCmdName
+      );
+    }
+    bErrLog = 0;
   }else{
-    blob_appendf(&desc,"In this repository, the error log is in the file"
+    blob_appendf(&desc,"In this repository, the error log is the file "
        "named \"%s\".", g.zErrlog);
+    bErrLog = 1;
   }
-  setup_menu_entry("Error Log", "errorlog", blob_str(&desc));
+  setup_menu_entry("Error Log", bErrLog ? "errorlog" : 0, blob_str(&desc));
   blob_reset(&desc);
-
-  setup_menu_entry("Panic Log", "paniclog",
-    "The panic log is a filtering of the Error Log that shows only the\n"
-    "most important messages - assertion faults, segmentation faults, and\n"
-    "similar malfunctions."
-  );
-
-  setup_menu_entry("User Log", "user_log",
-    "The user log is a record of login attempts.  The user log is stored\n"
-    "in the \"accesslog\" table of the respository.\n"
-  );
-
-  setup_menu_entry("Hack Log", "hacklog",
-    "All 418 hack attempts"
-  );
-
-  setup_menu_entry("Non-Hack Log", "hacklog?not",
-    "All log messages that are not hack attempts"
-  );
-
 
   @ </table>
   style_finish_page();
@@ -397,59 +420,43 @@ void multiple_choice_attribute(
 static void addAutoHyperlinkSettings(void){
   static const char *const azDefenseOpts[] = {
     "0", "Off",
-    "2", "UserAgent only",
-    "1", "UserAgent and Javascript",
+    "2", "HTTP Header Only",
+    "1", "HTTP Header And Javascript",
   };
   multiple_choice_attribute(
-     "Enable hyperlinks base on User-Agent and/or Javascript",
+     "Enable hyperlinks base on HTTP Header and/or Javascript",
      "auto-hyperlink", "autohyperlink", "1",
      count(azDefenseOpts)/2, azDefenseOpts);
-  @ <p>Enable hyperlinks (the equivalent of the "h" permission) for all users,
-  @ including user "nobody", as long as the User-Agent string in the
-  @ HTTP header indicates that the request is coming from an actual human
-  @ being.  If this setting is "UserAgent only" (2) then the
-  @ UserAgent string is the only factor considered.  If the value of this
-  @ setting is "UserAgent And Javascript" (1) then Javascript is added that
-  @ runs after the page loads and fills in the href= values of &lt;a&gt;
-  @ elements.  In either case, &lt;a&gt; tags are only generated if the
-  @ UserAgent string indicates that the request is coming from a human and
-  @ not a robot.
-  @
-  @ <p>This setting is designed to give easy access to humans while
-  @ keeping out robots.
-  @ You do not normally want a robot to walk your entire repository because
-  @ if it does, your server will end up computing diffs and annotations for
-  @ every historical version of every file and creating ZIPs and tarballs of
-  @ every historical check-in, which can use a lot of CPU and bandwidth
-  @ even for relatively small projects.</p>
-  @
-  @ <p>The "UserAgent and Javascript" value for this setting provides
-  @ superior protection from robots.  However, that setting also prevents
-  @ the visited/unvisited colors on hyperlinks from displaying correctly
-  @ on Safari-derived browsers.  (Chrome and Firefox work fine.)  Since
-  @ Safari is the underlying rendering engine on all iPhones and iPads,
-  @ this means that hyperlink visited/unvisited colors will not operate
-  @ on those platforms when "UserAgent and Javascript" is selected.</p>
-  @
-  @ <p>Additional parameters that control the behavior of Javascript:</p>
-  @ <blockquote>
+  @ <br>
   entry_attribute("Delay in milliseconds before enabling hyperlinks", 5,
                   "auto-hyperlink-delay", "ah-delay", "50", 0);
   @ <br>
   onoff_attribute("Also require a mouse event before enabling hyperlinks",
                   "auto-hyperlink-mouseover", "ahmo", 0, 0);
-  @ </blockquote>
+  @ <p>Enable hyperlinks (the equivalent of the "h" permission) for all users,
+  @ including user "nobody" if the request appears to be from a human.
+  @ Disabling hyperlinks helps prevent robots from walking your site and
+  @ soaking up all your CPU and bandwidth.
+  @ If this setting is "HTTP Header Only" (2) then only the HTTP header
+  @ content (including the UserAgent string and the fossil-client-ok cookie)
+  @ is considered when enabling hyperlinks.  If the value of this
+  @ setting is "HTTP Header And Javascript" (1) then Javascript is added that
+  @ runs after the page loads and fills in the href= values of &lt;a&gt;
+  @ elements.  In either case, &lt;a&gt; tags are not generated unless the
+  @ UserAgent string and/or the fossil-client-ok cookie indicate that the
+  @ client is likely human.
+  @ (Property: "auto-hyperlink")</p>
+  @
   @ <p>For maximum robot defense, "Delay" should be at least 50 milliseconds
   @ and "require a mouse event" should be turned on.  These values only come
   @ into play when the main auto-hyperlink settings is 2 ("UserAgent and
-  @ Javascript").</p>
+  @ Javascript").
+  @ (Properties: "auto-hyperlink-delay" and "auto-hyperlink-mouseover")</p>
   @
   @ <p>To see if Javascript-base hyperlink enabling mechanism is working,
-  @ visit the <a href="%R/test_env">/test_env</a> page (from a separate
-  @ web browser that is not logged in, even as "anonymous") and verify
+  @ visit the <a href="%R/test-env">/test-env</a> page from a separate
+  @ web browser that is not logged in, even as "anonymous" and verify
   @ that the "g.jsHref" value is "1".</p>
-  @ <p>(Properties: "auto-hyperlink", "auto-hyperlink-delay", and
-  @ "auto-hyperlink-mouseover"")</p>
 }
 
 /*
@@ -471,14 +478,75 @@ void setup_robots(void){
   @ might be expensive to compute. A robot that tries to walk the entire
   @ website can present a crippling CPU and bandwidth load.
   @
-  @ <p>The settings on this page are intended to help site administrators
-  @ defend the site against robots.
+  @ <p>The settings on this page are intended to help administrators
+  @ defend against abusive robots.
   @
   @ <form action="%R/setup_robot" method="post"><div>
   login_insert_csrf_secret();
   @ <input type="submit"  name="submit" value="Apply Changes"></p>
   @ <hr>
+  @ <p><b>Do not allow robots access to these pages.</b><br>
+  @ If the page name matches the GLOB pattern of this setting, and the
+  @ users is "nobody", and the client has not previously passed a captcha
+  @ test to show that it is not a robot, then the page is not displayed.
+  @ A captcha test is rendered instead.
+  @ The default value for this setting is:
+  @ <p>
+  @ &emsp;&emsp;&emsp;<tt>%h(robot_restrict_default())</tt>
+  @ <p>
+  @ Usually the tag should exactly match the page name. Exceptions:
+  @ <ul>
+  @ <li>  The "diff" tag covers all diffing pages such as /vdiff,
+  @       /fdiff, and /vpatch.
+  @ <li>  The "annotate" tag covers /annotate and also /blame and
+  @       /praise.
+  @ <li>  The "zip" covers itself and also /tarball and /sqlar.
+  @ <li>  If a tag has an "X" character appended (ex: "timelineX")
+  @       then it only applies if query parameters are such that
+  @       the page is expensive and/or unusual.
+  @ <li>  The "ext" tag covers all extensions, but a tag like
+  @       "ext/PATH" only covers the specific extension at PATH.
+  @ </ul>
+  @ Make this setting "off" to disable all robot restrictions, or "*"
+  @ to exclude robots from all pages other than "/login" and "/xfer".
+  @ (Property: <a href="%R/help/robot-restrict">robot-restrict</a>)
+  @ <br>
+  textarea_attribute("", 2, 80,
+      "robot-restrict", "rbrestrict", robot_restrict_default(), 0);
+
+  @ <p><b>Exception #1</b><br>
+  @ If "zipX" appears in the robot-restrict list above, then tarballs,
+  @ ZIP-archives, and SQL-archives may be downloaded by robots if
+  @ the check-in is a leaf (robot-zip-leaf):<br>
+  onoff_attribute("Allow tarballs for leaf check-ins",
+        "robot-zip-leaf", "rzleaf", 0, 0);
+
+  @ <p><b>Exception #2</b><br>
+  @ If "zipX" appears in the robot-restrict list above, then tarballs,
+  @ ZIP-archives, and SQL-archives may be downloaded by robots if
+  @ the check-in has one or more tags that match the following
+  @ list of GLOB patterns:  (robot-zip-tag)<br>
+  textarea_attribute("", 2, 80,
+      "robot-zip-tag", "rztag", "", 0);
+
+  @ <p><b>Exception #3</b><br>
+  @ If the request URI matches any of the following
+  @ <a href="%R/re_rules">regular expressions</a> (one per line), then the
+  @ request is exempt from anti-robot defenses.
+  @ The regular expression is matched against the REQUEST_URI with the
+  @ SCRIPT_NAME prefix removed, and with QUERY_STRING appended following
+  @ a "?" if QUERY_STRING exists.  (Property: robot-exception)<br>
+  textarea_attribute("", 3, 80,
+      "robot-exception", "rbexcept", "", 0);
+  @ <hr>
   addAutoHyperlinkSettings();
+
+  @ <hr>
+  entry_attribute("Anonymous Login Validity", 11, "anon-cookie-lifespan",
+                  "anoncookls", "840", 0);
+  @ <p>The number of minutes for which an anonymous login cookie is valid.
+  @ Set to zero to disable anonymous login.
+  @ (property: anon-cookie-lifespan)
 
   @ <hr>
   entry_attribute("Server Load Average Limit", 11, "max-loadavg", "mxldavg",
@@ -491,7 +559,7 @@ void setup_robots(void){
   @ access to the /proc virtual filesystem is required, which means this limit
   @ might not work inside a chroot() jail.
   @ (Property: "max-loadavg")</p>
-
+  @
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </div></form>
@@ -561,7 +629,7 @@ void setup_access(void){
   @ (Property: "localauth")
   @
   @ <hr>
-  onoff_attribute("Enable /test_env",
+  onoff_attribute("Enable /test-env",
      "test_env_enable", "test_env_enable", 0, 0);
   @ <p>When enabled, the %h(g.zBaseURL)/test_env URL is available to all
   @ users.  When disabled (the default) only users Admin and Setup can visit
@@ -732,6 +800,13 @@ void setup_access(void){
   @ anonymous users.  (Property: "auto-captcha")</p>
 
   @ <hr>
+  entry_attribute("Anonymous Login Validity", 11, "anon-cookie-lifespan",
+                  "anoncookls", "840", 0);
+  @ <p>The number of minutes for which an anonymous login cookie is valid.
+  @ Set to zero to disable anonymous logins.
+  @ (property: anon-cookie-lifespan)
+
+  @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </div></form>
   db_end_transaction(0);
@@ -747,6 +822,7 @@ void setup_access(void){
 void setup_login_group(void){
   const char *zGroup;
   char *zErrMsg = 0;
+  Stmt q;
   Blob fullName;
   char *zSelfRepo;
   const char *zRepo = PD("repo", "");
@@ -766,6 +842,8 @@ void setup_login_group(void){
     login_group_join(zRepo, 1, zLogin, zPw, zNewName, &zErrMsg);
   }else if( P("leave") ){
     login_group_leave(&zErrMsg);
+  }else if( P("rotate") ){
+    captcha_secret_rotate();
   }
   style_set_current_feature("setup");
   style_header("Login Group Configuration");
@@ -808,7 +886,6 @@ void setup_login_group(void){
     @ <input type="submit" value="Join" name="join"></td></tr>
     @ </table></blockquote></div></form>
   }else{
-    Stmt q;
     int n = 0;
     @ <p>This repository (in the file "%h(zSelfRepo)")
     @ is currently part of the "<b>%h(zGroup)</b>" login group.
@@ -836,31 +913,74 @@ void setup_login_group(void){
     @
     @ <p><form action="%R/setup_login_group" method="post"><div>
     login_insert_csrf_secret();
-    @ To leave this login group press
+    @ <p>To leave this login group press:
     @ <input type="submit" value="Leave Login Group" name="leave">
+    @ <p>Setting a common captcha-secret on all repositories in the login-group
+    @ allows anonymous logins for one repository in the login group to be used
+    @ by all other repositories of the group within the same domain.  Warning:
+    @ If a captcha dialog was painted before setting the common captcha-secret
+    @ and the "Speak password for 'anonymous'" button is pressed afterwards,
+    @ the spoken text will be incorrect.
+    @ <input type="submit" name="rotate" value="Set common captcha-secret">
     @ </form></p>
-    @ <hr><h2>Implementation Details</h2>
-    @ <p>The following are fields from the CONFIG table related to login-groups,
-    @ provided here for instructional and debugging purposes:</p>
-    @ <table border='1' class='sortable' data-column-types='ttt' \
-    @ data-init-sort='1'>
-    @ <thead><tr>
-    @ <th>Config.Name<th>Config.Value<th>Config.mtime</tr>
-    @ </thead><tbody>
-    db_prepare(&q, "SELECT name, value, datetime(mtime,'unixepoch') FROM config"
-                   " WHERE name GLOB 'peer-*'"
-                   "    OR name GLOB 'project-*'"
-                   "    OR name GLOB 'login-group-*'"
-                   " ORDER BY name");
-    while( db_step(&q)==SQLITE_ROW ){
-      @ <tr><td>%h(db_column_text(&q,0))</td>
-      @ <td>%h(db_column_text(&q,1))</td>
-      @ <td>%h(db_column_text(&q,2))</td></tr>
-    }
-    db_finalize(&q);
-    @ </tbody></table>
-    style_table_sorter();
   }
+  @ <hr><h2>Implementation Details</h2>
+  @ <p>The following are fields from the CONFIG table related to login-groups.
+  @ </p>
+  @ <table border='1' cellspacing="0" cellpadding="4"\
+  @ class='sortable' data-column-types='ttt' data-init-sort='1'>
+  @ <thead><tr>
+  @ <th>Config.Name<th>Config.Value<th>Config.mtime</tr>
+  @ </thead><tbody>
+  db_prepare(&q, "SELECT name, value, datetime(mtime,'unixepoch') FROM config"
+                 " WHERE name GLOB 'peer-*'"
+                 "    OR name GLOB 'project-*'"
+                 "    OR name GLOB 'login-group-*'"
+                 " ORDER BY name");
+  while( db_step(&q)==SQLITE_ROW ){
+    @ <tr><td>%h(db_column_text(&q,0))</td>
+    @ <td>%h(db_column_text(&q,1))</td>
+    @ <td>%h(db_column_text(&q,2))</td></tr>
+  }
+  db_finalize(&q);
+  @ </tbody></table>
+  @ <h2>Interpretation</h2>
+  @ <ul>
+  @ <li><p><b>login-group-code</b> &rarr;
+  @ A random code assigned to each login-group.  The login-group-code is
+  @ a unique identifier for the login-group.
+  @
+  @ <li><p><b>login-group-name</b> &rarr;
+  @ The human-readable name of the login-group.
+  @
+  @ <li><p><b>project-code</b> &rarr;
+  @ A random code assigned to each project.  The project-code is
+  @ a unique identifier for the project.  Multiple repositories can share
+  @ the same project-code.  When two or more repositories have the same
+  @ project code, that mean those repositories are clones of each other.
+  @ Repositories are only able to sync if they share the same project-code.
+  @
+  @ <li><p><b>project-description</b> &rarr;
+  @ A description of project in this repository.  This is a verbose form
+  @ of project-name.  This description can be edited in the second entry
+  @ box on the <a href="./setup_config">Setup/Configuration page</a>.
+  @
+  @ <li><p><b>project-name</b> &rarr;
+  @ The human-readable name for the project.  The project-name can be
+  @ modified in the first entry on the
+  @ <a href="./setup_config">Setup/Configuration page</a>.
+  @
+  @ <li><p><b>peer-repo-<i>CODE</i></b> &rarr;
+  @ <i>CODE</i> is 16-character prefix of the project-code for another
+  @ repository that is part of the same login-group.  The value is the
+  @ filename for the peer repository.
+  @
+  @ <li><p><b>peer-name-<i>CODE</i></b> &rarr;
+  @ <i>CODE</i> is 16-character prefix of the project-code for another
+  @ repository that is part of the same login-group.  The value is
+  @ project-name value for the other repository.
+  @ </ul>
+  style_table_sorter();
   style_finish_page();
 }
 
@@ -880,6 +1000,11 @@ void setup_timeline(void){
       "3", "YYMMDD HH:MM",
       "4", "(off)"
   };
+  static const char *const azLeafMark[] = {
+      "0", "No",
+      "1", "Yes",
+      "2", "Yes - with emphasis",
+  };
   login_check_credentials();
   if( !g.perm.Admin ){
     login_needed(0);
@@ -892,13 +1017,6 @@ void setup_timeline(void){
   @ <form action="%R/setup_timeline" method="post"><div>
   login_insert_csrf_secret();
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
-
-  @ <hr>
-  onoff_attribute("Allow block-markup in timeline",
-                  "timeline-block-markup", "tbm", 0, 0);
-  @ <p>In timeline displays, check-in comments can be displayed with or
-  @ without block markup such as paragraphs, tables, etc.
-  @ (Property: "timeline-block-markup")</p>
 
   @ <hr>
   onoff_attribute("Plaintext comments on timelines",
@@ -921,6 +1039,16 @@ void setup_timeline(void){
   @ <p>In timeline displays, newline characters in check-in comments force
   @ a line break on the display.
   @ (Property: "timeline-hard-newlines")</p>
+
+  @ <hr>
+  onoff_attribute("Do not adjust user-selected background colors",
+                  "raw-bgcolor", "rbgc", 0, 0);
+  @ <p>Fossil normally attempts to adjust the saturation and intensity of
+  @ user-specified background colors on check-ins and branches so that the
+  @ foreground text is easily readable on all skins.  Enable this setting
+  @ to omit that adjustment and use exactly the background color specified
+  @ by users.
+  @ (Property: "raw-bgcolor")</p>
 
   @ <hr>
   onoff_attribute("Use Universal Coordinated Time (UTC)",
@@ -964,6 +1092,12 @@ void setup_timeline(void){
   @ changes.  With the "YYYY-MM-DD&nbsp;HH:MM" and "YYMMDD ..." formats,
   @ the complete date and time is shown on every timeline entry using the
   @ CSS class "timelineTime". (Property: "timeline-date-format")</p>
+
+  @ <hr>
+  multiple_choice_attribute("Leaf Markings", "timeline-mark-leaves",
+            "tml", "1", count(azLeafMark)/2, azLeafMark);
+  @ <p>Should timeline entries for leaf check-ins be identified in the
+  @ detail section.  (Property: "timeline-mark-leaves")</p>
 
   @ <hr>
   entry_attribute("Max timeline comment length", 6,
@@ -1021,6 +1155,7 @@ void setup_settings(void){
   int nSetting;
   int i;
   Setting const *pSet;
+  int bIfChng = P("all")==0;
   const Setting *aSetting = setting_info(&nSetting);
 
   login_check_credentials();
@@ -1037,6 +1172,10 @@ void setup_settings(void){
     db_open_local(0);
   }
   db_begin_transaction();
+  if( bIfChng ){
+    @ <p>Only settings whose value is different from the default are shown.
+    @ Click the "All" button above to set all settings.
+  }
   @ <p>Settings marked with (v) are "versionable" and will be overridden
   @ by the contents of managed files named
   @ "<tt>.fossil-settings/</tt><i>SETTING-NAME</i>".
@@ -1044,16 +1183,25 @@ void setup_settings(void){
   @ changed on this screen.</p><hr><p>
   @
   @ <form action="%R/setup_settings" method="post"><div>
+  if( bIfChng ){
+    style_submenu_element("All", "%R/setup_settings?all");
+  }else{
+    @ <input type="hidden" name="all" value="1">
+    style_submenu_element("Changes-Only", "%R/setup_settings");
+  }
   @ <table border="0"><tr><td valign="top">
   login_insert_csrf_secret();
   for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
     if( pSet->width==0 ){
       int hasVersionableValue = pSet->versionable &&
-          (db_get_versioned(pSet->name, NULL)!=0);
+          (db_get_versioned(pSet->name, NULL, NULL)!=0);
+      if( bIfChng && setting_has_default_value(pSet, db_get(pSet->name,0)) ){
+        continue;
+      }
       onoff_attribute("", pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name /*works-like:"x"*/,
                       is_truth(pSet->def), hasVersionableValue);
-      @ <a href='%R/help?cmd=%s(pSet->name)'>%h(pSet->name)</a>
+      @ <a href='%R/help/%s(pSet->name)'>%h(pSet->name)</a>
       if( pSet->versionable ){
         @  (v)<br>
       } else {
@@ -1067,9 +1215,12 @@ void setup_settings(void){
   for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
     if( pSet->width>0 && !pSet->forceTextArea ){
       int hasVersionableValue = pSet->versionable &&
-          (db_get_versioned(pSet->name, NULL)!=0);
+          (db_get_versioned(pSet->name, NULL, NULL)!=0);
+      if( bIfChng && setting_has_default_value(pSet, db_get(pSet->name,0)) ){
+        continue;
+      }
       @ <tr><td>
-      @ <a href='%R/help?cmd=%s(pSet->name)'>%h(pSet->name)</a>
+      @ <a href='%R/help/%s(pSet->name)'>%h(pSet->name)</a>
       if( pSet->versionable ){
         @  (v)
       } else {
@@ -1086,8 +1237,11 @@ void setup_settings(void){
   @ </td><td style="width:50px;"></td><td valign="top">
   for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
     if( pSet->width>0 && pSet->forceTextArea ){
-      int hasVersionableValue = db_get_versioned(pSet->name, NULL)!=0;
-      @ <a href='%R/help?cmd=%s(pSet->name)'>%s(pSet->name)</a>
+      int hasVersionableValue = db_get_versioned(pSet->name, NULL, NULL)!=0;
+      if( bIfChng && setting_has_default_value(pSet, db_get(pSet->name,0)) ){
+        continue;
+      }
+      @ <a href='%R/help/%s(pSet->name)'>%s(pSet->name)</a>
       if( pSet->versionable ){
         @  (v)<br>
       } else {
@@ -1185,7 +1339,7 @@ void setup_config(void){
   textarea_attribute("Project Description", 3, 80,
                      "project-description", "pd", "", 0);
   @ <p>Describe your project. This will be used in page headers for search
-  @ engines as well as a short RSS description.
+  @ engines, the repository listing and a short RSS description.
   @ (Property: "project-description")</p>
   @ <hr>
   entry_attribute("Canonical Server URL", 40, "email-url",
@@ -1198,24 +1352,6 @@ void setup_config(void){
   @ be sending email alerts, then leave this entry blank.
   @ Suggested value: "%h(g.zBaseURL)"
   @ (Property: "email-url")</p>
-  @ <hr>
-  entry_attribute("Tarball and ZIP-archive Prefix", 20, "short-project-name",
-                  "spn", "", 0);
-  @ <p>This is used as a prefix on the names of generated tarballs and
-  @ ZIP archive. For best results, keep this prefix brief and avoid special
-  @ characters such as "/" and "\".
-  @ If no tarball prefix is specified, then the full Project Name above is used.
-  @ (Property: "short-project-name")
-  @ </p>
-  @ <hr>
-  entry_attribute("Download Tag", 20, "download-tag", "dlt", "trunk", 0);
-  @ <p>The <a href='%R/download'>/download</a> page is designed to provide
-  @ a convenient place for newbies
-  @ to download a ZIP archive or a tarball of the project.  By default,
-  @ the latest trunk check-in is downloaded.  Change this tag to something
-  @ else (ex: release) to alter the behavior of the /download page.
-  @ (Property: "download-tag")
-  @ </p>
   @ <hr>
   entry_attribute("Index Page", 60, "index-page", "idxpg", "/home", 0);
   @ <p>Enter the pathname of the page to display when the "Home" menu
@@ -1305,6 +1441,62 @@ void setup_config(void){
 }
 
 /*
+** WEBPAGE: setup_download
+**
+** The "Admin/Download" page.  Requires Setup privilege.
+*/
+void setup_download(void){
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed(0);
+    return;
+  }
+
+  style_set_current_feature("setup");
+  style_header("Tarball and ZIP Downloads");
+  db_begin_transaction();
+  @ <form action="%R/setup_download" method="post"><div>
+  login_insert_csrf_secret();
+  @ <input type="submit"  name="submit" value="Apply Changes"></p>
+  @ <hr>
+  entry_attribute("Tarball and ZIP Name Prefix", 20, "short-project-name",
+                  "spn", "", 0);
+  @ <p>This is used as a prefix for the names of generated tarballs and
+  @ ZIP archive. Keep this prefix brief and use only lower-case ASCII
+  @ characters, digits, "_", "-" in the name. If this setting is blank,
+  @ then the full <a href='%R/help/project-name'>project-name</a> setting
+  @ is used instead.
+  @ (Property: "short-project-name")
+  @ </p>
+  @ <hr>
+  @ <p><b>Configuration for the <a href="%R/download">/download</a> page.</b>
+  @ <p>The value is a TCL list divided into groups of four tokens:
+  @ <ol>
+  @ <li> Maximum number of matches (COUNT).
+  @ <li> Tag to match using glob (TAG).
+  @ <li> Maximum age of check-ins to match (MAX_AGE).
+  @ <li> Comment to apply to matches (COMMENT).
+  @ </ol>
+  @ Each 4-tuple will match zero or more check-ins.  The /download page
+  @ displays the union of matches from all 4-tuples.
+  @ See the <a href="%R/help/suggested-downloads">suggested-downloads</a>
+  @ setting documentation for further detail.
+  @ <p>
+  @ The /download page is omitted from the <a href="%R/sitemap">/sitemap</a>
+  @ if the first token is "0" or "off" or "no".  The default value 
+  @ for this setting is "off".
+  @ (Property: <a href="%R/help/suggested-downloads">suggested-downloads</a>)
+  @ <p>
+  textarea_attribute("", 4, 80,
+      "suggested-downloads", "sgtrlst", "off", 0);
+  @ <hr>
+  @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
+  @ </div></form>
+  db_end_transaction(0);
+  style_finish_page();
+}
+
+/*
 ** WEBPAGE: setup_wiki
 **
 ** The "Admin/Wiki" page.  Requires Setup privilege.
@@ -1323,17 +1515,18 @@ void setup_wiki(void){
   login_insert_csrf_secret();
   @ <input type="submit"  name="submit" value="Apply Changes"></p>
   @ <hr>
-  onoff_attribute("Associate Wiki Pages With Branches, Tags, or Checkins",
+  onoff_attribute("Associate Wiki Pages With Branches, Tags, Tickets, or Checkins",
                   "wiki-about", "wiki-about", 1, 0);
   @ <p>
-  @ Associate wiki pages with branches, tags, or checkins, based on
-  @ the wiki page name.  Wiki pages that begin with "branch/", "checkin/"
-  @ or "tag/" and which continue with the name of an existing branch, check-in
-  @ or tag are treated specially when this feature is enabled.
+  @ Associate wiki pages with branches, tags, tickets, or checkins, based on
+  @ the wiki page name.  Wiki pages that begin with "branch/", "checkin/",
+  @ "tag/" or "ticket" and which continue with the name of an existing branch,
+  @ check-in, tag or ticket are treated specially when this feature is enabled.
   @ <ul>
   @ <li> <b>branch/</b><i>branch-name</i>
   @ <li> <b>checkin/</b><i>full-check-in-hash</i>
   @ <li> <b>tag/</b><i>tag-name</i>
+  @ <li> <b>ticket/</b><i>full-ticket-hash</i>
   @ </ul>
   @ (Property: "wiki-about")</p>
   @ <hr>
@@ -1403,6 +1596,9 @@ void setup_chat(void){
   style_set_current_feature("setup");
   style_header("Chat Configuration");
   db_begin_transaction();
+  if( P("rbldchatidx") && cgi_csrf_safe(2) ){
+    chat_rebuild_index(1);
+  }
   @ <form action="%R/setup_chat" method="post"><div>
   login_insert_csrf_secret();
   @ <input type="submit"  name="submit" value="Apply Changes"></p>
@@ -1455,9 +1651,29 @@ void setup_chat(void){
   @ <p>The sound used in the client-side chat to indicate that a new
   @ chat message has arrived.
   @ (Property: "chat-alert-sound")</p>
+
   @ <hr/>
-  @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
+  @ <p><input type="submit"  name="submit" value="Apply Changes">
+  @ <input type="submit" name="rbldchatidx"\
+  @  value="Rebuild Full-Text Search Index"></p>
   @ </div></form>
+
+  /* Validate the chat FTS search index */
+  if( db_table_exists("repository","chatfts1") ){
+    char *zMissing;
+    zMissing = db_text(0,
+      "SELECT group_concat(rowid,', ') FROM chat"
+      " WHERE rowid NOT IN (SELECT rowid FROM chatfts1_docsize)"
+    );
+    if( zMissing && zMissing[0] ){
+      @ <p><b>WARNING:</b> The following chat messages are missing
+      @ from the full-text index.  Press the "Rebuild Full-Text Search Index"
+      @ button above to fix this.</p>
+      @ <p>%h(zMissing)</p>
+    }
+    fossil_free(zMissing);
+  }
+
   db_end_transaction(0);
   @ <script nonce="%h(style_nonce())">
   @ (function(){
@@ -2032,9 +2248,9 @@ void page_admin_log(){
   create_admin_log_table();
   limit = atoi(PD("n","200"));
   ofst = atoi(PD("x","0"));
-  fLogEnabled = db_get_boolean("admin-log", 0);
+  fLogEnabled = db_get_boolean("admin-log", 1);
   @ <div>Admin logging is %s(fLogEnabled?"on":"off").
-  @ (Change this on the <a href="setup_settings">settings</a> page.)</div>
+  @ (Change this on the <a href="setup_settings?all">settings</a> page.)</div>
 
   if( ofst>0 ){
     int prevx = ofst - limit;
@@ -2099,6 +2315,7 @@ static void select_fts_tokenizer(void){
 ** Configure the search engine.  Requires Admin privilege.
 */
 void page_srchsetup(){
+  const char *zMainBranch;
   login_check_credentials();
   if( !g.perm.Admin ){
     login_needed(0);
@@ -2129,10 +2346,13 @@ void page_srchsetup(){
   @ <td>Search nothing. (Disables document search).</tr>
   @ </table>
   @ <hr>
-  entry_attribute("Document Branch", 20, "doc-branch", "db", "trunk", 0);
+  zMainBranch = db_main_branch();
+  entry_attribute("Document Branches", 20, "doc-branch", "db", zMainBranch, 0);
   @ <p>When searching documents, use the versions of the files found at the
-  @ type of the "Document Branch" branch.  Recommended value: "trunk".
-  @ Document search is disabled if blank.
+  @ type of the "Document Branches" branch.  Recommended value: the name of
+  @ the main branch (usually "trunk").
+  @ Document search is disabled if blank. It may be a list of branch names
+  @ separated by spaces and/or commas.
   @ <hr>
   onoff_attribute("Search Check-in Comments", "search-ci", "sc", 0, 0);
   @ <br>
@@ -2145,18 +2365,25 @@ void page_srchsetup(){
   onoff_attribute("Search Tech Notes", "search-technote", "se", 0, 0);
   @ <br>
   onoff_attribute("Search Forum", "search-forum", "sf", 0, 0);
+  @ <br>
+  onoff_attribute("Search Built-in Help Text", "search-help", "sh", 0, 0);
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ <hr>
-  if( P("fts0") ){
-    search_drop_index();
-  }else if( P("fts1") ){
-    const char *zTokenizer = PD("ftstok","off");
-    search_set_tokenizer(zTokenizer);
-    search_drop_index();
-    search_create_index();
-    search_fill_index();
-    search_update_index(search_restrict(SRCH_ALL));
+  if( cgi_csrf_safe(2) ){
+    if( P("fts0") ){
+      search_drop_index();
+    }else if( P("fts1") ){
+      const char *zTokenizer = PD("ftstok","off");
+      search_set_tokenizer(zTokenizer);
+      search_drop_index();
+      search_create_index();
+      search_fill_index();
+      search_update_index(search_restrict(SRCH_ALL));
+    }
+    if( P("rbldchatidx") ){
+      chat_rebuild_index(1);
+    }
   }
   if( search_index_exists() ){
     int pgsz = db_int64(0, "PRAGMA repository.page_size;");
@@ -2173,6 +2400,10 @@ void page_srchsetup(){
     select_fts_tokenizer();
     @ <p><input type="submit" name="fts0" value="Delete The Full-Text Index">
     @ <input type="submit" name="fts1" value="Rebuild The Full-Text Index">
+    if( db_table_exists("repository","chat") ){
+      @ <input type="submit" name="rbldchatidx" \
+      @ value="Rebuild The Chat FTS Index">
+    }
     style_submenu_element("FTS Index Debugging","%R/test-ftsdocs");
   }else{
     @ <p>The SQLite search index is disabled.  All searching will be

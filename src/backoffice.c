@@ -40,7 +40,7 @@
 ** will restart using the new binary automatically.
 **
 ** At any point in time there should be at most two backoffice processes.
-** There is a main process that is doing the actually work, and there is
+** There is a main process that is doing the actual work, and there is
 ** a second stand-by process that is waiting for the main process to finish
 ** and that will become the main process after a delay.
 **
@@ -55,7 +55,7 @@
 ** might be required, the run_if_needed() attempts to kick off a backoffice
 ** process.
 **
-** All work performance by the backoffice is in the backoffice_work()
+** All work performed by the backoffice is in the backoffice_work()
 ** routine.
 */
 #if defined(_WIN32)
@@ -160,22 +160,13 @@ static int backofficeLogDetail = 0;
 ** This function emits a diagnostic message related to the processing in
 ** this module.
 */
-#if defined(_WIN32)
-# define BKOFCE_ALWAYS_TRACE   (1)
-extern void sqlite3_win32_write_debug(const char *, int);
-#else
-# define BKOFCE_ALWAYS_TRACE   (0)
-#endif
 static void backofficeTrace(const char *zFormat, ...){
   char *zMsg = 0;
-  if( BKOFCE_ALWAYS_TRACE || g.fAnyTrace ){
+  if( g.fAnyTrace ){
     va_list ap;
     va_start(ap, zFormat);
     zMsg = sqlite3_vmprintf(zFormat, ap);
     va_end(ap);
-#if defined(_WIN32)
-    sqlite3_win32_write_debug(zMsg, -1);
-#endif
   }
   if( g.fAnyTrace ) fprintf(stderr, "%s", zMsg);
   if( zMsg ) sqlite3_free(zMsg);
@@ -486,7 +477,8 @@ static void backoffice_thread(void){
   static int once = 0;
 
   if( sqlite3_db_readonly(g.db, 0) ) return;
-  g.zPhase = "backoffice";
+  if( db_is_protected(PROTECT_READONLY) ) return;
+  g.zPhase = "backoffice-pending";
   backoffice_error_check_one(&once);
   idSelf = backofficeProcessId();
   while(1){
@@ -511,6 +503,7 @@ static void backoffice_thread(void){
       x.tmCurrent = tmNow + BKOFCE_LEASE_TIME;
       x.idNext = 0;
       x.tmNext = 0;
+      g.zPhase = "backoffice-work";
       backofficeWriteLease(&x);
       db_end_transaction(0);
       backofficeTrace("/***** Begin Backoffice Processing %d *****/\n",
@@ -544,9 +537,12 @@ static void backoffice_thread(void){
       }
     }else{
       if( (sqlite3_uint64)(lastWarning+warningDelay) < tmNow ){
-        fossil_warning(
+        sqlite3_int64 runningFor = BKOFCE_LEASE_TIME + tmNow - x.tmCurrent;
+        if( warningDelay>=240 && runningFor<1800 ){
+          fossil_warning(
            "backoffice process %lld still running after %d seconds",
-           x.idCurrent, (int)(BKOFCE_LEASE_TIME + tmNow - x.tmCurrent));
+           x.idCurrent, runningFor);
+        }
         lastWarning = tmNow;
         warningDelay *= 2;
       }
@@ -643,10 +639,13 @@ void backoffice_work(void){
   }
 
   /* Here is where the actual work of the backoffice happens */
+  g.zPhase = "backoffice-alerts";
   nThis = alert_backoffice(0);
   if( nThis ){ backoffice_log("%d alerts", nThis); nTotal += nThis; }
+  g.zPhase = "backoffice-hooks";
   nThis = hook_backoffice();
   if( nThis ){ backoffice_log("%d hooks", nThis); nTotal += nThis; }
+  g.zPhase = "backoffice-close";
 
   /* Close the log */
   if( backofficeFILE ){
@@ -692,7 +691,7 @@ void backoffice_work(void){
 **                            this feature.  Default: 3600 (once per hour).
 **
 **    --poll N                Repeat backoffice calls for repositories that
-**                            change in appoximately N-second intervals.
+**                            change in approximately N-second intervals.
 **                            N less than 1 turns polling off (the default).
 **                            Recommended polling interval: 60 seconds.
 **

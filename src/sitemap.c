@@ -58,18 +58,6 @@ void sitemap_page(void){
   int e = atoi(PD("e","0"));
   const char *zExtra;
 
-#if 0  /* Removed 2021-01-26 */
-  const struct {
-    const char *zTitle;
-    const char *zProperty;
-  } aExtra[] = {
-    { "Documentation",  "sitemap-docidx" },
-    { "Download",       "sitemap-download" },
-    { "License",        "sitemap-license" },
-    { "Contact",        "sitemap-contact" },
-  };
-#endif
-
   login_check_credentials();
   if( P("popup")!=0 ){
     /* The "popup" query parameter
@@ -88,22 +76,6 @@ void sitemap_page(void){
   if( (e&1)==0 ){
     @ <li>%z(href("%R/home"))Home Page</a>
   }
-
-#if 0  /* Removed 2021-01-26  */
-  for(i=0; i<sizeof(aExtra)/sizeof(aExtra[0]); i++){
-    char *z = db_get(aExtra[i].zProperty,0);
-    if( z==0 || z[0]==0 ) continue;
-    if( !inSublist ){
-      @ <ul>
-      inSublist = 1;
-    }
-    if( z[0]=='/' ){
-      @ <li>%z(href("%R%s",z))%s(aExtra[i].zTitle)</a></li>
-    }else{
-      @ <li>%z(href("%s",z))%s(aExtra[i].zTitle)</a></li>
-    }
-  }
-#endif
 
   zExtra = db_get("sitemap-extra",0);
   if( zExtra && (e&2)==0 ){
@@ -141,22 +113,14 @@ void sitemap_page(void){
   }
   if( (e&1)!=0 ) goto end_of_sitemap;
 
-#if 0  /* Removed on 2021-02-11.  Make a sitemap-extra entry if you */
-       /* really want this */
-  if( srchFlags & SRCH_DOC ){
-    if( !inSublist ){
-      @ <ul>
-      inSublist = 1;
-    }
-    @ <li>%z(href("%R/docsrch"))Documentation Search</a></li>
-  }
-#endif
-
   if( inSublist ){
     @ </ul>
     inSublist = 0;
   }
   @ </li>
+  if( cgi_is_loopback(g.zIpAddr) && db_open_local(0) ){
+    @ <li>%z(href("%R/ckout"))Checkout Status</a></li>
+  }
   if( g.perm.Read ){
     const char *zEditGlob = db_get("fileedit-glob","");
     @ <li>%z(href("%R/tree"))File Browser</a>
@@ -170,6 +134,9 @@ void sitemap_page(void){
       @   <li>%z(href("%R/fileedit"))On-line File Editor</li>
     }
     @ </ul>
+  }
+  if( g.perm.Zip && db_get_boolean("suggested-downloads",0)!=0 ){
+    @ <li>%z(href("%R/download"))Tarballs and ZIPs</a>
   }
   if( g.perm.Read ){
     @ <li>%z(href("%R/timeline"))Project Timeline</a>
@@ -194,7 +161,8 @@ void sitemap_page(void){
     @ <li>%z(href("%R/chat"))Chat</a></li>
   }
   if( g.perm.RdForum ){
-    @ <li>%z(href("%R/forum"))Forum</a>
+    const char *zTitle = db_get("forum-title","Forum");
+    @ <li>%z(href("%R/forum"))%h(zTitle)</a>
     @ <ul>
     @   <li>%z(href("%R/timeline?y=f"))Recent activity</a></li>
     @ </ul>
@@ -322,7 +290,7 @@ void sitemap_test_page(void){
   }
   @ <ul id="sitemap" class="columns" style="column-width:20em">
   if( g.perm.Admin || db_get_boolean("test_env_enable",0) ){
-    @ <li>%z(href("%R/test_env"))CGI Environment Test</a></li>
+    @ <li>%z(href("%R/test-env"))CGI Environment Test</a></li>
   }
   if( g.perm.Read ){
     @ <li>%z(href("%R/test-rename-list"))List of file renames</a></li>
@@ -330,6 +298,7 @@ void sitemap_test_page(void){
   @ <li>%z(href("%R/test-builtin-files"))List of built-in files</a></li>
   @ <li>%z(href("%R/mimetype_list"))List of MIME types</a></li>
   @ <li>%z(href("%R/hash-color-test"))Hash color test</a>
+  @ <li>%z(href("%R/test-bgcolor"))Background color test</a>
   if( g.perm.Admin ){
     @ <li>%z(href("%R/test-backlinks"))List of backlinks</a></li>
     @ <li>%z(href("%R/test-backlink-timeline"))Backlink timeline</a></li>

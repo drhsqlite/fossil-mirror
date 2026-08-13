@@ -96,6 +96,8 @@ const char *fossil_exe_id(void){
 void etag_check(unsigned eFlags, const char *zHash){
   const char *zIfNoneMatch;
   char zBuf[50];
+  const int cchETag = 32; /* Not including NULL terminator. */
+  int cch;                /* Length of zIfNoneMatch header. */
   assert( zETag[0]==0 );  /* Only call this routine once! */
 
   if( etagCancelled ) return;
@@ -159,13 +161,19 @@ void etag_check(unsigned eFlags, const char *zHash){
   }
 
   /* Generate the ETag */
-  memcpy(zETag, md5sum_finish(0), 33);
+  memcpy(zETag, md5sum_finish(0), cchETag+1);
 
   /* Check to see if the generated ETag matches If-None-Match and
-  ** generate a 304 reply if it does. */
+  ** generate a 304 reply if it does.  Test both with and without
+  ** double quotes. */
   zIfNoneMatch = P("HTTP_IF_NONE_MATCH");
   if( zIfNoneMatch==0 ) return;
-  if( strcmp(zIfNoneMatch,zETag)!=0 ) return;
+  cch = strlen(zIfNoneMatch);
+  if( cch==cchETag+2 && zIfNoneMatch[0]=='"' && zIfNoneMatch[cch-1]=='"' ){
+    if( memcmp(&zIfNoneMatch[1],zETag,cchETag)!=0 ) return;
+  }else{
+    if( strcmp(zIfNoneMatch,zETag)!=0 ) return;
+  }
 
   /* If we get this far, it means that the content has
   ** not changed and we can do a 304 reply */

@@ -67,7 +67,7 @@
     }
     </th1>
     <a href="$logourl">
-      <img src="$logo_image_url" border="0" alt="$project_name">
+      <img src="$logo_image_url" border="0" alt="$<project_name>">
     </a>
   </div>
   <div class="title">$<title></div>

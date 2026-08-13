@@ -54,8 +54,8 @@ easily set it higher on a multi-core server.
 The maximum load average can also be set on the command line using
 commands like this:
 
-    fossil set max-loadavg 1.5
-    fossil all set max-loadavg 1.5
+    fossil setting max-loadavg 1.5
+    fossil all setting max-loadavg 1.5
 
 The second form is especially useful for changing the maximum load
 average simultaneously on a large number of repositories.
@@ -79,7 +79,7 @@ The `/home/www/proc` pathname should be adjusted so that the `/proc`
 component is at the root of the chroot jail, of course.
 
 To see if the load-average limiter is functional, visit the
-[`/test_env`][hte] page of the server to view the current load average.
+[`/test-env`][hte] page of the server to view the current load average.
 If the value for the load average is greater than zero, that means that
 it is possible to activate the load-average limiter on that repository.
 If the load average shows exactly "0.0", then that means that Fossil is
@@ -90,7 +90,7 @@ limiter will not function.
 
 
 [503]: http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.4
-[hte]: /help?cmd=/test_env
+[hte]: /help/www/test-env
 [gla]: https://linux.die.net/man/3/getloadavg
 [lin]: http://www.linode.com
 [sh]:  ./selfhost.wiki

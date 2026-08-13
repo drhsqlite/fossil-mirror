@@ -134,6 +134,7 @@ set src {
   manifest
   markdown
   markdown_html
+  match
   md5
   merge
   merge3
@@ -153,6 +154,7 @@ set src {
   regexp
   repolist
   report
+  robot
   rss
   schema
   search
@@ -195,6 +197,7 @@ set src {
   winhttp
   xfer
   xfersetup
+  xsystem
   zip
   http_ssl
 }
@@ -211,6 +214,7 @@ set src_ext {
 # be relative to that.
 set extra_files {
   diff.tcl
+  merge.tcl
   markdown.md
   wiki.wiki
   *.js
@@ -240,10 +244,13 @@ set SQLITE_OPTIONS {
   -DSQLITE_MAX_EXPR_DEPTH=0
   -DSQLITE_ENABLE_LOCKING_STYLE=0
   -DSQLITE_DEFAULT_FILE_FORMAT=4
+  -DSQLITE_ENABLE_DBSTAT_VTAB
   -DSQLITE_ENABLE_EXPLAIN_COMMENTS
   -DSQLITE_ENABLE_FTS4
-  -DSQLITE_ENABLE_DBSTAT_VTAB
   -DSQLITE_ENABLE_FTS5
+  -DSQLITE_ENABLE_MATH_FUNCTIONS
+  -DSQLITE_ENABLE_PERCENTILE
+  -DSQLITE_ENABLE_SETLK_TIMEOUT
   -DSQLITE_ENABLE_STMTVTAB
   -DSQLITE_HAVE_ZLIB
   -DSQLITE_ENABLE_DBPAGE_VTAB
@@ -270,6 +277,7 @@ set SHELL_OPTIONS [concat $SQLITE_OPTIONS {
   -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE)
   -DSQLITE_SHELL_DBNAME_PROC=sqlcmd_get_dbname
   -DSQLITE_SHELL_INIT_PROC=sqlcmd_init_proc
+  -DSQLITE_PS_APPDEF=sqlcmd_ps_appdef
 }]
 
 # Options used to compile the included SQLite shell on Windows.
@@ -340,7 +348,7 @@ writeln {#
 XBCC = $(BCC) $(BCCFLAGS)
 XTCC = $(TCC) $(CFLAGS_INCLUDE) -I$(OBJDIR) $(TCCFLAGS)
 
-TESTFLAGS := -quiet
+TESTFLAGS = -quiet
 }
 writeln -nonewline "SRC ="
 foreach s [lsort $src] {
@@ -367,7 +375,7 @@ writeln [string map [list \
     <<<SHELL_OPTIONS>>> [join $SHELL_OPTIONS " \\\n                "] \
     <<<PIKCHR_OPTIONS>>> [join $PIKCHR_OPTIONS " \\\n                "] \
     <<<NEXT_LINE>>> \\] {
-all:	$(OBJDIR) $(APPNAME)
+all:	$(APPNAME)
 
 install:	all
 	mkdir -p $(INSTALLDIR)
@@ -376,25 +384,28 @@ install:	all
 codecheck:	$(TRANS_SRC) $(OBJDIR)/codecheck1
 	$(OBJDIR)/codecheck1 $(TRANS_SRC)
 
-$(OBJDIR):
-	-mkdir $(OBJDIR)
-
 $(OBJDIR)/translate:	$(SRCDIR_tools)/translate.c
+	-mkdir -p $(OBJDIR)
 	$(XBCC) -o $(OBJDIR)/translate $(SRCDIR_tools)/translate.c
 
 $(OBJDIR)/makeheaders:	$(SRCDIR_tools)/makeheaders.c
+	-mkdir -p $(OBJDIR)
 	$(XBCC) -o $(OBJDIR)/makeheaders $(SRCDIR_tools)/makeheaders.c
 
 $(OBJDIR)/mkindex:	$(SRCDIR_tools)/mkindex.c
+	-mkdir -p $(OBJDIR)
 	$(XBCC) -o $(OBJDIR)/mkindex $(SRCDIR_tools)/mkindex.c
 
 $(OBJDIR)/mkbuiltin:	$(SRCDIR_tools)/mkbuiltin.c
+	-mkdir -p $(OBJDIR)
 	$(XBCC) -o $(OBJDIR)/mkbuiltin $(SRCDIR_tools)/mkbuiltin.c
 
 $(OBJDIR)/mkversion:	$(SRCDIR_tools)/mkversion.c
+	-mkdir -p $(OBJDIR)
 	$(XBCC) -o $(OBJDIR)/mkversion $(SRCDIR_tools)/mkversion.c
 
 $(OBJDIR)/codecheck1:	$(SRCDIR_tools)/codecheck1.c
+	-mkdir -p $(OBJDIR)
 	$(XBCC) -o $(OBJDIR)/codecheck1 $(SRCDIR_tools)/codecheck1.c
 
 # Run the test suite.
@@ -410,7 +421,7 @@ $(OBJDIR)/codecheck1:	$(SRCDIR_tools)/codecheck1.c
 # TESTFLAGS can also include names of specific test files to limit
 # the run to just those test cases.
 #
-test:	$(OBJDIR) $(APPNAME)
+test:	$(APPNAME)
 	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME) $(TESTFLAGS)
 
 $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(OBJDIR)/mkversion $(OBJDIR)/phony.h
@@ -447,7 +458,7 @@ SQLITE3_OBJ   = $(SQLITE3_OBJ.$(SQLITE3_ORIGIN))
 # to 1. If it is set to 0, then there is no need to build or link
 # the linenoise.o object.
 LINENOISE_DEF.0 =
-LINENOISE_DEF.1 = -DHAVE_LINENOISE
+LINENOISE_DEF.1 = -DHAVE_LINENOISE=2
 LINENOISE_DEF.  = $(LINENOISE_DEF.0)
 LINENOISE_OBJ.0 =
 LINENOISE_OBJ.1 = $(OBJDIR)/linenoise.o
@@ -540,39 +551,46 @@ foreach s [lsort $src] {
 }
 
 writeln "\$(SQLITE3_OBJ):\t\$(SQLITE3_SRC)"
+writeln "\t-mkdir -p \$(OBJDIR)"
 writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) \$(SEE_FLAGS) \\"
 writeln "\t\t-c \$(SQLITE3_SRC) -o \$@"
 
 writeln "\$(OBJDIR)/shell.o:\t\$(SQLITE3_SHELL_SRC) \$(SRCDIR_extsrc)/sqlite3.h"
+writeln "\t-mkdir -p \$(OBJDIR)"
 writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) \$(SEE_FLAGS) \$(LINENOISE_DEF.\$(USE_LINENOISE)) -c \$(SQLITE3_SHELL_SRC) -o \$@\n"
 
 writeln "\$(OBJDIR)/linenoise.o:\t\$(SRCDIR_extsrc)/linenoise.c \$(SRCDIR_extsrc)/linenoise.h"
+writeln "\t-mkdir -p \$(OBJDIR)"
 writeln "\t\$(XTCC) -c \$(SRCDIR_extsrc)/linenoise.c -o \$@\n"
 
 writeln "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c"
+writeln "\t-mkdir -p \$(OBJDIR)\n"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th.c -o \$@\n"
 
 writeln "\$(OBJDIR)/th_lang.o:\t\$(SRCDIR)/th_lang.c"
+writeln "\t-mkdir -p \$(OBJDIR)\n"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th_lang.c -o \$@\n"
 
 writeln "\$(OBJDIR)/th_tcl.o:\t\$(SRCDIR)/th_tcl.c"
+writeln "\t-mkdir -p \$(OBJDIR)\n"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th_tcl.c -o \$@\n"
 
 writeln [string map [list <<<NEXT_LINE>>> \\] {
-$(OBJDIR)/pikchr.o:	$(SRCDIR_extsrc)/pikchr.c
+$(OBJDIR)/pikchr.o:	$(SRCDIR_extsrc)/pikchr.c $(OBJDIR)/mkversion
 	$(XTCC) $(PIKCHR_OPTIONS) -c $(SRCDIR_extsrc)/pikchr.c -o $@
 
-$(OBJDIR)/cson_amalgamation.o: $(SRCDIR_extsrc)/cson_amalgamation.c
+$(OBJDIR)/cson_amalgamation.o: $(SRCDIR_extsrc)/cson_amalgamation.c $(OBJDIR)/mkversion
 	$(XTCC) -c $(SRCDIR_extsrc)/cson_amalgamation.c -o $@
 
-$(SRCDIR_extsrc)/pikchr.js: $(SRCDIR_extsrc)/pikchr.c
+$(SRCDIR_extsrc)/pikchr.js: $(SRCDIR_extsrc)/pikchr.c $(MAKEFILE_LIST)
 	$(EMCC_WRAPPER) -o $@ $(EMCC_OPT) --no-entry <<<NEXT_LINE>>>
-        -sEXPORTED_RUNTIME_METHODS=cwrap,setValue,getValue,stackSave,stackRestore <<<NEXT_LINE>>>
-        -sEXPORTED_FUNCTIONS=_pikchr $(SRCDIR_extsrc)/pikchr.c <<<NEXT_LINE>>>
+        -sEXPORTED_RUNTIME_METHODS=cwrap,ccall,setValue,getValue,stackSave,stackAlloc,stackRestore <<<NEXT_LINE>>>
+        -sEXPORTED_FUNCTIONS=_pikchr,_pikchr_version $(SRCDIR_extsrc)/pikchr.c <<<NEXT_LINE>>>
         -sENVIRONMENT=web <<<NEXT_LINE>>>
         -sMODULARIZE <<<NEXT_LINE>>>
         -sEXPORT_NAME=initPikchrModule <<<NEXT_LINE>>>
         --minify 0
+	$(TCLSH) $(TOPDIR)/tools/randomize-js-names.tcl $(SRCDIR_extsrc)
 	@chmod -x $(SRCDIR_extsrc)/pikchr.wasm
 wasm: $(SRCDIR_extsrc)/pikchr.js
 
@@ -1827,9 +1845,9 @@ regsub -all {[-]D} [join $SQLITE_WIN32_OPTIONS { }] {/D} MSC_SQLITE_OPTIONS
 set j " \\\n                 "
 writeln "SQLITE_OPTIONS = [join $MSC_SQLITE_OPTIONS $j]\n"
 
-regsub -all {[-]D} [join $SHELL_WIN32_OPTIONS { }] {/D} MSC_SHELL_OPTIONS
 set j " \\\n                "
-writeln "SHELL_OPTIONS = [join $MSC_SHELL_OPTIONS $j]\n"
+writeln [string map {-D /D} \
+         "SHELL_OPTIONS = [join $SHELL_WIN32_OPTIONS $j]"]\n
 
 regsub -all {[-]D} [join $PIKCHR_OPTIONS { }] {/D} MSC_PIKCHR_OPTIONS
 set j " \\\n                "

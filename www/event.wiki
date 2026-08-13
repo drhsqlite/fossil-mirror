@@ -109,7 +109,7 @@ This note describes changes in the Fossil snapshot for ...
 
 The <b>-t|--technote</b> option to the <b>export</b> subcommand takes one of
 three identifiers: <b>DATETIME</b>; <b>TECHNOTE-ID</b>; and <b>TAG</b>.
-See the [/help?cmd=wiki | wiki help] for specifics.
+See the [/help/wiki | wiki help] for specifics.
 
 Users must have check-in privileges (permission "i") in order to
 create or edit technotes.  In addition, users must have create-wiki
@@ -117,4 +117,4 @@ privilege (permission "f") to create new technotes and edit-wiki
 privilege (permission "k") in order to edit existing technotes.
 
 Technote content may be formatted as [/wiki_rules | Fossil wiki],
-[/md_rules | Markdown], or a plain text.
+[/md_rules | Markdown], or plain text.

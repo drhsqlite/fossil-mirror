@@ -62,7 +62,7 @@ POST to: `/json/query`
 }
 ```
 
-The column names are provided in a separate field is because their order
+The column names are provided in a separate field because their order
 is guaranteed to match the order of the query columns, whereas object
 key/value pairs might get reordered (typically sorted by key) when
 travelling through different JSON implementations. In this manner,
@@ -78,7 +78,7 @@ Note the column *names* are never *guaranteed* to be exactly as they
 appear in the SQL *unless* they are qualified with an AS, e.g. `SELECT
 foo AS foo...`. When generating reports which need fixed column names, it
 is highly recommended to use an AS qualifier for every column, even if
-they use the same name as the column. This is the only way to guaranty
+they use the same name as the column. This is the only way to guarantee
 that the result column names will be stable. (FYI: that behaviour comes
 from sqlite3, not the JSON bits, and this behaviour *has* been known to
 change between sqlite3 versions (so this is not just an idle threat of

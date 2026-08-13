@@ -19,12 +19,12 @@
       };
     },
     remove: function(e){
-      if(e.forEach){
+      if(e?.forEach){
         e.forEach(
-          (x)=>x.parentNode.removeChild(x)
+          (x)=>x?.parentNode?.removeChild(x)
         );
       }else{
-        e.parentNode.removeChild(e);
+        e?.parentNode?.removeChild(e);
       }
       return e;
     },
@@ -82,6 +82,10 @@
      and that id is set as the 'for' attribute of the
      label. If passed 2 arguments, the 2nd is text or
      a DOM element to append to the label.
+
+     2026-06: this is a goofy interface. Generally simpler that
+     dealing with IDs is to embed the target control within the label
+     element.
   */
   dom.label = function(forElem, text){
     const rc = document.createElement('label');
@@ -89,7 +93,9 @@
       if(forElem instanceof HTMLElement){
         forElem = this.attr(forElem, 'id');
       }
-      dom.attr(rc, 'for', forElem);
+      if(forElem){
+        dom.attr(rc, 'for', forElem);
+      }
     }
     if(text) this.append(rc, text);
     return rc;
@@ -248,7 +254,7 @@
       return e;
     };
   };
-  
+
   dom.table = dom.createElemFactory('table');
   dom.thead = dom.createElemFactoryWithOptionalParent('thead');
   dom.tbody = dom.createElemFactoryWithOptionalParent('tbody');
@@ -259,7 +265,7 @@
 
   /**
      Creates and returns a FIELDSET element, optionaly with a LEGEND
-     element added to it. If legendText is an HTMLElement then is is
+     element added to it. If legendText is an HTMLElement then it is
      assumed to be a LEGEND and is appended as-is, else it is assumed
      (if truthy) to be a value suitable for passing to
      dom.append(aLegendElement,...).
@@ -381,8 +387,8 @@
       f.rxSPlus = /\s+/;
       f.applyAction = function(e,a,v){
         if(!e || !v
-           /*silently skip empty strings/flasy
-             values, for user convenience*/) return;
+           /*silently skip empty strings/falsy
+             values, for usage convenience*/) return;
         else if(e.forEach){
           e.forEach((E)=>E.classList[a](v));
         }else{
@@ -584,6 +590,7 @@
     return e;
   };
 
+  /* Impl for dom.enable() and dom.disable(). */
   const enableDisable = function f(enable){
     var i = 1, n = arguments.length;
     for( ; i < n; ++i ){
@@ -843,8 +850,8 @@
 
      Usages:
 
-     Array (htmlString)
-     DOMElement (DOMElement target, htmlString)
+     Array parseHtml(htmlString)
+     DOMElement parseHtml(DOMElement target, htmlString)
 
      The first form parses the string as HTML and returns an Array of
      all elements parsed from it. If string is falsy then it returns

@@ -218,6 +218,8 @@ static void html_header(
   void *opaque
 ){
   struct Blob *title = ((MarkdownToHtml*)opaque)->output_title;
+  char *z = 0;
+  int i,j;
   /* The first header at the beginning of a text is considered as
    * a title and not output. */
   if( blob_size(ob)<=PROLOG_SIZE && title!=0 && blob_size(title)==0 ){
@@ -225,9 +227,48 @@ static void html_header(
     return;
   }
   INTER_BLOCK(ob);
-  blob_appendf(ob, "<h%d>", level);
+  z = fossil_strdup(blob_buffer(text));
+  if( z==0 ){
+    j = 0;
+  }else{
+    /*
+    ** The GitHub "slugify" algorithm converts the text of a markdown header
+    ** into a ID for that header.  The algorithm is:
+    **
+    **   1.  ASCII alphanumerics -> convert to lower case
+    **   2.  Spaces, hyphens, underscores -> convert to '-'
+    **   3.  Non-ASCII -> preserve as-is
+    **   4.  Other punctuation -> remove
+    **   5.  Multiple consecutive dashes -> collapse to one
+    **   6.  Leading and trailing dashes -> remove
+    **   7.  Markup <...> and &...; -> remove
+    **
+    ** This implementation does the conversion in-place.
+    */
+    for(i=j=0; z[i]; i++){
+      if( fossil_isalnum(z[i]) ){
+        z[j++] = fossil_tolower(z[i]);
+      }else if( fossil_isspace(z[i]) || z[i]=='-' || z[i]=='_' ){
+        if( j>0 && z[j-1]!='-' ) z[j++] = '-';
+      }else if( z[i]=='<' ){
+        do{ i++; }while( z[i]!=0 && z[i]!='>' );
+      }else if( z[i]=='&' ){
+        do{ i++; }while( z[i]!=0 && z[i]!=';' );
+      }else if( (z[i]&0x80)!=0 ){
+        z[j++] = z[i];
+      }
+    }
+    if( j>0 && z[j-1]=='-' ) j--;
+    z[j] = 0;
+  }
+  if( j>0 ){
+    blob_appendf(ob, "<h%d id=\"%s\">", level, z);
+  }else{
+    blob_appendf(ob, "<h%d>", level);
+  }
   blob_appendb(ob, text);
   blob_appendf(ob, "</h%d>", level);
+  fossil_free(z);
 }
 
 static void html_hrule(struct Blob *ob, void *opaque){
@@ -280,7 +321,7 @@ static void html_table(
   void *opaque
 ){
   INTER_BLOCK(ob);
-  blob_append_literal(ob, "<table>\n");
+  blob_append_literal(ob, "<table class='md-table'>\n");
   if( head_row && blob_size(head_row)>0 ){
     blob_append_literal(ob, "<thead>\n");
     blob_appendb(ob, head_row);
@@ -308,15 +349,15 @@ static void html_table_cell(
   }
   switch( flags & MKD_CELL_ALIGN_MASK ){
     case MKD_CELL_ALIGN_LEFT: {
-      blob_append_literal(ob, " align=\"left\"");
+      blob_append_literal(ob, " style=\"text-align:left\"");
       break;
     }
     case MKD_CELL_ALIGN_RIGHT: {
-      blob_append_literal(ob, " align=\"right\"");
+      blob_append_literal(ob, " style=\"text-align:right\"");
       break;
     }
     case MKD_CELL_ALIGN_CENTER: {
-      blob_append_literal(ob, " align=\"center\"");
+      blob_append_literal(ob, " style=\"text-align:center\"");
       break;
     }
   }
@@ -698,7 +739,7 @@ void pikchr_to_html(
   }
   blob_append(&bSrc, zSrc, nSrc)
     /*have to dup input to ensure a NUL-terminated source string */;
-  pikchr_process(blob_str(&bSrc), pikFlags, 0, ob);
+  pikchr_process(blob_str(&bSrc), pikFlags, ob);
   blob_reset(&bSrc);
 }
 
@@ -945,4 +986,61 @@ void markdown_to_html(
   if( output_title ) blob_reset(output_title);
   blob_reset(output_body);
   markdown(output_body, input_markdown, &html_renderer);
+}
+
+/*
+** Undo HTML escapes in Blob p.  In other words convert:
+**
+**     &amp;     ->     &
+**     &lt;      ->     <
+**     &gt;      ->     >
+**     &quot;    ->     "
+**     &#NNN;    ->     ascii character NNN
+*/
+void markdown_dehtmlize_blob(Blob *p){
+  char *z;
+  unsigned int j, k;
+
+  z = p->aData;
+  for(j=k=0; j<p->nUsed; j++){
+    char c = z[j];
+    if( c=='&' ){
+      if( z[j+1]=='#' && fossil_isdigit(z[j+2]) ){
+        int n = 3;
+        int x = z[j+2] - '0';
+        if( fossil_isdigit(z[j+3]) ){
+          x = x*10 + z[j+3] - '0';
+          n++;
+          if( fossil_isdigit(z[j+4]) ){
+            x = x*10 + z[j+4] - '0';
+            n++;
+          }
+        }
+        if( z[j+n]==';' ){
+          z[k++] = (char)x;
+          j += n;
+        }else{
+          z[k++] = c;
+        }
+      }else if( memcmp(&z[j],"&lt;",4)==0 ){
+        z[k++] = '<';
+        j += 3;
+      }else if( memcmp(&z[j],"&gt;",4)==0 ){
+        z[k++] = '>';
+        j += 3;
+      }else if( memcmp(&z[j],"&quot;",6)==0 ){
+        z[k++] = '"';
+        j += 5;
+      }else if( memcmp(&z[j],"&amp;",5)==0 ){
+        z[k++] = '&';
+        j += 4;
+      }else{
+        z[k++] = c;
+      }
+    }else{
+      z[k++] = c;
+    }
+  }
+  z[k] = 0;
+  p->nUsed = k;
 }

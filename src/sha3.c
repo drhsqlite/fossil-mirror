@@ -614,7 +614,7 @@ char *sha3sum(const char *zIn, int iSize){
   SHA3Init(&ctx, iSize);
   SHA3Update(&ctx, (unsigned const char*)zIn, strlen(zIn));
   DigestToBase16(SHA3Final(&ctx), zDigest, iSize/8);
-  return mprintf("%s", zDigest);
+  return fossil_strdup(zDigest);
 }
 #endif
 

@@ -68,7 +68,7 @@ ones we’ve heard before and give our stock answers to them here:
     Atop that, Fossil sends HTTP headers to the browser that allow it
     to perform aggressive caching so that typical page loads will skip
     re-loading this content on subsequent loads. These features are
-    currently optional: you must either set the new
+    currently optional: you must either set the
     [`fossil server --jsmode bundle` option][fsrv] or the corresponding
     `jsmode` control line
     in your [`fossil cgi`][fcgi] script when setting up your
@@ -102,7 +102,7 @@ ones we’ve heard before and give our stock answers to them here:
     data to the remote server, retrieve an entire new HTML document,
     and re-render the whole thing client-side.
 
-3.  <a id="3pjs"></a>“**Third-party JavaScript cannot be trusted.**”
+3.  “<a id="3pjs"></a>**Third-party JavaScript cannot be trusted.**”
 
     Fossil does not use any third-party JavaScript libraries, not even
     very common ones like jQuery. Every bit of JavaScript served by the
@@ -115,7 +115,7 @@ ones we’ve heard before and give our stock answers to them here:
     directly, just as you can hack on its C, SQL, and Tcl code. Fossil
     is free and open source software, under [a single license][2cbsd].
 
-4.  <a id="snoop"></a>“**JavaScript and cookies are used to snoop on web users.**”
+4.  “<a id="snoop"></a>**JavaScript and cookies are used to snoop on web users.**”
 
     There is no tracking or other snooping technology in Fossil other than
     that necessary for basic security, such as IP address logging on
@@ -186,7 +186,7 @@ ones we’ve heard before and give our stock answers to them here:
     to get involved with the development if they want this state of
     affairs to continue.
 
-8.  <a id="stats"></a>“**A large number of users run without JavaScript enabled.**”
+8.  “<a id="stats"></a>**A large number of users run without JavaScript enabled.**”
   
     That’s not what web audience measurements say:
 
@@ -209,7 +209,7 @@ ones we’ve heard before and give our stock answers to them here:
     between these two forces, the number of no-JS purists among Fossil’s
     user base is still a tiny minority.
 
-9.  <a id="block"></a>“**I block JavaScript entirely in my browser. That breaks Fossil.**”
+9.  “<a id="block"></a>**I block JavaScript entirely in my browser. That breaks Fossil.**”
 
     First, see our philosophy statements above. Briefly, we intend that
     there always be some other way to get any given result without using
@@ -239,7 +239,7 @@ ones we’ve heard before and give our stock answers to them here:
     you will have to [get involved with its development][cg]: it’s
     *your* uncommon itch.
 
-11. <a id="compat"></a>“**Fossil’s JavaScript code isn’t compatible with my browser.**”
+11. “<a id="compat"></a>**Fossil’s JavaScript code isn’t compatible with my browser.**”
 
     The Fossil project’s developers aim to remain compatible with
     the largest portions of the client-side browser base. We use only
@@ -265,13 +265,13 @@ ones we’ve heard before and give our stock answers to them here:
 [dcsp]:   ./defcsp.md
 [es2015]: https://ecma-international.org/ecma-262/6.0/
 [es6dep]: https://caniuse.com/#feat=es6
-[fcgi]:   /help?cmd=cgi
+[fcgi]:   /help/cgi
 [ffor]:   https://fossil-scm.org/forum/
 [flic]:   /doc/trunk/COPYRIGHT-BSD2.txt
 [fshome]: /doc/trunk/www/server/
 [fslpl]:  /doc/trunk/www/fossil-v-git.wiki#portable
 [fsrc]:   https://fossil-scm.org/home/file/src
-[fsrv]:   /help?cmd=server
+[fsrv]:   /help/server
 [hljs]:   https://fossil-scm.org/forum/forumpost/9150bc22ca
 [ie11x]:  https://techcommunity.microsoft.com/t5/microsoft-365-blog/microsoft-365-apps-say-farewell-to-internet-explorer-11-and/ba-p/1591666
 [ns]:     https://noscript.net/
@@ -392,7 +392,7 @@ $ vi                                     # work sans named file today
 Extending this concept to other text editors is an exercise left to the
 reader.
 
-[fwc]: /help?cmd=wiki
+[fwc]: /help/wiki
 [fwt]: ./wikitheory.wiki
 
 
@@ -432,7 +432,7 @@ cases. ([Example][mainc].) Toggling them on and off is currently handled
 in JavaScript, rather than forcing a page-reload via a button click.
 
 _Workaround:_ Manually edit the URL to give the “`ln`” query parameter
-per [the `/file` docs](/help?cmd=/file).
+per [the `/file` docs](/help/www/file).
 
 _Potential Better Workaround:_ Someone sufficiently interested could
 [provide a patch][cg] to add a `<noscript>` wrapped HTML button that

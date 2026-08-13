@@ -41,7 +41,6 @@
 ** combined with one of the other filters (useful for looking at a specific
 ** branch).
 */
-
 void page_timeline_rss(void){
   Stmt q;
   int nLine=0;
@@ -81,9 +80,9 @@ void page_timeline_rss(void){
 
   if( zType[0]!='a' ){
     if( zType[0]=='c' && !g.perm.Read ) zType = "x";
-    if( zType[0]=='w' && !g.perm.RdWiki ) zType = "x";
-    if( zType[0]=='t' && !g.perm.RdTkt ) zType = "x";
-    if( zType[0]=='f' && !g.perm.RdForum ) zType = "x";
+    else if( (zType[0]=='w' || zType[0]=='e') && !g.perm.RdWiki ) zType = "x";
+    else if( zType[0]=='t' && !g.perm.RdTkt ) zType = "x";
+    else if( zType[0]=='f' && !g.perm.RdForum ) zType = "x";
     blob_append_sql(&bSQL, " AND event.type=%Q", zType);
   }else{
     blob_append_sql(&bSQL, " AND event.type in (");
@@ -94,7 +93,7 @@ void page_timeline_rss(void){
       blob_append_sql(&bSQL, "'t',");
     }
     if( g.perm.RdWiki ){
-      blob_append_sql(&bSQL, "'w',");
+      blob_append_sql(&bSQL, "'w','e',");
     }
     if( g.perm.RdForum ){
       blob_append_sql(&bSQL, "'f',");

@@ -9,7 +9,7 @@ before it is compiled.  Most users will download a
 so this is of no consequence to them, and even those who
 want to compile the code themselves can use one of the
 [./build.wiki | existing makefiles].
-So must people do not need to be concerned with the
+So most people do not need to be concerned with the
 build complexities of Fossil.  But hard-core developers who desire
 a deep understanding of how Fossil is put together can benefit
 from reviewing this article.
@@ -43,7 +43,7 @@ the same name in the
 standard [http://www.sqlite.org/amalgamation.html | amalgamation].
 The sqlite3.c file implements the database engine.  The shell.c file
 implements the command-line shell, which is accessed in fossil using
-the [/help?cmd=sqlite3 | fossil sql] command.
+the [/help/sqlite3 | fossil sql] command.
 
 The shell.c command-line shell uses the [https://github.com/antirez/linenoise |
 linenoise] library to implement line editing.  linenoise comprises two
@@ -58,7 +58,7 @@ The TH1 script engine is implemented using files:
   9.  th.c
   10.  th.h
 
-The proprocessing steps are omitted for all of these imported
+The preprocessing steps are omitted for all of these imported
 files.
 
 The VERSION.h header file is generated from other information sources
@@ -68,13 +68,13 @@ using a small program called:
 
 The builtin_data.h header file contains the definitions of C-language
 byte-array constants that contain various resources such as scripts and
-images.  The builtin_data.h header file is generate from the original
+images.  The builtin_data.h header file is generated from the original
 resource files using a small program called:
 
   12   [/file/tools/mkbuiltin.c | mkbuiltin.c]
 
 Examples of built-in resources include the [/file/src/diff.tcl | diff.tcl]
-script used to implement the --tk option to [/help?cmd=diff| fossil diff],
+script used to implement the --tk option to [/help/diff| fossil diff],
 the [/file/src/markdown.md | markdown documentation], and the various
 CSS scripts, headers, and footers used to implement built-in skins.  New
 resources files are added to the "extra_files" variable in
@@ -134,7 +134,7 @@ the exceptions described above.
 <h1>3.0 Automatically generated files</h1>
 
 The "VERSION.h" header file contains some C preprocessor macros that
-identify the version of Fossil that is to be build.  The VERSION.h file is
+identify the version of Fossil that is to be built.  The VERSION.h file is
 generated automatically from information extracted from the "manifest",
 "manifest.uuid", and "VERSION" source files in the root directory of the
 source tree.
@@ -267,11 +267,11 @@ When compiling sqlite.c, the following macros are recommended:
 
 The first three symbol definitions above are required; the others are merely
 recommended.  Extension loading is omitted as a security measure. The dbstat
-virtual table is needed for the [/help?cmd=/repo-tabsize|/repo-tabsize] page.
+virtual table is needed for the [/help/www/repo-tabsize|/repo-tabsize] page.
 FTS4 is needed for the search feature.  Fossil is single-threaded so mutexing
 is disabled in SQLite as a performance enhancement.  The
 SQLITE_ENABLE_EXPLAIN_COMMENTS option makes the output of "EXPLAIN" queries
-in the  "[/help?cmd=sqlite3|fossil sql]" command much more readable.
+in the  "[/help/sqlite3|fossil sql]" command much more readable.
 
 When compiling the shell.c source file, these macros are required:
 
@@ -296,8 +296,8 @@ dependences are used.
 
 <h1>7.0 Debugging</h1>
 
-Debug mode is controlled via FOSSIL_DEBUG preprocessor macro which could be
-set explicitly at the make command for the target platform.
+Debug mode is controlled via a FOSSIL_DEBUG preprocessor macro. This can be
+set explicitly with the make command for the target platform.
 
 However, in practice it is instead recommended to add a respective configure
 option for the target platform and then perform a clean build. This way the
@@ -315,10 +315,11 @@ On Windows:
 win\buildmsvc.bat FOSSIL_DEBUG=1
 </pre>
 
-The resulting fossil binary could then be loaded into a platform-specific
+The resulting fossil binary can then be loaded into a platform-specific
 debugger. Source files displayed in the debugger correspond to the ones
-generated from the translation stage of the build process, that is what was
-actually compiled into the object files.
+generated from the translation stage of the build process, as that is what
+was actually compiled into the respective object files that make up the
+fossil binary.
 
 <h1>8.0 See Also</h1>
 

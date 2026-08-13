@@ -19,6 +19,10 @@
 
   const F = global.fossil;
 
+  /** Creates a prototype-less plain object with properties derived
+      from all of its object-type arguments. */
+  F.nu = (...obj)=>Object.assign(Object.create(null),...obj);
+
   /**
      Returns the current time in something approximating
      ISO-8601 format.
@@ -56,7 +60,7 @@
   **
   ** Returns this object.
   */
-  F.message = function f(msg){
+  F.message = function f(){
     const args = Array.prototype.slice.call(arguments,0);
     const tgt = f.targetElement;
     if(args.length) args.unshift(
@@ -86,22 +90,21 @@
     );
   }
   /*
-  ** By default fossil.error() sends its first argument to
+  ** By default fossil.error() sends all arguments to
   ** console.error(). If fossil.message.targetElement (yes,
   ** fossil.message) is set, it adds the 'error' CSS class to
   ** that element and sets its content as defined for message().
   **
   ** Returns this object.
   */
-  F.error = function f(msg){
+  F.error = function f(){
     const args = Array.prototype.slice.call(arguments,0);
     const tgt = F.message.targetElement;
     args.unshift(timestring(),'UTC:');
     if(tgt){
       tgt.classList.add('error');
       tgt.innerText = args.join(' ');
-    }
-    else{
+    }else{
       args.unshift('Fossil error:');
       console.error.apply(console,args);
     }
@@ -139,7 +142,7 @@
      Creates a URL by prepending this.rootPath to the given path
      (which must be relative from the top of the site, without a
      leading slash). If urlParams is a string, it must be
-     paramters encoded in the form "key=val&key2=val2..." WITHOUT
+     parameters encoded in the form "key=val&key2=val2..." WITHOUT
      a leading '?'. If it's an object, all of its properties get
      appended to the URL in that form.
   */
@@ -304,20 +307,20 @@
      the default wait time set in this function's $defaultDelay
      property is used.
 
-     Source: underscore.js, by way of https://davidwalsh.name/javascript-debounce-function
+     Inspiration: underscore.js, by way of https://davidwalsh.name/javascript-debounce-function
   */
-  F.debounce = function f(func, wait, immediate) {
-    var timeout;
-    if(!wait) wait = f.$defaultDelay;
+  F.debounce = function f(func, waitMs, immediate) {
+    var timeoutId;
+    if(!waitMs) waitMs = f.$defaultDelay;
     return function() {
       const context = this, args = Array.prototype.slice.call(arguments);
       const later = function() {
-        timeout = undefined;
+        timeoutId = undefined;
         if(!immediate) func.apply(context, args);
       };
-      const callNow = immediate && !timeout;
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
+      const callNow = immediate && !timeoutId;
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(later, waitMs);
       if(callNow) func.apply(context, args);
     };
   };

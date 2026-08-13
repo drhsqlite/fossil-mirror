@@ -75,10 +75,10 @@ implementation detail which currently happens to use SQLite.
 Another way to think of the relational tables in a Fossil repository is
 as an index for the artifacts.  Without the relational tables,
 to generate a report like a timeline would require scanning every artifact -
-the equivalent of a full table scan.  The relational tables hold pointers
+the equivalent of a full table scan.  The relational tables hold pointers to
 the relevant artifacts in presorted order so that generating a timeline
 is much more efficient.  So like an index in a relational database, the
-relational tables in an Fossil repository do not add any new information,
+relational tables in a Fossil repository do not add any new information,
 they merely make the information in the artifacts faster and easier to
 look up.
 

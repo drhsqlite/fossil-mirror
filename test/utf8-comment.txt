@@ -1,0 +1,1 @@
+The comment formatter handles ｆｕｌｌｗｉｄｔｈ and multi-byte [äöü] and symbols [☃] and emoji [💾] characters!

@@ -24,6 +24,23 @@
 **
 ** https://fossil-scm.org/forum/forumpost/66d7075f40
 ** https://fossil-scm.org/home/timeline?r=accordion-fix
+**
+** To work around the missing support for `overflow-y: clip', this script uses a
+** fallback and sets `overflow-y: hidden' during the accordion panel animations.
+** That's because if `overflow-y: hidden' is set statically from the stylesheet,
+** the shadow of the selected or current timeline entries in the context section
+** of `/info' pages is still truncated on the right (which is strange, as that's
+** not the "y" direction) in all major browsers. Otherwise, the stylesheet might
+** define the fallback using the `@supports(…)' at-rule:
+**
+**   .accordion_panel {
+**     overflow-y: hidden;
+**   }
+**   @supports(overflow-y: clip) {
+**     .accordion_panel {
+**       overflow-y: clip;
+**     }
+**   }
 */
 var acc_svgdata = ["data:image/svg+xml,"+
   "%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E"+
@@ -43,15 +60,26 @@ for(var i=0; i<a.length; i++){
   img.src = acc_svgdata[0]+acc_svgdata[3]+acc_svgdata[1];
   img.className = "accordion_btn accordion_btn_minus";
   a[i].insertBefore(img,a[i].firstChild);
-  a[i].addEventListener("click",function(){
+  a[i].addEventListener("click",function(evt){
+    /* Ignore clicks to hyperlinks and other "click-responsive" HTML elements in
+    ** ".accordion" headers (for which Fossil uses <DIV> elements that represent
+    ** section headers). */
+    var xClickyHTML = /^(?:A|AREA|BUTTON|INPUT|LABEL|SELECT|TEXTAREA|DETAILS)$/;
+    if( xClickyHTML.test(evt.target.tagName) ) return;
     var x = this.nextElementSibling;
     if( this.classList.contains("accordion_closed") ){
       x.style.maxHeight = x.scrollHeight + "px";
       setTimeout(function(){
         x.style.maxHeight = "";
+        if( !window.CSS || !window.CSS.supports("overflow: clip") ){
+          x.style.overflowY = "";
+        }
       },250); // default.css: .accordion_panel { transition-duration }
     }else{
       x.style.maxHeight = x.scrollHeight + "px";
+      if( !window.CSS || !window.CSS.supports("overflow: clip") ){
+        x.style.overflowY = "hidden";
+      }
       setTimeout(function(){
         x.style.maxHeight = "0";
       },1);

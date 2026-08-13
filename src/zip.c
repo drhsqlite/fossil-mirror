@@ -232,7 +232,7 @@ void zip_set_timedate_from_str(const char *zDate){
 }
 
 /*
-** Set the date and time from a julian day number.
+** Set the date and time from a Julian day number.
 */
 void zip_set_timedate(double rDate){
   char *zDate = db_text(0, "SELECT datetime(%.17g)", rDate);
@@ -269,7 +269,7 @@ static void zip_add_file_to_zip(
   char zBuf[100];
   char zOutBuf[100000];
 
-  /* Fill in as much of the header as we know.
+  /* Fill inasmuch of the header as we know.
   */
   nameLen = (int)strlen(zName);
   if( nameLen==0 ) return;
@@ -408,12 +408,12 @@ static void zip_add_file_to_sqlar(
         "PRAGMA journal_mode = off;"
         "PRAGMA cache_spill = off;"
         "BEGIN;"
-        "CREATE TABLE sqlar("
-          "name TEXT PRIMARY KEY,  -- name of the file\n"
-          "mode INT,               -- access permissions\n"
-          "mtime INT,              -- last modification time\n"
-          "sz INT,                 -- original file size\n"
-          "data BLOB               -- compressed content\n"
+        "CREATE TABLE sqlar(\n"
+          "  name TEXT PRIMARY KEY,  -- name of the file\n"
+          "  mode INT,               -- access permissions\n"
+          "  mtime INT,              -- last modification time\n"
+          "  sz INT,                 -- original file size\n"
+          "  data BLOB               -- compressed content\n"
         ");", 0, 0, 0
     );
     sqlite3_prepare(p->db,
@@ -498,7 +498,7 @@ static void zip_add_folders(Archive *p, char *zName){
       if( j>=nDir ){
         nDir++;
         azDir = fossil_realloc(azDir, sizeof(azDir[0])*nDir);
-        azDir[j] = mprintf("%s", zName);
+        azDir[j] = fossil_strdup(zName);
         zip_add_file(p, zName, 0, 0);
       }
       zName[i+1] = c;
@@ -564,36 +564,130 @@ static void zip_close(Archive *p){
   azDir = 0;
 }
 
+/* Functions found in shell.c */
+extern int sqlite3_fileio_init(sqlite3*,char**,const sqlite3_api_routines*);
+extern int sqlite3_zipfile_init(sqlite3*,char**,const sqlite3_api_routines*);
+
 /*
 ** COMMAND: test-filezip
 **
-** Generate a ZIP archive specified by the first argument that
-** contains files given in the second and subsequent arguments.
+** Usage: %fossil test-filezip [OPTIONS] ZIPFILE [FILENAME...]
+**
+** This command uses Fossil infrastructure or read or create a ZIP
+** archive named by the ZIPFILE argument.  With no options, a new
+** ZIP archive is created and there must be at least one FILENAME
+** argument. If the -l option is used, the contents of the named ZIP
+** archive are listed on standard output.  With the -x argument, the
+** contents of the ZIP archive are extracted.
+**
+** There are two purposes for this command:  (1) To server as a test
+** platform for the Fossil ZIP archive generator, and (2) to provide
+** rudimentary ZIP archive creation capabilities on platforms that do
+** not have the "zip" command installed.
+**
+** Options:
+**
+**    -h|--dereference    Follow symlinks
+**    -l|--list           List the contents of the ZIP archive
+**    -x|--extract        Extract files from a ZIP archive
 */
 void filezip_cmd(void){
-  int i;
-  Blob zip;
-  Blob file;
   int eFType = SymFILE;
-  Archive sArchive;
-  memset(&sArchive, 0, sizeof(Archive));
-  sArchive.eType = ARCHIVE_ZIP;
-  sArchive.pBlob = &zip;
-  if( g.argc<3 ){
-    usage("ARCHIVE FILE....");
-  }
+  int doList = 0;
+  int doExtract = 0;
+  char *zArchiveName;
   if( find_option("dereference","h",0)!=0 ){
     eFType = ExtFILE;
   }
-  zip_open();
-  for(i=3; i<g.argc; i++){
-    blob_zero(&file);
-    blob_read_from_file(&file, g.argv[i], eFType);
-    zip_add_file(&sArchive, g.argv[i], &file, file_perm(0,eFType));
-    blob_reset(&file);
+  if( find_option("list","l",0)!=0 ){
+    doList = 1;
   }
-  zip_close(&sArchive);
-  blob_write_to_file(&zip, g.argv[2]);
+  if( find_option("extract","x",0)!=0 ){
+    if( doList ){
+      fossil_fatal("incompatible options: -l and -x");
+    }
+    doExtract = 1;
+  }
+  if( g.argc<3 ){
+    usage("ARCHIVE FILES...");
+  }
+  zArchiveName = g.argv[2];
+  sqlite3_open(":memory:", &g.db);
+  if( doList ){
+    /* Do a content listing of a ZIP archive */
+    Stmt q;
+    int nRow = 0;
+    i64 szTotal = 0;
+    if( file_size(zArchiveName, eFType)<0 ){
+      fossil_fatal("No such ZIP archive: %s", zArchiveName);
+    }
+    if( g.argc>3 ){
+      fossil_fatal("extra arguments after \"fossil test-filezip -l ARCHIVE\"");
+    }
+    sqlite3_zipfile_init(g.db, 0, 0);
+    db_multi_exec("CREATE VIRTUAL TABLE z1 USING zipfile(%Q)", zArchiveName);
+    db_prepare(&q,
+       "SELECT sz, datetime(mtime,'unixepoch'),"
+       "       if(((mode>>12)&15)==10,name||' -> '||data,name) FROM z1"
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      int sz = db_column_int(&q, 0);
+      szTotal += sz;
+      if( nRow==0 ){
+        fossil_print("  Length      Date    Time    Name\n");
+        fossil_print("---------  ---------- -----   ----\n");
+      }
+      nRow++;
+      fossil_print("%9d  %.16s   %s\n", sz, db_column_text(&q,1),
+                   db_column_text(&q,2));
+    }
+    if( nRow ){
+      fossil_print("---------                     --------\n");
+      fossil_print("%9lld  %16s   %d files\n", szTotal, "", nRow);
+    }
+    db_finalize(&q);
+  }else if( doExtract ){
+    /* Extract files from an existing ZIP archive */
+    if( file_size(zArchiveName, eFType)<0 ){
+      fossil_fatal("No such ZIP archive: %s", zArchiveName);
+    }
+    if( g.argc>3 ){
+      fossil_fatal("extra arguments after \"fossil test-filezip -x ARCHIVE\"");
+    }
+    sqlite3_zipfile_init(g.db, 0, 0);
+    sqlite3_fileio_init(g.db, 0, 0);
+    db_multi_exec("CREATE VIRTUAL TABLE z1 USING zipfile(%Q)", zArchiveName);
+    db_multi_exec(
+       "SELECT writefile(name,data) FROM z1"
+       " WHERE ((mode>>12)&15)!=10"
+    );
+  }else{
+    /* Without the -x or -l options, construct a new ZIP archive */
+    int i;
+    Blob zip;
+    Blob file;
+    Archive sArchive;
+    memset(&sArchive, 0, sizeof(Archive));
+    sArchive.eType = ARCHIVE_ZIP;
+    sArchive.pBlob = &zip;
+    if( file_size(zArchiveName, eFType)>0 ){
+      fossil_fatal("ZIP archive %s already exists", zArchiveName);
+    }
+    zip_open();
+    for(i=3; i<g.argc; i++){
+      double rDate;
+      i64 iDate;
+      blob_zero(&file);
+      blob_read_from_file(&file, g.argv[i], eFType);
+      iDate = file_mtime(g.argv[i], eFType);
+      rDate = ((double)iDate)/86400.0 + 2440587.5;
+      zip_set_timedate(rDate);
+      zip_add_file(&sArchive, g.argv[i], &file, file_perm(0,eFType));
+      blob_reset(&file);
+    }
+    zip_close(&sArchive);
+    blob_write_to_file(&zip, g.argv[2]);
+  }
 }
 
 /*
@@ -654,7 +748,7 @@ static void zip_of_checkin(
     int flg, eflg = 0;
     char *zName = 0;
     zip_set_timedate(pManifest->rDate);
-    flg = db_get_manifest_setting();
+    flg = db_get_manifest_setting(blob_str(&hash));
     if( flg ){
       /* eflg is the effective flags, taking include/exclude into account */
       if( (pInclude==0 || glob_match(pInclude, "manifest"))
@@ -778,15 +872,7 @@ static void archive_cmd(int eType){
   }
 
   if( zName==0 ){
-    zName = db_text("default-name",
-       "SELECT replace(%Q,' ','_') "
-          " || strftime('_%%Y-%%m-%%d_%%H%%M%%S_', event.mtime) "
-          " || substr(blob.uuid, 1, 10)"
-       "  FROM event, blob"
-       " WHERE event.objid=%d"
-       "   AND blob.rid=%d",
-       db_get("project-name", "unnamed"), rid, rid
-    );
+    zName = archive_base_name(rid);
   }
   zip_of_checkin(eType, rid, zOut ? &zip : 0,
                  zName, pInclude, pExclude, listFlag);
@@ -875,7 +961,8 @@ void sqlar_cmd(void){
 ** VERSION.  The archive is called NAME.zip or NAME.sqlar and has a top-level
 ** directory called NAME.
 **
-** The optional VERSION element defaults to "trunk" per the r= rules below.
+** The optional VERSION element defaults to the name of the main branch
+** (usually "trunk") per the r= rules below.
 ** All of the following URLs are equivalent:
 **
 **      /zip/release/xyz.zip
@@ -888,27 +975,45 @@ void sqlar_cmd(void){
 **   name=[CKIN/]NAME    The optional CKIN component of the name= parameter
 **                       identifies the check-in from which the archive is
 **                       constructed.  If CKIN is omitted and there is no
-**                       r= query parameter, then use "trunk".  NAME is the
+**                       r= query parameter, then use the name of the main
+**                       branch (usually "trunk").  NAME is the
 **                       name of the download file.  The top-level directory
 **                       in the generated archive is called by NAME with the
 **                       file extension removed.
 **
 **   r=TAG               TAG identifies the check-in that is turned into an
-**                       SQL or ZIP archive.  The default value is "trunk".
+**                       SQL or ZIP archive.  The default value is the name
+**                       of the main branch (usually "trunk").
 **                       If r= is omitted and if the name= query parameter
 **                       contains one "/" character then the of part the
 **                       name= value before the / becomes the TAG and the
 **                       part of the name= value  after the / is the download
 **                       filename.  If no check-in is specified by either
-**                       name= or r=, then "trunk" is used.
+**                       name= or r=, then the name of the main branch
+**                       (usually "trunk") is used.
 **
-**   in=PATTERN          Only include files that match the comma-separate
+**   in=PATTERN          Only include files that match the comma-separated
 **                       list of GLOB patterns in PATTERN, as with ex=
 **
 **   ex=PATTERN          Omit any file that match PATTERN.  PATTERN is a
 **                       comma-separated list of GLOB patterns, where each
 **                       pattern can optionally be quoted using ".." or '..'.
 **                       Any file matching both ex= and in= is excluded.
+**
+** Robot Defenses:
+**
+**   *    If "zip" appears in the robot-restrict setting, then robots are
+**        not allowed to access this page.  Suspected robots will be
+**        presented with a captcha.
+**
+**   *    If "zipX" appears in the robot-restrict setting, then robots are
+**        restricted in the same way as with "zip", but with exceptions.
+**        If the check-in for which an archive is requested is a leaf check-in
+**        and if the robot-zip-leaf setting is true, then the request is
+**        allowed.  Or if the check-in has a tag that matches any of the
+**        GLOB patterns on the list in the robot-zip-tag setting, then the
+**        request is allowed.  Otherwise, the usual robot defenses are
+**        activated.
 */
 void baseline_zip_page(void){
   int rid;
@@ -926,6 +1031,7 @@ void baseline_zip_page(void){
 
   login_check_credentials();
   if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
+  if( robot_restrict("zip") ) return;
   if( fossil_strcmp(g.zPath, "sqlar")==0 ){
     eType = ARCHIVE_SQLAR;
     zType = "SQL";
@@ -938,7 +1044,7 @@ void baseline_zip_page(void){
   z = P("r");
   if( z==0 ) z = P("uuid");
   if( z==0 ) z = tar_uuid_from_name(&zName);
-  if( z==0 ) z = "trunk";
+  if( z==0 ) z = fossil_strdup(db_main_branch());
   nName = strlen(zName);
   g.zOpenRevision = zRid = fossil_strdup(z);
   nRid = strlen(zRid);
@@ -979,6 +1085,7 @@ void baseline_zip_page(void){
     @ Not found
     return;
   }
+  if( robot_restrict_zip(rid) ) return;
   if( nRid==0 && nName>10 ) zName[10] = 0;
 
   /* Compute a unique key for the cache entry based on query parameters */

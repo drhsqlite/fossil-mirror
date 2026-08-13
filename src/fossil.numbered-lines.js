@@ -23,14 +23,8 @@
       .replace(/&?\budc=[^&]*/,'') /* "update display prefs cookie" */
       .replace(/&?\bln=[^&]*/,'') /* inbound line number/range */
       .replace('?&','?');
-  var urlArgsDecoded = urlArgsRaw;
-  try{urlArgsDecoded = decodeURIComponent(urlArgsRaw);}
-  catch{}
-  const lineState = { urlArgs: urlArgsDecoded, start: 0, end: 0 };
+  const lineState = { urlArgs: urlArgsRaw, start: 0, end: 0 };
   const lineTip = new F.PopupWidget({
-    style: {
-      cursor: 'pointer'
-    },
     refresh: function(){
       const link = this.state.link;
       D.clearElement(link);
@@ -53,19 +47,18 @@
     },
     init: function(){
       const e = this.e;
-      const btnCopy = D.span(),
-            link = D.span();
+      const btnCopy = D.attr(D.button(), 'id', 'linenum-copy-button');
+            link = D.label('linenum-copy-button');
       this.state = {link};
       F.copyButton(btnCopy,{
         copyFromElement: link,
         extractText: ()=>link.dataset.url,
         oncopy: (ev)=>{
-          D.flashOnce(ev.target, undefined, ()=>lineTip.hide());
+          setTimeout(()=>lineTip.hide(), 400);
           // arguably too snazzy: F.toast.message("Copied link to clipboard.");
         }
       });
-      this.e.addEventListener('click', ()=>btnCopy.click(), false);
-      D.append(this.e, btnCopy, link)
+      D.append(this.e, btnCopy, link);
     }
   });
 

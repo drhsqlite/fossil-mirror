@@ -102,7 +102,7 @@ void capability_expand(CapabilityString *pIn){
   static char *zAnon = 0;
   static char *zReader = 0;
   static char *zDev = 0;
-  static char *zAdmin = "bcdefghijklmnopqrtwz234567AD";
+  static char *zAdmin = "bcdefghijklmnopqrtwz234567ACD";
   int doneV = 0;
 
   if( pIn==0 ){
@@ -306,6 +306,8 @@ static struct Caps {
     "Alerts", "Sign up for email alerts" },
   { 'A', CAPCLASS_ALERT|CAPCLASS_SUPER, 0,
     "Announce", "Send announcements to all subscribers" },
+  { 'B', CAPCLASS_FORUM|CAPCLASS_SUPER, 0,
+    "Forum-Attach", "Add attachment to Forum posts" },
   { 'C', CAPCLASS_FORUM, 0,
     "Chat",  "Read and/or writes messages in the chatroom" },
   { 'D', CAPCLASS_OTHER, 0,

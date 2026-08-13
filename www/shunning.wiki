@@ -35,7 +35,7 @@ All of these are rare cases: Fossil is [./antibot.wiki | designed to
 foil spammers up front], legally problematic check-ins should range from
 rare to nonexistent, and you have to go way out of your way to force
 Fossil to insert bad control artifacts. Therefore, before we get to
-methods of permanently deleting content from a Fossil repos, let's give
+methods of permanently deleting content from a Fossil repo, let's give
 some alternatives that usually suffice, which don't damage the project's
 fossil record:
 
@@ -135,7 +135,7 @@ using the "configuration" command:
     <b>fossil configuration pull shun</b> <i>remote-url</i><br>
     <b>fossil configuration push shun</b> <i>remote-url</i>
 
-The two command above will pull or push shunning lists from or to
+The two commands above will pull or push shunning lists from or to
 the <i>remote-url</i> indicated and merge the lists on the receiving
 end.  "Admin" privilege on the remote server is required in order to
 push a shun list.  In contrast, the shunning list will be automatically

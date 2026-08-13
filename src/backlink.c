@@ -64,8 +64,7 @@ void render_backlink_graph(const char *zUuid, const char *zLabel){
   blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
   db_prepare(&q, "%s", blob_sql_text(&sql));
   www_print_timeline(&q,
-      TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_NOSCROLL|TIMELINE_REFS,
-                     0, 0, 0, 0, 0, 0);
+      TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_NOSCROLL|TIMELINE_REFS, 0);
   db_finalize(&q);
   if( needEndPanel ){
     cgi_printf("</div>\n");
@@ -101,8 +100,7 @@ void backlink_timeline_page(void){
   blob_append(&sql, timeline_query_for_www(), -1);
   blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
   db_prepare(&q, "%s", blob_sql_text(&sql));
-  www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_NOSCROLL,
-                     0, 0, 0, 0, 0, 0);
+  www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_NOSCROLL,0);
   db_finalize(&q);
   style_finish_page();
 }
@@ -343,7 +341,7 @@ void markdown_extract_links(
 
 /*
 ** Transform mimetype string into an integer code.
-** NOTE: In the sake of compatability empty string is parsed as MT_UNKNOWN;
+** NOTE: In the sake of compatibility empty string is parsed as MT_UNKNOWN;
 **       it is yet unclear whether it can safely be changed to MT_NONE.
 */
 int parse_mimetype(const char* zMimetype){
@@ -436,9 +434,9 @@ void test_backlinks_cmd(void){
 
 
 /*
-** COMMAND: test-wiki-relink
+** COMMAND: test-relink-wiki
 **
-** Usage: %fossil test-wiki-relink  WIKI-PAGE-NAME
+** Usage: %fossil test-relink-wiki  WIKI-PAGE-NAME
 **
 ** Run the backlink_wiki_refresh() procedure on the wiki page
 ** named.  WIKI-PAGE-NAME can be a glob pattern or a prefix

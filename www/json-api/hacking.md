@@ -81,7 +81,7 @@ help text mechanism (which is based on code comments in the
 command/path's dispatcher impl) and the ability to write abbreviated
 command names in CLI mode ("json" itself may be abbreviated, but not the
 subcommands). The advantages are that we can handle CLI/HTTP modes
-almost identically (there are a couple minor differences) by unifying
+almost identically (there are a couple of minor differences) by unifying
 them under the same callback functions much more easily.
 
 The top-level "json" command/path uses its own dispatching mechanism
@@ -127,7 +127,7 @@ if they really want to). One exception is `fossil_exit()`, which does
 _not_ generate any extra output and will `exit()` the app. In the JSON
 API, as a rule of thumb, `fossil_exit()` is only used when we *want* a
 failed request to cause an HTTP 500 error, and it is reserved for
-allocation errors and similar truly catostrophic failures. That said...
+allocation errors and similar truly catastrophic failures. That said...
 libcson has been hacked to use `fossil_alloc()` and friends for memory
 management, and those routines exit on error, so alloc error handling in
 the JSON command handler code can afford to be a little lax (the
@@ -261,7 +261,7 @@ functions which behave ever so slightly differently. A summary:
     `POST.payload` is-a Object).
 -   `json_find_option_TYPE()`: searches the CLI args (only when in CLI
     mode) and the JSON environment.
--   The use of fossil's `P()` and `PD()` macros is discourages in JSON
+-   The use of fossil's `P()` and `PD()` macros is discouraged in JSON
     callbacks because they can only handle String data from the CLI or
     GET parameters (not POST/`POST.payload`). (Note that `P()` and `PD()`
     *normally* also handle POSTed keys, but they only "see" values
@@ -282,7 +282,7 @@ any of the functions named `json_page_SOMETHING()`.
 ## Creating JSON Values
 
 cson has a fairly rich API for creating and manipulating the various
-JSON-defined value types. For a detailed overview and demonstration i
+JSON-defined value types. For a detailed overview and demonstration I
 recommend reading:
 
 [](https://fossil.wanderinghorse.net/wikis/cson/?page=HowTo)
@@ -312,11 +312,11 @@ form. See `json_stmt_to_array_of_obj()`,
 `json_stmt_to_array_of_array()` (both in `src/json.c`), and
 `cson_sqlite3_column_to_value()` and friends (in
 `extsrc/cson_amalgamation.h`). They work in an intuitive way for numeric
-types, but they optimistically/natively *assume* that any fields of type
+types, but they optimistically/naively *assume* that any fields of type
 TEXT or BLOB are actually UTF8 data, and treat them as such. cson's
 string class only handles UTF8 data and it is semantically illegal to
 feed them anything but UTF8. Violating this will likely result in
-down-stream errors (e.g. when emiting the JSON string output). **The
+down-stream errors (e.g. when emitting the JSON string output). **The
 moral of this story is:** *do not use these APIs to fetch binary data*.
 JSON doesn't do binary and the `cson_string` class does not
 protect itself against clients feeding it non-UTF8 data.
@@ -349,5 +349,5 @@ names we want. Note that the AS clause is often used to translate column
 names into something more JSON-conventional or user-friendly, e.g.
 "SELECT cap AS capabilities...". Alternately, we can convert the
 individual `sqlite3_stmt` column values to JSON using
-`cson_sqlite3_column_to_value()`, without refering directly to the
+`cson_sqlite3_column_to_value()`, without referring directly to the
 db-reported column name.

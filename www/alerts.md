@@ -5,10 +5,11 @@
 Beginning with version 2.7, Fossil can send email messages to
 subscribers to alert them to changes in the repository:
 
-  *  New [checkins](/help?cmd=ci)
+  *  New [checkins](/help/ci)
   *  [Ticket](./tickets.wiki) changes
   *  [Wiki](./wikitheory.wiki) page changes
   *  New and edited [forum](./forum.wiki) posts
+  *  Users receiving [new permissions](./caps/index.md) (admins only)
   *  Announcements
 
 Subscribers can elect to receive emails as soon as these events happen,
@@ -36,11 +37,6 @@ in as a user with [**Admin** capability](./caps/ref.html#a). It is not possible 
 clone of the server's repository and push the configuration changes up
 to that repo as an Admin user, [on purpose](#backup).
 
-**Important:** Do not confuse that screen with Admin → Email-Server,
-which sets up a different subsystem within Fossil. That feature is
-related to this document's topic, but it is currently incomplete, so we
-do not cover it at this time.
-
 <a id="cd"></a>
 You will also need a CLI window open with its working directory changed
 to a checkout directory of the Fossil repository you are setting up to
@@ -57,9 +53,10 @@ below.
 <a id="quick"></a>
 ## Quick Email Service Setup
 
-If you've already got a working Postfix, Exim, or Sendmail server on the
-machine running your Fossil instance(s), and you aren't using Fossil's
-`chroot` feature to wall Fossil off from the rest of the machine, it's
+If you've already got a working OpenSMTPD, Postfix, Exim, Sendmail,
+or similar server on the machine running your Fossil instance(s),
+and you aren't using Fossil's [chroot jail feature](./chroot.md)
+to wall Fossil off from the rest of the machine, it's
 fairly simple to set up email alerts.
 
 (Otherwise, skip [ahead](#advanced) to the sections on advanced email
@@ -313,7 +310,7 @@ send you an ale, as you might be hoping. Sorry.
 Fossil offers several methods of sending email:
 
   1.  Pipe the email message text into a command.
-  2.  Store email messages as entries in a SQLite database.
+  2.  Store email messages as entries in an SQLite database.
   3.  Store email messages as individual files in a directory.
   4.  Send emails to an SMTP relay.
   5.  Send emails directly to the recipients via SMTP.
@@ -392,12 +389,11 @@ it is running inside of a restrictive [chroot jail][cj] which is unable
 to hand off messages to the local MTA directly.
 
 When you configure a Fossil server this way, it adds outgoing email
-messages to a SQLite database file.  A separate daemon process can then
+messages to an SQLite database file.  A separate daemon process can then
 extract those messages for further disposition.
 
-Fossil includes a copy of [the daemon](/file/tools/email-sender.tcl)
-used on `fossil-scm.org`: it is just a short Tcl script that
-continuously monitors this database for new messages and hands any that
+Fossil uses a short TCL script (seen at [](/file/tools/email-sender.tcl))
+that continuously monitors this database for new messages and hands any that
 it finds off to a local MTA using the same [pipe to MTA protocol](#pipe)
 as above.
 
@@ -522,6 +518,10 @@ with more information and functionality than normal users get:
    lost.  Unchecking this box does not cause another verification email
    to be sent.
 
+*  Admin users (only) may activate the "user elevation" subscription,
+   which sends a notification when a user is created or is explicitly
+   assigned permission they did not formerly have.
+
 This screen also allows a Fossil Admin user to perform other activities
 on behalf of a subscriber which they could do themselves, such as to
 [unsubscribe](#unsub) them.
@@ -542,22 +542,22 @@ far:
 
 Commands:
 
-   *  The [`alerts`](/help?cmd=alerts) command
-   *  The [`test-alert`](/help?cmd=test-alert) command
-   *  The [`test-add-alerts`](/help?cmd=test-add-alerts) command
+   *  The [`alerts`](/help/alerts) command
+   *  The [`test-alert`](/help/test-alert) command
+   *  The [`test-add-alerts`](/help/test-add-alerts) command
 
 Web pages available to users and subscribers:
 
-   *  The [`/subscribe`](/help?cmd=/subscribe) page
-   *  The [`/alerts`](/help?cmd=/alerts) page
-   *  The [`/unsubscribe`](/help?cmd=/unsubscribe) page
-   *  The [`/renew`](/help?cmd=/renew) page
-   *  The [`/contact_admin`](/help?cmd=/contact_admin) page
+   *  The [`/subscribe`](/help/www/subscribe) page
+   *  The [`/alerts`](/help/www/alerts) page
+   *  The [`/unsubscribe`](/help/www/unsubscribe) page
+   *  The [`/renew`](/help/www/renew) page
+   *  The [`/contact_admin`](/help/www/contact_admin) page
 
 Administrator-only web pages:
 
-   *  The [`/setup_notification`](/help?cmd=/setup_notification) page
-   *  The [`/subscribers`](/help?cmd=/subscribers) page
+   *  The [`/setup_notification`](/help/www/setup_notification) page
+   *  The [`/subscribers`](/help/www/subscribers) page
 
 
 <a id="design"></a>

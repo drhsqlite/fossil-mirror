@@ -39,7 +39,7 @@
 ** option to see similar information about the same file for the check-in
 ** specified by VERSION.
 **
-** In the -s mode prints the status as <status> <revision>.  This is
+** The -s mode prints the status as <status> <revision>.  This is
 ** a quick status and does not check for up-to-date-ness of the file.
 **
 ** In the -p mode, there's an optional flag "-r|--revision REVISION".
@@ -166,7 +166,7 @@ void finfo_cmd(void){
       fossil_fatal("file not found for revision %s: %s",
                    zRevision, blob_str(&fname));
     }
-    whatis_rid(rid,whatisFlags);
+    whatis_rid(rid,whatisFlags,0);
     blob_reset(&fname);
   }else{
     Blob line;
@@ -178,6 +178,7 @@ void finfo_cmd(void){
     const char *zWidth;
     const char *zOffset;
     int iLimit, iOffset, iBrief, iWidth;
+    const char *zMainBranch;
 
     if( find_option("log","l",0) ){
       /* this is the default, no-op */
@@ -187,7 +188,7 @@ void finfo_cmd(void){
     iLimit = zLimit ? atoi(zLimit) : -1;
     zOffset = find_option("offset",0,1);
     iOffset = zOffset ? atoi(zOffset) : 0;
-    iBrief = (find_option("brief","b",0) == 0);
+    iBrief = find_option("brief","b",0) != 0;
     if( iLimit==0 ){
       iLimit = -1;
     }
@@ -230,9 +231,10 @@ void finfo_cmd(void){
         iLimit, iOffset
     );
     blob_zero(&line);
-    if( iBrief ){
+    if( iBrief == 0 ){
       fossil_print("History for %s\n", blob_str(&fname));
     }
+    zMainBranch = db_main_branch();
     while( db_step(&q)==SQLITE_ROW ){
       const char *zFileUuid = db_column_text(&q, 0);
       const char *zCiUuid = db_column_text(&q,1);
@@ -241,8 +243,8 @@ void finfo_cmd(void){
       const char *zUser = db_column_text(&q, 4);
       const char *zBr = db_column_text(&q, 5);
       char *zOut;
-      if( zBr==0 ) zBr = "trunk";
-      if( iBrief ){
+      if( zBr==0 ) zBr = fossil_strdup(zMainBranch);
+      if( iBrief == 0 ){
         fossil_print("%s ", zDate);
         zOut = mprintf(
            "[%S] %s (user: %s, artifact: [%S], branch: %s)",
@@ -378,6 +380,7 @@ void finfo_page(void){
   const char *zMark;          /* Mark this version of the file */
   int selRid = 0;             /* RID of the marked file version */
   int mxfnid;                 /* Maximum filename.fnid value */
+  const char *zMainBranch;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -396,6 +399,8 @@ void finfo_page(void){
     zStyle = "Columnar";
   }else if( tmFlags & TIMELINE_COMPACT ){
     zStyle = "Compact";
+  }else if( tmFlags & TIMELINE_SIMPLE ){
+    zStyle = "Simple";
   }else if( tmFlags & TIMELINE_VERBOSE ){
     zStyle = "Verbose";
   }else if( tmFlags & TIMELINE_CLASSIC ){
@@ -500,12 +505,12 @@ void finfo_page(void){
   );
   if( (zA = P("a"))!=0 ){
     blob_append_sql(&sql, "  AND event.mtime>=%.16g\n",
-         symbolic_name_to_mtime(zA,0));
+         symbolic_name_to_mtime(zA,0,0));
     url_add_parameter(&url, "a", zA);
   }
   if( (zB = P("b"))!=0 ){
     blob_append_sql(&sql, "  AND event.mtime<=%.16g\n",
-         symbolic_name_to_mtime(zB,0));
+         symbolic_name_to_mtime(zB,0,1));
     url_add_parameter(&url, "b", zB);
   }
   if( ridFrom ){
@@ -622,6 +627,7 @@ void finfo_page(void){
     int gidx;
     char zTime[10];
     int nParent = 0;
+    int bIsModified = 0;
     GraphRowId aParent[GR_MAX_RAIL];
 
     db_bind_int(&qparent, ":fid", frid);
@@ -632,11 +638,14 @@ void finfo_page(void){
       nParent++;
     }
     db_reset(&qparent);
-    if( zBr==0 ) zBr = "trunk";
+    zMainBranch = db_main_branch();
+    if( zBr==0 ) zBr = fossil_strdup(zMainBranch);
     if( uBg ){
       zBgClr = user_color(zUser);
     }else if( brBg || zBgClr==0 || zBgClr[0]==0 ){
-      zBgClr = strcmp(zBr,"trunk")==0 ? "" : hash_color(zBr);
+      zBgClr = strcmp(zBr, zMainBranch)==0 ? "" : hash_color(zBr);
+    }else if( zBgClr ){
+      zBgClr = reasonable_bg_color(zBgClr,0);
     }
     gidx = graph_add_row(pGraph,
                    frid>0 ? (GraphRowId)frid*(mxfnid+1)+fnid : fpid+1000000000,
@@ -664,6 +673,9 @@ void finfo_page(void){
     }else{
       @ <td class="timeline%s(zStyle)Cell">
     }
+    if( zPUuid && zUuid && fossil_strcmp(zPUuid, zUuid)!=0 ){
+      bIsModified = 1;
+    }
     if( tmFlags & TIMELINE_COMPACT ){
       @ <span class='timelineCompactComment' data-id='%d(frid)'>
     }else{
@@ -671,7 +683,11 @@ void finfo_page(void){
       if( pfnid ){
         char *zPrevName = db_text(0,"SELECT name FROM filename WHERE fnid=%d",
                                    pfnid);
-        @ <b>Renamed</b> %h(zPrevName) &rarr; %h(zFName).
+        if( bIsModified ){
+          @ <b>Renamed and modified</b> %h(zPrevName) &rarr; %h(zFName).
+        }else{
+          @ <b>Renamed</b> %h(zPrevName) &rarr; %h(zFName).
+        }
         fossil_free(zPrevName);
       }
       if( zUuid && ridTo==0 && nParent==0 ){
@@ -723,10 +739,10 @@ void finfo_page(void){
       cgi_printf("<span class='clutter' id='detail-%d'>",frid);
     }
     cgi_printf("<span class='timeline%sDetail'>", zStyle);
-    if( tmFlags & (TIMELINE_COMPACT|TIMELINE_VERBOSE) ) cgi_printf("(");
+    if( tmFlags & TIMELINE_INLINE ) cgi_printf("(");
     if( zUuid && (tmFlags & TIMELINE_VERBOSE)==0 ){
       @ file:&nbsp;%z(href("%R/file?name=%T&ci=%!S",zFName,zCkin))\
-      @ [%S(zUuid)]</a>
+      @ %S(zUuid)</a>
       if( fShowId ){
         int srcId = delta_source_rid(frid);
         if( srcId>0 ){
@@ -737,6 +753,11 @@ void finfo_page(void){
         }
       }
     }
+    if( tmFlags & TIMELINE_SIMPLE ){
+      @ <span class='timelineEllipsis' data-id='%d(frid)' \
+      @ id='ellipsis-%d(frid)'>...</span>
+      @ <span class='clutter' id='detail-%d(frid)'>
+    }
     @ check-in:&nbsp;\
     hyperlink_to_version(zCkin);
     if( fShowId ){
@@ -745,8 +766,8 @@ void finfo_page(void){
     @ user:&nbsp;\
     hyperlink_to_user(zUser, zDate, ",");
     @ branch:&nbsp;%z(href("%R/timeline?t=%T",zBr))%h(zBr)</a>,
-    if( tmFlags & (TIMELINE_COMPACT|TIMELINE_VERBOSE) ){
-      @ size:&nbsp;%d(szFile))
+    if( tmFlags & TIMELINE_INLINE ){
+      @ size:&nbsp;%d(szFile)
     }else{
       @ size:&nbsp;%d(szFile)
     }
@@ -758,7 +779,7 @@ void finfo_page(void){
       @ %z(href("%R/blame?filename=%h&checkin=%s",z,zCkin))
       @ [blame]</a>
       @ %z(href("%R/timeline?uf=%!S",zUuid))[check-ins&nbsp;using]</a>
-      if( fpid>0 ){
+      if( fpid>0 && bIsModified!=0 ){
         @ %z(href("%R/fdiff?v1=%!S&v2=%!S",zPUuid,zUuid))[diff]</a>
       }
       if( fileedit_is_editable(zFName) ){
@@ -785,8 +806,8 @@ void finfo_page(void){
     }
     tag_private_status(frid);
     /* End timelineDetail */
-    if( tmFlags & TIMELINE_COMPACT ){
-      @ </span></span>
+    if( tmFlags & TIMELINE_INLINE ){
+      @ </span>)</span>
     }else{
       @ </span>
     }
@@ -805,7 +826,10 @@ void finfo_page(void){
     }
   }
   @ </table>
-  timeline_output_graph_javascript(pGraph, TIMELINE_FILEDIFF, iTableId);
+  {
+    int tmFlags = TIMELINE_GRAPH | TIMELINE_FILEDIFF;
+    timeline_output_graph_javascript(pGraph, tmFlags, iTableId);
+  }
   style_finish_page();
 }
 

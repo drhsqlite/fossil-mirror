@@ -49,7 +49,7 @@
       previewTarget: E('#pikchrshow-output'),
       previewLegend: E('#pikchrshow-output-wrapper > legend'),
       previewCopyButton: D.attr(
-        D.addClass(D.span(),'copy-button'),
+        D.addClass(D.button(),'copy-button'),
         'id','preview-copy-button' 
       ),
       previewModeLabel: D.label('preview-copy-button'),
@@ -121,7 +121,6 @@
     ////////////////////////////////////////////////////////////
     // Setup clipboard-copy of markup/SVG...
     F.copyButton(P.e.previewCopyButton, {copyFromElement: P.e.taPreviewText});
-    P.e.previewModeLabel.addEventListener('click', ()=>P.e.previewCopyButton.click(), false);
 
     ////////////////////////////////////////////////////////////
     // Set up dark mode simulator...
@@ -350,7 +349,7 @@
       return;
     }
     D.removeClass(preTgt, 'error');
-    D.removeClass(this.e.previewCopyButton, 'disabled');
+    this.e.previewCopyButton.disabled = false;
     D.removeClass(this.e.markupAlignWrapper, 'hidden');
     D.enable(this.e.previewModeToggle, this.e.markupAlignRadios);
     let label, svg;
@@ -429,7 +428,7 @@
     }
     D.disable(fp.toDisable, this.e.previewModeToggle, this.e.markupAlignRadios);
     D.addClass(this.e.markupAlignWrapper, 'hidden');
-    D.addClass(this.e.previewCopyButton, 'disabled');
+    this.e.previewCopyButton.disabled = true;
     const content = this.e.taContent.value.trim();
     this.response.raw = this.response.rawSvg = undefined;
     this.response.inputText = content;

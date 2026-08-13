@@ -30,7 +30,7 @@ const char zConfigSchema[] =
 @ CREATE TABLE global_config(
 @   name TEXT PRIMARY KEY,
 @   value TEXT
-@ );
+@ ) WITHOUT ROWID;
 @
 @ -- Identifier for this file type.
 @ -- The integer is the same as 'FSLG'.
@@ -140,7 +140,7 @@ const char zRepositorySchema1[] =
 @   value CLOB,                      -- Content of the named parameter
 @   mtime DATE,                      -- last modified.  seconds since 1970
 @   CHECK( typeof(name)='text' AND length(name)>=1 )
-@ );
+@ ) WITHOUT ROWID;
 @
 @ -- Artifacts that should not be processed are identified in the
 @ -- "shun" table.  Artifacts that are control-file forgeries or
@@ -153,10 +153,10 @@ const char zRepositorySchema1[] =
 @ -- UUID.
 @ --
 @ CREATE TABLE shun(
-@   uuid UNIQUE,          -- UUID of artifact to be shunned. Canonical form
+@   uuid TEXT PRIMARY KEY,-- UUID of artifact to be shunned. Canonical form
 @   mtime DATE,           -- When added.  seconds since 1970
 @   scom TEXT             -- Optional text explaining why the shun occurred
-@ );
+@ ) WITHOUT ROWID;
 @
 @ -- Artifacts that should not be pushed are stored in the "private"
 @ -- table.  Private artifacts are omitted from the "unclustered" and
@@ -195,7 +195,7 @@ const char zRepositorySchema1[] =
 @   hash TEXT PRIMARY KEY,    -- The SHA1 hash of content
 @   mtime DATE,               -- Time created.  Seconds since 1970
 @   content TEXT              -- Content intended to be concealed
-@ );
+@ ) WITHOUT ROWID;
 @
 @ -- The application ID helps the unix "file" command to identify the
 @ -- database as a fossil repository.
@@ -261,7 +261,7 @@ const char zRepositorySchema2[] =
 @ --
 @ -- pid==0    if the file is added by check-in mid.
 @ -- pid==(-1) if the file exists in a merge parents but not in the primary
-@  --          parent.  In other words, if the file file was added by merge.
+@  --          parent.  In other words, if the file was added by merge.
 @ -- fid==0    if the file is removed by check-in mid.
 @ --
 @ CREATE TABLE mlink(
@@ -279,7 +279,7 @@ const char zRepositorySchema2[] =
 @ CREATE INDEX mlink_i3 ON mlink(fid);
 @ CREATE INDEX mlink_i4 ON mlink(pid);
 @
-@ -- Parent/child linkages between check-ins
+@ -- Parent/child linkages between artifacts with P-cards.
 @ --
 @ CREATE TABLE plink(
 @   pid INTEGER REFERENCES blob,    -- Parent manifest
@@ -367,7 +367,7 @@ const char zRepositorySchema2[] =
 @ --
 @ -- Wiki pages are tagged with "wiki-NAME" where NAME is the name of
 @ -- the wiki page.  Tickets changes are tagged with "ticket-HASH" where
-@ -- HASH is the indentifier of the ticket.  Tags used to assign symbolic
+@ -- HASH is the identifier of the ticket.  Tags used to assign symbolic
 @ -- names to baselines are branches are of the form "sym-NAME" where
 @ -- NAME is the symbolic name.
 @ --
@@ -429,7 +429,7 @@ const char zRepositorySchema2[] =
 @   isLatest BOOLEAN DEFAULT 0,     -- True if this is the one to use
 @   mtime TIMESTAMP,                -- Last changed.  Julian day.
 @   src TEXT,                       -- Hash of the attachment.  NULL to delete
-@   target TEXT,                    -- Object attached to. Wikiname or Tkt hash
+@   target TEXT,                    -- Object attached to. Wikiname or Tkt/Event/Forum post ID
 @   filename TEXT,                  -- Filename for the attachment
 @   comment TEXT,                   -- Comment associated with this attachment
 @   user TEXT                       -- Name of user adding attachment
@@ -502,7 +502,7 @@ const char zRepositorySchema2[] =
 #if INTERFACE
 # define MT_NONE       0   /* unspecified */
 # define MT_WIKI       1   /* Wiki */
-# define MT_MARKDOWN   2   /* Markdonw */
+# define MT_MARKDOWN   2   /* Markdown */
 # define MT_UNKNOWN    3   /* unknown  */
 # define ValidMTC(X)  ((X)>=0 && (X)<=3)  /* True if MIMEtype code is valid */
 #endif
@@ -513,7 +513,7 @@ const char zRepositorySchema2[] =
 #if INTERFACE
 # define TAG_BGCOLOR    1     /* Set the background color for display */
 # define TAG_COMMENT    2     /* The check-in comment */
-# define TAG_USER       3     /* User who made a checking */
+# define TAG_USER       3     /* User who made a check-in */
 # define TAG_DATE       4     /* The date of a check-in */
 # define TAG_HIDDEN     5     /* Do not display in timeline */
 # define TAG_PRIVATE    6     /* Do not sync */
@@ -530,7 +530,7 @@ const char zRepositorySchema2[] =
 ** the check-out.  See also the addendum in zLocalSchemaVmerge[].
 */
 const char zLocalSchema[] =
-@ -- The VVAR table holds miscellanous information about the local database
+@ -- The VVAR table holds miscellanous information about the local checkout
 @ -- in the form of name-value pairs.  This is similar to the VAR table
 @ -- table in the repository except that this table holds information that
 @ -- is specific to the local check-out.
@@ -544,7 +544,7 @@ const char zLocalSchema[] =
 @   name TEXT PRIMARY KEY NOT NULL,  -- Primary name of the entry
 @   value CLOB,                      -- Content of the named parameter
 @   CHECK( typeof(name)='text' AND length(name)>=1 )
-@ );
+@ ) WITHOUT ROWID;
 @
 @ -- Each entry in the vfile table represents a single file in the
 @ -- current check-out.
@@ -562,7 +562,9 @@ const char zLocalSchema[] =
 @ CREATE TABLE vfile(
 @   id INTEGER PRIMARY KEY,           -- ID of the checked-out file
 @   vid INTEGER REFERENCES blob,      -- The check-in this file is part of.
-@   chnged INT DEFAULT 0,  -- 0:unchng 1:edit 2:m-chng 3:m-add 4:i-chng 5:i-add
+@   chnged INT DEFAULT 0,
+@   -- 0:unchng 1:edit 2:m-chng 3:m-add 4:i-chng
+@   -- 5:i-add 6:+exec 7:+symlink 8:-exec 9:unlink
 @   deleted BOOLEAN DEFAULT 0,        -- True if deleted
 @   isexe BOOLEAN,                    -- True if file should be executable
 @   islink BOOLEAN,                   -- True if file should be symlink

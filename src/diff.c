@@ -52,6 +52,7 @@
 #define DIFF_INCBINARY         0x00100000 /* The --diff-binary option */
 #define DIFF_SHOW_VERS         0x00200000 /* Show compared versions */
 #define DIFF_DARKMODE          0x00400000 /* Use dark mode for HTML */
+#define DIFF_BY_TOKEN          0x01000000 /* Split on tokens, not lines */
 
 /*
 ** Per file information that may influence output.
@@ -109,6 +110,7 @@ struct DiffConfig {
   const char *zBinGlob;    /* GLOB pattern for binary files */
   ReCompiled *pRe;         /* Show only changes matching this pattern */
   const char *zLeftHash;   /* HASH-id of the left file */
+  const char *azLabel[2];  /* Optional labels for left and right files */
 };
 
 #endif /* INTERFACE */
@@ -319,6 +321,109 @@ static DLine *break_into_lines(
 
   /* Return results */
   *pnLine = nLine;
+  return a;
+}
+
+/*
+** Character classes for the purpose of tokenization.
+**
+**    1 - alphanumeric
+**    2 - whitespace
+**    3 - punctuation
+*/
+static char aTCharClass[256] = {
+  2, 2, 2, 2,  2, 2, 2, 2,   2, 2, 2, 2,  2, 2, 2, 2, 
+  2, 2, 2, 2,  2, 2, 2, 2,   2, 2, 2, 2,  2, 2, 2, 2, 
+  2, 3, 3, 3,  3, 3, 3, 3,   3, 3, 3, 3,  3, 3, 3, 3,
+  1, 1, 1, 1,  1, 1, 1, 1,   1, 3, 3, 3,  3, 3, 3, 3,
+
+  3, 1, 1, 1,  1, 1, 1, 1,   1, 1, 1, 1,  1, 1, 1, 1,
+  1, 1, 1, 1,  1, 1, 1, 1,   1, 1, 1, 3,  3, 3, 3, 3,
+  3, 1, 1, 1,  1, 1, 1, 1,   1, 1, 1, 1,  1, 1, 1, 1,
+  1, 1, 1, 1,  1, 1, 1, 1,   1, 1, 1, 3,  3, 3, 3, 3,
+
+  1, 1, 1, 1,  1, 1, 1, 1,   1, 1, 1, 1,  1, 1, 1, 1,
+  1, 1, 1, 1,  1, 1, 1, 1,   1, 1, 1, 1,  1, 1, 1, 1,
+  1, 1, 1, 1,  1, 1, 1, 1,   1, 1, 1, 1,  1, 1, 1, 1,
+  1, 1, 1, 1,  1, 1, 1, 1,   1, 1, 1, 1,  1, 1, 1, 1,
+
+  1, 1, 1, 1,  1, 1, 1, 1,   1, 1, 1, 1,  1, 1, 1, 1,
+  1, 1, 1, 1,  1, 1, 1, 1,   1, 1, 1, 1,  1, 1, 1, 1,
+  1, 1, 1, 1,  1, 1, 1, 1,   1, 1, 1, 1,  1, 1, 1, 1,
+  1, 1, 1, 1,  1, 1, 1, 1,   1, 1, 1, 1,  1, 1, 1, 1
+};
+
+/*
+** Count the number of tokens in the given string.
+*/
+static int count_tokens(const unsigned char *p, int n){
+  int nToken = 0;
+  int iPrev = 0;
+  int i;
+  for(i=0; i<n; i++){
+    char x = aTCharClass[p[i]];
+    if( x!=iPrev ){
+      iPrev = x;
+      nToken++;
+    }
+  }
+  return nToken;
+}
+
+/*
+** Return an array of DLine objects containing a pointer to the
+** start of each token and a hash of that token.  The lower
+** bits of the hash store the length of each token.
+**
+** This is like break_into_lines() except that it works with tokens
+** instead of lines.  A token is:
+**
+**     *  A contiguous sequence of alphanumeric characters.
+**     *  A contiguous sequence of whitespace
+**     *  A contiguous sequence of punctuation characters.
+**
+** Return 0 if the file is binary or contains a line that is
+** too long.
+*/
+static DLine *break_into_tokens(
+  const char *z,
+  int n,
+  int *pnToken,
+  u64 diffFlags
+){
+  int nToken, i, k;
+  u64 h, h2;
+  DLine *a;
+  unsigned char *p = (unsigned char*)z;
+
+  nToken = count_tokens(p, n);
+  a = fossil_malloc( sizeof(a[0])*(nToken+1) );
+  memset(a, 0, sizeof(a[0])*(nToken+1));
+  if( n==0 ){
+    *pnToken = 0;
+    return a;
+  }
+  i = 0;
+  while( n>0 ){
+    char x = aTCharClass[*p];
+    h = 0xcbf29ce484222325LL;
+    for(k=1; k<n && aTCharClass[p[k]]==x; k++){
+      h ^= p[k];
+      h *= 0x100000001b3LL;
+    }
+    a[i].z = (char*)p;
+    a[i].n = k;
+    a[i].h = h = ((h%281474976710597LL)<<LENGTH_MASK_SZ) | k;
+    h2 = h % nToken;
+    a[i].iNext = a[h2].iHash;
+    a[h2].iHash = i+1;
+    p += k; n -= k;
+    i++;
+  };
+  assert( i==nToken );
+
+  /* Return results */
+  *pnToken = nToken;
   return a;
 }
 
@@ -942,7 +1047,7 @@ struct DiffBuilder {
 /* This version of DiffBuilder is used for debugging the diff and diff
 ** diff formatter logic.  It is accessed using the (undocumented) --debug
 ** option to the diff command.  The output is human-readable text that
-** describes the various method calls that are invoked agains the DiffBuilder
+** describes the various method calls that are invoked against the DiffBuilder
 ** object.
 */
 static void dfdebugSkip(DiffBuilder *p, unsigned int n, int isFinal){
@@ -1288,7 +1393,7 @@ static void dfunifiedFinishRow(DiffBuilder *p){
 }
 static void dfunifiedStartRow(DiffBuilder *p){
   if( blob_size(&p->aCol[0])>0 ) return;
-  blob_appendf(p->pOut,"<tr id=\"chunk%d\">"
+  blob_appendf(p->pOut,"<tr id=\"chunk%d\" class=\"diffchunk\">"
                        "<td class=\"diffln difflnl\"><pre>\n", ++nChunk);
 }
 static void dfunifiedSkip(DiffBuilder *p, unsigned int n, int isFinal){
@@ -1514,7 +1619,7 @@ static void dfsplitFinishRow(DiffBuilder *p){
 }
 static void dfsplitStartRow(DiffBuilder *p){
   if( blob_size(&p->aCol[0])>0 ) return;
-  blob_appendf(p->pOut,"<tr id=\"chunk%d\">"
+  blob_appendf(p->pOut,"<tr id=\"chunk%d\" class=\"diffchunk\">"
                        "<td class=\"diffln difflnl\"><pre>\n", ++nChunk);
   p->eState = 0;
 }
@@ -2464,7 +2569,7 @@ static void longestCommonSequence(
   int nextCutoff = -1;       /* Value of cutoff for next iteration */
 
   span = (iE1 - iS1) + (iE2 - iS2);
-  bestScore = -10000;
+  bestScore = -9223300000*(sqlite3_int64)1000000000;
   score = 0;
   iSXb = iSXp = iS1;
   iEXb = iEXp = iS1;
@@ -2982,6 +3087,7 @@ int *text_diff(
 ){
   int ignoreWs; /* Ignore whitespace */
   DContext c;
+  int nDel = 0, nIns = 0;
 
   if( pCfg->diffFlags & DIFF_INVERT ){
     Blob *pTemp = pA_Blob;
@@ -2999,10 +3105,17 @@ int *text_diff(
   }else{
     c.xDiffer = compare_dline;
   }
-  c.aFrom = break_into_lines(blob_str(pA_Blob), blob_size(pA_Blob),
-                             &c.nFrom, pCfg->diffFlags);
-  c.aTo = break_into_lines(blob_str(pB_Blob), blob_size(pB_Blob),
-                           &c.nTo, pCfg->diffFlags);
+  if( pCfg->diffFlags & DIFF_BY_TOKEN ){
+    c.aFrom = break_into_tokens(blob_str(pA_Blob), blob_size(pA_Blob),
+                               &c.nFrom, pCfg->diffFlags);
+    c.aTo = break_into_tokens(blob_str(pB_Blob), blob_size(pB_Blob),
+                             &c.nTo, pCfg->diffFlags);
+  }else{
+    c.aFrom = break_into_lines(blob_str(pA_Blob), blob_size(pA_Blob),
+                               &c.nFrom, pCfg->diffFlags);
+    c.aTo = break_into_lines(blob_str(pB_Blob), blob_size(pB_Blob),
+                             &c.nTo, pCfg->diffFlags);
+  }
   if( c.aFrom==0 || c.aTo==0 ){
     fossil_free(c.aFrom);
     fossil_free(c.aTo);
@@ -3037,21 +3150,44 @@ int *text_diff(
   if( (pCfg->diffFlags & DIFF_NOOPT)==0 ){
     diff_optimize(&c);
   }
+  if( (pCfg->diffFlags & DIFF_BY_TOKEN)!=0 ){
+    /* Convert token counts into byte counts. */
+    int i;
+    int iA = 0;
+    int iB = 0;
+    for(i=0; c.aEdit[i] || c.aEdit[i+1] || c.aEdit[i+2]; i+=3){
+      int k, sum;
+      for(k=0, sum=0; k<c.aEdit[i]; k++) sum += c.aFrom[iA++].n;
+      iB += c.aEdit[i];
+      c.aEdit[i] = sum;
+      for(k=0, sum=0; k<c.aEdit[i+1]; k++) sum += c.aFrom[iA++].n;
+      c.aEdit[i+1] = sum;
+      for(k=0, sum=0; k<c.aEdit[i+2]; k++) sum += c.aTo[iB++].n;
+      c.aEdit[i+2] = sum;
+    }
+  }
+
+  if( pCfg->diffFlags & DIFF_NUMSTAT ){
+    int i;
+    for(i=0; c.aEdit[i] || c.aEdit[i+1] || c.aEdit[i+2]; i+=3){
+      nDel += c.aEdit[i+1];
+      nIns += c.aEdit[i+2];
+    }
+    g.diffCnt[1] += nIns;
+    g.diffCnt[2] += nDel;
+    if( nIns+nDel ){
+      g.diffCnt[0]++;
+    }
+  }
 
   if( pOut ){
-    if( pCfg->diffFlags & DIFF_NUMSTAT ){
-      int nDel = 0, nIns = 0, i;
-      for(i=0; c.aEdit[i] || c.aEdit[i+1] || c.aEdit[i+2]; i+=3){
-        nDel += c.aEdit[i+1];
-        nIns += c.aEdit[i+2];
-      }
-      g.diffCnt[1] += nIns;
-      g.diffCnt[2] += nDel;
+    if( pCfg->diffFlags & DIFF_NUMSTAT && !(pCfg->diffFlags & DIFF_HTML)){
       if( nIns+nDel ){
-        g.diffCnt[0]++;
-        blob_appendf(pOut, "%10d %10d", nIns, nDel);
+        if( !(pCfg->diffFlags & DIFF_BRIEF) ){
+          blob_appendf(pOut, "%10d %10d", nIns, nDel);
+        }
       }
-    }else if( pCfg->diffFlags & DIFF_RAW ){
+    }else if( pCfg->diffFlags & (DIFF_RAW|DIFF_BY_TOKEN) ){
       const int *R = c.aEdit;
       unsigned int r;
       for(r=0; R[r] || R[r+1] || R[r+2]; r += 3){
@@ -3102,16 +3238,26 @@ int *text_diff(
 ** Process diff-related command-line options and return an appropriate
 ** "diffFlags" integer.
 **
+**   -b|--browser                 Show the diff output in a web-browser
 **   --brief                      Show filenames only        DIFF_BRIEF
+**   --by                         Shorthand for "--browser -y"
 **   -c|--context N               N lines of context.        nContext
+**   --dark                       Use dark mode for Tcl/Tk and HTML output
 **   --html                       Format for HTML            DIFF_HTML
+**   -i|--internal                Use built-in diff, not an external tool
 **   --invert                     Invert the diff            DIFF_INVERT
+**   --json                       Output formatted as JSON
+**   --label NAME                 Column label.  Can be repeated once.
 **   -n|--linenum                 Show line numbers          DIFF_LINENO
+**   -N|--new-file                Alias for --verbose
 **   --noopt                      Disable optimization       DIFF_NOOPT
-**   --numstat                    Show change counts         DIFF_NUMSTAT
+**   -s|--numstat                 Show change counts         DIFF_NUMSTAT
 **   --strip-trailing-cr          Strip trailing CR          DIFF_STRIP_EOLCR
+**   --tcl                        Tcl-formatted output used internally by --tk
 **   --unified                    Unified diff.              ~DIFF_SIDEBYSIDE
+**   -v|--verbose                 Show complete text of added or deleted files
 **   -w|--ignore-all-space        Ignore all whitespaces     DIFF_IGNORE_ALLWS
+**   --webpage                    Format output as a stand-alone HTML webpage
 **   -W|--width N                 N character lines.         wColumn
 **   -y|--side-by-side            Side-by-side diff.         DIFF_SIDEBYSIDE
 **   -Z|--ignore-trailing-space   Ignore eol-whitespaces     DIFF_IGNORE_EOLWS
@@ -3159,6 +3305,9 @@ void diff_options(DiffConfig *pCfg, int isGDiff, int bUnifiedTextOnly){
     ** debugging and analysis: */
     if( find_option("debug",0,0)!=0 ) diffFlags |= DIFF_DEBUG;
     if( find_option("raw",0,0)!=0 )   diffFlags |= DIFF_RAW;
+    if( find_option("bytoken",0,0)!=0 ){
+      diffFlags = DIFF_RAW|DIFF_BY_TOKEN;
+    }
   }
   if( (z = find_option("context","c",1))!=0 ){
     char *zEnd;
@@ -3171,9 +3320,13 @@ void diff_options(DiffConfig *pCfg, int isGDiff, int bUnifiedTextOnly){
   if( (z = find_option("width","W",1))!=0 && (f = atoi(z))>0 ){
     pCfg->wColumn = f;
   }
+  pCfg->azLabel[0] = find_option("label",0,1);
+  if( pCfg->azLabel[0] ){
+    pCfg->azLabel[1] = find_option("label",0,1);
+  }
   if( find_option("linenum","n",0)!=0 ) diffFlags |= DIFF_LINENO;
   if( find_option("noopt",0,0)!=0 ) diffFlags |= DIFF_NOOPT;
-  if( find_option("numstat",0,0)!=0 ) diffFlags |= DIFF_NUMSTAT;
+  if( find_option("numstat","s",0)!=0 ) diffFlags |= DIFF_NUMSTAT;
   if( find_option("versions","h",0)!=0 ) diffFlags |= DIFF_SHOW_VERS;
   if( find_option("dark",0,0)!=0 ) diffFlags |= DIFF_DARKMODE;
   if( find_option("invert",0,0)!=0 ) diffFlags |= DIFF_INVERT;
@@ -3192,6 +3345,10 @@ void diff_options(DiffConfig *pCfg, int isGDiff, int bUnifiedTextOnly){
       }else if( db_get_boolean("diff-binary", 1) ){
         diffFlags |= DIFF_INCBINARY;
       }
+    }else if( isGDiff) {
+      /* No external gdiff command found, using --by */
+      diffFlags |= DIFF_HTML|DIFF_WEBPAGE|DIFF_LINENO|DIFF_BROWSER
+                     |DIFF_SIDEBYSIDE;
     }
   }
   if( find_option("verbose","v",0)!=0 ) diffFlags |= DIFF_VERBOSE;
@@ -3216,9 +3373,6 @@ void diff_options(DiffConfig *pCfg, int isGDiff, int bUnifiedTextOnly){
 ** This command prints the differences between the two files FILE1 and FILE2.
 ** all of the usual diff formatting options (--tk, --by, -c N, etc.) apply.
 ** See the "diff" command for a full list of command-line options.
-**
-** This command used to be called "test-diff".  The older "test-diff" spelling
-** still works, for compatibility.
 */
 void xdiff_cmd(void){
   Blob a, b, out;
@@ -3234,7 +3388,7 @@ void xdiff_cmd(void){
   diff_options(&DCfg, 0, 0);
   zRe = find_option("regexp","e",1);
   if( zRe ){
-    const char *zErr = re_compile(&DCfg.pRe, zRe, 0);
+    const char *zErr = fossil_re_compile(&DCfg.pRe, zRe, 0);
     if( zErr ) fossil_fatal("regex error: %s", zErr);
   }
   verify_all_options();
@@ -3244,6 +3398,52 @@ void xdiff_cmd(void){
   diff_print_filenames(g.argv[2], g.argv[3], &DCfg, &out);
   blob_read_from_file(&a, g.argv[2], ExtFILE);
   blob_read_from_file(&b, g.argv[3], ExtFILE);
+  text_diff(&a, &b, &out, &DCfg);
+  blob_write_to_file(&out, "-");
+  diff_end(&DCfg, 0);
+  re_free(DCfg.pRe);
+}
+
+/*
+** COMMAND: fdiff
+**
+** Usage: %fossil fdiff [options] HASH1 HASH2
+**
+** Compute a diff between two artifacts in a repository (either a repository
+** identified by the "-R FILENAME" option, or the repository that contains
+** the working directory).
+**
+** All of the usual diff formatting options (--tk, --by, -c N, etc.) apply.
+** See the "diff" command for a full list of command-line options.
+*/
+void fdiff_cmd(void){
+  Blob a, b, out;
+  const char *zRe;           /* Regex filter for diff output */
+  int rid;
+  DiffConfig DCfg;
+
+  if( find_option("tk",0,0)!=0 ){
+    diff_tk("fdiff", 2);
+    return;
+  }
+  find_option("i",0,0);
+  find_option("v",0,0);
+  diff_options(&DCfg, 0, 0);
+  zRe = find_option("regexp","e",1);
+  if( zRe ){
+    const char *zErr = fossil_re_compile(&DCfg.pRe, zRe, 0);
+    if( zErr ) fossil_fatal("regex error: %s", zErr);
+  }
+  db_find_and_open_repository(0, 0);
+  verify_all_options();
+  if( g.argc!=4 ) usage("HASH1 HASH2");
+  blob_zero(&out);
+  diff_begin(&DCfg);
+  diff_print_filenames(g.argv[2], g.argv[3], &DCfg, &out);
+  rid = name_to_typed_rid(g.argv[2], 0);
+  content_get(rid, &a);
+  rid = name_to_typed_rid(g.argv[3], 0);
+  content_get(rid, &b);
   text_diff(&a, &b, &out, &DCfg);
   blob_write_to_file(&out, "-");
   diff_end(&DCfg, 0);
@@ -3424,7 +3624,7 @@ static void annotate_file(
   }
   db_begin_transaction();
 
-  /* Get the artifact ID for the check-in begin analyzed */
+  /* Get the artifact ID for the check-in being analyzed */
   if( zRevision ){
     cid = name_to_typed_rid(zRevision, "ci");
   }else{
@@ -3590,7 +3790,7 @@ void annotation_page(void){
   /* Gather query parameters */
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  if( exclude_spiders() ) return;
+  if( robot_restrict("annotate") ) return;
   fossil_nice_default();
   zFilename = P("filename");
   zRevision = PD("checkin",0);
@@ -3741,6 +3941,11 @@ void annotation_page(void){
 ** of the file shows the first time each line in the file was changed or
 ** removed by any subsequent check-in.
 **
+** With -t or -T, the "blame" and "praise" commands show for each file the
+** latest (relative to the revision given by -r) check-in that modified it and
+** the check-in's author. If not given, the revision defaults to "current" for
+** a check-out. Option -T additionally shows a comment snippet for the check-in.
+**
 ** Options:
 **   --filevers                  Show file version numbers rather than
 **                               check-in versions
@@ -3751,8 +3956,12 @@ void annotation_page(void){
 **                                 Xs     As much as possible in X seconds
 **                                 none   No limit
 **   -o|--origin VERSION         The origin check-in. By default this is the
-**                               root of the repository. Set to "trunk" or
+**                               root of the repository. Set to the name of
+**                               the main branch (usually "trunk") or
 **                               similar for a reverse annotation.
+**   -t                          Show latest check-in and its author for each
+**                               tracked file in the tree as of VERSION
+**   -T                          Like -t, plus comment snippet
 **   -w|--ignore-all-space       Ignore white space when comparing lines
 **   -Z|--ignore-trailing-space  Ignore whitespace at line end
 **
@@ -3768,12 +3977,24 @@ void annotate_cmd(void){
   int fileVers;          /* Show file version instead of check-in versions */
   u64 annFlags = 0;      /* Flags to control annotation properties */
   int bBlame = 0;        /* True for BLAME output.  False for ANNOTATE. */
+  int bTreeInfo = 0;     /* Show for the entire tree: 1=checkin, 2=with comment */
   int szHash;            /* Display size of a version hash */
   Blob treename;         /* Name of file to be annotated */
   char *zFilename;       /* Name of file to be annotated */
 
   bBlame = g.argv[1][0]!='a';
-  zRevision = find_option("r","revision",1);
+  if( find_option("t","t",0)!=0 ) bTreeInfo = 1;
+  if( find_option("T","T",0)!=0 ) bTreeInfo = 2;
+  zRevision = find_option("revision","r",1);
+  if( bBlame && bTreeInfo ){
+    if( find_repository_option()!=0 && zRevision==0 ){
+       fossil_fatal("the -r is required in addition to -R");
+    }
+    db_find_and_open_repository(0, 0);
+    if( zRevision==0 ) zRevision = "current";
+    ls_cmd_rev(zRevision,1,1,0,1,bTreeInfo,0,0);
+    return;
+  }
   zLimit = find_option("limit","n",1);
   zOrig = find_option("origin","o",1);
   showLog = find_option("log","l",0)!=0;

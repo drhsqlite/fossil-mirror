@@ -157,7 +157,7 @@ static cson_value * json_report_list(void){
 **
 ** limit=int (CLI: -limit # or -n #) -n is for compat. with other commands.
 **
-** format=a|o Specifies result format: a=each row is an arry, o=each
+** format=a|o Specifies result format: a=each row is an array, o=each
 ** row is an object.  Default=o.
 */
 static cson_value * json_report_run(void){
@@ -204,7 +204,7 @@ static cson_value * json_report_run(void){
 
   /* Copy over report's SQL...*/
   blob_append(&sql, db_column_text(&q,0), -1);
-  zTitle = mprintf("%s", db_column_text(&q,1));
+  zTitle = fossil_strdup(db_column_text(&q,1));
   db_finalize(&q);
   db_prepare(&q, "%s", blob_sql_text(&sql));
 

@@ -73,7 +73,7 @@ refer to raw blob hashes, not commit (a.k.a. check-in) hashes. See also
 Fetches information about file artifacts.
 
 **FIXME:** the content type guessing is currently very primitive, and
-may (but i haven't seen this) mis-diagnose some non-binary files as
+may (but I haven't seen this) mis-diagnose some non-binary files as
 binary. Fossil doesn't yet have a mechanism for mime-type mappings.
 
 **Status:** implemented 20111020

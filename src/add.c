@@ -80,7 +80,7 @@ const char *fossil_reserved_name(int N, int omitRepo){
   if( cachedManifest == -1 ){
     int i;
     Blob repo;
-    cachedManifest = db_get_manifest_setting();
+    cachedManifest = db_get_manifest_setting(0);
     numManifests = 0;
     for(i=0; i<count(aManifestflags); i++){
       if( cachedManifest&aManifestflags[i].flg ) {
@@ -355,7 +355,7 @@ static void addremove_reset(int bIsAdd, int bDryRun, int bVerbose){
 ** is used.  If the --clean option does not appear on the command line then
 ** the "clean-glob" setting is used.
 **
-** If files are attempted to be added explicitly on the command line which
+** When attempting to explicitly add files on the command line, and if those
 ** match "ignore-glob", a confirmation is asked first. This can be prevented
 ** using the -f|--force option.
 **
@@ -478,7 +478,7 @@ void add_cmd(void){
   glob_free(pClean);
 
   /** Check for Windows-reserved names and warn or exit, as
-   ** appopriate. Note that the 'add' internal machinery already
+   ** appropriate. Note that the 'add' internal machinery already
    ** _silently_ skips over any names for which
    ** file_is_reserved_name() returns true or which is in the
    ** fossil_reserved_name() list. We do not need to warn for those,
@@ -755,8 +755,7 @@ const char *filename_collation(void){
 **     all files that show as MISSING with the "status" command) are
 **     removed as if by the "[[rm]]" command.
 **
-** The command does not "[[commit]]".  You must run the "[[commit]]" separately
-** as a separate step.
+** Note that this command does not "commit", as that is a separate step.
 **
 ** Files and directories whose names begin with "." are ignored unless
 ** the --dotfiles option is used.
@@ -899,7 +898,8 @@ static void mv_one_file(
   int vid,
   const char *zOrig,
   const char *zNew,
-  int dryRunFlag
+  int dryRunFlag,
+  int moveFiles
 ){
   int x = db_int(-1, "SELECT deleted FROM vfile WHERE pathname=%Q %s",
                          zNew, filename_collation());
@@ -914,6 +914,12 @@ static void mv_one_file(
     }else{
       fossil_fatal("cannot rename '%s' to '%s' since the delete of '%s' has "
                    "not yet been committed", zOrig, zNew, zNew);
+    }
+  }
+  if( moveFiles ){
+    if( file_size(zNew, ExtFILE) != -1 ){
+      fossil_fatal("cannot rename '%s' to '%s' on disk since another file"
+        " named '%s' already exists", zOrig, zNew, zNew);      
     }
   }
   fossil_print("RENAME %s %s\n", zOrig, zNew);
@@ -1002,8 +1008,8 @@ static void process_files_to_move(
 ** COMMAND: mv
 ** COMMAND: rename*
 **
-** Usage: %fossil mv|rename OLDNAME NEWNAME
-**    or: %fossil mv|rename OLDNAME... DIR
+** Usage: %fossil mv|rename ?OPTIONS? OLDNAME NEWNAME
+**    or: %fossil mv|rename ?OPTIONS? OLDNAME... DIR
 **
 ** Move or rename one or more files or directories within the repository tree.
 ** You can either rename a file or directory or move it to another subdirectory.
@@ -1138,7 +1144,7 @@ void mv_cmd(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFrom = db_column_text(&q, 0);
     const char *zTo = db_column_text(&q, 1);
-    mv_one_file(vid, zFrom, zTo, dryRunFlag);
+    mv_one_file(vid, zFrom, zTo, dryRunFlag, moveFiles);
     if( moveFiles ) add_file_to_move(zFrom, zTo);
   }
   db_finalize(&q);

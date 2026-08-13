@@ -50,7 +50,7 @@ struct CheckinMiniInfo {
   char *zUser;         /* User name */
   char *zDate;         /* Optionally force this date string (anything
                           supported by date_in_standard_format()).
-                          Maybe be NULL. */
+                          May be NULL. */
   Blob *pMfOut;        /* If not NULL, checkin_mini() will write a
                           copy of the generated manifest here. This
                           memory is NOT owned by CheckinMiniInfo. */
@@ -125,7 +125,7 @@ CIMINI_PREFER_DELTA = 1<<8,
 /*
 ** A "stronger hint" to checkin_mini() to prefer creation of a delta
 ** manifest if it at all can. It will decide not to only if creation
-** of a delta is not a realistic option or if it's forbitted by the
+** of a delta is not a realistic option or if it's forbidden by the
 ** forbid-delta-manifests repo config option. For this to work, it
 ** must be set together with the CIMINI_PREFER_DELTA flag, but the two
 ** cannot be combined in this enum.
@@ -402,7 +402,7 @@ static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
 ** save a manifest for that change. Ownership of pCI and its contents
 ** are unchanged.
 **
-** This function may may modify pCI as follows:
+** This function may modify pCI as follows:
 **
 ** - If one of Manifest pCI->pParent or pCI->zParentUuid are NULL,
 **   then the other will be assigned based on its counterpart. Both
@@ -827,15 +827,15 @@ void test_ci_mini_cmd(void){
   zFilename = g.argv[2];
   cimi.zFilename = mprintf("%/", zAsFilename ? zAsFilename : zFilename);
   cimi.filePerm = file_perm(zFilename, ExtFILE);
-  cimi.zUser = mprintf("%s", zUser ? zUser : login_name());
+  cimi.zUser = fossil_strdup(zUser ? zUser : login_name());
   if(zDate){
-    cimi.zDate = mprintf("%s", zDate);
+    cimi.zDate = fossil_strdup(zDate);
   }
   if(zRevision==0 || zRevision[0]==0){
     if(g.localOpen/*check-out*/){
       zRevision = db_lget("checkout-hash", 0)/*leak*/;
     }else{
-      zRevision = "trunk";
+      zRevision = db_main_branch();
     }
   }
   name_to_uuid2(zRevision, "ci", &cimi.zParentUuid);
@@ -930,7 +930,7 @@ static char *fileedit_file_uuid(char const *zFilename,
              "WHERE filename=%Q %s AND checkinID=%d",
              zFilename, filename_collation(), vid);
   if(SQLITE_ROW==db_step(&stmt)){
-    zFileUuid = mprintf("%s",db_column_text(&stmt, 0));
+    zFileUuid = fossil_strdup(db_column_text(&stmt, 0));
     if(pFilePerm){
       *pFilePerm = mfile_permstr_int(db_column_text(&stmt, 1));
     }
@@ -1189,7 +1189,7 @@ static int fileedit_setup_cimi_from_p(CheckinMiniInfo * p, Blob * pErr,
     }
     fail((pErr,"Missing required 'filename' parameter."));
   }
-  p->zFilename = mprintf("%s",zFlag);
+  p->zFilename = fossil_strdup(zFlag);
 
   if(0==fileedit_is_editable(p->zFilename)){
     rc = 403;
@@ -1250,7 +1250,7 @@ static int fileedit_setup_cimi_from_p(CheckinMiniInfo * p, Blob * pErr,
   }
   zFlag = P("comment_mimetype");
   if(zFlag){
-    p->zCommentMimetype = mprintf("%s",zFlag);
+    p->zCommentMimetype = fossil_strdup(zFlag);
     zFlag = 0;
   }
 #define p_int(K) atoi(PD(K,"0"))
@@ -1286,7 +1286,7 @@ static int fileedit_setup_cimi_from_p(CheckinMiniInfo * p, Blob * pErr,
   ** TODO?: date-override date selection field. Maybe use
   ** an input[type=datetime-local].
   */
-  p->zUser = mprintf("%s",g.zLogin);
+  p->zUser = fossil_strdup(g.zLogin);
   return 0;
 end_fail:
 #undef fail

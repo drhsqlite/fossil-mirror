@@ -59,7 +59,8 @@ $ fossil open ../demo.fossil
 
 That creates a file called <tt>_FOSSIL_</tt> in the current
 directory, and this file contains all kinds of fossil-related
-information about your local repository. You can ignore it
+information about your local repository. Under Linux, the BSDs or
+macOS, this will instead be called <tt>.fslckout</tt>. You can ignore it
 for all purposes, but be sure not to accidentally remove it
 or otherwise damage it - it belongs to fossil, not you.
 

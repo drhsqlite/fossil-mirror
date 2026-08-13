@@ -28,20 +28,20 @@ to create, apply, and analyze deltas are implemented by code in the
 The following command-line tools are available to create and apply
 deltas and to test the delta logic:
 
-   *   [/help?cmd=test-delta|fossil test-delta] &rarr; Run self-tests of
+   *   [/help/test-delta|fossil test-delta] &rarr; Run self-tests of
        the delta logic
 
-   *   [/help?cmd=test-delta-create|fossil test-delta-create X Y] &rarr; compute
+   *   [/help/test-delta-create|fossil test-delta-create X Y] &rarr; compute
        a delta that converts file X into file Y.  Output that delta.
 
-   *   [/help?cmd=test-delta-apply|fossil test-delta-apply X D] &rarr; apply
+   *   [/help/test-delta-apply|fossil test-delta-apply X D] &rarr; apply
        delta D to input file X and output the result.
 
-   *   [/help?cmd=test-delta-analyze|fossil test-delta-analyze X Y] &rarr; compute
+   *   [/help/test-delta-analyze|fossil test-delta-analyze X Y] &rarr; compute
        and delta that converts file X into file Y but instead of writing the
        delta to output, write performance information about the delta.
 
-When running the [/help?cmd=sqlite3|fossil sql] command to get an
+When running the [/help/sqlite3|fossil sql] command to get an
 interactive SQL session connected to the repository, the following
 additional SQL functions are provided:
 
