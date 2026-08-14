@@ -28,5 +28,6 @@ window.addEventListener( 'load', function() {
     };
     cbReverse.addEventListener('change', cbReverseIt, true);
     cbReverse.checked = !!(+F.storage.get(cbReverseKey, 0));
+    cbReverseIt()/*update in case of a forced check by a browser reload*/;
   };
 }); // window.addEventListener( 'load' ...
