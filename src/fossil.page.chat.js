@@ -557,7 +557,7 @@ window.fossil.onPageLoad(function(){
           /* Use a contenteditable field for input. This is generally
              more comfortable to use, and more modern, than plain text
              input fields. In its early years the contenteditable
-             capability had some browser-specific quirks which made is
+             capability had some browser-specific quirks which made it
              difficult on some clients so was opt-in rather than
              opt-out. In recent years (2023+) those quirks have been
              limited to an occasional injection of an extraneous
