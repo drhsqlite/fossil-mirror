@@ -432,12 +432,22 @@ proc handle-zlib {} {
           define-append EXTRA_LDFLAGS "$lcheck"
           msg-result "Linked to zlib via $lcheck"
         }
+        # Keep the flags that worked for every later probe too, in the
+        # persistent form of cc-with, as the --with-zlib=tree branch above
+        # already does.  check-for-openssl appends $::zlib_lib to its own link
+        # test, and without these it links a bare -lz against a path autosetup
+        # has not been told about, then reports OpenSSL as missing.
+        cc-with [list -cflags "$cfound $lcheck"]
+        set lfound $lcheck
         if {![check-function-in-lib compressBound z]} {
           puts "Notice: disabling zlib compression in the SQL shell"
           define-append SQLITE_OPTIONS_EXT {-USQLITE_HAVE_ZLIB}
         }
         break
       }
+    }
+    if {![info exists lfound]} {
+      user-error "zlib not linkable; either install it or specify its location via --with-zlib"
     }
     set ::zlib_lib -lz
   }

@@ -1,5 +1,5 @@
-C Doc\stypo\sfix.
-D 2026-08-16T07:32:17.230
+C auto.def:\sFail\son\serror\sif\szlib\swasn't\sdetected;\salso\spass\sworking\szlib\sflags\sto\slater\nconfigure\sprobes
+D 2026-08-17T10:45:34.119
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -17,7 +17,7 @@ F Makefile.in 3b63b4b9c203efbfb639c3d67366b5125aa67d8a255d2c78e22373a9348c54c9
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 64a13b480b4a6962246f7338be9405a4a51de56cf8a203baaacb9cc46305e867
-F auto.def dfadf2feab372d284bef75c30db13a98923ce68702ac01d085bb7b24a6589540
+F auto.def 3f34598133b22a3ab6ca21b27670db3bd504747a56527aba4947f33b89a58f0d
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a70c516075c031e
 F autosetup/autosetup 9416ffdcdd6e2dbf7f6d1e5c890078518930f8af7722a950eacc28c7f151d2d6 x
@@ -984,8 +984,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P df37d216966b23a9de50a66bcce6d13d18d28d4318fc47909f2e31d12b99236b
-R 4c624de8465aa3710f2267863a561ea3
-U stephan
-Z 944c32793f765fffff6c14a0c400ddb0
+P 14716af2418068688db23825af076667d333e6e860a98271087abae4033d56e6
+R d27a782ea1f0a13635bd976d1ad7c5c9
+T *branch * autodef-build-fixes
+T *sym-autodef-build-fixes *
+T -sym-trunk *
+U danshearer
+Z 82a9d8a8aa62d2459cb48bbcc5f2d390
 # Remove this line to create a well-formed Fossil manifest.
