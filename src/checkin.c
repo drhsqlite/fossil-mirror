@@ -2608,7 +2608,7 @@ void commit_cmd(void){
     if( forceBaseline ){
       fossil_fatal("cannot use --delta and --baseline together");
     }
-    if( db_get_boolean("forbid-delta-manifests",0) ){
+    if( db_get_boolean("forbid-delta-manifests",1) ){
       fossil_fatal("delta manifests are prohibited in this repository");
     }
   }
@@ -2786,7 +2786,7 @@ void commit_cmd(void){
   ** setting is enabled.
   */
   if( !(forceDelta || db_get_boolean("seen-delta-manifest",0))
-   || db_get_boolean("forbid-delta-manifests",0)
+   || db_get_boolean("forbid-delta-manifests",1)
    || g.bAvoidDeltaManifests
   ){
     forceBaseline = 1;

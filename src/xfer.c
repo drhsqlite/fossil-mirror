@@ -1828,7 +1828,7 @@ void page_xfer(void){
           );
           db_protect_pop();
         }
-        if( db_get_boolean("forbid-delta-manifests",0) ){
+        if( db_get_boolean("forbid-delta-manifests",1) ){
           @ pragma avoid-delta-manifests
         }
       }else
