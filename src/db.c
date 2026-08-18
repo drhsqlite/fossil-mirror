@@ -4896,7 +4896,7 @@ struct Setting {
 ** contain any globs for, e.g., images or PDFs.
 */
 /*
-** SETTING: forbid-delta-manifests    boolean default=off
+** SETTING: forbid-delta-manifests    boolean default=on
 ** If enabled on a client, new delta manifests are prohibited on
 ** commits.  If enabled on a server, whenever a client attempts
 ** to obtain a check-in lock during auto-sync, the server will

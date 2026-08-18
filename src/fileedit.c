@@ -358,7 +358,7 @@ static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
          ** really should compare the F-card count between it and its
          ** baseline, and create a delta if the baseline has (say)
          ** twice or more as many F-cards as the previous delta. */)
-     && !db_get_boolean("forbid-delta-manifests",0)
+     && !db_get_boolean("forbid-delta-manifests",1)
      ){
     asDelta = 1;
     blob_appendf(pOut, "B %s\n",
@@ -1877,7 +1877,7 @@ void fileedit_page(void){
     style_labeled_checkbox("cb-prefer-delta",
                            "prefer_delta",
                            "Prefer delta manifest?", "1",
-                           db_get_boolean("forbid-delta-manifests",0)
+                           db_get_boolean("forbid-delta-manifests",1)
                            ? 0
                            : (db_get_boolean("seen-delta-manifest",0)
                               || cimi.flags & CIMINI_PREFER_DELTA),
