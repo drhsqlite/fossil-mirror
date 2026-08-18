@@ -1,5 +1,5 @@
-C Merge\strunk\sinto\sautodef-build-fixes
-D 2026-08-18T11:39:50.619
+C Add\srpath\swhen\srequired\s(eg\sfor\sNetBSD)\sso\slibs\sin\sless-common\sdirectories\sare\sfound\sat\sruntime
+D 2026-08-18T11:47:38.736
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -17,7 +17,7 @@ F Makefile.in 3b63b4b9c203efbfb639c3d67366b5125aa67d8a255d2c78e22373a9348c54c9
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 64a13b480b4a6962246f7338be9405a4a51de56cf8a203baaacb9cc46305e867
-F auto.def 90bac2c9fb342cd1002bcf6ca29882a9a79eaed1e22ac6d4f2301aef705fcc66
+F auto.def 2f58599e26a2d568ac48a36dc2b5a7931c104b95f528ed937bb732884952d598
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a70c516075c031e
 F autosetup/autosetup 9416ffdcdd6e2dbf7f6d1e5c890078518930f8af7722a950eacc28c7f151d2d6 x
@@ -984,8 +984,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 37713fc1280bb92768ea60a229a6513a579e44b2a6478ead11422eb8f3c91ed7 a439b11497f123cda626158763d052ea95e9520c0cf2c4454d0532f735187fe0
-R 2fb68a37f92d0f4d39b5a31e2a1d7bf7
+P f116b4ed598e8c59a361ce6fdd2db9acbdc2a8614f663c5ef8c21e8afdb98c54
+R 460355a195c933abdbdbdb8d99c68ef6
 U danshearer
-Z 072158db64f1f72b583d36c9ac30b61e
+Z a810459a4c75f3be45f944b2615cf634
 # Remove this line to create a well-formed Fossil manifest.

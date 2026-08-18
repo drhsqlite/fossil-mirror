@@ -379,7 +379,30 @@ proc check-for-openssl {msg {cflags {}} {libs {-lssl -lcrypto -lpthread}}} {
     return 0
   }
 }
-
+#
+# Give a runtime search path to every -L directory we added ourselves.
+#
+# The probes below look outside the compiler's default paths for various OSs.
+# A -L will link at build time but the runtime linker needs to find the libs too.
+# The pkgsrc convention is to add the matching rpath so rtld works.
+#
+proc fossil-rpath-ldflags {ldflags} {
+  set rv {}
+  foreach flag $ldflags {
+    if {![string match -L* $flag]} continue
+    set dir [string range $flag 2 end]
+    if {$dir eq "" || ![file isdirectory $dir]} continue
+    set rp "-Wl,-rpath,$dir"
+    if {$rp in $rv} continue
+    if {[cctest -link 1 -cflags $rp]} {
+      lappend rv $rp
+    }
+  }
+  if {[llength $rv]} {
+    define-append EXTRA_LDFLAGS {*}$rv
+    msg-result "Runtime search path: $rv"
+  }
+}
 #
 # Check for zlib, using the given location if specified
 #
@@ -431,6 +454,7 @@ proc handle-zlib {} {
         } else {
           define-append EXTRA_LDFLAGS "$lcheck"
           msg-result "Linked to zlib via $lcheck"
+          fossil-rpath-ldflags $lcheck
         }
         # Keep the flags that worked for every later probe too, in the
         # persistent form of cc-with, as the --with-zlib=tree branch above
@@ -532,6 +556,7 @@ proc handle-with-openssl {} {
       define FOSSIL_ENABLE_SSL
       define-append EXTRA_CFLAGS $cflags
       define-append EXTRA_LDFLAGS $ldflags
+      fossil-rpath-ldflags $ldflags
       if {[info exists ssllibs]} {
         define-append LIBS $ssllibs
       } else {
