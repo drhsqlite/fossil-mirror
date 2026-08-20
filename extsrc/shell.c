@@ -748,6 +748,8 @@ struct sqlite3_qrf_spec {
   char **pzOutput;            /* Storage location for output string */
   /* The following are available in iVersion 2 and later */
   unsigned char bRowCount;    /* Show the number of rows at end of each query */
+  char *zIFmt;                /* Format string for integers */
+  char *zFpFmt;               /* Format string for floating point */
   /* Additional fields may be added in the future */
 };
 
@@ -889,6 +891,18 @@ int sqlite3_qrf_wcwidth(int c);
 */
 size_t sqlite3_qrf_wcswidth(const char*);
 
+/*
+** The argument is a proposed format string for the zIFmt or zFpFmt
+** parameters.  Return value indicates:
+**
+**    0     The input is not a valid format string.  If this string
+**          appears in either zIFmt or zFpFmt, it will be ignored.
+**
+**    1     The input is a valid format string for integers.
+**
+**    2     The input is a valid format string for floating point.
+*/
+int sqlite3_qrf_ckformat(const char*);
 
 #ifdef __cplusplus
 }
@@ -971,6 +985,7 @@ struct Qrf {
   } u;
   sqlite3_int64 nRow;         /* Number of rows handled so far */
   int *actualWidth;           /* Actual width of each column */
+  char zFmt[24];              /* Space to hold the true integer rendering fmt */
   sqlite3_qrf_spec spec;      /* Copy of the original spec */
 };
 
@@ -1014,6 +1029,44 @@ static const char qrfCType[] = {
 #  define deliberate_fall_through
 # endif
 #endif
+
+/*
+** The argument is a proposed format string for the zIFmt or zFpFmt
+** parameters.  Return value indicates:
+**
+**    0     The input is not a valid format string.  If this string
+**          appears in either zIFmt or zFpFmt, it will be ignored.
+**
+**    1     The input is a valid format string for integers.
+**
+**    2     The input is a valid format string for floating point.
+*/
+int sqlite3_qrf_ckformat(const char *z){
+  size_t n;
+  if( z==0 ) return 0;
+  if( z[0]!='%' ) return 0;
+  z++;
+  n = strspn(z,"+-,#0");
+  if( n>5 ) return 0;
+  z += n;
+  if( z[0]>='1' && z[0]<='9' ){
+    n = strspn(z,"0123456789");
+    if( n>3 ) return 0;
+    z += n;
+  }
+  if( z[0]=='.' ){
+    z++;
+    n = strspn(z,"0123456789");
+    if( n>3 ) return 0;
+    z += n;
+  }
+  n = strspn(z,"eEgGf");
+  if( n==1 && z[1]==0 ) return 2;
+  n = strspn(z,"dxXo");
+  if( n==1 && z[1]==0 ) return 1;
+  return 0;
+}
+
 
 /*
 ** Set an error code and error message.
@@ -2002,12 +2055,18 @@ static void qrfRenderValue(Qrf *p, sqlite3_str *pOut, int iCol){
   }
   switch( sqlite3_column_type(p->pStmt,iCol) ){
     case SQLITE_INTEGER: {
-      sqlite3_str_appendf(pOut, "%lld", sqlite3_column_int64(p->pStmt,iCol));
+      sqlite3_str_appendf(pOut, p->spec.zIFmt,
+                          sqlite3_column_int64(p->pStmt,iCol));
       break;
     }
     case SQLITE_FLOAT: {
-      const char *zTxt = (const char*)sqlite3_column_text(p->pStmt,iCol);
-      sqlite3_str_appendall(pOut, zTxt);
+      if( p->spec.zFpFmt ){
+        double r = sqlite3_column_double(p->pStmt,iCol);
+        sqlite3_str_appendf(pOut,p->spec.zFpFmt,r);
+      }else{
+        const char *zTxt = (const char*)sqlite3_column_text(p->pStmt,iCol);
+        sqlite3_str_appendall(pOut, zTxt);
+      }
       break;
     }
     case SQLITE_BLOB: {
@@ -3730,7 +3789,11 @@ static void qrfInitialize(
   p->iErr = SQLITE_OK;
   p->nCol = sqlite3_column_count(p->pStmt);
   p->nRow = 0;
-  sz = sizeof(sqlite3_qrf_spec);
+  switch( pSpec->iVersion ){
+    case 0: sz = offsetof(sqlite3_qrf_spec, bRowCount);  break;
+    case 1: sz = offsetof(sqlite3_qrf_spec, bRowCount);  break;
+    default: sz = sizeof(sqlite3_qrf_spec);              break;
+  }
   memcpy(&p->spec, pSpec, sz);
   if( p->spec.zNull==0 ) p->spec.zNull = "";
   p->mxWidth = p->spec.nScreenWidth;
@@ -3742,9 +3805,6 @@ static void qrfInitialize(
   if( p->spec.eText>QRF_TEXT_Relaxed ) p->spec.eText = QRF_Auto;
   if( p->spec.eTitle>QRF_TEXT_Relaxed ) p->spec.eTitle = QRF_Auto;
   if( p->spec.eBlob>QRF_BLOB_Size ) p->spec.eBlob = QRF_Auto;
-  if( pSpec->iVersion<=1 ){
-    p->spec.bRowCount = 0;
-  }
 qrf_reinit:
   switch( p->spec.eStyle ){
     case QRF_Auto: {
@@ -3869,6 +3929,20 @@ qrf_reinit:
   }
   if( p->spec.zColumnSep==0 ) p->spec.zColumnSep = ",";
   if( p->spec.zRowSep==0 ) p->spec.zRowSep = "\n";
+  if( p->spec.zIFmt==0 || sqlite3_qrf_ckformat(p->spec.zIFmt)!=1 ){
+    p->spec.zIFmt = "%lld";
+  }else{
+    size_t n = strlen(p->spec.zIFmt);
+    memcpy(p->zFmt, p->spec.zIFmt, n-1);
+    p->zFmt[n-1] = 'l';
+    p->zFmt[n] = 'l';
+    p->zFmt[n+1] = p->spec.zIFmt[n-1];
+    p->zFmt[n+2] = 0;
+    p->spec.zIFmt = p->zFmt;
+  }
+  if( p->spec.zFpFmt && sqlite3_qrf_ckformat(p->spec.zFpFmt)!=2 ){
+    p->spec.zFpFmt = 0;
+  }
 }
 
 /*
@@ -14066,10 +14140,10 @@ static int zipfileUpdate(
       }
     }
     for(pOld=pTab->pFirstEntry; 1; pOld=pOld->pNext){
+      if( pOld==0 ) return SQLITE_OK;
       if( zipfileComparePath(pOld->cds.zFile, zDelete, nDelete)==0 ){
         break;
       }
-      assert( pOld->pNext );
     }
   }
 
@@ -24938,6 +25012,8 @@ typedef struct Mode {
   u8 bAutoScreenWidth;   /* Using the TTY to determine screen width */
   u8 mFlags;             /* MFLG_ECHO, MFLG_CRLF, etc. */
   u8 eMode;              /* One of the MODE_ values */
+  char zIFmt[24];        /* Space to hold the --ifmt value */
+  char zFpFmt[24];       /* Space to hold the --fpfmt value */
   sqlite3_qrf_spec spec; /* Spec to be passed into QRF */
 } Mode;
 
@@ -26680,6 +26756,14 @@ static void modeDup(Mode *pDest, Mode *pSrc){
   }
   if( pDest->spec.zNull ){
     pDest->spec.zNull = strdup(pSrc->spec.zNull);
+  }
+  if( pDest->spec.zFpFmt ){
+    assert( pDest->spec.zFpFmt==pSrc->zFpFmt );
+    pDest->spec.zFpFmt = pDest->zFpFmt;
+  }
+  if( pDest->spec.zIFmt ){
+    assert( pDest->spec.zIFmt==pSrc->zIFmt );
+    pDest->spec.zIFmt = pDest->zIFmt;
   }
 }
 
@@ -29148,6 +29232,10 @@ static const struct {
 "  --escape ESC             Enable/disable escaping of control characters\n"
 "                           found in the output. ESC can be \"off\", \"ascii\",\n"
 "                           or \"symbol\".\n"
+"  --fpfmt STRING           String is a printf-style format string used to\n"
+"                           render floating-point values.\n"
+"  --ifmt STRING            String is a printf-style format string used to\n"
+"                           render integer values.\n"
 "  --linelimit N            Set the maximum number of output lines to show for\n"
 "                           any single SQL value to N. Longer values are\n"
 "                           truncated. Zero means \"no limit\". Only works\n"
@@ -33427,6 +33515,10 @@ static int modeTitleDsply(ShellState *p, int bAll){
 **   --escape ESC             Enable/disable escaping of control characters
 **                            found in the output. ESC can be "off", "ascii",
 **                            or "symbol".
+**   --fpfmt STRING           String is a printf-style format string used to
+**                            render floating-point values.
+**   --ifmt STRING            String is a printf-style format string used to
+**                            render integer values.
 **   --linelimit N            Set the maximum number of output lines to show for
 **                            any single SQL value to N. Longer values are
 **                            truncated. Zero means "no limit". Only works
@@ -33683,6 +33775,40 @@ static int dotCmdMode(ShellState *p){
           break;
       }
       chng = 1;
+    }else if( optionMatch(z,"ifmt") ){
+      if( i+1>=nArg ){
+        dotCmdError(p, i, "missing argument", 0);
+        return 1;
+      }
+      i++;
+      if( azArg[i][0]==0 || cli_strcmp(azArg[i],"auto")==0 ){
+        p->mode.spec.zIFmt = 0;
+      }else if( sqlite3_qrf_ckformat(azArg[i])!=1 ){
+        dotCmdError(p, i, "not a valid integer format", 0);
+        return 1;
+      }else{
+        assert( strlen(azArg[i])<sizeof(p->mode.zIFmt)-1 );
+        memcpy(p->mode.zIFmt, azArg[i], strlen(azArg[i])+1);
+        p->mode.spec.zIFmt = p->mode.zIFmt;
+      }
+      chng = 1;
+    }else if( optionMatch(z,"fpfmt") ){
+      if( i+1>=nArg ){
+        dotCmdError(p, i, "missing argument", 0);
+        return 1;
+      }
+      i++;
+      if( azArg[i][0]==0 || cli_strcmp(azArg[i],"auto")==0 ){
+        p->mode.spec.zFpFmt = 0;
+      }else if( sqlite3_qrf_ckformat(azArg[i])!=2 ){
+        dotCmdError(p, i, "not a valid floating-point format", 0);
+        return 1;
+      }else{
+        assert( strlen(azArg[i])<sizeof(p->mode.zFpFmt)-1 );
+        memcpy(p->mode.zFpFmt, azArg[i], strlen(azArg[i])+1);
+        p->mode.spec.zFpFmt = p->mode.zFpFmt;
+      }
+      chng = 1;
     }else if( optionMatch(z,"reset") ){
       int saved_eMode = p->mode.eMode;
       modeFree(&p->mode);
@@ -33916,6 +34042,14 @@ static int dotCmdMode(ShellState *p){
     }
     if( bAll || p->mode.spec.eEsc!=QRF_Auto ){
       sqlite3_str_appendf(pDesc, " --escape %s",qrfEscNames[p->mode.spec.eEsc]);
+    }
+    if( bAll || p->mode.spec.zFpFmt!=0 ){
+      const char *z = p->mode.spec.zFpFmt;
+      sqlite3_str_appendf(pDesc, " --fpfmt %s", z ? z : "auto");
+    }
+    if( bAll || p->mode.spec.zIFmt!=0 ){
+      const char *z = p->mode.spec.zIFmt;
+      sqlite3_str_appendf(pDesc, " --ifmt %s", z ? z : "auto");
     }
     if( bAll
      || (p->mode.spec.nLineLimit>0 && pI->eCx>0)
@@ -35598,6 +35732,7 @@ static int do_meta_command(const char *zLine, ShellState *p){
       { "trigger_depth",         SQLITE_LIMIT_TRIGGER_DEPTH             },
       { "worker_threads",        SQLITE_LIMIT_WORKER_THREADS            },
       { "schema",                SQLITE_LIMIT_SCHEMA                    },
+      { "trigger_steps",         SQLITE_LIMIT_TRIGGER_STEPS             },
     };
     int i, n2;
     open_db(p, 0);
