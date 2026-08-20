@@ -1,5 +1,5 @@
-C Merge\strunk\sinto\sthe\slong-dormant\smarkdown-tagrefs\sbranch.
-D 2026-08-13T11:20:24.931
+C Add\sa\ssummary\sof\sthis\sbranch's\schanges\sto\sthe\schange\slog.
+D 2026-08-20T16:22:16.457
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -650,7 +650,7 @@ F test/revert.test abbddaa272ec0ed5e5d9ffbee5636eefc242e45e383abac8e27e45ddd84ac
 F test/rewrite-test-output.tcl fc2affc10d2ce6911836db498990d72ce5ba6e911cc5036d5f78391c022843ef
 F test/set-manifest.test 3f1484cb26e6bb85cf8e18b1c2d538b88a24ac338b565de60157d7494bda945b
 F test/settings-repo.test 26de9519938c46bcfbe263a55bbef7e0921b28ac53bcb14dde0b7f18f08fd41f
-F test/settings.test.off c2a59ad1b2d0fdd61ec9accd84d1f58fb1bf78577e47cec6d79d865655b8cbf3 w test/settings.test
+F test/settings.test.off c2a59ad1b2d0fdd61ec9accd84d1f58fb1bf78577e47cec6d79d865655b8cbf3
 F test/stash.test cc97b53b3e9460505091cf591dc68392a2a379831181914069353488219b6131
 F test/subdir\swith\sspaces/filename\swith\sspaces.txt 4c1f053a9aa422cde7f33113511a70ca3a9f77ddebff4458fbf776752fc3a006
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
@@ -804,7 +804,7 @@ F www/caps/index.md b79d2401eb47384d9b553a9e0a36e0870fa0bf77a90aeeee79d8a005f902
 F www/caps/login-groups.md b578bfee7063fe0a3fef310b79d0b9ca23e084b17aa3044d57f5a4b94b180b4d
 F www/caps/ref.html 82732721eff68eee38f791c89574d266c798026a61cb653d6ddd851402c4f0d5
 F www/cgi.wiki b9c5bcae4ac589ed274f8f4b2a64dc854f14c78883f4f0200504ec7e3cdf2b56
-F www/changes.wiki c69c90d71ff58e0c4ad336824f84d029454773937205f13f0b8f618125eb22ff
+F www/changes.wiki 45da147f67fee0488e0962034a96f66737752743d4c9520deae2466096b74cb5
 F www/chat.md 9e962760a95d717205757d0839cd70a0f91471a23a5e0198c0b629b99889e078
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki 687f0cc82a5a7b29100a14e2a685121a37c5072aff514828d6a85b983af95e2f
@@ -984,8 +984,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 347084af906fd210f18811f618be02c133482a68fc8e51bae5abdf32f8c7ced7 7a40eb97488b0462872e7b96c94ce1522b5548a8f2512edaf8a8ea471e99feee
-R 2b9fc31f1f8f2a06bda5a5cc194040e3
+P 62b38332f7e0d122dd5d6b19b6a89033ea7612a3d38876972015db876cb34b44
+R e09869c69147a88e9d1b6a2a6bf3b146
 U stephan
-Z a7bb6815b47ea1e22b33a1b7337ff315
+Z 5173e03210c2dcab3fca76c1b4f618ef
 # Remove this line to create a well-formed Fossil manifest.
