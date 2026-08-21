@@ -420,11 +420,11 @@ void multiple_choice_attribute(
 static void addAutoHyperlinkSettings(void){
   static const char *const azDefenseOpts[] = {
     "0", "Off",
-    "2", "UserAgent only",
-    "1", "UserAgent and Javascript",
+    "2", "HTTP Header Only",
+    "1", "HTTP Header And Javascript",
   };
   multiple_choice_attribute(
-     "Enable hyperlinks base on User-Agent and/or Javascript",
+     "Enable hyperlinks base on HTTP Header and/or Javascript",
      "auto-hyperlink", "autohyperlink", "1",
      count(azDefenseOpts)/2, azDefenseOpts);
   @ <br>
@@ -437,12 +437,14 @@ static void addAutoHyperlinkSettings(void){
   @ including user "nobody" if the request appears to be from a human.
   @ Disabling hyperlinks helps prevent robots from walking your site and
   @ soaking up all your CPU and bandwidth.
-  @ If this setting is "UserAgent only" (2) then the
-  @ UserAgent string is the only factor considered.  If the value of this
-  @ setting is "UserAgent And Javascript" (1) then Javascript is added that
+  @ If this setting is "HTTP Header Only" (2) then only the HTTP header
+  @ content (including the UserAgent string and the fossil-client-ok cookie)
+  @ is considered when enabling hyperlinks.  If the value of this
+  @ setting is "HTTP Header And Javascript" (1) then Javascript is added that
   @ runs after the page loads and fills in the href= values of &lt;a&gt;
-  @ elements.  In either case, &lt;a&gt; tags are not generated if the
-  @ UserAgent string indicates that the client is a robot.
+  @ elements.  In either case, &lt;a&gt; tags are not generated unless the
+  @ UserAgent string and/or the fossil-client-ok cookie indicate that the
+  @ client is likely human.
   @ (Property: "auto-hyperlink")</p>
   @
   @ <p>For maximum robot defense, "Delay" should be at least 50 milliseconds
@@ -505,7 +507,8 @@ void setup_robots(void){
   @ <li>  The "ext" tag covers all extensions, but a tag like
   @       "ext/PATH" only covers the specific extension at PATH.
   @ </ul>
-  @ To disable robot restrictions, change this setting to "off".
+  @ Make this setting "off" to disable all robot restrictions, or "*"
+  @ to exclude robots from all pages other than "/login" and "/xfer".
   @ (Property: <a href="%R/help/robot-restrict">robot-restrict</a>)
   @ <br>
   textarea_attribute("", 2, 80,
@@ -2247,7 +2250,7 @@ void page_admin_log(){
   ofst = atoi(PD("x","0"));
   fLogEnabled = db_get_boolean("admin-log", 1);
   @ <div>Admin logging is %s(fLogEnabled?"on":"off").
-  @ (Change this on the <a href="setup_settings">settings</a> page.)</div>
+  @ (Change this on the <a href="setup_settings?all">settings</a> page.)</div>
 
   if( ofst>0 ){
     int prevx = ofst - limit;

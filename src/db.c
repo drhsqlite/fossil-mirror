@@ -1331,6 +1331,7 @@ void db_checkin_mtime_function(
 **     symbolic_name_to_rid('trunk');
 **     symbolic_name_to_rid('trunk','w');
 **
+** Its result is either an RID or NULL.
 */
 void db_sym2rid_function(
   sqlite3_context *context,
@@ -3578,7 +3579,7 @@ char *db_conceal(const char *zContent, int n){
 /*
 ** Attempt to look up the input in the CONCEALED table.  If found,
 ** and if the okRdAddr permission is enabled then return the
-** original value for which the input is a hash.  If okRdAddr is
+** original value for which the input is a hash.  If g.perm.RdAddr is
 ** false or if the lookup fails, return the original string content.
 **
 ** In either case, the string returned is stored in space obtained
@@ -4895,7 +4896,7 @@ struct Setting {
 ** contain any globs for, e.g., images or PDFs.
 */
 /*
-** SETTING: forbid-delta-manifests    boolean default=off
+** SETTING: forbid-delta-manifests    boolean default=on
 ** If enabled on a client, new delta manifests are prohibited on
 ** commits.  If enabled on a server, whenever a client attempts
 ** to obtain a check-in lock during auto-sync, the server will

@@ -99,7 +99,7 @@ struct FossilUserPerms {
   char ApndTkt;          /* c: append to tickets via the web */
   char WrTkt;            /* w: make changes to tickets via web */
   char ModTkt;           /* q: approve and publish ticket changes (Moderator) */
-  char Attach;           /* b: add attachments */
+  char Attach;           /* b: add attachments to wiki or tickets */
   char TktFmt;           /* t: create new ticket report formats */
   char RdAddr;           /* e: read email addresses or other private data */
   char Zip;              /* z: download zipped artifact via /zip URL */
@@ -112,6 +112,7 @@ struct FossilUserPerms {
   char AdminForum;       /* 6: Grant capability 4 to other users */
   char EmailAlert;       /* 7: Sign up for email notifications */
   char Announce;         /* A: Send announcements */
+  char AttachForum;      /* B: add attachments to forum */
   char Chat;             /* C: read or write the chatroom */
   char Debug;            /* D: show extra Fossil debugging features */
   /* These last two are included to block infinite recursion */
@@ -762,10 +763,10 @@ int fossil_main(int argc, char **argv){
   /* When updating the minimum SQLite version, change the number here,
   ** and also MINIMUM_SQLITE_VERSION value set in ../auto.def.  Take
   ** care that both places agree! */
-  if( sqlite3_libversion_number()<3049000
-   || strncmp(sqlite3_sourceid(),"2025-02-06",10)<0
+  if( sqlite3_libversion_number()<3054000
+   || strncmp(sqlite3_sourceid(),"2025-07-01",10)<0
   ){
-    fossil_panic("Unsuitable SQLite version %s, must be at least 3.49.0",
+    fossil_panic("Unsuitable SQLite version %s, must be at least 3.54.0",
                  sqlite3_libversion());
   }
 
@@ -1104,15 +1105,6 @@ const char *find_option(const char *zLong, const char *zShort, int hasArg){
     }
   }
   return zReturn;
-}
-
-/*
-** Restore an option previously removed by find_option().
-*/
-void restore_option(const char *zName, const char *zValue, int hasOpt){
-  if( zValue==0 && hasOpt ) return;
-  g.argv[g.argc++] = (char*)zName;
-  if( hasOpt ) g.argv[g.argc++] = (char*)zValue;
 }
 
 /* Return true if zOption exists in the command-line arguments,
@@ -3541,6 +3533,9 @@ void cmd_webserver(void){
     const char *zProtocol = g.httpUseSSL ? "https" : "http";
     db_open_config(0,0);
     zBrowser = fossil_web_browser();
+    if( fossil_strcmp(g.argv[2],"/")==0 ){
+      zInitPage = mprintf("?home=%T", zInitPage);
+    }      
     if( zIpAddr==0 ){
       zBrowserArg = mprintf("%s://localhost:%%d/%s", zProtocol, zInitPage);
     }else if( strchr(zIpAddr,':') ){
@@ -3559,6 +3554,7 @@ void cmd_webserver(void){
     Blob ssh;
     int bRunning = 0;    /* True when fossil starts up on the remote */
     int isRetry;         /* True if on the second attempt */
+    const char *zUrl = g.argv[2];
     char zLine[1000];
 
     blob_init(&ssh, 0, 0);
@@ -3593,7 +3589,7 @@ void cmd_webserver(void){
       if( skin_in_use() ) blob_appendf(&ssh, " --skin %s", skin_in_use());
       if( zJsMode ) blob_appendf(&ssh, " --jsmode %s", zJsMode);
       if( fCreate ) blob_appendf(&ssh, " --create");
-      blob_appendf(&ssh, " %$", g.argv[2]);
+      blob_appendf(&ssh, " %$", zUrl);
       if( isRetry ){
         fossil_print("First attempt to run \"fossil\" on %s failed\n"
                      "Retry: ", zRemote);

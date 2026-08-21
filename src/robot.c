@@ -94,6 +94,24 @@ static void robot_pow_hash(void){
 }
 
 /*
+** Remember that the client is human, as evidenced by the presence of
+** the fossil-client-ok or similar proof of work.  Enable hyperlinks if
+** auto-hyperlink is turned on.
+*/
+static void remember_is_human(void){
+  robot.resultCache = KNOWN_NOT_ROBOT;
+  if( g.perm.Hyperlink==0 ){
+    int autoLink = db_get_int("auto-hyperlink",1);
+    if( autoLink==1 ){
+      g.jsHref = 1;
+      g.perm.Hyperlink = 1;
+    }else if( autoLink==2 ){
+      g.perm.Hyperlink = 1;
+    }
+  }    
+}
+
+/*
 ** Return true if the HTTP client has not demonstrated that it is
 ** human interactive.  Return false is the HTTP client might be
 ** a non-interactive robot.
@@ -142,7 +160,7 @@ int client_might_be_a_robot(void){
     unsigned h = atoi(z);
     robot_pow_hash();
     if( (h==robot.h1 || h==robot.h2) && !cgi_is_qp(ROBOT_COOKIE) ){
-      robot.resultCache = KNOWN_NOT_ROBOT;
+      remember_is_human();
       return 0;
     }
   }
@@ -157,7 +175,7 @@ int client_might_be_a_robot(void){
     robot_pow_hash();
     if( h==robot.h1 || h==robot.h2 ){
       cgi_set_cookie(ROBOT_COOKIE,z,"/",900);
-      robot.resultCache = KNOWN_NOT_ROBOT;
+      remember_is_human();
       return 0;
     }
     cgi_tag_query_parameter("proof");
@@ -424,7 +442,14 @@ int robot_exception(void){
 ** Return true if one or more of the conditions below are true.
 ** Return false if all of the following are false:
 **
-**   *  The zTag is on the robot-restrict list
+**   *  The zTag is on the robot-restrict list and there exists
+**      some tags that do not match robot-restrict or else zTag is
+**      neither "/" or "xfer" or "login".  
+**      
+**         The complication of the previous rule (everything after the
+**         first "and") prevents a robot-restrict setting that contains
+**         "*" from trying to bring up a robot-captcha for a "sync"
+**         operation (the "/" or "xfer" page) or for the "login" page.
 **
 **   *  The client that submitted the HTTP request might be
 **      a robot
@@ -447,6 +472,11 @@ int robot_would_be_restricted(const char *zTag){
   if( !client_might_be_a_robot() ) return 0;
   if( robot_exception() ){
     robot.resultCache = KNOWN_NOT_ROBOT;
+    return 0;
+  }
+  if( robot_restrict_has_tag("-not-a-real-tag-")
+   && (strcmp(zTag,"login")==0 || strcmp(zTag,"xfer")==0 || zTag[0]=='/')
+  ){
     return 0;
   }
   return 1;

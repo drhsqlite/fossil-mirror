@@ -3007,7 +3007,7 @@ int Th_Render(const char *z){
 }
 
 /*
-** SETTING: vuln-report           width=8 default=log
+** SETTING: vuln-report           width=8 default=block
 **
 ** This setting controls Fossil's behavior when it encounters a potential
 ** XSS or SQL-injection vulnerability due to misuse of TH1 configuration
@@ -3041,7 +3041,7 @@ int Th_ReportTaint(
   static const char *zDisp = 0;   /* Dispensation; what to do with the error */
   const char *zVulnType;          /* Type of vulnerability */
 
-  if( zDisp==0 ) zDisp = db_get("vuln-report","log");
+  if( zDisp==0 ) zDisp = db_get("vuln-report","block");
   if( is_false(zDisp) ) return 0;
   if( strstr(zWhere,"SQL")!=0 ){
     zVulnType = "SQL-injection";

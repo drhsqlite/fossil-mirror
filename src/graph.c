@@ -525,7 +525,7 @@ void graph_finish(
   ** coming up from the bottom of the graph from off-screen check-in Y
   ** where Y is the RID.  There is no riser on rail X if mergeRiserFrom[X]==0.
   */
-  GraphRowId mergeRiserFrom[GR_MAX_RAIL];
+  GraphRowId mergeRiserFrom[GR_MAX_RAIL+1];
 
   if( p==0 || p->pFirst==0 || p->nErr ) return;
   p->nErr = 1;   /* Assume an error until proven otherwise */
@@ -1013,7 +1013,7 @@ void graph_finish(
     **
     **    0x01      A rail that merges with the preferred branch
     */
-    u16 aPriority[GR_MAX_RAIL];
+    u16 aPriority[GR_MAX_RAIL+1];
     int mxMatch = 0;
     memset(aPriority, 0, (p->mxRail+1)*sizeof(aPriority[0]));
     if( pLeftBranch ){

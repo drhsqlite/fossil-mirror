@@ -1,9 +1,23 @@
-# The "diff --tk" command outputs prepends a "set fossilcmd {...}" line
-# to this file, then runs this file using "tclsh" in order to display the
-# graphical diff in a separate window.  A typical "set fossilcmd" line
-# looks like this:
+# Various diff commands ("fossil diff", "fossil stash diff", "fossil fdiff",
+# "fossil patch diff", and others) that include the --tk option, or that use "gdiff"
+# instead of diff, work by running a Tcl/Tk script which is just this script prepended
+# with some variable initializations. The key variable is fossilcmd which is
+# usually set something like this:
 #
 #     set fossilcmd {| "./fossil" diff --tcl -i -v}
+#
+# If there are additional command-line options or arguments, those will be appended
+# as well.  This variable becomes the argument to "open" to gather the diff
+# information that is to be displayed.
+#
+# Other variables initializations that might be prepended to this script include:
+#
+#     set debug 1
+#     set darkmode 1
+#     set remotehost hostname
+#     set remotedir  directory-on-hostname
+#
+# After prepending those "set" commands, the resulting script is run using "tclsh".
 #
 # This header comment is stripped off by the "mkbuiltin.c" program.
 #
@@ -96,16 +110,20 @@ proc reloadDiff {} {
   global fossilcmd difftxt
   unset -nocomplain difftxt
   set idx [.txtA index @0,0]
-  readDiffs $fossilcmd 1
+  readDiffs 1
   update
   viewDiff $idx
 }
 
-proc readDiffs {fossilcmd redo} {
-  global difftxt debug
-  if {![info exists difftxt]} {
+# Populate the difftxt global variable by running the fossilcmd command
+# and capturing the output.  This is a reload if $redo is 1 and the initial
+# load if $redo is 0.
+#
+proc fetchRawDiff {redo} {
+  global fossilcmd remotehost remotedir debug difftxt
+  if {![info exists remotehost] || $remotehost eq ""} {
     if {$debug} {
-      puts "# [list open $fossilcmd r]"
+      puts "# [lrange $fossilcmd 1 end]"
       flush stdout
     }
     if {[catch {
@@ -122,12 +140,56 @@ proc readDiffs {fossilcmd redo} {
         exit 1
       }
     }
+    return 0
+  } else {
+    set suffix [lrange $fossilcmd 2 end]
+    set cmd "| ssh $remotehost {cd $remotedir && fossil $suffix}"
+    if {$debug} {
+      puts "# [lrange $cmd 1 end]"
+      flush stdout
+    }
+    if {![catch {
+      set in [open $cmd r]
+      fconfigure $in -encoding utf-8
+      set difftxt [split [read $in] \n]
+      close $in
+    }]} {
+      return 1
+    }
+    set cmd "| ssh $remotehost {cd $remotedir && \
+         PATH=\$HOME/bin:/usr/local/bin:/opt/homebrew/bin:\$PATH fossil $suffix}"
+    if {$debug} {
+      puts "# [lrange $cmd 1 end]"
+      flush stdout
+    }
+    if {![catch {
+      set in [open $cmd r]
+      fconfigure $in -encoding utf-8
+      set difftxt [split [read $in] \n]
+      close $in
+    } msg]} {
+      return 1
+    }
+    if {$redo} {
+      tk_messageBox -type ok -title Error -message "Unable to refresh:\n$msg"
+      return 0
+    } else {
+      puts $msg
+      exit 1
+    }
+  }
+}
+
+proc readDiffs {redo} {
+  global fossilcmd difftxt debug
+  if {![info exists difftxt]} {
+    fetchRawDiff $redo
   }
   set N [llength $difftxt]
   set ii 0
   set nDiffs 0
   set n1 0
-  set n2 0  
+  set n2 0
   array set widths {txt 3 ln 3 mkr 1}
   if {$redo} {
     foreach c [cols] {$c config -state normal}
@@ -138,8 +200,8 @@ proc readDiffs {fossilcmd redo} {
     .mkr delete 1.0 end
     .wfiles.lb delete 0 end
   }
-  
-  
+
+
   set fromIndex [lsearch -glob $fossilcmd *-from]
   set toIndex [lsearch -glob $fossilcmd *-to]
   set branchIndex [lsearch -glob $fossilcmd *-branch]
@@ -169,7 +231,7 @@ proc readDiffs {fossilcmd redo} {
       set fA "primary parent"; set fB [lindex $fossilcmd $checkinIndex+1]
     }
   }
-  
+
   while {[set line [getLine $difftxt $N ii]] != -1} {
     switch -- [lindex $line 0] {
       FILE {
@@ -489,7 +551,7 @@ foreach c [cols] {
 ::ttk::scrollbar .sbxB -command {.txtB xview} -orient horizontal
 frame .spacer
 
-if {[readDiffs $fossilcmd 0] == 0} {
+if {[readDiffs 0] == 0} {
   tk_messageBox -type ok -title $CFG(TITLE) -message "No changes"
   exit
 }
@@ -628,6 +690,18 @@ grid .spacer -row 2 -column 2
 grid .sbxB -row 2 -column 3 -columnspan 2 -sticky ew
 
 .spacer config -height [winfo height .sbxA]
+
+set h [winfo screenheight .]
+if {$h > 1280} {
+  set w [winfo screenwidth .]; # [winfo width] == 32
+  if {$w > 2048} {
+    set w 2048
+  }
+  set g [expr {$w / 3 * 2}]x[expr {$h / 4 * 3}]
+  wm geometry . $g
+}
+
 wm deiconify .
+
 }
 eval $prog

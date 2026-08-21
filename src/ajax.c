@@ -193,19 +193,48 @@ int ajax_p_bool(char const *zKey){
 ** If httpCode<=0 then it defaults to 500.
 **
 ** After calling this, the caller should immediately return.
+**
+** Returns the resulting http code.
 */
-void ajax_route_error(int httpCode, const char * zFmt, ...){
+int ajax_route_error(int httpCode, const char * zFmt, ...){
   Blob msg = empty_blob;
   Blob content = empty_blob;
   va_list vargs;
+
+  if( httpCode<=0 ) httpCode=500;
   va_start(vargs,zFmt);
   blob_vappendf(&msg, zFmt, vargs);
   va_end(vargs);
   blob_appendf(&content,"{\"error\":%!j}", blob_str(&msg));
   blob_reset(&msg);
   cgi_set_content(&content);
-  cgi_set_status(httpCode>0 ? httpCode : 500, "Error");
+  cgi_set_status(httpCode, "Error");
   cgi_set_content_type("application/json");
+  return httpCode;
+}
+
+void ajax_route_error_forbidden(){
+  ajax_route_error(403, "Permission denied.");
+}
+
+void ajax_route_error_captcha(){
+  ajax_route_error(400, "Invalid captcha response.");
+}
+
+void ajax_route_error_csrf(){
+  ajax_route_error(403, "Invalid CSRF signature.");
+}
+
+void ajax_route_error_404(const char *zMsg){
+  ajax_route_error(404, "%s", zMsg ? zMsg : "Resource not found.");
+}
+
+int ajax_check_csrf(int level){
+  if( 0==cgi_csrf_safe(level) ){
+    ajax_route_error_csrf();
+    return 0;
+  }
+  return 1;
 }
 
 /*
@@ -226,13 +255,14 @@ int ajax_route_bootstrap(int requireWrite, int requirePost){
   if( requireWrite!=0 && g.perm.Write==0 ){
     ajax_route_error(403,"Write permissions required.");
     return 0;
-  }else if(0==cgi_csrf_safe(requirePost)){
+  }else if(requirePost && 0==cgi_csrf_safe(requirePost)){
     ajax_route_error(403,
                      "CSRF violation (make sure sending of HTTP "
                      "Referer headers is enabled for XHR "
                      "connections).");
     return 0;
   }
+  cgi_set_content_type("application/json");
   return 1;
 }
 
@@ -284,8 +314,6 @@ int ajax_get_fnci_args( const char **zFn, const char **zCi ){
 **
 ** iframe_height=integer (default=40) Height, in EMs of HTML preview
 ** iframe.
-**
-** User must have Write access to use this page.
 **
 ** Responds with the HTML content of the preview. On error it produces
 ** a JSON response as documented for ajax_route_error().
@@ -344,6 +372,33 @@ void ajax_route_preview_text(void){
   }
 }
 
+/*
+** AJAX route /ajax/artifact.json.
+** URL arguments:
+**
+**     uuid=ARTIFACT_ID REQUIRED
+**
+** and emits either:
+**
+** { error: "..." }
+**
+** with a non-200 response code or the artifact's manifest in JSON
+** form with a 200 response code.
+*/
+void ajax_route_artifact_json(void){
+  const char *zUuid = P("uuid");
+  Blob json = BLOB_INITIALIZER;
+  login_check_credentials();
+  if( ! g.perm.Read ){
+    ajax_route_error_forbidden();
+  }else if( artifact_to_json_by_name(zUuid, &json) ){
+    @ %b(&json)
+  }else{
+    ajax_route_error_404("Cannot resolve artifact ID.");
+  }
+  blob_reset(&json);
+}
+
 #if INTERFACE
 /*
 ** Internal mapping of ajax sub-route names to various metadata.
@@ -353,7 +408,8 @@ struct AjaxRoute {
   void (*xCallback)(); /* Impl function for the route. */
   int bWriteMode;      /* True if requires write mode */
   int bPost;           /* True if requires POST (i.e. CSRF
-                       ** verification) */
+                       ** verification). Value is passed to
+                       ** cgi_csrf_safe(). */
 };
 typedef struct AjaxRoute AjaxRoute;
 #endif /*INTERFACE*/
@@ -394,16 +450,22 @@ void ajax_route_dispatcher(void){
   const AjaxRoute * pRoute = 0;
   const AjaxRoute routes[] = {
   /* Keep these sorted by zName (for bsearch()) */
+  {"artifact.json", ajax_route_artifact_json, 0, 0},
   {"preview-text", ajax_route_preview_text, 0, 1
-   /* Note that this does not require write permissions in the repo.
-   ** It should arguably require write permissions but doing means
-   ** that /chat does not work without check-in permissions:
+   /* Preview does not require write permissions in the repo.  It
+   ** should arguably require write permissions simply to limit abuse
+   ** but doing means that /chat does not work without check-in
+   ** permissions:
    **
    ** https://fossil-scm.org/forum/forumpost/ed4a762b3a557898
    **
    ** This particular route is used by /fileedit and /chat, whereas
    ** /wikiedit uses a simpler wiki-specific route.
-   */ }
+   */
+   /* TODO (2026-06-09): preview.txt, preview.md, preview.wiki as
+   ** shorthand for preview-text?filename=X.(txt|md|wiki), noting that
+   ** the filename is only used for mimetype determination. */
+  }
   };
 
   if(zName==0 || zName[0]==0){

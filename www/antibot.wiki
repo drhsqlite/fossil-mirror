@@ -90,15 +90,15 @@ from a human or a robot.
 The [/help/auto-hyperlink|auto-hyperlink] setting, shown as
 "<b>Enable hyperlinks based on User-Agent and/or Javascript</b>" on
 the Robot Defense Settings page, 
-can be set to "UserAgent only" or "UserAgent and Javascript" or "off".
+can be set to "HTTP Header Only" or "HTTP Header and Javascript" or "off".
 If the UserAgent string looks like a human and not a robot, then
 Fossil will enable hyperlinks even if the <b>Hyperlink</b> capability
 is omitted from the user permissions.  This setting gives humans easy
 access to the hyperlinks while preventing robots
 from walking the billions of pages on a typical Fossil site.
 
-If the setting is "UserAgent only" (2), then the hyperlinks are simply
-enabled and that is all.  But if the setting is "UserAgent and Javascript" (1),
+If the setting is "HTTP Header Only" (2), then the hyperlinks are simply
+enabled and that is all. But if the setting is "HTTP Header and Javascript" (1),
 then the hyperlinks are not enabled directly.
 Instead, the HTML code that is generated contains anchor tags ("&lt;a&gt;")
 with "href=" attributes that point to [/honeypot] rather than the correct
@@ -111,9 +111,13 @@ UserAgent string.  Most robots do not bother to run JavaScript and
 so to the robot the empty anchor tag will be useless.  But all modern
 web browsers implement JavaScript, so hyperlinks will show up
 normally for human users.
+(UPDATE 2026-08-06:  The previous two sentences
+were true when this document was first written in 2013, but they are
+not true any more. Most robots these days have normal-looking UserAgent
+strings and do run Javascript.)
 
 If the [/help/auto-hyperlink|"auto-hyperlink"] setting is (2)
-"<b>Enable hyperlinks using User-Agent and/or Javascript</b>",
+"<b>Enable hyperlinks using HTTP-Header and/or Javascript</b>",
 then there are now two additional sub-settings that control when
 hyperlinks are enabled.
 
@@ -151,6 +155,15 @@ these pages brings up a javascript-powered captcha.  The user has to
 click the accept button the captcha once, and that sets a cookie allowing
 the user to continue surfing without interruption for 15 minutes or so
 before being presented with another captcha.
+
+To disable this feature (not recommended for public-facing websites)
+change this setting to "off".  If robots become particularly troublesome,
+change this setting to "*" (the GLOB wildcard) which restricts robots 
+from accessing any page of the Fossil webpage other than "/login".
+Robots have gotten so bad lately (as of 2026) that the use of "*" is 
+advisable for any public-facing website that is running on a low-power
+platform such as a RaspberryPI or a $6/month VPS, or any platform with
+limited bandwidth.
 
 Some path elements have special meanings:
 
@@ -194,7 +207,7 @@ Some path elements have special meanings:
 Other special keywords may be added in the future.
 
 The default [/help/robot-restrict|robot-restrict]
-setting has been shown in practice to do a good job of keeping 
+setting has been shown (circa 2026) to do a reasonable job of keeping 
 robots from consuming all available CPU and bandwidth while will
 still allowing humans access to the full power of the site without
 having to be logged in.
@@ -253,7 +266,7 @@ The second URL will work for humans, just not robots.
 Fossil currently does a good job of providing easy access to humans
 while keeping out troublesome robots.  However, robots
 continue to grow more sophisticated, requiring ever more advanced
-defenses.  This "arms race" is unlikely to ever end.  The developers of
+defenses.  This "arms race" is unlikely to end.  The developers of
 Fossil will continue to try improve the robot defenses of Fossil so
 check back from time to time for the latest releases and updates.
 

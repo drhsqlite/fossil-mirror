@@ -874,17 +874,51 @@ void repo_stat1_page(void){
 void repo_tabsize_page(void){
   int nPageFree;
   sqlite3_int64 fsize;
+  int bDetail = 0;
   char zBuf[100];
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   cgi_check_for_malice();
+#if defined(SQLITE_VERSION_NUMBER) && SQLITE_VERSION_NUMBER>=3054000
+  if( g.perm.Admin && (bDetail = atoi(PD("detail","0")))!=0 ){
+    extern int sqlite3_diskused_init(
+       sqlite3*,
+       char**,
+       const sqlite3_api_routines*
+    );
+    sqlite3_diskused_init(g.db,0,0);
+  }
+#endif
   style_set_current_feature("stat");
   style_header("Repository Table Sizes");
   style_adunit_config(ADUNIT_RIGHT_OK);
   style_submenu_element("Stat", "stat");
+  if( bDetail ){
+    const char *zFName;
+    Stmt q;
+    zFName = sqlite3_db_filename(g.db, "repository");
+    @ <h1>%h(zFName)</h1>
+    db_prepare(&q, "SELECT diskused('repository')");
+    if( db_step(&q)==SQLITE_ROW ){
+      @ <pre>%h(db_column_text(&q,0))</pre>
+    }
+    db_finalize(&q);
+    if( g.localOpen ){
+      zFName = sqlite3_db_filename(g.db, "localdb");
+      @ <h1>%h(zFName)</h1>
+      db_prepare(&q, "SELECT diskused('localdb')");
+      if( db_step(&q)==SQLITE_ROW ){
+        @ <pre>%h(db_column_text(&q,0))</pre>
+      }
+      db_finalize(&q);
+    }
+    style_finish_page();
+    return;
+  }
   if( g.perm.Admin ){
     style_submenu_element("Schema", "repo_schema");
+    style_submenu_element("Details", "repo-tabsize?detail=1");
   }
   db_multi_exec(
     "CREATE TEMP TABLE trans(name TEXT PRIMARY KEY,tabname TEXT)WITHOUT ROWID;"

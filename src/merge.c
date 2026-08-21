@@ -302,6 +302,7 @@ static void merge_info_tcl(const char *zFName, int nContext, int diffMode){
 **                        with negative N meaning show all content.  Only
 **                        meaningful in combination with --tcl or --tk.
 **   --dark               Use dark mode for the Tcl/Tk-based GUI
+**   -v|--verbose         Show extra information about each merge operation
 **   --tk                 Bring up a Tcl/Tk GUI that shows the changes
 **                        associated with the most recent merge.
 **
@@ -325,6 +326,7 @@ void merge_info_cmd(void){
   int bTk;
   int bDark;
   int bAll;
+  int bDetail;
   int nContext;
   Stmt q;
   const char *zWhere;
@@ -338,6 +340,7 @@ void merge_info_cmd(void){
   zCnt = find_option("context", "c", 1);
   bDark = find_option("dark", 0, 0)!=0;
   bAll = find_option("all", "a", 0)!=0;
+  bDetail = find_option("verbose", "v", 0)!=0;
   if( (zDiff2 = find_option("diff12", 0, 1))!=0 ){
     diffMode = 12;
   }else
@@ -390,27 +393,64 @@ void merge_info_cmd(void){
   }else{
     zWhere = "WHERE op IN ('MERGE','CONFLICT','ERROR')";
   }
-  db_prepare(&q,
-    "WITH priority(op,pri) AS (VALUES('CONFLICT',0),('ERROR',0),"
-                                    "('MERGE',1),('ADDED',2),('UPDATE',2))"
-
-        /*  0   1                 2  */
-    "SELECT op, coalesce(fnr,fn), msg"
-    "  FROM mergestat JOIN priority USING(op)"
-    " %s"
-    " ORDER BY pri, coalesce(fnr,fn)",
-    zWhere /*safe-for-%s*/
-  );
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zOp = db_column_text(&q, 0);
-    const char *zName = db_column_text(&q, 1);
-    const char *zErr = db_column_text(&q, 2);
-    if( zErr && fossil_strcmp(zOp,"CONFLICT")!=0 ){
-      fossil_print("%-9s %s  (%s)\n", zOp, zName, zErr);
-    }else{
-      fossil_print("%-9s %s\n", zOp, zName);
+  if( !bDetail ){
+    db_prepare(&q,
+      "WITH priority(op,pri) AS (VALUES('CONFLICT',0),('ERROR',0),"
+                                      "('MERGE',1),('ADDED',2),('UPDATE',2))"
+  
+          /*  0   1                 2  */
+      "SELECT op, coalesce(fnr,fn), msg"
+      "  FROM mergestat JOIN priority USING(op)"
+      " %s"
+      " ORDER BY pri, coalesce(fnr,fn)",
+      zWhere /*safe-for-%s*/
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zOp = db_column_text(&q, 0);
+      const char *zName = db_column_text(&q, 1);
+      const char *zErr = db_column_text(&q, 2);
+      if( zErr && fossil_strcmp(zOp,"CONFLICT")!=0 ){
+        fossil_print("%-9s %s  (%s)\n", zOp, zName, zErr);
+      }else{
+        fossil_print("%-9s %s\n", zOp, zName);
+      }
+      cnt++;
     }
-    cnt++;
+  }else{
+    fossil_print(
+      " Status     Local      Pivot     Merge-in  Filename\n"
+      "--------- ---------- ---------- ---------- ----------------\n");
+    db_prepare(&q,
+      "WITH priority(op,pri) AS (VALUES('CONFLICT',0),('ERROR',0),"
+                                      "('MERGE',1),('ADDED',2),('UPDATE',2))"
+  
+          /*  0   1                 2  */
+      "SELECT op, coalesce(fnr,fn), msg,"
+      "  (SELECT uuid FROM blob WHERE blob.rid=mergestat.ridv)," /* 3: local */
+      "  (SELECT uuid FROM blob WHERE blob.rid=mergestat.ridp)," /* 4: pivot */
+      "  (SELECT uuid FROM blob WHERE blob.rid=mergestat.ridm)"  /* 5: mergein*/
+      "  FROM mergestat JOIN priority USING(op)"
+      " %s"
+      " ORDER BY pri, coalesce(fnr,fn)",
+      zWhere /*safe-for-%s*/
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zOp = db_column_text(&q, 0);
+      const char *zName = db_column_text(&q, 1);
+      const char *zErr = db_column_text(&q, 2);
+      const char *zLocal = db_column_text(&q, 3);
+      const char *zPivot = db_column_text(&q, 4);
+      const char *zMergein = db_column_text(&q, 5);
+      if( zLocal==0 ) zLocal = "";
+      if( zErr && fossil_strcmp(zOp,"CONFLICT")!=0 ){
+        fossil_print("%-9s %10.10s %10.10s %10.10s %s  (%s)\n",
+             zOp, zLocal,  zPivot, zMergein, zName, zErr);
+      }else{
+        fossil_print("%-9s %10.10s %10.10s %10.10s %s\n",
+             zOp, zLocal,  zPivot, zMergein, zName);
+      }
+      cnt++;
+    }
   }
   db_finalize(&q);
   if( !bAll && cnt==0 ){

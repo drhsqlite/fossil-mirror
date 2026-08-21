@@ -153,7 +153,7 @@ static void http_build_header(
   }else{
     zPath = g.url.path;
   }
-  blob_appendf(pHdr, "%s %s HTTP/1.0\r\n",
+  blob_appendf(pHdr, "%s %s HTTP/1.1\r\n",
                nPayload>0 ? "POST" : "GET", zPath);
   if( g.url.proxyAuth ){
     blob_appendf(pHdr, "Proxy-Authorization: %s\r\n", g.url.proxyAuth);
@@ -165,6 +165,7 @@ static void http_build_header(
     fossil_free(zEncoded);
   }
   blob_appendf(pHdr, "Host: %s\r\n", g.url.hostname);
+  blob_appendf(pHdr, "Connection: close\r\n");
   blob_appendf(pHdr, "User-Agent: %s\r\n", get_user_agent());
   if( g.url.isSsh ) blob_appendf(pHdr, "X-Fossil-Transport: SSH\r\n");
   if( g.syncInfo.fLoginCardMode>0
@@ -457,6 +458,7 @@ int http_exchange(
   int i;                /* Loop counter */
   int isError = 0;      /* True if the reply is an error message */
   int isCompressed = 1; /* True if the reply is compressed */
+  int isChunked = 0;    /* True if Transfer-Encoding: chunked */
 
   if( g.zHttpCmd!=0 ){
     /* Handle the --transport-command option for "fossil sync" and similar */
@@ -568,6 +570,15 @@ int http_exchange(
     }
     if( fossil_strnicmp(zLine, "http/1.", 7)==0 ){
       if( sscanf(zLine, "HTTP/1.%d %d", &iHttpVersion, &rc)!=2 ) goto write_err;
+      if( rc/100==1 ){
+        /* Parse and discard an unexpected 1xx interim reply, most commonly
+        ** "100 Continue". Skip the remaining header lines of the reply.
+        ** A 1xx reply has no body.) */
+        while( (zLine = transport_receive_line(&g.url))!=0 && zLine[0]!=0 ){}
+        iHttpVersion = -1; /* Ensures correct error msg if connection drops */
+        if( zLine==0 ) goto write_err;
+        continue;
+      }
       if( rc==401 ){
         if( fSeenHttpAuth++ < MAX_HTTP_AUTH ){
           if( g.zHttpAuth ){
@@ -607,6 +618,20 @@ int http_exchange(
     }else if( fossil_strnicmp(zLine, "content-length:", 15)==0 ){
       for(i=15; fossil_isspace(zLine[i]); i++){}
       iLength = atoi(&zLine[i]);
+    }else if( fossil_strnicmp(zLine, "transfer-encoding:", 18)==0 ){
+      /* Fossil never sends a "transfer-encoding:" request header, so we may
+      ** reject any encoding other than "chunked", including "gzip, chunked",
+      ** "superchunked", "deflate" etc. */
+      int bOk = 0;
+      for(i=18; fossil_isspace(zLine[i]); i++){}
+      if( fossil_strnicmp(&zLine[i], "chunked", 7)==0 ){
+        bOk = zLine[i+7]==0;
+      }
+      if( !bOk ){
+        fossil_warning("unsupported transfer-encoding: %s", &zLine[18]);
+        goto write_err;
+      }
+      isChunked = 1;
     }else if( fossil_strnicmp(zLine, "connection:", 11)==0 ){
       if( sqlite3_strlike("%close%", &zLine[11], 0)==0 ){
         closeConnection = 1;
@@ -733,11 +758,79 @@ int http_exchange(
     goto write_err;
   }
 
+  if( isChunked && iLength>=0 ){
+    /* RFC 7230 says to reject in this case */
+    fossil_warning("reply has both content-length and transfer-encoding");
+    goto write_err;
+  }
+
   /*
   ** Extract the reply payload that follows the header
   */
   blob_zero(pReply);
-  if( iLength==0 ){
+  if( isChunked ){
+    /* Decode an HTTP/1.1 "Transfer-Encoding: chunked" reply body.  Each
+    ** chunk is a hex length on its own line (optionally followed by a
+    ** ";extension" that is ignored), then that many payload bytes, then a
+    ** bare CRLF.  A zero-length chunk terminates the body, after which any
+    ** trailer header lines are read and discarded up to the blank line. */
+    char *zChunk;
+    int sawTerminator = 0;  /* True once the 0-length chunk is seen */
+    while( (zChunk = transport_receive_line(&g.url))!=0 && zChunk[0]!=0 ){
+      i64 nChunk;           /* Size of this chunk in bytes (wide, unclamped) */
+      i64 nPrior;           /* Bytes already in pReply (matches blob nUsed) */
+      char *zEnd = 0;       /* End of the hex digits actually parsed */
+      while( fossil_isspace(zChunk[0]) ) zChunk++;
+      nChunk = strtoll(zChunk, &zEnd, 16);
+      if( zEnd==zChunk ){
+        /* No hex digit consumed: a blank or malformed chunk-size line, which
+        ** is the symptom of a connection that closed mid-stream.  Treat it as
+        ** a truncated (failed) */
+        fossil_warning("chunked reply: missing or malformed chunk size");
+        goto write_err;
+      }
+      if( nChunk<0 || nChunk>0x7fffffff ){
+        /* Negative, or larger than we will ever accept in one chunk. */
+        fossil_warning("chunked reply: invalid chunk size");
+        goto write_err;
+      }
+      if( nChunk==0 ){
+        /* Final chunk: consume trailer lines up to the terminating blank. */
+        sawTerminator = 1;
+        while( (zChunk = transport_receive_line(&g.url))!=0 && zChunk[0]!=0 ){}
+        break;
+      }
+      nPrior = blob_size(pReply);
+      /* Grow the reply buffer, then restore nUsed, so that on error the
+      ** blob's reported size is bytes received not claimed chunk length */
+      blob_resize(pReply, (u64)(nPrior+nChunk));
+      pReply->nUsed = (unsigned int)nPrior;
+      {
+        unsigned int nRemaining = (unsigned int)nChunk;
+        /* transport_receive() may return short; loop until the chunk is
+        ** full. */
+        while( nRemaining>0 ){
+          int nGot;
+          nGot = transport_receive(&g.url, &pReply->aData[nPrior], nRemaining);
+          if( nGot<=0 ){
+            fossil_warning("chunked reply truncated");
+            goto write_err;
+          }
+          nPrior += nGot;
+          nRemaining -= nGot;
+          pReply->nUsed = (unsigned int)nPrior;
+        }
+      }
+      transport_receive_line(&g.url); /* CRLF that follows the chunk data */
+    }
+    if( !sawTerminator ){
+      /* The loop exited without ever seeing the 0-length terminator chunk,
+      ** meaning the peer closed before the body was complete.  A truncated
+      ** sync must be an error, never silent success. */
+      fossil_warning("chunked reply ended without terminator");
+      goto write_err;
+    }
+  }else if( iLength==0 ){
     /* No content to read */
   }else if( iLength>0 ){
     /* Read content of a known length */

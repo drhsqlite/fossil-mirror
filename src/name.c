@@ -1147,6 +1147,36 @@ char const * whatis_rid_type_label(int rid){
 }
 
 /*
+** This is the output routine for whatis_rid().  If pOut is NULL
+** then write zKey and zValue on fossil_print().  But if pOut is
+** not NULL, append the key and value as a term of a JSON object.
+*/
+static void whatis_line(
+  sqlite3_str *pOut,
+  const char *zKey,
+  const char *zValue,
+  ...
+){
+  char *zArg;
+  va_list ap;
+  va_start(ap, zValue);
+  zArg = sqlite3_vmprintf(zValue,ap);
+  va_end(ap);
+  if( pOut ){
+    int n = sqlite3_str_length(pOut);
+    if( n>1 && sqlite3_str_value(pOut)[n-1]!='{' ){
+      sqlite3_str_append(pOut, ",", 1);
+    }
+    sqlite3_str_appendf(pOut, "%J:%J", zKey, zArg);
+  }else{
+    int n = 11 - (int)strlen(zKey);
+    if( n<=0 ) n = 0;
+    fossil_print("%s:%*s%s\n",zKey,n,"",zArg);
+  }
+  sqlite3_free(zArg);
+}
+
+/*
 ** Flag values for whatis_rid().
 */
 #if INTERFACE
@@ -1155,14 +1185,21 @@ char const * whatis_rid_type_label(int rid){
 #define WHATIS_REPO      0x04    /* Show repository name */
 #define WHATIS_OMIT_UNK  0x08    /* Do not show "unknown" lines */
 #define WHATIS_HASHONLY  0x10    /* Show only the hash */
+#define WHATIS_JSON      0x20    /* Render as JSON */
 #endif
 
 /*
-** Generate a description of artifact "rid"
+** Generate a description of artifact "rid".
+**
+** Send results to stdout using fossil_print() if pOut==0 or if
+** WHATIS_HASHONLY is set.  But without WHATIS_HASHONLY and if
+** pOut!=0, then write a JSON description of the object into pOut.
 */
-void whatis_rid(int rid, int flags){
+void whatis_rid(int rid, int flags, sqlite3_str *pOut){
   Stmt q;
   int cnt;
+
+  if( pOut ) sqlite3_str_appendf(pOut, "{\"rid\":%d", rid);
 
   /* Basic information about the object. */
   db_prepare(&q,
@@ -1175,15 +1212,17 @@ void whatis_rid(int rid, int flags){
     if( flags & WHATIS_HASHONLY ){
       fossil_print("%s\n", db_column_text(&q,0));
     }else if( flags & WHATIS_VERBOSE ){
-      fossil_print("artifact:   %s (%d)\n", db_column_text(&q,0), rid);
-      fossil_print("size:       %d bytes\n", db_column_int(&q,1));
-      fossil_print("received:   %s from %s\n",
+      whatis_line(pOut, "artifact", "%s (%d)", db_column_text(&q,0), rid);
+      whatis_line(pOut, "size", "%d bytes", db_column_int(&q,1));
+      whatis_line(pOut, "received", "%s from %s",
          db_column_text(&q, 2),
          db_column_text(&q, 3));
     }else{
-      fossil_print("artifact:   %s\n", db_column_text(&q,0));
-      fossil_print("size:       %d bytes\n", db_column_int(&q,1));
+      whatis_line(pOut, "artifact","%s", db_column_text(&q,0));
+      whatis_line(pOut, "size",    "%d bytes", db_column_int(&q,1));
     }
+  }else if( pOut ){
+    sqlite3_str_appendf(pOut, ",\"artifact\":null");
   }
   db_finalize(&q);
   if( flags & WHATIS_HASHONLY ) return;
@@ -1200,10 +1239,23 @@ void whatis_rid(int rid, int flags){
   );
   cnt = 0;
   while( db_step(&q)==SQLITE_ROW ){
-    const char *zPrefix = cnt++ ? ", " : "tags:       ";
-    fossil_print("%s%s", zPrefix, db_column_text(&q,0));
+    const char *zTag = (const char*)db_column_text(&q,0);
+    if( pOut ){
+      const char *zSep = cnt==0 ? ",tags:[" : ",";
+      sqlite3_str_appendf(pOut, "%s%J", zSep, zTag);
+    }else{
+      const char *zPrefix = cnt ? ", " : "tags:       ";
+      fossil_print("%s%s", zPrefix, db_column_text(&q,0));
+    }
+    cnt++;
   }
-  if( cnt ) fossil_print("\n");
+  if( cnt ){
+    if( pOut ){
+      sqlite3_str_append(pOut, "]", 1);
+    }else{
+      fossil_print("\n");
+    }
+  }
   db_finalize(&q);
 
   /* Report any HIDDEN, PRIVATE, CLUSTER, or CLOSED tags on this artifact */
@@ -1217,20 +1269,40 @@ void whatis_rid(int rid, int flags){
   );
   cnt = 0;
   while( db_step(&q)==SQLITE_ROW ){
-    const char *zPrefix = cnt++ ? ", " : "raw-tags:   ";
-    fossil_print("%s%s", zPrefix, db_column_text(&q,0));
+    const char *zTag = (const char*)db_column_text(&q,0);
+    if( pOut ){
+      const char *zSep = cnt==0 ? ",\"raw-tags\":[" : ",";
+      sqlite3_str_appendf(pOut, "%s%J", zSep, zTag);
+    }else{
+      const char *zPrefix = cnt ? ", " : "raw-tags:       ";
+      fossil_print("%s%s", zPrefix, db_column_text(&q,0));
+    }
+    cnt++;
   }
-  if( cnt ) fossil_print("\n");
+  if( cnt ){
+    if( pOut ){
+      sqlite3_str_append(pOut, "]", 1);
+    }else{
+      fossil_print("\n");
+    }
+  }
   db_finalize(&q);
 
   /* Check for entries on the timeline that reference this object */
   db_prepare(&q,
-     "SELECT type, datetime(mtime,toLocal()),"
-     "       coalesce(euser,user), coalesce(ecomment,comment)"
-     "  FROM event WHERE objid=%d", rid);
+     "SELECT"
+     " type,"
+     " datetime(mtime,toLocal()),"
+     " coalesce(euser,user),"
+     " coalesce(ecomment,comment),"
+     " if(type='t',(SELECT substr(tagname,5) FROM tag"
+                   " WHERE tag.tagid=event.tagid))"
+     "FROM event WHERE objid=%d",
+     rid);
   if( db_step(&q)==SQLITE_ROW ){
     const char *zType;
-    switch( db_column_text(&q,0)[0] ){
+    char eType = db_column_text(&q,0)[0];
+    switch( eType ){
       case 'c':  zType = "Check-in";       break;
       case 'w':  zType = "Wiki-edit";      break;
       case 'e':  zType = "Technote";       break;
@@ -1239,10 +1311,17 @@ void whatis_rid(int rid, int flags){
       case 'g':  zType = "Tag-change";     break;
       default:   zType = "Unknown";        break;
     }
-    fossil_print("type:       %s by %s on %s\n", zType, db_column_text(&q,2),
+    whatis_line(pOut, "type", "%s by %s on %s", zType, db_column_text(&q,2),
                  db_column_text(&q, 1));
-    fossil_print("comment:    ");
-    comment_print(db_column_text(&q,3), 0, 12, -1, get_comment_format());
+    if( eType=='t' && db_column_type(&q,4)==SQLITE_TEXT ){
+      whatis_line(pOut, "ticket-id", "%s", db_column_text(&q,4));
+    }
+    if( pOut ){
+      sqlite3_str_appendf(pOut, ",\"comment\":%J", db_column_text(&q,3));
+    }else{
+      fossil_print("comment:    ");
+      comment_print(db_column_text(&q,3), 0, 12, -1, get_comment_format());
+    }
     cnt++;
   }
   db_finalize(&q);
@@ -1263,16 +1342,21 @@ void whatis_rid(int rid, int flags){
     (flags & WHATIS_BRIEF) ? "LIMIT 1" : "DESC");
   while( db_step(&q)==SQLITE_ROW ){
     if( flags & WHATIS_BRIEF ){
-      fossil_print("mtime:      %s\n", db_column_text(&q,2));
+      whatis_line(pOut, "mtime","%s", db_column_text(&q,2));
     }
-    fossil_print("file:       %s\n", db_column_text(&q,0));
-    fossil_print("            part of [%S] on branch %s by %s on %s\n",
-      db_column_text(&q, 1),
-      db_column_text(&q, 5),
-      db_column_text(&q, 3),
-      db_column_text(&q, 2));
-    fossil_print("            ");
-    comment_print(db_column_text(&q,4), 0, 12, -1, get_comment_format());
+    if( pOut ){
+      whatis_line(pOut,"file","%s", db_column_text(&q,0));
+      whatis_line(pOut,"part-of","%s", db_column_text(&q,1));
+    }else{
+      fossil_print("file:       %s\n", db_column_text(&q,0));
+      fossil_print("            part of [%S] on branch %s by %s on %s\n",
+        db_column_text(&q, 1),
+        db_column_text(&q, 5),
+        db_column_text(&q, 3),
+        db_column_text(&q, 2));
+      fossil_print("            ");
+      comment_print(db_column_text(&q,4), 0, 12, -1, get_comment_format());
+    }
     cnt++;
   }
   db_finalize(&q);
@@ -1295,26 +1379,32 @@ void whatis_rid(int rid, int flags){
     rid
   );
   while( db_step(&q)==SQLITE_ROW ){
-    fossil_print("attachment: %s\n", db_column_text(&q,0));
-    fossil_print("            attached to %s %s\n",
-                 db_column_text(&q,5), db_column_text(&q,4));
-    if( flags & WHATIS_VERBOSE ){
-      fossil_print("            via %s (%d)\n",
-                   db_column_text(&q,7), db_column_int(&q,6));
+    if( pOut ){
+      whatis_line(pOut, "attachment", "%s", db_column_text(&q,0));
+      whatis_line(pOut, "attached-to", "%s %s",
+         db_column_text(&q,5), db_column_text(&q,4));
     }else{
-      fossil_print("            via %s\n",
-                   db_column_text(&q,7));
+      fossil_print("attachment: %s\n", db_column_text(&q,0));
+      fossil_print("            attached to %s %s\n",
+                   db_column_text(&q,5), db_column_text(&q,4));
+      if( flags & WHATIS_VERBOSE ){
+        fossil_print("            via %s (%d)\n",
+                     db_column_text(&q,7), db_column_int(&q,6));
+      }else{
+        fossil_print("            via %s\n",
+                     db_column_text(&q,7));
+      }
+      fossil_print("            by user %s on %s\n",
+                   db_column_text(&q,2), db_column_text(&q,3));
+      fossil_print("            ");
+      comment_print(db_column_text(&q,1), 0, 12, -1, get_comment_format());
     }
-    fossil_print("            by user %s on %s\n",
-                 db_column_text(&q,2), db_column_text(&q,3));
-    fossil_print("            ");
-    comment_print(db_column_text(&q,1), 0, 12, -1, get_comment_format());
     cnt++;
   }
   db_finalize(&q);
 
   /* If other information available, try to describe the object */
-  if( cnt==0 ){
+  if( cnt==0 && pOut==0 ){
     char *zWhere = mprintf("=%d", rid);
     char *zDesc;
     describe_artifacts(zWhere);
@@ -1325,18 +1415,48 @@ void whatis_rid(int rid, int flags){
     fossil_print("%s\n", zDesc);
     fossil_free(zDesc);
   }
+
+  if( pOut ) sqlite3_str_append(pOut, "}", 1);
 }
 
 /*
 ** Generate a description of artifact from it symbolic name.
 */
 void whatis_artifact(
-    const char *zName,    /* Symbolic name or full hash */
-    const char *zFileName,/* Optional: original filename (in file mode) */
-    const char *zType,    /* Artifact type filter */
-    int mFlags            /* WHATIS_* flags */
+  const char *zName,    /* Symbolic name or full hash */
+  const char *zFileName,/* Optional: original filename (in file mode) */
+  const char *zType,    /* Artifact type filter */
+  int mFlags,           /* WHATIS_* flags */
+  sqlite3_str *pOut     /* Write JSON here, if not NULL */
 ){
   int rid = symbolic_name_to_rid(zName, zType);
+  size_t nName;
+  char *zC = 0;
+  int nTkt = 0;
+
+  if( pOut ){
+    mFlags &= ~(WHATIS_HASHONLY|WHATIS_REPO);
+    zFileName = 0;
+  }
+  if( (nName = strlen(zName))>=4 && validate16(zName,nName) ){
+    zC = fossil_strdup(zName);
+    canonical16(zC, nName);
+    nTkt = db_int(0,"SELECT count(*) FROM tag WHERE tagname GLOB 'tkt-%q*'",zC);
+    if( nTkt>0 ){
+      if( rid==0 ){
+        rid = db_int(0,
+          "SELECT srcid FROM tag, tagxref"
+          " WHERE tag.tagname GLOB 'tkt-%q*'"
+          "   AND tagxref.tagid=tag.tagid"
+          "   AND tagxref.tagtype=1"
+          " ORDER BY tagxref.mtime",
+          zC
+        );
+      }else{
+        rid = -1;
+      }
+    }
+  }
   if( rid<0 ){
     Stmt q;
     int cnt = 0;
@@ -1346,23 +1466,55 @@ void whatis_artifact(
     if( zFileName ){
       fossil_print("%-12s%s\n", "name:", zFileName);
     }
-    fossil_print("%-12s%s (ambiguous)\n", "hash:", zName);
+    if( pOut ){
+      sqlite3_str_appendall(pOut, "{\"ambiguous\":[");
+    }else{
+      fossil_print("%-12s%s (ambiguous)\n", "hash:", zName);
+    }
     db_prepare(&q,
         "SELECT rid FROM blob WHERE uuid>=lower(%Q) AND uuid<(lower(%Q)||'z')",
         zName, zName
-        );
+    );
     while( db_step(&q)==SQLITE_ROW ){
-      if( cnt++ ) fossil_print("%12s---- meaning #%d ----\n", " ", cnt);
-      whatis_rid(db_column_int(&q, 0), mFlags);
+      if( cnt++ ){
+        if( pOut ){
+          sqlite3_str_append(pOut, ",", 1);
+        }else{
+          fossil_print("%12s---- meaning #%d ----\n", " ", cnt);
+        }
+      }
+      whatis_rid(db_column_int(&q, 0), mFlags, pOut);
     }
     db_finalize(&q);
+    if( nTkt>0 ){
+      db_prepare(&q,
+        "SELECT (SELECT srcid FROM tagxref"
+                " WHERE tagxref.tagid=tag.tagid"
+                "   AND tagxref.tagtype=1"
+                " ORDER BY mtime LIMIT 1)"
+        " FROM tag WHERE tagname GLOB 'tkt-%q*'",
+        zC
+      );
+      while( db_step(&q)==SQLITE_ROW ){
+        if( pOut ){
+          sqlite3_str_append(pOut, ",", 1);
+        }else{
+          fossil_print("%12s---- meaning #%d ----\n", " ", cnt);
+        }
+        whatis_rid(db_column_int(&q, 0), mFlags, pOut);
+      }
+      db_finalize(&q);
+    }
+    if( pOut ) sqlite3_str_append(pOut, "]}", 2);
   }else if( rid==0 ){
     if( (mFlags & (WHATIS_OMIT_UNK|WHATIS_HASHONLY))==0 ){
                  /* 0123456789 12 */
       if( zFileName ){
         fossil_print("%-12s%s\n", "name:", zFileName);
       }
-      fossil_print("unknown:    %s\n", zName);
+      if( pOut ) sqlite3_str_append(pOut, "{", 1);
+      whatis_line(pOut, "unknown", "%s", zName);
+      if( pOut ) sqlite3_str_append(pOut, "}", 1);
     }
   }else{
     if( mFlags & WHATIS_REPO ){
@@ -1371,11 +1523,12 @@ void whatis_artifact(
     if( zFileName ){
       zName = zFileName;
     }
-    if( (mFlags & WHATIS_HASHONLY)==0 ){
-      fossil_print("%-12s%s\n", "name:", zName);
+    if( (mFlags & WHATIS_HASHONLY)==0 && pOut==0 ){
+      whatis_line(pOut, "name", "%s", zName);
     }
-    whatis_rid(rid, mFlags);
+    whatis_rid(rid, mFlags, pOut);
   }
+  fossil_free(zC);
 }
 
 /*
@@ -1403,6 +1556,7 @@ void whatis_cmd(void){
   int fileFlag;
   int i;
   const char *zType = 0;
+  sqlite3_str *pOut = 0;
   db_find_and_open_repository(0,0);
   if( find_option("verbose","v",0)!=0 ){
     mFlags |= WHATIS_VERBOSE;
@@ -1415,6 +1569,10 @@ void whatis_cmd(void){
   }
   fileFlag = find_option("file","f",0)!=0;
   zType = find_option("type",0,1);
+
+  if( find_option("json",0,0)!=0 ){  /* undocumented test option */
+    pOut = sqlite3_str_new(0);
+  }
 
   /* We should be done with options.. */
   verify_all_options();
@@ -1441,13 +1599,48 @@ void whatis_cmd(void){
         hname_hash(&in, 0, &hash);
         zHash = (const char*)blob_str(&hash);
       }
-      whatis_artifact(zHash, zName, zType, mFlags);
+      whatis_artifact(zHash, zName, zType, mFlags, pOut);
       blob_reset(&hash);
     }else{
-      whatis_artifact(zName, 0, zType, mFlags);
+      whatis_artifact(zName, 0, zType, mFlags, pOut);
+    }
+    if( pOut ){
+      fossil_print("%s\n", sqlite3_str_value(pOut));
+      sqlite3_str_truncate(pOut, 0);
     }
   }
+  if( pOut ) sqlite3_str_free(pOut);
 }
+
+/*
+** This is an SQL function that does the rough equivalent of the
+** "whatis" command.  The argument can be a text identifier, or a
+** integer RID.
+*/
+void whatis_sql_function(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  sqlite3_str *pOut = sqlite3_str_new(0);
+  int n;
+  assert( argc==1 );
+  if( sqlite3_value_type(argv[0])==SQLITE_INTEGER ){
+    int rid = sqlite3_value_int(argv[0]);
+    whatis_rid(rid, 0, pOut);
+  }else if( sqlite3_value_type(argv[0])==SQLITE_TEXT ){
+    const char *zName = (const char*)sqlite3_value_text(argv[0]);
+    whatis_artifact(zName, 0, 0, 0, pOut);
+  }else{
+    sqlite3_str_free(pOut);
+    return;
+  }
+  n = sqlite3_str_length(pOut);
+  sqlite3_result_text64(context, sqlite3_str_finish(pOut), n,
+                        sqlite3_free, SQLITE_UTF8);
+  sqlite3_result_subtype(context, 'J');
+}
+
 
 /*
 ** COMMAND: test-whatis-all
@@ -1463,7 +1656,7 @@ void test_whatis_all_cmd(void){
   db_prepare(&q, "SELECT rid FROM blob ORDER BY rid");
   while( db_step(&q)==SQLITE_ROW ){
     if( cnt++ ) fossil_print("%.79c\n", '-');
-    whatis_rid(db_column_int(&q,0), 1);
+    whatis_rid(db_column_int(&q,0), 1, 0);
   }
   db_finalize(&q);
 }

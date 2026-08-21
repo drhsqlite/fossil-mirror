@@ -131,7 +131,7 @@ static const unsigned char aFont2[] = {
 ** by the caller.
 */
 char *captcha_render(const char *zPw){
-  char *z = fossil_malloc( 160*strlen(zPw) + 9 );
+  char *z = fossil_malloc( 224*strlen(zPw) + 9 );
   int i, j, k, m;
 
   k = 0;
@@ -148,8 +148,12 @@ char *captcha_render(const char *zPw){
           z[k++] = 0x96;
           z[k++] = 0x88;
         }else{
-          z[k++] = ' ';
-          z[k++] = ' ';
+          z[k++] = 0xe2;
+          z[k++] = 0x96;
+          z[k++] = 0x91;
+          z[k++] = 0xe2;
+          z[k++] = 0x96;
+          z[k++] = 0x91;
         }
       }
       z[k++] = ' ';
@@ -485,13 +489,13 @@ char *captcha_render(const char *zPw){
 */
 void test_captcha(void){
   int i;
-  unsigned int v;
+  sqlite3_uint64 v;
   char *z;
 
   for(i=2; i<g.argc; i++){
     char zHex[30];
-    v = (unsigned int)atoi(g.argv[i]);
-    sqlite3_snprintf(sizeof(zHex), zHex, "%x", v);
+    v = (sqlite3_uint64)strtoll(g.argv[i],0,0);
+    sqlite3_snprintf(sizeof(zHex), zHex, "%llx", v);
     z = captcha_render(zHex);
     fossil_print("%s:\n%s", zHex, z);
     free(z);

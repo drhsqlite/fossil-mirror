@@ -367,12 +367,18 @@ static void stash_apply(int stashid, int nConflict){
           fossil_print("***** Cannot merge symlink %s\n", zNew);
         }else{
           rc = merge_3way(&a, zOPath, &b, &out, MERGE_KEEP_FILES);
-          blob_write_to_file(&out, zNPath);
+          if( rc>=0 ){
+            blob_write_to_file(&out, zNPath);
+            file_setexe(zNPath, isExec);
+          }
           blob_reset(&out);
-          file_setexe(zNPath, isExec);
         }
         if( rc ){
           fossil_print("CONFLICT %s\n", zNew);
+          if( rc<0 ){
+            fossil_print("       binary file left unchanged - resolve using "
+                "-baseline/-original/-merge\n");
+          }
           nConflict++;
         }else{
           fossil_print("MERGE %s\n", zNew);
@@ -449,20 +455,30 @@ static void stash_diff(
       Blob delta;
       int isOrigLink = file_islink(zOPath);
       db_ephemeral_blob(&q, 6, &delta);
-      if( !bWebpage ) fossil_print("CHANGED %s\n", zNew);
       if( !isOrigLink != !isLink ){
+        if( !bWebpage ) fossil_print("CHANGED %s\n", zNew);
         diff_print_index(zNew, pCfg, 0);
         diff_print_filenames(zOrig, zNew, pCfg, 0);
         printf(DIFF_CANNOT_COMPUTE_SYMLINK);
       }else{
+        int isChanged = 0;
         content_get(rid, &a);
         blob_delta_apply(&a, &delta, &b);
         if( fBaseline ){
-          diff_file_mem(&a, &b, zNew, pCfg);
-        }else{
+          if( blob_compare(&a, &b) ){
+            isChanged = 1;
+            if( !bWebpage ) fossil_print("CHANGED %s\n", zNew);
+            diff_file_mem(&a, &b, zNew, pCfg);
+          }
+        }else if( !file_same_as_blob(&b, zOPath) ){
+          isChanged = 1;
+          if( !bWebpage ) fossil_print("CHANGED %s\n", zNew);
           pCfg->diffFlags ^= DIFF_INVERT;
           diff_file(&b, zOPath, zNew, pCfg, 0);
           pCfg->diffFlags ^= DIFF_INVERT;
+        }
+        if( !bWebpage && !isChanged && pCfg->diffFlags & DIFF_VERBOSE ){
+            fossil_print("UNCHANGED %s\n", zNew);
         }
         blob_reset(&a);
         blob_reset(&b);

@@ -1,4 +1,4 @@
--/**
+/**
    This file contains the client-side implementation of fossil's /chat
    application.
 */
@@ -532,7 +532,16 @@ window.fossil.onPageLoad(function(){
              used. */
           "audible-alert": true,
           /*
-           */
+            When on, /chat will beep only once after the tab is hidden
+            from view. Interacting with /chat will reset it, such that
+            it beeps only once after being subsequently hidden.  When
+            this is off it beeps for each new message.
+
+            In other words: this works like most notifications on
+            Android: it only beeps once, then not again until you
+            interact with it, which resets the beep for the next
+            notification.
+          */
           "beep-once": false,
           /* When on, show the list of "active" users - those from
              whom we have messages in the currently-loaded history
@@ -545,12 +554,23 @@ window.fossil.onPageLoad(function(){
              messages, else it is only played for other users'
              messages. */
           "alert-own-messages": false,
-          /* "Experimental mode" input: use a contenteditable field
-             for input. This is generally more comfortable to use,
-             and more modern, than plain text input fields, but
-             the list of browser-specific quirks and bugs is...
-             not short. */
-          "edit-widget-x": false
+          /* Use a contenteditable field for input. This is generally
+             more comfortable to use, and more modern, than plain text
+             input fields. In its early years the contenteditable
+             capability had some browser-specific quirks which made it
+             difficult on some clients so was opt-in rather than
+             opt-out. In recent years (2023+) those quirks have been
+             limited to an occasional injection of an extraneous
+             newline, and this method really is more comfortable to
+             use, so the default was changed to true on 2026-08-16.
+
+             Historical note: the name of this option is unfortunately
+             vague. The "X" originally stood for "experimental". It's
+             not been renamed because changing this default out from
+             under long-running /chat clients on their next reload
+             seems too disruptive to justify such an
+             internal-cosmetics-only change. */
+          "edit-widget-x": true
         }
       },
       /** Plays a new-message notification sound IF the audible-alert

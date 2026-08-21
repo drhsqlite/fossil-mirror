@@ -1298,6 +1298,7 @@ void page_xfer(void){
   g.zLogin = "anonymous";
   login_set_anon_nobody_capabilities();
   login_check_credentials();
+  if( g.perm.Clone ) g.perm.Read = 1;
   cgi_check_for_malice();
   memset(&xfer, 0, sizeof(xfer));
   blobarray_zero(xfer.aToken, count(xfer.aToken));
@@ -1827,7 +1828,7 @@ void page_xfer(void){
           );
           db_protect_pop();
         }
-        if( db_get_boolean("forbid-delta-manifests",0) ){
+        if( db_get_boolean("forbid-delta-manifests",1) ){
           @ pragma avoid-delta-manifests
         }
       }else

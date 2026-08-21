@@ -344,12 +344,12 @@ into the output stream, the text is run through a
 For example, first few lines of a typical Skin Header will look
 like this:
 
-    <div class="header">
+    <header>
       <div class="title"><h1>$<project_name></h1>$<title>/div>
 
 After variables are substituted by TH1, that will look more like this:
 
-    <div class="header">
+    <header>
       <div class="title"><h1>Project Name</h1>Page Title</div>
 
 As you can see, two TH1 variable substitutions were done.

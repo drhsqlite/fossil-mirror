@@ -628,6 +628,10 @@ void wiki_page(void){
     if( g.perm.Hyperlink ){
       style_submenu_element("History", "%R/whistory?name=%T", zPageName);
     }
+    if( rid>0 && attach_user_may(rid, CFTYPE_WIKI) ){
+      style_submenu_element("Attach", "%R/attachadd?target=%T",
+                            zPageName);
+    }
   }
   if( !isPopup ){
     style_set_current_page("%T?name=%T", g.zPath, zPageName);
@@ -828,45 +832,11 @@ static int wiki_ajax_can_write(const char *zPageName, int * pRid){
 static void wiki_ajax_emit_page_attachments(Manifest * pWiki,
                                             int latestOnly,
                                             int nullIfEmpty){
-  int i = 0;
-  Stmt q = empty_Stmt;
-  db_prepare(&q,
-     "SELECT datetime(mtime), src, target, filename, isLatest,"
-     "  (SELECT uuid FROM blob WHERE rid=attachid) uuid"
-     "  FROM attachment"
-     "  WHERE target=%Q"
-     "  AND (isLatest OR %d)"
-     "  ORDER BY target, isLatest DESC, mtime DESC",
-     pWiki->zWikiTitle, !latestOnly
-  );
-  while(SQLITE_ROW == db_step(&q)){
-    const char * zTime = db_column_text(&q, 0);
-    const char * zSrc = db_column_text(&q, 1);
-    const char * zTarget = db_column_text(&q, 2);
-    const char * zName = db_column_text(&q, 3);
-    const int isLatest = db_column_int(&q, 4);
-    const char * zUuid = db_column_text(&q, 5);
-    if(!i++){
-      CX("[");
-    }else{
-      CX(",");
-    }
-    CX("{");
-    CX("\"uuid\": %!j, \"src\": %!j, \"target\": %!j, "
-       "\"filename\": %!j, \"mtime\": %!j, \"isLatest\": %s}",
-       zUuid, zSrc, zTarget,
-       zName, zTime, isLatest ? "true" : "false");
-  }
-  db_finalize(&q);
-  if(!i){
-    if(nullIfEmpty){
-      CX("null");
-    }else{
-      CX("[]");
-    }
-  }else{
-    CX("]");
-  }
+  Blob b = BLOB_INITIALIZER;
+  attachments_to_json(pWiki, &b, latestOnly,
+                      nullIfEmpty ? -1 : 1);
+  CX("%b", &b);
+  blob_reset(&b);
 }
 
 /*
@@ -1141,6 +1111,8 @@ static void wiki_ajax_route_diff(void){
 **
 **  mimetype = the wiki page mimetype (determines rendering style)
 **  content = the wiki page content
+**
+** Responds with a partial HTML document.
 */
 static void wiki_ajax_route_preview(void){
   const char * zContent = P("content");
@@ -2103,7 +2075,6 @@ int wiki_cmd_commit(const char *zPageName, int rid, Blob *pContent,
   Blob wiki;              /* Wiki page content */
   Blob cksum;             /* wiki checksum */
   char *zDate;            /* timestamp */
-  char *zUuid;            /* uuid for rid */
 
   blob_zero(&wiki);
   zDate = date_in_standard_format("now");
@@ -2115,13 +2086,12 @@ int wiki_cmd_commit(const char *zPageName, int rid, Blob *pContent,
     blob_appendf(&wiki, "N %F\n", zMimeType);
   }
   if( rid ){
-    zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-    blob_appendf(&wiki, "P %s\n", zUuid);
-    free(zUuid);
+    char *zUuid = rid_to_uuid(rid);
+    blob_appendf(&wiki, "P %z\n", zUuid);
   }
   user_select();
   if( !login_is_nobody() ){
-      blob_appendf(&wiki, "U %F\n", login_name());
+    blob_appendf(&wiki, "U %F\n", login_name());
   }
   blob_appendf( &wiki, "W %d\n%s\n", blob_size(pContent),
                 blob_str(pContent) );

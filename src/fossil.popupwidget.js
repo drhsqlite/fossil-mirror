@@ -57,7 +57,7 @@
      windows in special cases.
 
      .style: optional object of properties to copy directly into
-     the element's style object.     
+     the element's style object.
 
      The options passed to this constructor get normalized into a
      separate object which includes any default values for options not
@@ -163,7 +163,7 @@
        to it, so that class must be defined appropriately.
     */
     show: function(){
-      var x = undefined, y = undefined, showIt,
+      let x = undefined, y = undefined, showIt,
           wasShown = !this.e.classList.contains('hidden');
       if(2===arguments.length){
         x = arguments[0];
@@ -346,7 +346,8 @@
 
        Passing the same element(s) more than once is a no-op: during
        initialization, each elements get the class'processed' added to
-       it, and any elements with that class are skipped.
+       it, and any elements with that class are skipped. Each element
+       gets the 'help-buttonlet' CSS class added to it.
 
        All child nodes of a help buttonlet are removed from the button
        during initialization and stashed away for use in a PopupWidget
@@ -376,20 +377,20 @@
              This algorithm/these heuristics can certainly be improved
              upon.
           */
-          var popupRect, rectElem = ev.target;
+          let popupRect, rectElem = ev.target;
           while(rectElem){
             popupRect = rectElem.getClientRects()[0]/*undefined if off-screen!*/;
             if(popupRect) break;
             rectElem = rectElem.parentNode;
           }
           if(!popupRect) popupRect = {x:0, y:0, left:0, right:0};
-          var x = popupRect.left, y = popupRect.top;
+          let x = popupRect.left, y = popupRect.top;
           if(x<0) x = 0;
           if(y<0) y = 0;
           if(rectElem){
             /* Try to ensure that the popup's z-level is higher than this element's */
             const rz = window.getComputedStyle(rectElem).zIndex;
-            var myZ;
+            let myZ;
             if(rz && !isNaN(+rz)){
               myZ = +rz + 1;
             }else{
@@ -418,7 +419,7 @@
         };
         f.foreachElement = function(e){
           if(e.classList.contains('processed')) return;
-          e.classList.add('processed');
+          e.classList.add('processed', 'help-buttonlet');
           e.$helpContent = [];
           /* We have to move all child nodes out of the way because we
              cannot hide TEXT nodes via CSS (which cannot select TEXT
@@ -429,7 +430,7 @@
           e.addEventListener('click', f.clickHandler, false);
         };
       }/*static init*/
-      var elems;
+      let elems;
       if(!arguments.length){
         arguments[0] = '.help-buttonlet:not(.processed)';
         arguments.length = 1;
@@ -445,7 +446,7 @@
       }
       if(elems) elems.forEach(f.foreachElement);
     },
-    
+
     /**
        Sets up the given element as a "help buttonlet", adding the CSS
        class help-buttonlet to it. Any (optional) arguments after the
@@ -467,5 +468,4 @@
   }/*helpButtonlets*/;
 
   F.onDOMContentLoaded( ()=>F.helpButtonlets.setup() );
-  
 })(window.fossil);

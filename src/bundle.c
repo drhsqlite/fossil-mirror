@@ -662,7 +662,7 @@ static void bundle_purge_cmd(void){
       "SELECT cid FROM plink WHERE pid IN ok AND cid NOT IN ok"
     );
     while( db_step(&q)==SQLITE_ROW ){
-      whatis_rid(db_column_int(&q,0),0);
+      whatis_rid(db_column_int(&q,0),0,0);
       fossil_print("%.78c\n", '-');
       n++;
     }
