@@ -2763,6 +2763,13 @@ void db_open_repository(const char *zDbName){
   g.zRepositoryName = fossil_strdup(zDbName);
   db_open_or_attach(g.zRepositoryName, "repository");
   g.repositoryOpen = 1;
+  {
+    /* TESTING FIXME set SQL cache size from environment FIXME */
+    const char *zCS = getenv("FOSSIL_SQLCACHE");
+    if( zCS!=0 && atoi(zCS)!=0 ){
+      db_multi_exec("PRAGMA repository.cache_size=%d;", atoi(zCS));
+    }
+  }
   sqlite3_file_control(g.db, "repository", SQLITE_FCNTL_DATA_VERSION,
                        &g.iRepoDataVers);
 

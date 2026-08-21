@@ -1,5 +1,5 @@
-C Create\snew\sbranch\snamed\s"cache-speedups"
-D 2026-08-21T17:28:05.507
+C ***\sTEST\sonly,\snot\sto\sbe\scommitted\sto\strunk\s***\nReads\ssqlite\scache\spragma\ssetting\sfrom\senv\svar.\nSee\sforum\sposting\sby\sDan\sShearer\s"Fossil\scache\sspeedups"
+D 2026-08-21T20:37:16.400
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -415,7 +415,7 @@ F src/content.c 3018fea9d9557cb6f1edc6be062f2db5dc76af211a357d5aa13c4a69e248f623
 F src/cookies.c 51b9ba6d945c8abd1b4dde2e8cfc2651bfadf219bc34951082e3c8de88667abc
 F src/copybtn.js b56a60f4d8b40667effb40839d88c406146a666f1c0ff62148fd6c847d9c8019
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 572808ec2842b73597017b00a42dea05a076804fd6fc897c9ad537af5e98b3f0
+F src/db.c d68927568027859a783ce3ba1fa9f4d4d0e2df66b4e535b5fc72172f67c214f0
 F src/default.css d3c3794f2b0a55699e3825ce5e983aad777f79db0ede4a005a4efac77343ec1a
 F src/delta.c 14708bc9955a9d74f6542aae48a5a88e4af3db300ac91c714b791d677d19156a
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
@@ -984,11 +984,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 40c12262faac8a5fc5d2546a53be45f5e9bec4ed9d8c7c6bac730f773b6ed81b
-R 2ce68093184f099de430c31964e9dd06
-T *branch * cache-speedups
-T *sym-cache-speedups *
-T -sym-trunk *
+P 51bbcb1191675a192f01d95c7a1052059d9ee5abbf233ab7cbc9cf93e71c4dac
+R 8760559bb1a793ad5cd794e0ad5fc9d7
 U danshearer
-Z b489f94cf302856702e8a10f7068ead2
+Z 1df22f84b4a84a64e517b6403aa649f8
 # Remove this line to create a well-formed Fossil manifest.
