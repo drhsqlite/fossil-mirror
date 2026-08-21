@@ -1,5 +1,5 @@
-C Address\sa\snitpick\sin\sa\spikchr\sdiagram\sof\swww/aboutcgi.wiki\sin\sresponse\sto\s[forum:9e29c4d79f88|forum\spost\s9e29c4d79f88].
-D 2026-08-21T16:59:42.278
+C Create\snew\sbranch\snamed\s"cache-speedups"
+D 2026-08-21T17:28:05.507
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -984,8 +984,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 471d617347aebb6b1964e9538ede8dd0d51b502813a69c0a7aa32fc69ec8a097
+P 40c12262faac8a5fc5d2546a53be45f5e9bec4ed9d8c7c6bac730f773b6ed81b
 R 2ce68093184f099de430c31964e9dd06
-U stephan
-Z 38ae6805a4fb12f75283a22da984fb18
+T *branch * cache-speedups
+T *sym-cache-speedups *
+T -sym-trunk *
+U danshearer
+Z b489f94cf302856702e8a10f7068ead2
 # Remove this line to create a well-formed Fossil manifest.
