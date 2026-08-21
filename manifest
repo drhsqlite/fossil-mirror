@@ -1,5 +1,5 @@
-C Import\sthe\slatest\strunk\sversion\sof\sSQLite\sfrom\supstream,\sfor\sbeta\stesting.
-D 2026-08-20T14:48:34.663
+C Address\sa\snitpick\sin\sa\spikchr\sdiagram\sof\swww/aboutcgi.wiki\sin\sresponse\sto\s[forum:9e29c4d79f88|forum\spost\s9e29c4d79f88].
+D 2026-08-21T16:59:42.278
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -777,7 +777,7 @@ F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc b32be96215c0192ff0fbbe04e202806d004aef9594ffd29e6f06e52fdcb56690
 F win/include/dirent.h d816b0827f01a037d1ad01331f25bc940a84439685454d0b4f32ceeb5bee32cc x
 F win/include/unistd.h de304af8b95751f25cf1e45ed25a4a500089b191eab9e51c2eba9fb8d6bf0709
-F www/aboutcgi.wiki 8e36a43aa22f42a565aeaca59bcb2e8272cc2f444bd7cf20357e992148ba436c
+F www/aboutcgi.wiki d1403d486d200b5d5de25ea03f3036cf16fa6b1eac3f2d07630e663adfce4736
 F www/aboutdownload.wiki dccb233a942a1f870490a471cdc0dbe934315d1828b0a8dd99b589cbd1768259
 F www/adding_code.wiki 06de2a518a772ed1fa8fdb165ff3c53149b6e68f43ad114b80d6df158683158a
 F www/alerts.md 20fac72b2258f0db019db2e80f8520f112bbcec61c71c226d1a2c6484e1c02c5
@@ -984,8 +984,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a439b11497f123cda626158763d052ea95e9520c0cf2c4454d0532f735187fe0
-R 0327efd092e04b2a61afead8f259c007
-U drh
-Z 6a815c8dcad0763e3b3117fe2980b674
+P 471d617347aebb6b1964e9538ede8dd0d51b502813a69c0a7aa32fc69ec8a097
+R 2ce68093184f099de430c31964e9dd06
+U stephan
+Z 38ae6805a4fb12f75283a22da984fb18
 # Remove this line to create a well-formed Fossil manifest.
