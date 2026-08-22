@@ -1,5 +1,5 @@
-C ***FIXME\sTEST***\s-\sdo\snot\scommit\sto\strunk\s***FIXME\sTEST***\n\nMake\sthe\stotal\ssize\sand\stotal\snumber\sof\sentries\sin\sthe\scontent\scache\soptionally\nset\sfrom\san\senvironent\svariable.\sThis\sis\sfor\stesting\sso\swe\scan\sget\san\sidea\sof\soptimal\nnumbers,\showever,\sthe\scache\sneeds\sto\sbe\sredesigned\sso\sthis\sis\s(a)\sa\sshort-term\sminimally\nintrusive\sperformance\sfix\sand\s(b)\sexperimentation\sto\shelp\swith\sa\sresdesign.
-D 2026-08-22T06:48:53.167
+C ***\sFIXME\sTEXT\s***\sdo\snot\scommit\sto\strunk\s***\sFIXME\sTEST\s***\nThese\sare\sscripts\sfor\susers\sto\stry\sout\sdifferent\scache\ssizes\sfor\sboth\sthe\s\nSQLite\sPRAGMA\scache_size\sand\salso\sthe\sparameters\sfor\sthe\scontent\scache.\s\nThe\scontent\scache\swill\sbe\sa\slarger\spiece\sof\swork,\sbut\sthese\sare\simmediate\sfixes\nthat\sgive\spretty\sbig\sbenefits\son\sat\sleast\ssome\sworkloads.
+D 2026-08-22T06:52:30.881
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -36,6 +36,9 @@ F autosetup/pkg-config.tcl 4e635bf39022ff65e0d5434339dd41503ea48fc53822c9c5bde88
 F autosetup/system.tcl 3a39d6e0b3bfba526fd39afe07c1d0d325e5a31925013a1ba7c671e1128e31bb
 F autosetup/tmake.auto eaebc74ad538dfdd3c817c27eefc31930c20510c4f3a3704071f6cb0629ed71f
 F autosetup/tmake.tcl a275793ec1b6f8708179af0acef1f6f10d46c2920739743f7a8720c6d700c7a9
+F cache-speedups-test/export.sh 0c2d7a253a05cc4b9e596837b8c5d6e1cc8ca47193ad44a7469a3a48bfa72769
+F cache-speedups-test/rebuild.sh a9a50130502e20154affb1175110bf4bcd59d35b0c5a22721698a56b1d9b8d39
+F cache-speedups-test/test-integrity.sh 1b542f56ab07cb35bee17a95e941bb4da4a61b766157f193469cfa80fdf1f8ed
 F compat/tcl-8.6/generic/tcl.h 3e49f8e5404fd60181c69b6d0ad075e12c4fbd4d
 F compat/tcl-8.6/generic/tclDecls.h 9f431aa5c9a819efa078fadecf3fb1214137455d
 F compat/tcl-8.6/generic/tclPlatDecls.h 05f8965cb99af1c9bb78ff437e991f49a598f7b7
@@ -984,8 +987,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bce3a5a5d4ac2f4bb50c6478a2abf096a97d4ffbab41f08395416978b1dca125
-R e62ce8442bc6f4a295aa4681b0d6eca2
+P 8424663f26d776be41a2bde44f5acd32db3f4a6a451fc1ef98a30c7d6e0d125e
+R 2bef75be11f85cdaa39b0038b4063ab7
 U danshearer
-Z 5085a794b6660c60f168ab144fade218
+Z cac9db9a8b8709522279c4fd7977a330
 # Remove this line to create a well-formed Fossil manifest.
