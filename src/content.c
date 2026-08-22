@@ -24,6 +24,9 @@
 /*
 ** The artifact retrieval cache
 */
+static int cacheMaxN = 0;    /* Max cache entries */
+static i64 cacheMaxSz = 0;   /* Max cache bytes */
+
 static struct {
   i64 szTotal;         /* Total size of all entries in the cache */
   int n;               /* Current number of cache entries */
@@ -79,12 +82,38 @@ static void content_cache_expire_oldest(void){
 */
 void content_cache_insert(int rid, Blob *pBlob){
   struct cacheLine *p;
-  if( contentCache.n>500 || contentCache.szTotal>50000000 ){
+
+  if( cacheMaxN==0 ){  /* FIXME TEST Not to be merged to trunk FIXME */
+    const char *z;
+  
+    cacheMaxN = 500;  /* old hardcoded value */
+    z = getenv("FOSSIL_CACHE_N");
+    if( z!=0 ){
+      int val = atoi(z);
+      if( val>0 ) cacheMaxN = val;
+    }
+  
+    cacheMaxSz = (i64)50000000; /*old hardcoded value */
+    z = getenv("FOSSIL_CACHE_SZ");
+    if( z!=0 ){
+      i64 val = (i64)atoll(z);
+      if( val>0 ) cacheMaxSz = val;
+    }
+  }
+
+  if( cacheMaxN==0 ){
+    const char *z;
+    z = getenv("FOSSIL_CACHE_N");
+    cacheMaxN = (z!=0 && atoi(z)>0) ? atoi(z) : 500;
+    z = getenv("FOSSIL_CACHE_SZ");
+    cacheMaxSz = (z!=0 && atoll(z)>0) ? (i64)atoll(z) : (i64)50000000;
+  }
+  if( contentCache.n>cacheMaxN || contentCache.szTotal>cacheMaxSz ){
     i64 szBefore;
     do{
       szBefore = contentCache.szTotal;
       content_cache_expire_oldest();
-    }while( contentCache.szTotal>50000000 && contentCache.szTotal<szBefore );
+    }while( contentCache.szTotal>cacheMaxSz && contentCache.szTotal<szBefore );
   }
   if( contentCache.n>=contentCache.nAlloc ){
     contentCache.nAlloc = contentCache.nAlloc*2 + 10;

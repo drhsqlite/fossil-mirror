@@ -1,5 +1,5 @@
-C ***\sTEST\sonly,\snot\sto\sbe\scommitted\sto\strunk\s***\nReads\ssqlite\scache\spragma\ssetting\sfrom\senv\svar.\nSee\sforum\sposting\sby\sDan\sShearer\s"Fossil\scache\sspeedups"
-D 2026-08-21T20:37:16.400
+C ***FIXME\sTEST***\s-\sdo\snot\scommit\sto\strunk\s***FIXME\sTEST***\n\nMake\sthe\stotal\ssize\sand\stotal\snumber\sof\sentries\sin\sthe\scontent\scache\soptionally\nset\sfrom\san\senvironent\svariable.\sThis\sis\sfor\stesting\sso\swe\scan\sget\san\sidea\sof\soptimal\nnumbers,\showever,\sthe\scache\sneeds\sto\sbe\sredesigned\sso\sthis\sis\s(a)\sa\sshort-term\sminimally\nintrusive\sperformance\sfix\sand\s(b)\sexperimentation\sto\shelp\swith\sa\sresdesign.
+D 2026-08-22T06:48:53.167
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -411,7 +411,7 @@ F src/color.c dbea75182cd46c3ed261229766a710df6414aafd8de8e3505621c9109904cad0
 F src/comformat.c 7c13708fbafa03a92d63baee15178f00175fd7add64f918f7e406badae628e69
 F src/config.h 0ed672f15c096edbea44b24657bd91e3acb8bcd5827c62df9f8635abe1da7c21
 F src/configure.c 1c2908547bfebd55d1ed690d18a2f0f73c5a026ee27b89f53082ba3259f68b77
-F src/content.c 3018fea9d9557cb6f1edc6be062f2db5dc76af211a357d5aa13c4a69e248f623
+F src/content.c c2b4d7413099dbc4a81a29a4503d0fc7c41b64c0030915bc6bd5593febd8de2b
 F src/cookies.c 51b9ba6d945c8abd1b4dde2e8cfc2651bfadf219bc34951082e3c8de88667abc
 F src/copybtn.js b56a60f4d8b40667effb40839d88c406146a666f1c0ff62148fd6c847d9c8019
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
@@ -984,8 +984,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 51bbcb1191675a192f01d95c7a1052059d9ee5abbf233ab7cbc9cf93e71c4dac
-R 8760559bb1a793ad5cd794e0ad5fc9d7
+P bce3a5a5d4ac2f4bb50c6478a2abf096a97d4ffbab41f08395416978b1dca125
+R e62ce8442bc6f4a295aa4681b0d6eca2
 U danshearer
-Z 1df22f84b4a84a64e517b6403aa649f8
+Z 5085a794b6660c60f168ab144fade218
 # Remove this line to create a well-formed Fossil manifest.
