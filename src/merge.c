@@ -1052,7 +1052,7 @@ merge_next_child:
   }
   vfile_check_signature(vid, CKSIG_ENOTFILE);
   if( nMerge==0 ) db_begin_transaction();
-  if( useUndo ) undo_begin();
+  if( useUndo && nMerge==0 ) undo_begin();
   if( load_vfile_from_rid(mid) && !forceMissingFlag ){
     fossil_fatal("missing content, unable to merge");
   }

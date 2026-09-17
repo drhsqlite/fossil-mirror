@@ -1,5 +1,5 @@
-C Documentation\simprovements\sfor\s/forumthread\sand\s/forumpost.
-D 2026-08-28T11:49:43.937
+C Fix\sundo\sto\srevert\sall\schanges\safter\sperforming\sa\smerge\swith\smultiple\sversions\nspecified.
+D 2026-09-17T20:08:08.137
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -508,7 +508,7 @@ F src/markdown_html.c 09cea079f3383c7c8d766a894c9ef0aaaafef50a668becb3bcaac685da
 F src/match.c a8c5cf61c5af2dff3c82c53f5d846a27f3c8f63c99e9ffca692d2317f7540d02
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
-F src/merge.c a1226d8e2bb04db826cee01b1ce893aeb4e66641f7d4927fd911879eb32137f5
+F src/merge.c f3b67a37e54161ae644e85610a3f3435078a301285cfdafcdd7864118810208e
 F src/merge.tcl 5ca1b6e3142d8ee677b8d447c723dd03f4f8168b7057b431d731160576b92452
 F src/merge3.c d16fe90bc0cfcd2d08bafaaf6a858f5b635873e2f1b40e7c9e92a6d8cd6da162
 F src/moderate.c cb8b95d94457517aeaa92b5147de2a05e752167b69669c17cb9116a18c98ceb6
@@ -984,8 +984,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5b39367b639967aa5ff01033278cb4b44ff69340819f9b0eccab988354183d9d
-R d39e4554af16ae24d54c326b8af1856d
-U drh
-Z aafc96a42c22389b6ef2a193ed20b939
+P d04ad10377c872ae8ecf78c6c269e621d8048140f859178740936cc7073d0f0e
+R ee874c4da2db3508663939459dcc0c44
+U mgagnon
+Z 3c1f6430da348889e780102602eaa94a
 # Remove this line to create a well-formed Fossil manifest.
