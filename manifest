@@ -1,5 +1,5 @@
-C Fix\sundo\sto\srevert\sall\schanges\safter\sperforming\sa\smerge\swith\smultiple\sversions\nspecified.
-D 2026-09-17T20:08:08.137
+C Port\sin\s[https://sqlite.org/src/info/0f5ddd0041]:\swhen\sreading\sUTF-8\schararacter-by-chararacter,\sallow\sU+fffe\sand\sU+fffd\sto\spass\sthrough\sunchanged.
+D 2026-09-24T10:59:53.103
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -427,7 +427,7 @@ F src/diff.tcl 6208e877c1ce30bfd81b04aa2e486d58c2394bfd2a477e4855e758eb7d6e75b8
 F src/diffcmd.c de89310489017122ede51ebdd46800498f9e56afab55d0626d36ef6a9f3aa3ac
 F src/dispatch.c 668bb146c946b55cdebd7dc3275f7b321240490ae82873b8e893268435ea8673
 F src/doc.c f938d93ea40675e563863b06631a4b266a9f343965ee31c9b1ea999b753a8d0a
-F src/encode.c e096f027e2cd51c8eca568b7a058aa5749fc05b6a0cec5915b1190e3f67d3481
+F src/encode.c eb85896433b5897874ef54a95a9b4a2fcaf5683ebc9b097da553b0830fc0cbf9
 F src/etag.c f5ae12e6858162847c26183858f6ed58520af6b91fb3a6d786a69770c74de1c4
 F src/event.c 2f44da7c6151346d8879a0b16e65120a9a092844dbb666c0dcf42f778408ac10
 F src/export.c 463d889f18e961456d53bfe7c68f02ce255c5d4fb9e274cd9a5c7a4e5a9f351c
@@ -984,8 +984,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d04ad10377c872ae8ecf78c6c269e621d8048140f859178740936cc7073d0f0e
-R ee874c4da2db3508663939459dcc0c44
-U mgagnon
-Z 3c1f6430da348889e780102602eaa94a
+P 3c8d90873e3b8b04d466d4dfacb5007965a72353d0ecf86b78ba652e08629b78
+R 293f1b9f7ea04b25a01c39976809e0eb
+U stephan
+Z 91dccd142dd2d6e11e6c7d76ea6defac
 # Remove this line to create a well-formed Fossil manifest.
