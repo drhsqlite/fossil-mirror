@@ -198,40 +198,11 @@ with the platform OpenSSL package, either built-in or as a hard
 dependency.
 
 
-<h4>Client-Side Certificates</h4>
-
-You can also use client side certificates to add an extra layer of
-authentication, over and above Fossil's built in user management. If you
-are particularly paranoid, you'll want to use this to remove the ability
-of anyone on the internet from making any request to Fossil. Without
-presenting a valid client side certificate, the web server won't invoke
-the Fossil CGI handler.
-
-Configure your server to request a client side certificate, and set up a
-certificate authority to sign your client certificates. For each person
-who needs to access the repository, create a private key and certificate
-signed with that CA.
-
-The PEM encoded private key and certificate should be stored in a single
-file, simply by concatenating the key and certificate files. Specify the
-location of this file with the <tt>ssl-identity</tt> setting, or the
-<tt>--ssl-identity</tt> option to the <tt>clone</tt> command.
-
-If you've password protected the private key, the password will be
-requested every time you connect to the server. This password is not
-stored by fossil, as doing so would defeat the purpose of having a
-password.
-
-If you attempt to connect to a server which requests a client
-certificate, but don't provide one, fossil will show an error message
-which explains what to do to authenticate with the server.
-
-
 <h2 id="server">Server-Side Configuration</h2>
 
 Before Fossil's built-in HTTP server gained [./ssl-server.md | TLS support],
 system administrators that wanted to add this
-had to put it behind a reverse proxy that would do the translation.
+had to put it behind a reverse proxy (RP) that would do the translation.
 Since advantages remain for delegating TLS to another layer in the
 stack, instructions for doing so continue to be included in our
 documentation, such as:
@@ -239,6 +210,50 @@ documentation, such as:
   *  <a id="stunnel"  href="./server/any/stunnel.md">Serving via stunnel</a>
   *  <a id="althttpd" href="./server/any/althttpd.md">Serving via stunnel + althttpd</a>
   *  <a id="nginx"    href="./server/debian/nginx.md#tls">Serving via SCGI with nginx on Debian</a>
+
+One such case is…
+
+
+<h3>Client-Side Certificates</h3>
+
+One way to harden a Fossil server is to require the <i>clients</i> to
+provide their own certificates. This builds on top of the normal TLS
+scheme of having the <i>server</i> identify itself to the clients,
+producing an [https://en.wikipedia.org/wiki/Mutual_authentication#mTLS |
+mTLS] scheme. This prevents random Internet hosts from establishing a
+connection to the RP fronting your Fossil server.
+
+Because Fossil's own built-in TLS serving features do not include mTLS
+support, this is one of the solid reasons for continuing to run Fossil
+behind a third-party TLS-aware RP.
+
+The method varies by the RP you choose to delegate this to, and because
+there is no tie-in with the configuration of the proxied Fossil server,
+we do not include duplicate documentation of it here.  The basic idea is
+simple enough to sketch here, however: set the RP up to require client
+certificates, generate one per client using a mutually-recognized
+certificate authority, and register the public half with the RP.  Only
+those clients possessing a matching private half of one of those
+registered key-pairs will then be able to establish an mTLS connection
+to the server.
+
+The Fossil client side does require special configuration to make this
+work.  First, ensure that the PEM private key file also contains the
+public certificate; this is common, though not universal. (If not,
+simply concatenate the two in cert-then-key order.) Second, tell your
+Fossil client where to find that combined PEM file, either via the
+<tt>ssl-identity</tt> setting or by giving the <tt>--ssl-identity</tt>
+global option to each <tt>fossil</tt> command using the sync protocol
+with a server configured to require mTLS.
+
+If you've passphrase-protected that PEM file, Fossil will prompt you for
+it as part of setting up each of these mTLS-protected sync sessions.
+Unlike the regular sync password, Fossil will not offer to store this
+PEM passphrase.
+
+If you attempt to connect to a server which requests a client
+certificate but fail to provide one, Fossil will issue a warning
+which explains what to do to authenticate with the server.
 
 
 <h2 id="enforcing">Enforcing TLS Access</h2>

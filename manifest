@@ -1,5 +1,5 @@
-C Clarified\sthe\searly\sparts\sof\swww/ssl.wiki.
-D 2026-09-25T18:58:59.457
+C Moved\sthe\smTLS\ssection\sof\swww/ssl.wiki\sdown\sinto\sthe\sserver-side\nconfiguration\sas\sone\smotivating\sexample\sof\swhy\syou'd\sstill\swant\sto\nrun\sFossil\sbehind\sa\sTLS-aware\sRP.\s\sClarified\show\sall\sthis\sworks\nwithout\sduplicating\sthe\sRP-specific\sdetails.
+D 2026-09-25T19:26:43.900
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -962,7 +962,7 @@ F www/settings.wiki 16c2717030e901586fd6849d07fc85394b0e8bfaecb1d7f291c356c16f3f
 F www/shunning.wiki 2945acf2d1865cd1301402b2085527d8b23f971c9f894c6d0511dc146a8df767
 F www/signing.md 23845e739ea3b0ed50ba2d2e45da45114f4b92933f3af5e1a28f8bbf270f7271
 F www/ssl-server.md ceeee18810704801de2c84dcf34f85b133cc8fb8aa504222f89976e005daa03b
-F www/ssl.wiki 6b310dc15d82ea8627039ec29eb3b3a8f27c64f3a031f3ca92d1c22264d642be
+F www/ssl.wiki c745fa7eed4005970fa4e5ca9b1b2c5b8adf742f2f84f29393736415e43dd8a0
 F www/stats.wiki f2713acf5c005f1ccecbec63dc5f826499f5f842e8ad17ec3d34ab2f57790792
 F www/style.wiki 9d3a6bca777c933c95b55d15cfc76f228d15f172d0ed16d0a0a8df479704c068
 F www/sync.wiki fcc503bbdd5578f47934cafc77f271d0f93d1ed6bf0107ce731f5799a1535774
@@ -984,8 +984,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9ce7e77d9836ceb378c99e05125a4f3b1543106e542bcfebc78e212e7dfb8b5b
-R a20c03f3992efd59fbdc95891e6502f7
+P df389b91f111193dae07cd826c754663f689b0d25dbf89038835574088e91786
+R 944d698c6c06a0eb03fd2431acef13ef
 U wyoung
-Z 4d6c84d8b7351cd5289564fe681edc3c
+Z c2b1b2ebfc979d35fc3a6341ae0012a3
 # Remove this line to create a well-formed Fossil manifest.
