@@ -1,22 +1,18 @@
 <title>Securing a Repository with TLS</title>
 
-<h2>Using TLS-Encrypted Communications with Fossil</h2>
+<h2>Motivation</h2>
 
 If you are storing sensitive information in a repository accessible over
 a network whose integrity you do not fully trust, you should use TLS to
 encrypt all communications with it. This is most true for repositories
 accessed over the Internet, especially if they will be accessed from
-edge networks you do not control, since that admits of various forms of
+edge networks you do not control, since that allows various forms of
 [https://en.wikipedia.org/wiki/Man-in-the-middle_attack|man in the
 middle attack].
 
 TLS protects the credentials used to access the server, prevents
 eavesdropping, prevents in-flight data modification, prevents server
 identify spoofing, and more.
-
-There are two major aspects to this, both of which have to be addressed
-in different ways. Those are the subjects of the next two major
-sections.
 
 
 <h2 id="client">Client-Side Configuration</h2>
@@ -40,40 +36,29 @@ package manager. Examples:
   *  <b>RHEL & Fedora</b>: <tt>sudo dnf install openssl-devel</tt>
   *  <b>Debian & Ubuntu</b>: <tt>sudo apt install libssl-dev</tt>
   *  <b>FreeBSD</b>: <tt>su -c 'pkg install openssl'</tt>
-  *  <b>macOS</b>: <tt>sudo brew install openssl</tt>
+  *  <b>macOS</b>: <tt>brew install openssl</tt>
   *  <b>Cygwin</b>: Install <tt>openssl-devel</tt> via Cygwin's
      <tt>setup-*.exe</tt> program
 
-The macOS case requires explanation. Apple last shipped OpenSSL
-develpoment files in OS X 10.6 (Snow Leopard), choosing to deprecate it
-from that point forward. (Apple wants you to use their proprietary
-platform-specific encryption methods instead.) Since macOS has no
-built-in package manager, a number have sprung up out of the FOSS world.
-It is not known to this author whether Fossil's current build system can
-find OpenSSL as installed with any of these other package managers, so
-unless you have a particular reason to avoid it, we recomend that you
-use [https://brew.sh|Homebrew] on macOS to install OpenSSL as above.
-Fossil's build system will seek it out and use it automatically.
+The macOS case requires explanation. Apple deprecated OpenSSL in favor
+of the nominally API-compatible LibreSSL long ago, but the conformance
+often lags in ways that affect whether Fossil will build against it.
+The [https://brew.sh | Homebrew] method given above is not the only way
+to install the OpenSSL development libraries on macOS, but it *is* the
+only one the <tt>configure</tt> script includes automatic checks for.
 
 
 <h3 id="openssl-src">Building Against a Non-Platform Version of
 OpenSSL</h3>
 
-The Fossil build system has a few other methods for finding OpenSSL when
-the automatic methods fail or when you'd prefer that Fossil use a
-different version of OpenSSL than the one Fossil's build system picks on
-its own.
-
-A good reason to do this is when the Fossil build system finds a
-functioning version of OpenSSL which is nevertheless unsuitable. One
-common case is that your OS is sufficiently outdated that the platform
+The Fossil build system offers manual overrides for finding OpenSSL.
+These are useful either when the automatic methods fail or when you'd
+prefer that Fossil use a different version of OpenSSL than the one
+Fossil's build system picks on its own. Perhaps the most common reason
+to do this is when your OS is sufficiently outdated that the platform
 version of OpenSSL can no longer communicate with remote systems
-adhering to the latest advice on secure communications. An old OpenSSL
-might not support any of the
-[https://en.wikipedia.org/wiki/Cipher_suite|cipher suites] the remote
-Fossil repository's HTTPS proxy is willing to offer, for example, so
-that even though both sides are speaking a variant of TLS/SSL, the peers
-cannot come to an agreement on the cryptography.
+adhering to the latest advice on secure communications for lack of
+compatible [https://en.wikipedia.org/wiki/Cipher_suite | cipher suites].
 
 If you've installed the OpenSSL development files somewhere that
 Fossil's build system cannot find on its own, you can clue it in by
