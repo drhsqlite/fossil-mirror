@@ -1,5 +1,5 @@
-C Moved\sthe\smTLS\ssection\sof\swww/ssl.wiki\sdown\sinto\sthe\sserver-side\nconfiguration\sas\sone\smotivating\sexample\sof\swhy\syou'd\sstill\swant\sto\nrun\sFossil\sbehind\sa\sTLS-aware\sRP.\s\sClarified\show\sall\sthis\sworks\nwithout\sduplicating\sthe\sRP-specific\sdetails.
-D 2026-09-25T19:26:43.900
+C In\sis_a_leaf(),\scount_nonbranch_children(),\sand\sleaf_rebuild(),\sensure\sthat\scancel\stags\sare\sfiltered\sout.\sThis\swas\sdiscovered\sby\sLLM\sanalysis\sof\slibfossil,\swhich\sunsurprisingly\sshares\sthese\ssame\squeries.
+D 2026-09-25T20:37:21.781
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -494,7 +494,7 @@ F src/json_tag.c b9fdc20ffb6f8f0e46544e64c2a96bc6552a6151499f0aa3141b0331ee7afc7
 F src/json_timeline.c 2f906207f33e527a06888b570b6616d05d4df550fc5f7f3959faa2af01e211ff
 F src/json_user.c 704493f1c59ee2334901cee31e286d3cf688b76517c297dae395d5cd896a9203
 F src/json_wiki.c df0c1612d98ca775462fe536bc565f47af16819a90f0d26027af3f1828221a16
-F src/leaf.c 789448a0ef976023396b50b1671797188e12bfa795fdf751daa44fc2b5edc97f
+F src/leaf.c 9a8dfd1a8ac01f2e3a30434890b0bc1389b73821010adc4650f895d7f48def68
 F src/loadctrl.c 0ce9781da21252ed7cd5bc7e7d32926bb7e8648dc2d5c4474521f5ea892f3cf8
 F src/login.c 14b99a6b0f4e8c3217e0f8ccebe85ad8c330bbb946e55fde5b81e126eca068cb
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
@@ -984,8 +984,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P df389b91f111193dae07cd826c754663f689b0d25dbf89038835574088e91786
-R 944d698c6c06a0eb03fd2431acef13ef
-U wyoung
-Z c2b1b2ebfc979d35fc3a6341ae0012a3
+P 3506473c271d33df08a8ea3304c8d3fcdc5ac71513f1f5844b778bd0565c400c
+R 454fa3790d6a9df0a7812ae4a04e3ea1
+U stephan
+Z 3fc987b73ebe4cfd9163c915e2348ed1
 # Remove this line to create a well-formed Fossil manifest.

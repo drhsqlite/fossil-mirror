@@ -37,9 +37,11 @@ int is_a_leaf(int rid){
     @ SELECT 1 FROM plink
     @  WHERE pid=%d
     @    AND coalesce((SELECT value FROM tagxref
-    @                   WHERE tagid=%d AND rid=plink.pid), 'trunk')
+    @                   WHERE tagid=%d AND rid=plink.pid
+    @                   AND tagtype>0), 'trunk')
     @       =coalesce((SELECT value FROM tagxref
-    @                   WHERE tagid=%d AND rid=plink.cid), 'trunk')
+    @                   WHERE tagid=%d AND rid=plink.cid
+    @                   AND tagtype>0), 'trunk')
   ;
   rc = db_int(0, zSql /*works-like:"%d,%d,%d"*/,
               rid, TAG_BRANCH, TAG_BRANCH);
@@ -62,9 +64,11 @@ int count_nonbranch_children(int pid){
     @ SELECT count(*) FROM plink
     @  WHERE pid=:pid AND isprim
     @    AND coalesce((SELECT value FROM tagxref
-    @                   WHERE tagid=%d AND rid=plink.pid), 'trunk')
+    @                   WHERE tagid=%d AND rid=plink.pid
+    @                   AND tagtype>0), 'trunk')
     @       =coalesce((SELECT value FROM tagxref
-    @                   WHERE tagid=%d AND rid=plink.cid), 'trunk')
+    @                   WHERE tagid=%d AND rid=plink.cid
+    @                   AND tagtype>0), 'trunk')
   ;
   db_static_prepare(&q, zSql /*works-like: "%d,%d"*/, TAG_BRANCH, TAG_BRANCH);
   db_bind_int(&q, ":pid", pid);
@@ -90,9 +94,11 @@ void leaf_rebuild(void){
     "  EXCEPT"
     "  SELECT pid FROM plink"
     "   WHERE coalesce((SELECT value FROM tagxref"
-                       " WHERE tagid=%d AND rid=plink.pid),'trunk')"
+                       " WHERE tagid=%d AND rid=plink.pid"
+                       " AND tagtype>0),'trunk')"
          " == coalesce((SELECT value FROM tagxref"
-                       " WHERE tagid=%d AND rid=plink.cid),'trunk')",
+                       " WHERE tagid=%d AND rid=plink.cid"
+                       " AND tagtype>0),'trunk')",
     TAG_BRANCH, TAG_BRANCH
   );
 }
