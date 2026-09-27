@@ -694,8 +694,16 @@ static void fossil_init_flags_from_options(void){
 ** to cause Fossil to launch with "fossil ui" on that repo.
 */
 static int fossilExeHasAppendedRepo(void){
-  extern int deduceDatabaseType(const char*,int);
-  if( 2==deduceDatabaseType(g.nameOfExe,0) ){
+  int rc;
+  /* Warning:  dedeuceDatabaseType is an internal function of the SQLite
+  ** CLI and is subject to change.  Verify the following function template
+  ** when updating to a newer SQLite */
+  extern int deduceDatabaseType(const char*,int,int);
+  
+  g.dbIgnoreErrors++;
+  rc = deduceDatabaseType(g.nameOfExe,0,SQLITE_OPEN_READWRITE);
+  g.dbIgnoreErrors--;
+  if( rc ){
     static char *azAltArgv[] = { 0, "ui", 0, 0 };
     azAltArgv[0] = g.nameOfExe;
     azAltArgv[2] = g.nameOfExe;

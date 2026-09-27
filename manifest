@@ -1,5 +1,5 @@
-C Add\sthe\swin/build64-debug.bat\sscript,\swhich\sbuilds\sfossil.exe\ssuitable\nfor\sdebugging\swith\sVisualStudio\son\sWindows.
-D 2026-09-27T18:40:29.527
+C Fix\sincorrect\sdetection\sof\sfossil.exe\swith\san\sappended\sdatabase.\n[forum:/info/2026-09-27T08:05:34Z|Forum\s2026-09-27T08:05:34Z].
+D 2026-09-27T18:41:45.408
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -499,7 +499,7 @@ F src/loadctrl.c 0ce9781da21252ed7cd5bc7e7d32926bb7e8648dc2d5c4474521f5ea892f3cf
 F src/login.c 14b99a6b0f4e8c3217e0f8ccebe85ad8c330bbb946e55fde5b81e126eca068cb
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e7f
-F src/main.c d787c860aada0e2628891a0b938850179f3754773972060c22074ecc8e829f51
+F src/main.c b2bf927566c76682e9916ad2ef731d7e7b5688932de1f46b2879fa3acccebedc
 F src/main.mk 03d571fb153b44581aa754a56f77fb49e425b6c27e2da2162190b41dbfb6fef3
 F src/manifest.c dec1ebab98335d121fd3fdbc7dfd5f3ff8b04e895897eddceb4fd7742cbb5599
 F src/markdown.c 7b1be19b2b39aa30a5ae5f691b089aa9e8ac3eb5c0281da5297e1059f3c3315e
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a822071af824a55cf3205919a928694980665558442e4bca3f247e75695749e1
-R 5d0bd0f289dd5298acb00bf7c86f449d
+P bfb11d30b68b898475bcacc652c7795236f2fa2386ca2e59151d7ff43ad75243
+R 8fca5383ea920513bd4c04ca7bdc1465
 U drh
-Z d64207edb9ad6f9b87096fe72476a6b6
+Z 810f5b4014bd4ae25e055d5a9bbfe13c
 # Remove this line to create a well-formed Fossil manifest.
