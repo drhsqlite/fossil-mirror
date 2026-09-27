@@ -1,5 +1,5 @@
-C In\sis_a_leaf(),\scount_nonbranch_children(),\sand\sleaf_rebuild(),\sensure\sthat\scancel\stags\sare\sfiltered\sout.\sThis\swas\sdiscovered\sby\sLLM\sanalysis\sof\slibfossil,\swhich\sunsurprisingly\sshares\sthese\ssame\squeries.
-D 2026-09-25T20:37:21.781
+C Add\sthe\swin/build64-debug.bat\sscript,\swhich\sbuilds\sfossil.exe\ssuitable\nfor\sdebugging\swith\sVisualStudio\son\sWindows.
+D 2026-09-27T18:40:29.527
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -768,8 +768,9 @@ F tools/translate.c cc2165984ea592f6bb345041bc27d56b9513f03a84dec1445f254691c7ed
 F win/Makefile.dmc 41b816e00c348eb38c647f9a613c71f68d587d4540bdb184ddac77ce085f2b4a
 F win/Makefile.mingw f1de7bff40ed891772b588010aa0d75f53fb030a8e764a1de24fdd6ef9b4b2ae
 F win/Makefile.mingw.mistachkin 781390cab203b926f21de517390b7323267513df67fe821ec789eebdc2ba733c
-F win/Makefile.msc 9e764feae9e65c6ac7c264f7d30ea913b0b5a605bca147fba7607beb6fdd0f9e
+F win/Makefile.msc ee085b1be8b9c9cd71e0e6bbf57921d903e62d98fe44228171528cdbadb8d533
 F win/build32.bat 59238cd3017799705054a2ec0fdc38ccc4f50edd41b7d05f06b94de1f7d7de6d
+F win/build64-debug.bat 0452d403404ef3457dedf1edc237832710c1fd6cc321ef3cbd72932e11d707aa
 F win/build64.bat 0eea4906007fc31d141c40918be368cda50d1f4bb7273c01672803af19328fad
 F win/buildmsvc.bat b5c945900619a63112b1483e01569241d3cb2a955099e4a46ee7eafcff9e8b6e x
 F win/fossil.exe.manifest 1f742a2524c7c4127f4d84f5029a02211912803c26ed383beebdf7ceeb397fcc
@@ -984,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3506473c271d33df08a8ea3304c8d3fcdc5ac71513f1f5844b778bd0565c400c
-R 454fa3790d6a9df0a7812ae4a04e3ea1
-U stephan
-Z 3fc987b73ebe4cfd9163c915e2348ed1
+P a822071af824a55cf3205919a928694980665558442e4bca3f247e75695749e1
+R 5d0bd0f289dd5298acb00bf7c86f449d
+U drh
+Z d64207edb9ad6f9b87096fe72476a6b6
 # Remove this line to create a well-formed Fossil manifest.
