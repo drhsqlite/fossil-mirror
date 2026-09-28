@@ -1,5 +1,5 @@
-C Set\sthe\sdefault\swiki\seditor\smimetype\sto\smarkdown\sin\stwo\sspots.
-D 2026-09-28T15:54:23.617
+C Fix\sa\scorner\scase\sof\sthe\simport\scommand\swhich\scould\sleave\sbehind\sa\sphantom.\sBased\son\s[forum:2026-09-28T10:22:05Z|bug\sreport\s2026-09-28T10:22:05Z].
+D 2026-09-28T16:40:05.171
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -396,7 +396,7 @@ F src/blob.c 64626576a10fbe2bfe2c1f24a23d7ccad470bf553a19eb46e065384deeb83a3f
 F src/branch.c 9ac51ee492d81d79be857084c9207949c293c846d6d2204ca84d99fbeb8e401c
 F src/browse.c a0ff8e6a87321663e4ebb223373aa7c9d9b4007c2e930327f48c94f4d0753234
 F src/builtin.c 315c7ac2ba949e46ebf468309517ed3fa4255c206f327a2703751cc5fc9e640b
-F src/bundle.c 7662a17b1e4492587af14cd0944424c86a2a1fc74828fb99d081073349c433b0
+F src/bundle.c 3e335aeab5387e4e83ed0ac9f49940eee160775a0a3c8e3a47eecea0b8aed5f5
 F src/cache.c e7c49243b8b30cc82358f3a81e9c3652de500481c16f7691d6d6c4528ecc5300
 F src/capabilities.c 7b611448e775a4b7cf6600b188b4ffeb94f720e7cc437fe6f3b5efedc5ca3251
 F src/captcha.c f07d93b8bd0c2b5948725700000a6d8b5ecc8cf7614013ae0467f5106b60b349
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 76742655f00daf858779bc7778dba167f7593791837193f555ea66c9767670cd
-R 4bf710c107ad7d2626ffa287610dba64
+P bf0daf079687f932dd711d26d01c17af70e6c576d4b3fc9bff731005f5417eb8
+R b06b1c4c1698ab5b28e3f9c924b9a744
 U stephan
-Z 2653e3d33f4c263fb6e3b5e31746b4f3
+Z 93752f1cc9972ac55e5ca48024544ce3
 # Remove this line to create a well-formed Fossil manifest.
