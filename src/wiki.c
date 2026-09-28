@@ -916,7 +916,7 @@ static int wiki_ajax_emit_page_object(const char *zPageName,
        pWiki->zWikiTitle,
        wiki_page_type_name(pWiki->zWikiTitle),
        zUuid,
-       pWiki->zMimetype ? pWiki->zMimetype : "text/x-fossil-wiki");
+       pWiki->zMimetype ? pWiki->zMimetype : "text/x-markdown");
     CX("\"parent\": ");
     if(pWiki->nParent){
       CX("%!j", pWiki->azParent[0]);
@@ -1511,7 +1511,7 @@ void wikiedit_page(void){
        "\"parent\": null, \"version\": null"
        "};\n",
        zPageName,
-       zMimetype ? zMimetype : "text/x-fossil-wiki",
+       zMimetype ? zMimetype : "text/x-markdown",
        wiki_page_type_name(zPageName));
     /* If the JS-side stash already has this page, load that
        copy from the stash, otherwise inject a new stash entry
