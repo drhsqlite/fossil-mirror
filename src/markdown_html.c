@@ -871,6 +871,38 @@ static int html_link(
   return 1;
 }
 
+/* Invoked for @name and #tag tagged words, marked up in the
+** output text in a way that JS and CSS can do something
+** interesting with them.  This isn't standard Markdown, so
+** it's implementation-specific what occurs here.  More, each
+** Fossil feature using Markdown is free to apply styling and
+** behavior to these in feature-specific ways.
+*/
+static int html_tagspan(
+  struct Blob *ob,        /* Write the output here */
+  struct Blob *text,      /* The word after the tag character */
+  enum mkd_tagspan type,  /* Which type of tagspan we're creating */
+  void *opaque
+){
+  if( text==0 ){
+    /* no-op */
+  }else{
+    char cPrefix = '!';
+    blob_append_literal(ob, "<span data-");
+    switch (type) {
+      case MKDT_HASHTAG:
+        cPrefix = '#'; blob_append_literal(ob, "hashtag"); break;
+      case MKDT_NUMTAG:
+        cPrefix = '#'; blob_append_literal(ob, "numtag"); break;
+    }
+    blob_append_literal(ob, "=\"");
+    html_quote(ob, blob_buffer(text), blob_size(text));
+    blob_append_literal(ob, "\"");
+    blob_appendf(ob, ">%c%b</span>", cPrefix,text);
+  }
+  return 1;
+}
+
 static int html_triple_emphasis(
   struct Blob *ob,
   struct Blob *text,
@@ -928,6 +960,7 @@ void markdown_to_html(
     html_linebreak,
     html_link,
     html_raw_html_tag,
+    html_tagspan,
     html_triple_emphasis,
     html_footnote_ref,
 

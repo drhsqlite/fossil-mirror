@@ -484,9 +484,9 @@ u32 fossil_utf8_read(
     while( (*(*pz) & 0xc0)==0x80 ){
       c = (c<<6) + (0x3f & *((*pz)++));
     }
-    if( c<0x80
-        || (c&0xFFFFF800)==0xD800
-        || (c&0xFFFFFFFE)==0xFFFE ){  c = 0xFFFD; }
+    if( c<0x80 || (c&0xFFFFF800)==0xD800 ){
+      c = 0xFFFD;
+    }
   }
   return c;
 }

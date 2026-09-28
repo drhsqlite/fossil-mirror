@@ -92,11 +92,10 @@ window.fossil.onPageLoad(function(){
        the upper area of the input widget off-screen. */
     const elemsToCount = GetFramingElements();
     const contentArea = E1('div.content');
-    const bcl = document.body.classList;
     const resized = function f(){
       if(f.$disabled) return;
       const wh = window.innerHeight,
-            com = bcl.contains('chat-only-mode');
+            com = document.body.classList.contains('chat-only-mode');
       var ht;
       var extra = 0;
       if(com){
@@ -163,6 +162,7 @@ window.fossil.onPageLoad(function(){
         views: document.querySelectorAll('.chat-view'),
         activeUserListWrapper: E1('#chat-user-list-wrapper'),
         activeUserList: E1('#chat-user-list'),
+        btnClearFilter: E1('#chat-clear-filter'),
         eMsgPollError: undefined /* current connection error MessageMidget */,
         pollErrorMarker: document.body /* element to toggle 'connection-error' CSS class on */
       },
@@ -183,11 +183,27 @@ window.fossil.onPageLoad(function(){
         /* Reminder: to convert a Julian time J to JS:
            new Date((J - 2440587.5) * 86400000) */
       },
-      filterState:{
-        activeUser: undefined,
-        match: function(uname){
-          return this.activeUser===uname || !this.activeUser;
-        }
+      filter: {
+        user:{
+          activeTag: undefined,
+          match: function(uname){
+            return !this.activeTag || this.activeTag===uname;
+          },
+          matchElem: function(e){
+            return !this.activeTag || this.activeTag===e.dataset.xfrom;
+          }
+        },
+        hashtag:{
+          activeTag: undefined,
+          match: function(tag){
+            return !this.activeTag || tag?.toLowerCase?.()===this.activeTag;
+          },
+          matchElem: function(e){
+            return !this.activeTag
+              || !!e.querySelector('[data-hashtag="'+this.activeTag+'"]');
+          }
+        },
+        current: undefined/*gets set to current active filter*/
       },
       /**
          The timer object is used to control connection throttling
@@ -378,7 +394,8 @@ window.fossil.onPageLoad(function(){
         const mip = atEnd ? this.e.loadOlderToolbar : this.e.messageInjectPoint,
               holder = this.e.viewMessages,
               prevMessage = this.e.newestMessage;
-        if(!this.filterState.match(e.dataset.xfrom)){
+        if(this.filter.current
+           && !this.filter.current.matchElem(e)){
           e.classList.add('hidden');
         }
         if(atEnd){
@@ -624,7 +641,6 @@ window.fossil.onPageLoad(function(){
           if(e!==E) D.addClass(E,'hidden');
         });
         this.e.currentView = e;
-        if(this.e.currentView.$beforeShow) this.e.currentView.$beforeShow();
         D.removeClass(e,'hidden');
         this.animate(this.e.currentView, 'anim-fade-in-fast');
         return this.e.currentView;
@@ -676,7 +692,7 @@ window.fossil.onPageLoad(function(){
           callee.addUserElem = function(u){
             const uSpan = D.addClass(D.span(), 'chat-user');
             const uDate = self.usersLastSeen[u];
-            if(self.filterState.activeUser===u){
+            if(self.filter.user.activeTag===u){
               uSpan.classList.add('selected');
             }
             uSpan.dataset.uname = u;
@@ -698,7 +714,78 @@ window.fossil.onPageLoad(function(){
         ).forEach(callee.addUserElem);
         return this;
       },
-      /** Show or hide the active user list. Returns this object. */
+      /**
+         For each Chat.MessageWidget element (X.message-widget) for
+         which predicate(elem) returns true, the 'hidden' class is
+         removed from that message. For all others, 'hidden' is
+         added. If predicate is falsy, 'hidden' is removed from all
+         elements. After filtering, it will try to scroll the last
+         not-filtered-out message into view, but exactly where it
+         scrolls into view (top, middle, button) is
+         unpredictable. Returns this object.
+
+         The argument may optionally be an object from this.filter,
+         in which case its matchElem() method becomes the predicate.
+
+         Note that this does not encapsulate certain filter-specific
+         logic which applies changes to elements other than the
+         main message list or this.e.btnClearFilter.
+      */
+      applyMessageFilter: function(predicate){
+        const self = this;
+        let eLast;
+        console.debug("applyMessageFilter(",predicate,")");
+        if(!predicate){
+          D.removeClass(this.e.viewMessages.querySelectorAll('.message-widget.hidden'),
+                        'hidden');
+          D.addClass(this.e.btnClearFilter, 'hidden');
+        }else if('function'!==typeof predicate
+                && predicate.matchElem){
+          /* assume Chat.filter object */
+          const p = predicate;
+          predicate = (e)=>p.matchElem(e);
+        }
+        if(predicate){
+          this.e.viewMessages.querySelectorAll('.message-widget').forEach(function(e){
+            if(predicate(e)){
+              e.classList.remove('hidden');
+              eLast = e;
+            }else{
+              e.classList.add('hidden');
+            }
+          });
+          D.removeClass(this.e.btnClearFilter, 'hidden');
+        }
+        this.setCurrentView(this.e.viewMessages);
+        if(eLast) eLast.scrollIntoView(false);
+        else this.scrollMessagesTo(1);
+        return this;
+      },
+      /**
+         Clears the current message filter, if any, and clears the
+         activeTag property of all members of this.filter. Returns
+         this object. This also unfortunately performs some
+         filter-type-specific logic which we have not yet managed to
+         encapsulate more cleanly.
+       */
+      clearFilters: function(){
+        if(!this.filter.current) return this;
+        this.filter.current = undefined;
+        this.applyMessageFilter(false);
+        const self = this;
+        Object.keys(this.filter).forEach(function(k){
+          const f = self.filter[k];
+          if(f) f.activeTag = undefined;
+        });
+        this.e.activeUserList.querySelectorAll('.chat-user').forEach(
+          /*Unfortante filter-specific logic*/
+          (e)=>e.classList.remove('selected')
+        );
+        return this;
+      },
+      /**
+         Show or hide the active user list. Returns this object.
+      */
       showActiveUserList: function(yes){
         if(0===arguments.length) yes = true;
         this.e.activeUserListWrapper.classList[
@@ -728,28 +815,34 @@ window.fossil.onPageLoad(function(){
          the filter if uname is falsy.
       */
       setUserFilter: function(uname){
-        this.filterState.activeUser = uname;
-        const mw = this.e.viewMessages.querySelectorAll('.message-widget');
-        const self = this;
-        let eLast;
-        if(!uname){
-          D.removeClass(Chat.e.viewMessages.querySelectorAll('.message-widget.hidden'),
-                        'hidden');
-        }else{
-          mw.forEach(function(w){
-            if(self.filterState.match(w.dataset.xfrom)){
-              w.classList.remove('hidden');
-              eLast = w;
-            }else{
-              w.classList.add('hidden');
-            }
-          });
+        if(!uname || (this.filter.current
+                      && this.filter.current!==this.filter.user)){
+          this.clearFilters();
         }
-        if(eLast) eLast.scrollIntoView(false);
-        else this.scrollMessagesTo(1);
-        cs.e.activeUserList.querySelectorAll('.chat-user').forEach(function(e){
-          e.classList[uname===e.dataset.uname ? 'add' : 'remove']('selected');
+        this.filter.user.activeTag = uname;
+        if(uname) this.applyMessageFilter(this.filter.user);
+        this.filter.current = uname ? this.filter.user : undefined;
+        const self = this;
+        this.e.activeUserList.querySelectorAll('.chat-user').forEach(function(e){
+          e.classList[
+            self.filter.user.activeTag===e.dataset.uname
+              ? 'add' : 'remove'
+          ]('selected');
         });
+        return this;
+      },
+      /**
+         Applies a hashtag filter to all current messages, or clears
+         the filter if tag is falsy.
+      */
+      setHashtagFilter: function(tag){
+        if(!tag || (this.filter.current
+                    && this.filter.current!==this.filter.hashtag)){
+          this.clearFilters();
+        }
+        this.filter.hashtag.activeTag = tag.toLowerCase();
+        if(tag) this.applyMessageFilter(this.filter.hashtag);
+        this.filter.current = tag ? this.filter.hashtag : undefined;
         return this;
       },
 
@@ -1075,18 +1168,102 @@ window.fossil.onPageLoad(function(){
         /* If currently selected, toggle filter off */
         eUser.classList.remove('selected');
         cs.setUserFilter(false);
-        delete f.$eSelected;
       }else{
-        if(f.$eSelected) f.$eSelected.classList.remove('selected');
-        f.$eSelected = eUser;
         eUser.classList.add('selected');
         cs.setUserFilter(uname);
       }
       return false;
     }, false);
+
+    cs.e.btnClearFilter.addEventListener('click',function(){
+      D.addClass(this,'hidden');
+      cs.clearFilters();
+    }, false);
     return cs;
   })()/*Chat initialization*/;
 
+  /**
+     An experiment in history navigation: when a message numtag is
+     clicked, we push the origin message onto the history and
+     set up the back button to return to that message.
+  */
+  window.onpopstate = function(event){
+    const msgid = Chat.numtagHistoryStack.pop();
+    if(msgid){
+      const e = Chat.setCurrentView(Chat.e.viewMessages).
+            querySelector('.message-widget[data-msgid="'+msgid+'"]');
+      //console.debug("Popping history back to",msgid, e);
+      if(e){
+        Chat.MessageWidget.scrollToMessageElem(e);
+        return;
+      }
+    }
+    Chat.scrollMessagesTo(1);
+  };
+  Chat.numtagHistoryStack = [
+    /* Relying on the pushHistory() state object for holding
+       the message ID is completely misbehaving, not giving
+       us the expected state object when window.onpopstate
+       is triggered (plus, the browser persists it, which
+       introduces its own problems). Thus we use our own
+       stack of message IDs for history navigation purposes. */];
+
+  /** If e or one of its parents has the given CSS class, that element
+      is returned, else falsy is returned. */
+  const findParentWithClass = function(e, className){
+    while(e && !e.classList.contains(className)){
+      e = e.parentNode;
+    }
+    return e;
+  };
+
+  /** To be passed each MessageWidget's top-level DOM element
+      after initial processing of the message, to set up
+      hashtag and numtag references. */
+  const setupHashtags = function f(elem){
+    if(!f.$clickTag){
+      f.$clickTag = function(ev){
+        /* Click handler for hashtags */
+        const tag = ev.target.dataset.hashtag;
+        if(tag){
+          Chat.setHashtagFilter(
+            tag===Chat.filter.hashtag.activeTag
+              ? false : tag
+          );
+        }
+      };
+      f.$clickNum = function(ev){
+        /* Click handler for #NNN references */
+        const tag = ev.target.dataset.numtag;
+        if(tag){
+          const e = Chat.e.viewMessages.querySelector(
+            '.message-widget[data-msgid="'+tag+'"]'
+          );
+          if(e){
+            Chat.MessageWidget.scrollToMessageElem(e);
+            //Set up window.history() state...
+            const p = 0 ? false : findParentWithClass(ev.target, 'message-widget');
+            if(p){
+              const state = {msgId: p.dataset.msgid};
+              Chat.numtagHistoryStack.push(p.dataset.msgid);
+              const rc = window.history.pushState(state, "");
+              //console.debug("Pushing history for msgid", state);
+              //console.debug("Chat.numtagHistoryStack =",Chat.numtagHistoryStack);
+            }
+          }else{
+            Chat.submitSearch('#'+tag);
+          }
+        }
+      };
+    }
+    elem.querySelectorAll('[data-hashtag]').forEach(function(e){
+      e.dataset.hashtag = e.dataset.hashtag.toLowerCase();
+      e.addEventListener('click', f.$clickTag, false);
+    })
+    elem.querySelectorAll('[data-numtag]').forEach(
+      (e)=>e.addEventListener('click', f.$clickNum, false)
+    )
+  }/*setupHashtags()*/;
 
   /** Returns the first .message-widget element in DOM element
       e's lineage. */
@@ -1356,6 +1533,7 @@ window.fossil.onPageLoad(function(){
           }else{
             contentTarget.innerHTML = m.xmsg;
             contentTarget.querySelectorAll('a').forEach(addAnchorTargetBlank);
+            setupHashtags(contentTarget);
             if(F.pikchr){
               F.pikchr.addSrcView(contentTarget.querySelectorAll('svg.pikchr'));
             }
@@ -1472,9 +1650,8 @@ window.fossil.onPageLoad(function(){
                   'target', '_blank'
                 );
                 D.append(toolbar2, timelineLink);
-                if(Chat.filterState.activeUser &&
-                   Chat.filterState.match(eMsg.dataset.xfrom)){
-                  /* Add a button to clear user filter and jump to
+                if(Chat.filter.current){
+                  /* Add a button to clear filter and jump to
                      this message in its original context. */
                   D.append(
                     this.e,
@@ -1484,15 +1661,8 @@ window.fossil.onPageLoad(function(){
                         "Message in context",
                         function(){
                           self.hide();
-                          Chat.setUserFilter(false);
-                          eMsg.scrollIntoView(false);
-                          Chat.animate(
-                            eMsg.firstElementChild, 'anim-flip-h'
-                            //eMsg.firstElementChild, 'anim-flip-v'
-                            //eMsg.childNodes, 'anim-rotate-360'
-                            //eMsg.childNodes, 'anim-flip-v'
-                            //eMsg, 'anim-flip-v'
-                          );
+                          Chat.clearFilters();
+                          Chat.MessageWidget.scrollToMessageElem(eMsg);
                         })
                     )
                   );
@@ -1526,6 +1696,16 @@ window.fossil.onPageLoad(function(){
         const theMsg = findMessageWidgetParent(ev.target);
         if(theMsg) f.popup.show(theMsg);
       }/*_handleLegendClicked()*/
+    }/*MessageWidget.prototype*/;
+    /** Assumes that e is a MessageWidget element, ensures that
+        Chat.e.viewMessages is visible, scrolls the message,
+        and animates it a bit to make it more visible. */
+    ctor.scrollToMessageElem = function(e){
+      if(e.firstElementChild){
+        Chat.setCurrentView(Chat.e.viewMessages);
+        e.scrollIntoView(false);
+        Chat.animate(e, 'anim-fade-out-in');
+      }
     };
     return ctor;
   })()/*MessageWidget*/;
@@ -2069,7 +2249,8 @@ window.fossil.onPageLoad(function(){
        here, so the most frequently-needed ones "should" (arguably) be
        closer to the start of this list. */
     /**
-       Settings ops structure:
+       Settings options structure: an array of Objects with the
+       following properties:
 
        label: string for the UI
 
@@ -2082,6 +2263,7 @@ window.fossil.onPageLoad(function(){
        select: SELECT element (instead of boolValue)
 
        callback: optional handler to call after setting is modified.
+       It gets passed the setting object: {key:string, value:something}.
        Its "this" is the options object. If this object has a
        boolValue string or a persistentSetting property, the argument
        passed to the callback is a settings object in the form {key:K,
@@ -2412,6 +2594,7 @@ window.fossil.onPageLoad(function(){
       this.setCurrentView(this.e.viewPreview);
       this.e.previewContent.innerHTML = t;
       this.e.viewPreview.querySelectorAll('a').forEach(addAnchorTargetBlank);
+      setupHashtags(this.e.previewContent)/*arguable, for usability reasons*/;
       this.inputFocus();
     };
     Chat.e.viewPreview.querySelector('button.action-close').
@@ -2654,11 +2837,12 @@ window.fossil.onPageLoad(function(){
   };
   Chat.clearSearch(true);
   /**
-     Submits a history search using the main input field's current
-     text. It is assumed that Chat.e.viewSearch===Chat.e.currentView.
+     Submits a history search using either its argument or the the
+     main input field's current text.
   */
-  Chat.submitSearch = function(){
-    const term = this.inputValue(true);
+  Chat.submitSearch = function(term){
+    Chat.setCurrentView(Chat.e.viewSearch);
+    if(!arguments.length) term = this.inputValue(true);
     const eMsgTgt = this.clearSearch(true);
     if( !term ) return;
     D.append( eMsgTgt, "Searching for ",term," ...");

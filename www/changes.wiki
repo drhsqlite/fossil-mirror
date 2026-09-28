@@ -37,6 +37,12 @@
        "USER@HOST:DIRECTORY" to specify a directory on a remote host in which
        the diff is to be taken.  The diff is run using SSH, the results are
        captured, then displayed locally using the Tcl/Tk diff GUI.
+  <li> Markdown-to-HTML now recognizes hashtag-like constructs. This
+       change is usually invisible but it allows specific pages to
+       plug in styling and/or JavaScript functionality. In
+       [/help/www/chat|/chat], tapping on a reference in the form
+       "#1234" will jump to that message if it's loaded or search for
+       it if it's not.
 </ol>
 
 <h2 id='v2_28'>Changes for version 2.28 (2026-03-11)</h2><ol>

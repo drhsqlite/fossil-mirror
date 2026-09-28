@@ -1556,17 +1556,18 @@ static void forum_emit_js(void){
 **
 ** Query parameters:
 **
-**   name=X        REQUIRED.  The hash of the post to display.
+**   name=NAME     Required.  The NAME value is a hash prefix or timestamp
+**                 for the post to be displayed.
 **   t=a           Automatic display mode, i.e. hierarchical for
 **                 desktop and chronological for mobile.  This is the
 **                 default if the "t" query parameter is omitted.
 **   t=c           Show posts in the order they were written.
 **   t=h           Show posts using hierarchical indenting.
 **   t=s           Show only the post specified by "name=X".
-**   t=r           Alias for "t=c&unf&hist".
-**   t=y           Alias for "t=s&unf&hist".
-**   raw           Alias for "t=s&unf".  Additionally, omit the border
-**                 around the post, and ignore "t" and "hist".
+**   t=r           Alias for "t=c" with "unf" and "hist".
+**   t=y           Alias for "t=s" with "unf" and "hist".
+**   raw           Alias for "t=s" with "unf".  Additionally, omit
+**                 the border around the post, and ignore "t" and "hist".
 **   unf           Show the original, unformatted source text.
 **   hist          Show edit history in addition to current posts.
 */
@@ -1583,7 +1584,8 @@ void forumpost_page(void){
 **
 ** Query parameters:
 **
-**   name=X        REQUIRED.  The hash of any post of the thread.
+**   name=NAME     Required.  The NAME value is a hash prefix or timestamp
+**                 for one of the posts in the thread.
 **   t=a           Automatic display mode, i.e. hierarchical for
 **                 desktop and chronological for mobile.  This is the
 **                 default if the "t" query parameter is omitted.

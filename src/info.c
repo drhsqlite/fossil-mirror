@@ -986,15 +986,17 @@ void ckout_page(void){
 /*
 ** WEBPAGE: vinfo
 ** WEBPAGE: ci
-** URL:  /ci/ARTIFACTID
-**  OR:  /ci?name=ARTIFACTID
 **
-** Display information about a particular check-in.  The exact
-** same information is shown on the /info page if the name query
-** parameter to /info describes a check-in.
+** Display information about a single check-in identified by
+** the "name" query parameter.
 **
-** The ARTIFACTID can be a unique prefix for the HASH of the check-in,
-** or a tag or branch name that identifies the check-in.
+** The exact same information is shown on the /info page if the name query
+** parameter to /info describes a check-in.  The /info page is preferred.
+** The /ci and /vinfo pages are retained for historical compatibility.
+**
+** The value of the "name" query parameter can be a unique prefix for
+** the HASH of the check-in, or a tag or branch name that identifies
+** the check-in.
 */
 void ci_page(void){
   Stmt q1, q2, q3;

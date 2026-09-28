@@ -42,6 +42,12 @@ enum mkd_autolink {
   MKDA_IMPLICIT_EMAIL   /* e-mail link without mailto: */
 };
 
+/* mkd_tagspan -- type of tagged <span> */
+enum mkd_tagspan {
+  MKDT_HASHTAG,         /* #hashtags */
+  MKDT_NUMTAG           /* #123[.456] /chat or /forum message IDs. */
+};
+
 /* mkd_renderer -- functions for rendering parsed data */
 struct mkd_renderer {
   /* document level callbacks */
@@ -82,6 +88,8 @@ struct mkd_renderer {
   int (*link)(struct Blob *ob, struct Blob *link, struct Blob *title,
           struct Blob *content, void *opaque);
   int (*raw_html_tag)(struct Blob *ob, struct Blob *tag, void *opaque);
+  int (*tagspan)(struct Blob *ob, struct Blob *ref, enum mkd_tagspan type,
+        void *opaque);
   int (*triple_emphasis)(struct Blob *ob, struct Blob *text,
             char c, void *opaque);
   int (*footnote_ref)(struct Blob *ob, const struct Blob *span,
@@ -951,6 +959,159 @@ static size_t char_entity(
     blob_append(ob, data, end);
   }
   return end;
+}
+
+/* char_hashref_tag -- '#' followed by "word" characters to tag
+** post numbers, hashtags, etc.
+**
+** Basic syntax:
+**
+**  ^[a-zA-Z]X*
+**
+** Where X is:
+**
+** - Any number of alphanumeric characters.
+**
+** - Single underscores. Adjacent underscores are not recognized
+**   as valid hashtags. That decision is somewhat arbitrary
+**   and up for debate.
+**
+** Hashtags must end at the end of input or be followed by whitespace
+** or what appears to be the end or separator of a logical
+** natural-language construct, e.g. period, colon, etc.
+**
+** Current limitations of this implementation:
+**
+** - Currently requires starting alpha and trailing
+**   alphanumeric or underscores. "Should" be extended to
+**   handle #X[.Y], where X and optional Y are integer
+**   values, for forum post references.
+*/
+static size_t char_hashref_tag(
+  struct Blob *ob,
+  struct render *rndr,
+  char *data,
+  size_t offset,
+  size_t size
+){
+  size_t end;
+  struct Blob work = BLOB_INITIALIZER;
+  int nUscore = 0; /* Consecutive underscore counter */
+  int numberMode = 0 /* 0 for normal, 1 for #NNN numeric,
+                  and 2 for #NNN.NNN. */;
+  if(offset>0 && !fossil_isspace(data[-1])){
+    /* Only ever match if the *previous* character is whitespace or
+    ** we're at the start of the input.  Note that we rely on fossil
+    ** processing emphasis markup before reaching this function, so
+    ** *#Hash* will Do The Right Thing. Not that this means that
+    ** "#Hash." will match while ".#Hash" won't. That's okay. */
+    return 0;
+  }
+  assert( '#' == data[0] );
+  if(size < 2) return 0;
+  end = 2;
+  if(fossil_isdigit(data[1])){
+    numberMode = 1;
+  }else if(!fossil_isalpha(data[1])){
+    switch(data[1] & 0xF0){
+      /* Reminder: UTF8 char lengths can be determined by
+      ** masking against 0xF0: 0xf0==4, 0xe0==3, 0xc0==2,
+      ** else 1. */
+      case 0xF0: end+=3; break;
+      case 0xE0: end+=2; break;
+      case 0xC0: end+=1; break;
+      default: return 0;
+    }
+  }
+#if 0
+  fprintf(stderr,"HASHREF offset=%d size=%d: %.*s\n",
+          (int)offset, (int)size, (int)size, data);
+#endif
+#define HASHTAG_LEGAL_END \
+      case ' ': case '\t': case '\r': case '\n': \
+      case ':': case ';': case '!': case '?': case ','
+      /* ^^^^ '.' is handled separately */
+  for(; end < size; ++end){
+    char ch = data[end];
+    switch(ch & 0xF0){
+      case 0xF0: end+=3; continue;
+      case 0xE0: end+=2; continue;
+      case 0xC0: end+=1; continue;
+      case 0x80: goto hashref_bailout /*invalid UTF8*/;
+      default: break;
+    }
+#if 0
+    fprintf(stderr,"hashtag? checking... length=%d: %.*s\n",
+            (int)end, (int)end, data);
+#endif
+    switch(ch){
+      case '_':
+        /* Multiple adjacent underscores not permitted. */
+        if(++nUscore>1) goto hashref_bailout;
+        numberMode = 0;
+        break;
+      case '.':
+        if(1==numberMode) ++numberMode;
+        ch = 0;
+        break;
+      HASHTAG_LEGAL_END:
+        ch = 0;
+        break;
+      case '0': case '1': case '2': case '3': case '4':
+      case '5': case '6': case '7': case '8': case '9':
+        nUscore = 0;
+        break;
+      default:
+        if(numberMode || !fossil_isalpha(ch)){
+          goto hashref_bailout;
+        }
+        nUscore = 0;
+        break;
+    }
+    if(ch) continue;
+    break;
+  }
+  if((end<3/* #. or some such */ && !numberMode)
+     || end>size/*from truncated multi-byte char*/){
+    return 0;
+  }
+  if(numberMode>1){
+    /* Check for trailing part of #NNN.nnn... */
+    assert('.'==data[end]);
+    if(end<size-1 && fossil_isdigit(data[end+1])){
+      for(++end; end<size; ++end){
+        if(!fossil_isdigit(data[end])) break;
+      }
+    }
+  }
+#if 0
+  fprintf(stderr,"???HASHREF length=%d: %.*s\n",
+          (int)end, (int)end, data);
+#endif
+  if(end<size){
+    /* Only match if we end at end of input or what "might" be the end
+       of a natural language grammar construct, e.g. period or
+       [semi]colon. */
+    switch(data[end]){
+      case '.':
+      HASHTAG_LEGAL_END:
+        break;
+      default:
+        goto hashref_bailout;
+    }
+  }
+  blob_init(&work, data + 1, end - 1);
+  rndr->make.tagspan(ob, &work,
+                     numberMode ? MKDT_NUMTAG : MKDT_HASHTAG,
+                     rndr->make.opaque);
+  return end;
+  hashref_bailout:
+#if 0
+  fprintf(stderr,"BAILING HASHREF examined=%d:\n[%.*s] of\n[%.*s]\n",
+          (int)end, (int)end, data, (int)size, data);
+#endif
+#undef HASHTAG_LEGAL_END
+  return 0;
 }
 
 /*
@@ -2688,6 +2849,7 @@ void markdown(
   if( rndr.make.codespan ) rndr.active_char['`'] = char_codespan;
   if( rndr.make.linebreak ) rndr.active_char['\n'] = char_linebreak;
   if( rndr.make.image || rndr.make.link ) rndr.active_char['['] = char_link;
+  rndr.active_char['#'] = char_hashref_tag;
   if( rndr.make.footnote_ref ) rndr.active_char['('] = char_footnote;
   rndr.active_char['<'] = char_langle_tag;
   rndr.active_char['\\'] = char_escape;

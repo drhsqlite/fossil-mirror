@@ -317,12 +317,20 @@ static void appendLinked(Blob *pOut, const char *z, int n){
 /*
 ** Append text to pOut, adding formatting markup.  Terms that
 ** have all lower-case letters are within <tt>..</tt>.  Terms
-** that have all upper-case letters are within <i>..</i>.
+** that have all upper-case letters are within <i>..</i>.  Except,
+** if the entire string begins with % then put the whole thing
+** inside of <tt>..</tt>.
 */
 static void appendMixedFont(Blob *pOut, const char *z, int n){
   const char *zEnd = "";
   int i = 0;
   int j;
+  if( n>0 && z[0]=='%' ){
+    blob_append(pOut, "<tt>", 4);
+    blob_append(pOut, z, n);
+    blob_append(pOut, "</tt>", 5);
+    return;
+  }
   while( i<n ){
     if( z[i]==' ' || z[i]=='=' ){
       for(j=i+1; j<n && (z[j]==' ' || z[j]=='='); j++){}
