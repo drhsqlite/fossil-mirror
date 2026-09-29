@@ -1,5 +1,5 @@
-C Update\scache-speedups\sto\slatest\strunk\sfor\stesting
-D 2026-09-28T12:48:44.955
+C Improved\sthrow-away\scache\sspeedup\stest\sscripts.
+D 2026-09-29T08:26:40.377
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -36,9 +36,10 @@ F autosetup/pkg-config.tcl 4e635bf39022ff65e0d5434339dd41503ea48fc53822c9c5bde88
 F autosetup/system.tcl 3a39d6e0b3bfba526fd39afe07c1d0d325e5a31925013a1ba7c671e1128e31bb
 F autosetup/tmake.auto eaebc74ad538dfdd3c817c27eefc31930c20510c4f3a3704071f6cb0629ed71f
 F autosetup/tmake.tcl a275793ec1b6f8708179af0acef1f6f10d46c2920739743f7a8720c6d700c7a9
-F cache-speedups-test/export.sh 0c2d7a253a05cc4b9e596837b8c5d6e1cc8ca47193ad44a7469a3a48bfa72769
-F cache-speedups-test/rebuild.sh a9a50130502e20154affb1175110bf4bcd59d35b0c5a22721698a56b1d9b8d39
-F cache-speedups-test/test-integrity.sh 1b542f56ab07cb35bee17a95e941bb4da4a61b766157f193469cfa80fdf1f8ed
+F cache-speedups-test/export.sh 420ebebc4c7f82b34ef2fd2e21e24fbf30cae3c3a30f7fecb9fa3157262e9a65
+F cache-speedups-test/git-export.sh d7fe40ef3044cfc93b0151863578bc4eabbf6bcaac888301bc31982e81147760
+F cache-speedups-test/rebuild.sh 01b371888273ceb5b0c4b36c671ec0f1e30c5b8db1e1a7e3c2a878beef350d5e
+F cache-speedups-test/test-integrity.sh cd2cf06fa07ecd533dd6af0596c8543d8c94823e6812ff4202a88106f9f1bdd9
 F compat/tcl-8.6/generic/tcl.h 3e49f8e5404fd60181c69b6d0ad075e12c4fbd4d
 F compat/tcl-8.6/generic/tclDecls.h 9f431aa5c9a819efa078fadecf3fb1214137455d
 F compat/tcl-8.6/generic/tclPlatDecls.h 05f8965cb99af1c9bb78ff437e991f49a598f7b7
@@ -988,8 +989,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7b3e5b67384bfceeed7df5167ebcfbac63c1957c0c05c9d861a23079015b4459 76742655f00daf858779bc7778dba167f7593791837193f555ea66c9767670cd
-R 9d3a3418d3694531d10a7b8078beaab9
+P 62e4b3a879c706637fe25cd456fd7f0c0e027e5558073c49de79274ca3d0a397
+R 0c8ab579e63dda98814fac51b59e676f
 U danshearer
-Z 8053e6f35752e2910b31dd30654fe657
+Z 68fb6e6fd21bcdb54e7ebb2837af0eca
 # Remove this line to create a well-formed Fossil manifest.
