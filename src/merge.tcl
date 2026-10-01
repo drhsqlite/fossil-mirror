@@ -350,9 +350,12 @@ foreach {key axis args} {
 frame .bb
 ::ttk::menubutton .bb.diff2 -text {2-way diff} -menu .bb.diff2.m
 menu .bb.diff2.m -tearoff 0
-.bb.diff2.m add command -label {baseline vs. local} -command {two-way 12}
-.bb.diff2.m add command -label {baseline vs. merge-in} -command {two-way 13}
-.bb.diff2.m add command -label {local vs. merge-in} -command {two-way 23}
+.bb.diff2.m add command -label {baseline vs local} -command {two-way 12}
+.bb.diff2.m add command -label {baseline vs merge-in} -command {two-way 13}
+.bb.diff2.m add command -label {baseline vs current} -command {two-way 14}
+.bb.diff2.m add command -label {local vs merge-in} -command {two-way 23}
+.bb.diff2.m add command -label {local vs current} -command {two-way 24}
+.bb.diff2.m add command -label {merge-in vs current} -command {two-way 34}
 
 # Bring up a separate two-way diff between a pair of columns
 # the argument is one of:

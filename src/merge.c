@@ -145,16 +145,27 @@ static void merge_info_tk(int bDark, int bAll, int nContext){
 **     0       Standard 3-way diff
 **     12      2-way diff between baseline and local
 **     13      2-way diff between baseline and merge-in
+**     14      2-way diff from baseline to checkout
 **     23      2-way diff between local and merge-in
+**     24      2-way diff from local to checkout
+**     34      2-way diff from merge-in to checkout
+**
+** For non-zero values of diffMode the two digits represent the left
+** and right content for a two-way merge, with these meanings:
+**
+**     1       The baseline or pivot of the 3-way           (baseline)
+**     2       The local value of the file prior to merge   (local)
+**     3       The file content being merged in             (merge-in)
+**     4       The file content currently in the checkout   (current)
 */
 static void merge_info_tcl(const char *zFName, int nContext, int diffMode){
-  const char *zTreename;/* Name of the file in the tree */
-  Stmt q;               /* To query the MERGESTAT table */
-  MergeBuilder mb;      /* The merge builder object */
-  Blob pivot,v1,v2,out; /* Blobs for holding content */
-  const char *zFN;      /* A filename */
-  int rid;              /* RID value */
-  int sz;               /* File size value */
+  const char *zTreename;   /* Name of the file in the tree */
+  Stmt q;                  /* To query the MERGESTAT table */
+  MergeBuilder mb;         /* The merge builder object */
+  Blob pivot,v1,v2,cx,out; /* Blobs for holding content */
+  const char *zFN;         /* A filename */
+  int rid;                 /* RID value */
+  int sz;                  /* File size value */
 
   zTreename = zFName;
   db_prepare(&q,
@@ -173,8 +184,8 @@ static void merge_info_tcl(const char *zFName, int nContext, int diffMode){
   mb.nContext = nContext;
 
   blob_zero(&pivot);
-  if( diffMode!=23 ){
-    /* Set up the pivot or baseline */
+  if( diffMode<=14 ){
+    /* For modes 0, 12, 13, and 14, load the baseline content in pivot */
     zFN = db_column_text(&q, 0);
     if( zFN==0 ){
       /* No pivot because the file was added */
@@ -185,11 +196,26 @@ static void merge_info_tcl(const char *zFName, int nContext, int diffMode){
       content_get(rid, &pivot);
     }
     mb.pPivot = &pivot;
+  }else{
+    /* for modes 23, 24, and 34, pivot is not used */
+  }
+
+  blob_zero(&cx);
+  if( (diffMode % 10)==4 ){
+    /* For modes 14, 24, and 34, read current value of the file from
+    ** disk into out. */
+    char *zFile;
+    zFN = db_column_text(&q, 7);
+    zFile = mprintf("%s%s", g.zLocalRoot, zFN);
+    blob_read_from_file(&cx, zFile, ExtFILE);
+    fossil_free(zFile);
+  }else{
+    /* cx is uninitialized for modes 0, 12, 13, and 23. */
   }
 
   blob_zero(&v2);
-  if( diffMode!=12 ){
-    /* Set up the merge-in as V2 */
+  if( diffMode==0 || diffMode==34 || (diffMode % 10)==3 ){
+    /* For modes 0, 13, 23, and 34 read the merge-in content into v2 */
     zFN = db_column_text(&q, 5);
     if( zFN==0 ){
       /* File deleted in the merged-in branch */
@@ -200,11 +226,13 @@ static void merge_info_tcl(const char *zFName, int nContext, int diffMode){
       content_get(rid, &v2);
     }
     mb.pV2 = &v2;
+  }else{
+    /* v2 is uninitialized for modes 12, 14, and 24 */
   }
 
   blob_zero(&v1);
-  if( diffMode!=13 ){
-    /* Set up the local content as V1 */
+  if( diffMode==0 || diffMode==12 || (diffMode/10)==2 ){
+    /* For modes 0, 12, 23, and 24, read the local content into v1 */
     zFN = db_column_text(&q, 2);
     if( zFN==0 ){
       /* File added by merge */
@@ -235,8 +263,21 @@ static void merge_info_tcl(const char *zFName, int nContext, int diffMode){
       }
     }
     mb.pV1 = &v1;
+  }else{
+    /* v1 is uninitialized for modes 12, 13, and 14 */
   }
 
+  /* For two-way merges, here is where content is loaded
+  **
+  **           left     right     description
+  **           -----    -----     ---------------------------
+  **    12     pivot    v1        baseline vs local
+  **    13     pivot    v2        baseline vs merge-in
+  **    14     pivot    cx       baseline vs current
+  **    23     v1       v2        local    vs merge-in
+  **    24     v1       cx       local    vs current
+  **    34     v2       cx       merge-in vs current
+  */
   blob_zero(&out);
   if( diffMode==0 ){
     /* Set up the output and do a 3-way diff */
@@ -256,19 +297,41 @@ static void merge_info_tcl(const char *zFName, int nContext, int diffMode){
     memset(&cfg, 0, sizeof(cfg));
     cfg.diffFlags = DIFF_TCL;
     cfg.nContext = mb.nContext;
-    if( diffMode==12 || diffMode==13 ){
-      pLeft = &pivot;
-      zTagLeft = "baseline";
-    }else{
-      pLeft = &v1;
-      zTagLeft = "local";
+    switch( diffMode/10 ){
+      case 1: {
+        pLeft = &pivot;
+        zTagLeft = "baseline";
+        break;
+      }
+      case 2: {
+        pLeft = &v1;
+        zTagLeft = "local";
+        break;
+      }
+      default:
+      case 3: {
+        pLeft = &v2;
+        zTagLeft = "merge-in";
+        break;
+      }
     }
-    if( diffMode==12 ){
-      pRight = &v1;
-      zTagRight = "local";
-    }else{
-      pRight = &v2;
-      zTagRight = "merge-in";
+    switch( diffMode % 10 ){
+      case 2: {
+        pRight = &v1;
+        zTagRight = "local";
+        break;
+      }
+      case 3: {
+        pRight = &v2;
+        zTagRight = "merge-in";
+        break;
+      }
+      default:
+      case 4: {
+        pRight = &cx;
+        zTagRight = "current";
+        break;
+      }
     }
     cfg.azLabel[0] = mprintf("%s (%s)", zFName, zTagLeft);
     cfg.azLabel[1] = mprintf("%s (%s)", zFName, zTagRight);
@@ -277,12 +340,12 @@ static void merge_info_tcl(const char *zFName, int nContext, int diffMode){
     fossil_free((char*)cfg.azLabel[0]);
     fossil_free((char*)cfg.azLabel[1]);
   }
-
   blob_write_to_file(&out, "-");
   mb.xDestroy(&mb);
   blob_reset(&pivot);
   blob_reset(&v1);
   blob_reset(&v2);
+  blob_reset(&cx);
   blob_reset(&out);
   db_finalize(&q);
 }
@@ -310,7 +373,10 @@ static void merge_info_tcl(const char *zFName, int nContext, int diffMode){
 **   --diff12 FILE        Bring up a separate --tk diff for just the baseline
 **                        and local variants of FILE.
 **   --diff13 FILE        Like --diff12 but for baseline versus merge-in
+**   --diff14 FILE        Like --diff12 but for baseline versus current
 **   --diff23 FILE        Like --diff12 but for local versus merge-in
+**   --diff24 FILE        Like --diff12 but for local versus current
+**   --diff34 FILE        Like --diff12 but for merge-in versus current
 **   --tcl FILE           Generate (to stdout) a TCL list containing
 **                        information needed to display the changes to
 **                        FILE caused by the most recent merge.  FILE must
@@ -347,8 +413,17 @@ void merge_info_cmd(void){
   if( (zDiff2 = find_option("diff13", 0, 1))!=0 ){
     diffMode = 13;
   }else
+  if( (zDiff2 = find_option("diff14", 0, 1))!=0 ){
+    diffMode = 14;
+  }else
   if( (zDiff2 = find_option("diff23", 0, 1))!=0 ){
     diffMode = 23;
+  }else
+  if( (zDiff2 = find_option("diff24", 0, 1))!=0 ){
+    diffMode = 24;
+  }else
+  if( (zDiff2 = find_option("diff34", 0, 1))!=0 ){
+    diffMode = 34;
   }
 
   if( zCnt ){
