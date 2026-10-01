@@ -3854,6 +3854,7 @@ qrf_reinit:
       p->spec.zColumnSep = ",";
       p->spec.zRowSep = "\r\n";
       p->spec.zNull = "";
+      if( p->spec.eEsc==QRF_Auto ) p->spec.eEsc = QRF_ESC_Off;
       break;
     }
     case QRF_STYLE_Quote: {
@@ -16675,7 +16676,10 @@ static void idxRemFunc(
   assert( argc==2 );
 
   iSlot = sqlite3_value_int(argv[0]);
-  assert( iSlot<p->nSlot );
+  if( iSlot<0 || iSlot>=p->nSlot ){
+    sqlite3_result_error(pCtx, "index out of range.", -1);
+    return;
+  }
   pSlot = &p->aSlot[iSlot];
 
   switch( pSlot->eType ){
@@ -18450,15 +18454,11 @@ int sqlite3_intck_unlock(sqlite3_intck *p){
 */
 const char *sqlite3_intck_test_sql(sqlite3_intck *p, const char *zObj){
   sqlite3_free(p->zTestSql);
+  p->zTestSql = 0;
   if( zObj ){
     p->zTestSql = intckCheckObjectSql(p, zObj, 0, 0);
-  }else{
-    if( p->zObj ){
-      p->zTestSql = intckCheckObjectSql(p, p->zObj, p->zKey, 0);
-    }else{
-      sqlite3_free(p->zTestSql);
-      p->zTestSql = 0;
-    }
+  }else if( p->zObj ){
+    p->zTestSql = intckCheckObjectSql(p, p->zObj, p->zKey, 0);
   }
   return p->zTestSql;
 }
@@ -20697,6 +20697,14 @@ SQLITE_EXTENSION_INIT1
 #include <stdlib.h>
 
 /*
+** No-op wrapper around free() to work around problems with non-CDECL
+** calling conventions on 32-bit Windows builds.
+*/
+static void strdupFree(void *p){
+  free(p);
+}
+
+/*
 ** Make a copy of a string or BLOB in memory obtained from malloc().
 */
 static void strdupfunc(
@@ -20719,7 +20727,7 @@ static void strdupfunc(
       return;
     }
     if( nIn>0 ) memcpy(zOut, zIn, nIn);
-    sqlite3_result_blob(context, zOut, nIn, free);
+    sqlite3_result_blob(context, zOut, nIn, strdupFree);
   }else{
     zIn = (const unsigned char*)sqlite3_value_text(argv[0]);
     if( zIn==0 ) return;
@@ -20731,7 +20739,7 @@ static void strdupfunc(
     }
     memcpy(zOut, zIn, nIn);
     zOut[nIn] = 0;
-    sqlite3_result_text64(context, (char*)zOut, nIn, free,
+    sqlite3_result_text64(context, (char*)zOut, nIn, strdupFree,
                           SQLITE_UTF8_ZT);
   }
 }
@@ -25265,7 +25273,7 @@ static const ModeInfo aModeInfo[] = {
   { "c",        4,     1,    10,   5,    5,    4,   1,   12,    0,  0 },
   { "column",   0,     0,    9,    1,    1,    0,   3,   2,     2,  0 },
   { "count",    0,     0,    0,    0,    0,    0,   0,   3,     0,  0 },
-  { "csv",      4,     5,    9,    3,    3,    0,   1,   12,    0,  0 },
+  { "csv",      4,     5,    9,    3,    3,    0,   1,   4,     0,  0 },
   { "html",     0,     0,    9,    4,    4,    0,   3,   7,     0,  0 },
   { "insert",   0,     0,    10,   2,    2,    0,   1,   8,     0,  0 },
   { "jatom",    4,     1,    11,   6,    6,    0,   1,   12,    0,  0 },
@@ -26329,7 +26337,7 @@ static char *shellFakeSchema(
   const char *zName       /* The name of the virtual table */
 ){
   sqlite3_stmt *pStmt = 0;
-  char *zSql;
+  char *zSql, *zCom;
   ShellText s;
   char cQuote;
   char *zDiv = "(";
@@ -26363,6 +26371,8 @@ static char *shellFakeSchema(
   if( nRow==0 ){
     freeText(&s);
     s.zTxt = 0;
+  }else{
+    while( s.zTxt && (zCom = strstr(s.zTxt,"*/"))!=0 ){ zCom[1] = '*'; }
   }
   return s.zTxt;
 }
@@ -26463,6 +26473,7 @@ static void shellAddSchemaName(
          && aPrefix[i][0]=='V'
          && (zFake = shellFakeSchema(db, zSchema, zName))!=0
         ){
+          assert( strstr(zFake,"*/")==0 );
           if( z==0 ){
             z = sqlite3_mprintf("%s\n/* %s */", zIn, zFake);
           }else{
@@ -28546,7 +28557,7 @@ static int shell_exec(
       bind_prepared_stmt(pArg, pStmt);
       if( isExplain && pArg->mode.autoExplain ){
         spec.eStyle = isExplain==1 ? QRF_STYLE_Explain : QRF_STYLE_Eqp;
-        sqlite3_format_query_result(pStmt, &spec, pzErrMsg);
+        rc = sqlite3_format_query_result(pStmt, &spec, pzErrMsg);
       }else if( pArg->mode.eMode==MODE_Www ){
         cli_printf(pArg->out,
               "</PRE>\n"
@@ -28558,7 +28569,7 @@ static int shell_exec(
               "<PRE>");
       }else{
         spec.eStyle = eStyle;
-        sqlite3_format_query_result(pStmt, &spec, pzErrMsg);
+        rc = sqlite3_format_query_result(pStmt, &spec, pzErrMsg);
       }
 
       /* print usage stats if stats on */
@@ -28586,11 +28597,11 @@ static int shell_exec(
       ** copy of the error message. Otherwise, set zSql to point to the
       ** next statement to execute. */
       rc2 = sqlite3_finalize(pStmt);
-      if( rc!=SQLITE_NOMEM ) rc = rc2;
+      if( rc2 && rc!=SQLITE_NOMEM ) rc = rc2;
       if( rc==SQLITE_OK ){
         zSql = zLeftover;
         while( IsSpace(zSql[0]) ) zSql++;
-      }else if( pzErrMsg ){
+      }else if( pzErrMsg && pzErrMsg[0]==0 ){
         *pzErrMsg = save_err_msg(db, "stepping", rc, 0);
       }
 
@@ -29255,8 +29266,8 @@ static const struct {
 "                           truncated. Zero means \"no limit\".\n"
 "  --colsep STRING          Use STRING as the column separator\n"
 "  --escape ESC             Enable/disable escaping of control characters\n"
-"                           found in the output. ESC can be \"off\", \"ascii\",\n"
-"                           or \"symbol\".\n"
+"                           found in the output. ESC can be \"auto\", \"off\",\n"
+"                           \"ascii\", or \"symbol\".  Default is \"auto\"\n"
 "  --fpfmt STRING           String is a printf-style format string used to\n"
 "                           render floating-point values.\n"
 "  --ifmt STRING            String is a printf-style format string used to\n"
@@ -29892,6 +29903,7 @@ static void shellModuleSchema(
   p->pLog = pSavedLog;
 
   if( zFake ){
+    assert( strstr(zFake,"*/")==0 );
     sqlite3_result_text(pCtx, sqlite3_mprintf("/* %s */", zFake),
                         -1, sqlite3_free);
     sqlite3_free(zFake);
@@ -33561,8 +33573,8 @@ static int modeTitleDsply(ShellState *p, int bAll){
 **                            truncated. Zero means "no limit".
 **   --colsep STRING          Use STRING as the column separator
 **   --escape ESC             Enable/disable escaping of control characters
-**                            found in the output. ESC can be "off", "ascii",
-**                            or "symbol".
+**                            found in the output. ESC can be "auto", "off",
+**                            "ascii", or "symbol".  Default is "auto"
 **   --fpfmt STRING           String is a printf-style format string used to
 **                            render floating-point values.
 **   --ifmt STRING            String is a printf-style format string used to
@@ -33730,14 +33742,14 @@ static int dotCmdMode(ShellState *p){
       if( (++i)>=nArg ){
         dotCmdError(p, i-1, "missing argument", 0);
         return 1;
-      }                       /*  0     1       2  <-- One less than QRF_ESC_ */
-      k = pickStr(azArg[i],&zErr,"off","ascii","symbol","");
+      }                       /* 0        1     2       3 */
+      k = pickStr(azArg[i],&zErr,"auto", "off","ascii","symbol","");
       if( k<0 ){
         dotCmdError(p, i, "unknown escape type", "%s", zErr);
         sqlite3_free(zErr);
         return 1;
       }
-      p->mode.spec.eEsc = k+1;
+      p->mode.spec.eEsc = k;
       chng = 1;
     }else if( optionMatch(z,"limits") ){
       if( (++i)>=nArg ){
@@ -35340,7 +35352,7 @@ static int do_meta_command(const char *zLine, ShellState *p){
     sqlite3_exec(p->db, "PRAGMA writable_schema=OFF;", 0, 0, 0);
     sqlite3_exec(p->db, "RELEASE dump;", 0, 0, 0);
     if( (p->shellFlgs & SHFLG_DumpDataOnly)==0 ){
-      cli_puts(p->nErr?"ROLLBACK; -- due to errors\n":"COMMIT;\n", p->out);
+      cli_puts(p->nErr?";\nROLLBACK; -- due to errors\n":"COMMIT;\n", p->out);
     }
     p->shellFlgs = savedShellFlags;
     modeFree(&p->mode);
@@ -38266,8 +38278,11 @@ static int runOneSqlLine(
 
 static void echo_group_input(ShellState *p, const char *zDo){
   if( p->mode.mFlags & MFLG_ECHO ){
+    sqlite3_str *savedCliCapture = cli_output_capture;
+    cli_output_capture = 0;  /* .echo should not be captured by .testcase */
     cli_printf(p->out, "%s\n", zDo);
     fflush(p->out);
+    cli_output_capture = savedCliCapture;
   }
 }
 
