@@ -43,6 +43,10 @@
        [/help/www/chat|/chat], tapping on a reference in the form
        "#1234" will jump to that message if it's loaded or search for
        it if it's not.
+  <li> Reworked the <tt>make container-*</tt> targets so that they work with
+       <tt>CENGINE=container</tt> on macOS.  For the Docker default, this
+       requires Engine 23, as it drops the old <tt>docker build buildx</tt>
+       in favor of plain <tt>docker build</tt>. Also tested with Podman 6.
 </ol>
 
 <h2 id='v2_28'>Changes for version 2.28 (2026-03-11)</h2><ol>
