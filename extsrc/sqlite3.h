@@ -148,10 +148,10 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.54.0"
 #define SQLITE_VERSION_NUMBER 3054000
-#define SQLITE_SOURCE_ID      "2026-10-01 11:21:02 92709f54d4c58cf174f305b58971a01878af313157a11549b588a25216701f5c"
+#define SQLITE_SOURCE_ID      "2026-10-05 14:22:13 4bfc6e53a95d710b7f40fa9c80d8cdd1df50d69ed8614e9800f7e6a1ca5a3c29"
 #define SQLITE_SCM_BRANCH     "trunk"
 #define SQLITE_SCM_TAGS       ""
-#define SQLITE_SCM_DATETIME   "2026-10-01T11:21:02.802Z"
+#define SQLITE_SCM_DATETIME   "2026-10-05T14:22:13.597Z"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -463,7 +463,7 @@ SQLITE_API int sqlite3_exec(
 #define SQLITE_FULL        13   /* Insertion failed because database is full */
 #define SQLITE_CANTOPEN    14   /* Unable to open the database file */
 #define SQLITE_PROTOCOL    15   /* Database lock protocol error */
-#define SQLITE_EMPTY       16   /* Internal use only */
+#define SQLITE_EMPTY       16   /* No content */
 #define SQLITE_SCHEMA      17   /* The database schema changed */
 #define SQLITE_TOOBIG      18   /* String or BLOB exceeds size limit */
 #define SQLITE_CONSTRAINT  19   /* Abort due to constraint violation */
@@ -2975,10 +2975,14 @@ SQLITE_API int sqlite3_is_interrupted(sqlite3*);
 ** SQLITE_NOMEM is returned.
 **
 ** The [sqlite3_incomplete(X)] routine is similar to [sqlite3_complete(X)]
-** except that sqlite3_incomplete(X) returns 0 if the input X is complete
-** and non-zero if X is incomplete.  The non-zero return from
+** except that sqlite3_incomplete(X) returns SQLITE_OK if the input X is
+** complete, SQLITE_EMPTY if input X consists entirely of whitespace and/or
+** comments, SQLITE_MISUSE if X is a NULL pointer, and some other non-zero
+** value  if X is incomplete.  The non-zero return from
 ** sqlite3_incomplete(X) contains additional information about what is
-** needed to complete the input X.  The sqlite3_incomplete(X) interface
+** needed to complete the input X.  See the header comment on the
+** implemenation of the sqlite3_incomplete() routine for a full description
+** of its non-zero return values.  The sqlite3_incomplete(X) interface
 ** is only available for UTF-8 text.
 **
 ** ^None of these routines do a full parse the SQL statements and thus
