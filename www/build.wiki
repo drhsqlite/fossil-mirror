@@ -168,7 +168,7 @@ while off in Windows-land. The simpler of the two paths is MSYS2, since
 it lets you install the necessary prerequisites in a single command
 after installing the base environment:
 
-<pre>pacman -sS gcc make openssl-devel zlib-devel</pre>
+<pre>pacman -S gcc make openssl-devel zlib-devel</pre>
 
 The equivalent in Cygwin's <code>setup.exe</code> requires stepping
 through the GUI package chooser, and then if you miss one of the

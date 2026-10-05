@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.54.0\sbeta,\sfor\stesting.
-D 2026-10-05T14:36:13.224
+C Allow\sbuilding\son\sWindows\sunder\sthe\sMINGW64\sshell.\s\sMultiple\schanges\sneeded:\n\n\s\s*\s\spacman\scommand\sin\sthe\sbuild\sdoc\swas\sperforming\sa\ssearch,\snot\sa\n\s\s\s\s\s"sync",\swhat\sother\spackage\ssystems\scall\sinstall;\sthus,\sno-op\n\s\s*\s\sconfigure\swas\spresuming\spresence\sof\s/dev/null\smeant\s"not\sMinGW";\n\s\s\s\s\sdoubtless\sthere\sare\sMinGW\ssetups\swhere\sthis\sis\sthe\scase,\sbut\sthe\n\s\s\s\s\smodern\sMinGW64\sterminal\sis\snot\sone\sof\sthese\n\s\s*\s\sthe\sguards\sagainst\strying\sto\suse\slinenoise\son\sWindows\sweren't\n\s\s\s\s\striggered\sfor\sthis\stype\sof\sbuild,\scausing\slink\sfailures
+D 2026-10-05T23:01:29.488
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -17,7 +17,7 @@ F Makefile.in 0179e801e4c3ad5fb24f555c9cf6d165e92732693e4e6990ca2235ea4a4badcb
 F Makefile.osx-jaguar 1ef6fd900a465cbfab191ae03df559cb6a309131cdf9bebbd7ed38fe4d7cb674
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION 64a13b480b4a6962246f7338be9405a4a51de56cf8a203baaacb9cc46305e867
-F auto.def 46d221069d4dc8ef2882d815923ba235801412d3f6abdfd9b77057872c2124cb
+F auto.def 81a3995846ba12d020eab03f9b77f9f9bcd1dd3039495ec908133e55bed18be3
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup a78ff8c4a3d2636a4268736672a74bf14a82f42687fcf0631a70c516075c031e
 F autosetup/autosetup 9416ffdcdd6e2dbf7f6d1e5c890078518930f8af7722a950eacc28c7f151d2d6 x
@@ -460,7 +460,7 @@ F src/fossil.popupwidget.js d76fda2bab65b719d67ccde1e85aeacfb1919e7ab1994712645b
 F src/fossil.storage.js b7e9371009b08ef27c2fc600400b35f44270c751aeef3bee240e97b3653d7732
 F src/fossil.tabs.js bf6583122df609e9a180b7a4e81b5e6b1bdeff92c5c057bdf2ab53d11437f7f7
 F src/fossil.wikiedit-wysiwyg.js e3497958d704e9b63d4644fec53393f2d85c84de95bf8cb22945a9a1533868f8
-F src/fshell.c 499f7773dcb383dcc6aa742ae1d18640eee20c395d0af11300ac7ea25ffb3495
+F src/fshell.c eef2141dd75bb4cc0d5e5cecd0b22db7366e68b02eed28ecfe7ac4b8d662090a
 F src/fusefs.c 81af91f12773bf61f78e18b7632a54f78d5a0d9dda5c9187718a65b1e225b77b
 F src/fuzz.c b31a20db3489603f88493ec408a56b905418dfb8fe106b108d77e3225ee5da13
 F src/glob.c b5d80245b76fba9bb77b066c5062be2407657e7a87330a24deaebb551a4d1491
@@ -561,7 +561,7 @@ F src/sounds/c.wav 1b1a761a678c265cec670b003b810c62485b6fb78686d8fbbe23871d37df3
 F src/sounds/d.wav f0a35dc901d536a8a4e1b4809e302614a4be9a04c8b41802fc10af382616eeaa
 F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca95061929d1
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
-F src/sqlcmd.c 85964c5e5e9b782fd6aa05da8f6959c7b2e4b4d7192abb5cfb9bd64c190e8533
+F src/sqlcmd.c e7a68a3332fa8dfb8625a7b3a20e094d0129bb92c09061cf04c588a968d5b139
 F src/stash.c 65ac6a35ddc1bc8f67ac113a453f026b64dbf4e0e9a3436d6dc6149466643b3d
 F src/stat.c 6fac818b6d9ab070f60c11d30200fc3ebcbe826910ee7d7e0f674bdd56894b56
 F src/statrep.c 73c0555a69b0fdb92a2354346f5607b8c7393584bc7e91a4905830da9ff193eb
@@ -797,7 +797,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki 69d97c62764e1813710ad3134966f18627c3ad699784347798f7210a73051ce2
+F www/build.wiki 257ccc1736926953ddf496001982cfa51873500ef2c9028c09c42580b0ec2759
 F www/cap-theorem.md a6a4765e4b8e4d7c7913e99c8ab01cf8831d2f65f01ef298e3dacb3b476a3d34
 F www/caps/admin-v-setup.md d368913181daa387d2d41638af2f681d8aab59ccc6297f3e92734c3b0c6f255f
 F www/caps/impl.md a6e3c88f90e03536fe0e7abb6350981a509293b2460f86a24e95a04606999f0a
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e31cb3a70f4538d75d3e69526f6ba44430fa076970c63067dd02fdf7dcc5c775
-R a5a79742063fb3cc158bd4ec8a230cc9
-U drh
-Z 2c96fcf9985a58dabf0dbc1878b03088
+P e6e6a32c2c3cdcf16bcf6c65da9b1f34971303111cb33f47f0be46053966939f
+R 8ac6e360d148e60745722234fdfae26f
+U wyoung
+Z 628a5f73a27b84cff5ee9ef5c3976825
 # Remove this line to create a well-formed Fossil manifest.

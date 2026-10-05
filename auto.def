@@ -250,8 +250,7 @@ if {![opt-bool internal-sqlite]} {
 
 proc is_mingw {} {
   return [expr {
-    [string match *mingw* [get-define host]] &&
-   ![file exists "/dev/null"]
+    [string match *mingw* [get-define host]]
   }]
 }
 
