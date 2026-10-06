@@ -18,7 +18,7 @@
 ** separate file. This file contains only code for the core SQLite library.
 **
 ** The content in this amalgamation comes from Fossil check-in
-** 4bfc6e53a95d710b7f40fa9c80d8cdd1df50 with changes in files:
+** a435d786fe0e245e352d08d2e2ddf8c1e151 with changes in files:
 **
 **    
 */
@@ -469,10 +469,10 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.54.0"
 #define SQLITE_VERSION_NUMBER 3054000
-#define SQLITE_SOURCE_ID      "2026-10-05 14:22:13 4bfc6e53a95d710b7f40fa9c80d8cdd1df50d69ed8614e9800f7e6a1ca5a3c29"
+#define SQLITE_SOURCE_ID      "2026-10-06 18:52:47 a435d786fe0e245e352d08d2e2ddf8c1e15154809e3b471810cc327e9d90ef85"
 #define SQLITE_SCM_BRANCH     "trunk"
 #define SQLITE_SCM_TAGS       ""
-#define SQLITE_SCM_DATETIME   "2026-10-05T14:22:13.597Z"
+#define SQLITE_SCM_DATETIME   "2026-10-06T18:52:47.576Z"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -47274,9 +47274,9 @@ static int unixOpen(
     */
     zName = unixTempFileDir();
     if( zName
-     && (fd = robust_open(zName, O_RDWR|O_CREAT|O_EXCL|O_TMPFILE, 0600))>=0
+     && (fd = robust_open(zName, O_RDWR|O_EXCL|O_TMPFILE, 0600))>=0
     ){
-      rc = fillInUnixFile(pVfs, fd, pFile, zPath, ctrlFlags);
+      rc = fillInUnixFile(pVfs, fd, pFile, zPath, ctrlFlags|UNIXFILE_NOLOCK);
       goto open_finished;
     }
 #endif
@@ -52309,6 +52309,28 @@ static void winShmPurge(sqlite3_vfs *pVfs, int deleteFlag){
 }
 
 /*
+** Handle h is open on the *-shm file. This function zeroes the first
+** 8 bytes of the file. If SQLITE_ENABLE_SETLK_TIMEOUT is defined, h may
+** have been opened with FILE_FLAG_OVERLAPPED.
+*/
+static int winZeroSharedMemory(HANDLE h){
+  u8 aZero[8] = {0,0,0,0,0,0,0,0};
+  DWORD nWrite = 0;
+  OVERLAPPED ovlp;
+  memset(&ovlp, 0, sizeof(OVERLAPPED));
+  if( !osWriteFile(h, aZero, sizeof(aZero), &nWrite, &ovlp) ){
+    /* If the file was opened with FILE_FLAG_OVERLAPPED, the write may still
+    ** be pending. Wait for it with GetOverlappedResult().  */
+    if( osGetLastError()!=ERROR_IO_PENDING
+     || !GetOverlappedResult(h, &ovlp, &nWrite, TRUE)
+    ){
+      nWrite = 0;
+    }
+  }
+  return (nWrite==sizeof(aZero) ? SQLITE_OK : SQLITE_IOERR_WRITE);
+}
+
+/*
 ** The DMS lock has not yet been taken on the shm file associated with
 ** pShmNode. Take the lock. Truncate the *-shm file if required.
 ** Return SQLITE_OK if successful, or an SQLite error code otherwise.
@@ -52326,7 +52348,12 @@ static int winLockSharedMemory(winShmNode *pShmNode, DWORD nMs){
     if( pShmNode->isReadonly ){
       rc = SQLITE_READONLY_CANTINIT;
     }else{
-      rc = winHandleTruncate(h, 0);
+      if( SQLITE_OK!=winHandleTruncate(h, 0) ){
+        /* Sometimes the truncate operation may fail because some other
+        ** process is still holding an open mapping. So try to write
+        ** zeroes into the start of the file instead. */
+        rc = winZeroSharedMemory(h);
+      }
     }
 
     /* Release the EXCLUSIVE lock acquired above. */
@@ -82684,7 +82711,7 @@ SQLITE_PRIVATE int sqlite3BtreeDelete(BtCursor *pCur, u8 flags){
     assert( pTmp!=0 );
     rc = sqlite3PagerWrite(pLeaf->pDbPage);
     if( rc==SQLITE_OK ){
-      rc = insertCell(pPage, iCellIdx, pCell-4, nCell+4, pTmp, n);
+      rc = insertCell(pPage, iCellIdx, pCell-4, nCell+4-(pCell[0]==2), pTmp, n);
     }
     dropCell(pLeaf, pLeaf->nCell-1, nCell, &rc);
     if( rc ) return rc;
@@ -125837,6 +125864,23 @@ SQLITE_PRIVATE int sqlite3DbIsNamed(sqlite3 *db, int iDb, const char *zName){
 }
 
 /*
+** If any TEMP triggers reference schema pSchema, move those triggers to
+** reference the TEMP schema itself.
+*/
+static void detachTempTriggers(sqlite3 *db, Schema *pSchema){
+  HashElem *pEntry;
+  assert( db->aDb[1].pSchema );
+  pEntry = sqliteHashFirst(&db->aDb[1].pSchema->trigHash);
+  while( pEntry ){
+    Trigger *pTrig = (Trigger*)sqliteHashData(pEntry);
+    if( pTrig->pTabSchema==pSchema ){
+      pTrig->pTabSchema = pTrig->pSchema;
+    }
+    pEntry = sqliteHashNext(pEntry);
+  }
+}
+
+/*
 ** An SQL user-function registered to do the work of an ATTACH statement. The
 ** three arguments to the function come directly from an attach statement:
 **
@@ -125905,6 +125949,7 @@ static void attachFunc(
         /* Both the Btree and the new Schema were allocated successfully.
         ** Close the old db and update the aDb[] slot with the new memdb
         ** values.  */
+        detachTempTriggers(db, pNew->pSchema);
         sqlite3BtreeClose(pNew->pBt);
         pNew->pBt = pNewBt;
         pNew->pSchema = pNewSchema;
@@ -125913,6 +125958,7 @@ static void attachFunc(
           ** pointers to the schema object just freed by sqlite3BtreeClose() */
           sqlite3VtabEponymousTableClearAll(db);
         }
+        sqlite3ExpirePreparedStatements(db, 1);
       }else{
         sqlite3BtreeClose(pNewBt);
         rc = SQLITE_NOMEM;
@@ -126084,7 +126130,6 @@ static void detachFunc(
   sqlite3 *db = sqlite3_context_db_handle(context);
   int i;
   Db *pDb = 0;
-  HashElem *pEntry;
   char zErr[128];
 
   UNUSED_PARAMETER(NotUsed);
@@ -126111,18 +126156,7 @@ static void detachFunc(
     goto detach_error;
   }
 
-  /* If any TEMP triggers reference the schema being detached, move those
-  ** triggers to reference the TEMP schema itself. */
-  assert( db->aDb[1].pSchema );
-  pEntry = sqliteHashFirst(&db->aDb[1].pSchema->trigHash);
-  while( pEntry ){
-    Trigger *pTrig = (Trigger*)sqliteHashData(pEntry);
-    if( pTrig->pTabSchema==pDb->pSchema ){
-      pTrig->pTabSchema = pTrig->pSchema;
-    }
-    pEntry = sqliteHashNext(pEntry);
-  }
-
+  detachTempTriggers(db, pDb->pSchema);
   sqlite3BtreeClose(pDb->pBt);
   pDb->pBt = 0;
   pDb->pSchema = 0;
@@ -187999,7 +188033,6 @@ SQLITE_API sqlite3_int64 sqlite3_incomplete(const char *zSql){
         zSql += 2;
         while( zSql[0] && (zSql[0]!='*' || zSql[1]!='/') ){ zSql++; }
         if( zSql[0]==0 ){
-          if( state==0 ) state = 2;
           pending = '/';
           goto incomplete_finish;
         }
@@ -188014,7 +188047,7 @@ SQLITE_API sqlite3_int64 sqlite3_incomplete(const char *zSql){
         }
         while( *zSql && *zSql!='\n' ){ zSql++; }
         if( *zSql==0 ){
-          if( state!=1 ) pending = '-';
+          pending = '-';
           goto incomplete_finish;
         }
         token = tkWS;
@@ -188117,12 +188150,12 @@ SQLITE_API sqlite3_int64 sqlite3_incomplete(const char *zSql){
     zSql++;
   }
 incomplete_finish:
-  if( state==0 ) return SQLITE_EMPTY;
+  if( state==0 && pending==0 ) return SQLITE_EMPTY;
   if( state==1 ) nParen = 0;
   return (i64)((((u64)nParen)<<32) |
                ((u64)pending<<16) |
                ((u64)statemap[state]<<8) |
-               (state!=1));
+               (state>1 || pending!=0));
 }
 SQLITE_API int sqlite3_complete(const char *zSql){
   return sqlite3_incomplete(zSql)==0;
@@ -188617,7 +188650,7 @@ SQLITE_API int sqlite3_initialize(void){
   ** then we have to invoke the (application-supplied) WSD initialization
   ** routine before doing anything else. */
 #ifdef SQLITE_OMIT_WSD
-  rc = sqlite3_wsd_init(4096, 24);
+  int rc = sqlite3_wsd_init(4096, 24);
   if( rc!=SQLITE_OK ){
     return rc;
   }
@@ -265378,7 +265411,7 @@ static void fts5SourceIdFunc(
 ){
   assert( nArg==0 );
   UNUSED_PARAM2(nArg, apUnused);
-  sqlite3_result_text(pCtx, "fts5: 2026-10-05 14:22:13 4bfc6e53a95d710b7f40fa9c80d8cdd1df50d69ed8614e9800f7e6a1ca5a3c29", -1, SQLITE_TRANSIENT);
+  sqlite3_result_text(pCtx, "fts5: 2026-10-06 14:34:02 adacd1423f159fa4698f7e40dd1488256a13dff0b31cc90e28c3441109596ef4", -1, SQLITE_TRANSIENT);
 }
 
 /*

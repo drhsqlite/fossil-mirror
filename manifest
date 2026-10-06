@@ -1,5 +1,5 @@
-C Allow\sbuilding\son\sWindows\sunder\sthe\sMINGW64\sshell.\s\sMultiple\schanges\sneeded:\n\n\s\s*\s\spacman\scommand\sin\sthe\sbuild\sdoc\swas\sperforming\sa\ssearch,\snot\sa\n\s\s\s\s\s"sync",\swhat\sother\spackage\ssystems\scall\sinstall;\sthus,\sno-op\n\s\s*\s\sconfigure\swas\spresuming\spresence\sof\s/dev/null\smeant\s"not\sMinGW";\n\s\s\s\s\sdoubtless\sthere\sare\sMinGW\ssetups\swhere\sthis\sis\sthe\scase,\sbut\sthe\n\s\s\s\s\smodern\sMinGW64\sterminal\sis\snot\sone\sof\sthese\n\s\s*\s\sthe\sguards\sagainst\strying\sto\suse\slinenoise\son\sWindows\sweren't\n\s\s\s\s\striggered\sfor\sthis\stype\sof\sbuild,\scausing\slink\sfailures
-D 2026-10-05T23:01:29.488
+C Update\sthe\sbuilt-in\sSQLite\sto\sa\snew\s3.54.0\sbeta\safter\ssome\simportant\sfixes,\nfor\stesting.
+D 2026-10-06T18:57:29.049
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -278,9 +278,9 @@ F extsrc/pikchr.c 080044411bbd03956d8e488e56fe2ea135c06e96b3bc7fe148740f2e7cbe70
 F extsrc/pikchr.js e4808790ff38ede2acad784cfab62acd25caf41d23ace454c0190b637934f031
 F extsrc/pikchr.wasm 023299eec760d3c7addba21b415dfb07ca2172afcb46be4b13e95f4e0fcbbfcf
 F extsrc/qrf.h b04e50048695aa4a5a41577fb4a56c1feed0bef816354995713116780a4bdacb
-F extsrc/shell.c dcb73a9a26054802695de4f977c8b4bcb427433426cb3c70b3900f5ec1e394f2
-F extsrc/sqlite3.c b6abb0fa720ce338d0c010236ffe1beaca1f17e04b5ccdd76f0111def023870c
-F extsrc/sqlite3.h 59f158f84523d5abff37dd4407e5a4282d7284de97beedbc1f89caf6ef11903c
+F extsrc/shell.c 81909d1cc0c39791e01f1f5c70de8c40fff92a87397337b5a239e05af18a746f
+F extsrc/sqlite3.c c9f238334aa3d8e112d89dce7674859f4f2aec21a91798d9f39f64ab2462129a
+F extsrc/sqlite3.h e8bf734b59532d4e4f22fe5606ba1516d7ac9dfe4bb5d654ea9aa6404ae85b6f
 F fossil.1 6d60e2730db24b0edb145d45374065c3b0f65c78449e4551a972eca7ba416191
 F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec7f3
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e6e6a32c2c3cdcf16bcf6c65da9b1f34971303111cb33f47f0be46053966939f
-R 8ac6e360d148e60745722234fdfae26f
-U wyoung
-Z 628a5f73a27b84cff5ee9ef5c3976825
+P ddba8ea2432c734b0a2287caec4246c6423b1cdf71049b72bb4aea04e67de946
+R a94969140deb346ddf719cfbce9ca1fd
+U drh
+Z 916c668d1a4a44a18e9865555aab4439
 # Remove this line to create a well-formed Fossil manifest.
