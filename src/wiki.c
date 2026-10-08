@@ -2148,17 +2148,17 @@ int wiki_technote_to_rid(const char *zETime) {
       ** such time as tags have the errant prefix dropped.
       */
       rid = db_int(0, "SELECT e.objid"
-          "  FROM event e, tag t, tagxref tx"
+          "  FROM event e"
           " WHERE e.type='e'"
           "   AND e.tagid IS NOT NULL"
-          "   AND e.objid IN"
+          "   AND (e.objid IN"
                       "       (SELECT rid FROM tagxref"
                       "         WHERE tagid=(SELECT tagid FROM tag"
-                      "                       WHERE tagname GLOB '%q'))"
-          "    OR e.objid IN"
+                      "                       WHERE tagname GLOB '%q')))"
+          "    OR (e.objid IN"
                       "       (SELECT rid FROM tagxref"
                       "         WHERE tagid=(SELECT tagid FROM tag"
-                      "                       WHERE tagname GLOB 'sym-%q'))"
+                      "                       WHERE tagname GLOB 'sym-%q')))"
           "   ORDER BY e.mtime DESC LIMIT 1",
        zETime, zETime);
   }
