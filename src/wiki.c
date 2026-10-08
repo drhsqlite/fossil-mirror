@@ -2154,11 +2154,12 @@ int wiki_technote_to_rid(const char *zETime) {
           "   AND (e.objid IN"
                       "       (SELECT rid FROM tagxref"
                       "         WHERE tagid=(SELECT tagid FROM tag"
-                      "                       WHERE tagname GLOB '%q')))"
-          "    OR (e.objid IN"
+                      "                       WHERE tagname GLOB '%q'))"
+          "     OR (e.objid IN"
                       "       (SELECT rid FROM tagxref"
                       "         WHERE tagid=(SELECT tagid FROM tag"
                       "                       WHERE tagname GLOB 'sym-%q')))"
+         "    )"
           "   ORDER BY e.mtime DESC LIMIT 1",
        zETime, zETime);
   }
