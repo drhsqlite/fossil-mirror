@@ -18,7 +18,7 @@
 ** separate file. This file contains only code for the core SQLite library.
 **
 ** The content in this amalgamation comes from Fossil check-in
-** a435d786fe0e245e352d08d2e2ddf8c1e151 with changes in files:
+** a3332bd623d997921c3186433cd1eab0c941 with changes in files:
 **
 **    
 */
@@ -469,10 +469,10 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.54.0"
 #define SQLITE_VERSION_NUMBER 3054000
-#define SQLITE_SOURCE_ID      "2026-10-06 18:52:47 a435d786fe0e245e352d08d2e2ddf8c1e15154809e3b471810cc327e9d90ef85"
+#define SQLITE_SOURCE_ID      "2026-10-09 11:47:51 a3332bd623d997921c3186433cd1eab0c9413aa0f68d93b1731cf80128ec3a36"
 #define SQLITE_SCM_BRANCH     "trunk"
 #define SQLITE_SCM_TAGS       ""
-#define SQLITE_SCM_DATETIME   "2026-10-06T18:52:47.576Z"
+#define SQLITE_SCM_DATETIME   "2026-10-09T11:47:51.732Z"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -17892,32 +17892,32 @@ typedef struct VdbeOpList VdbeOpList;
 #define OP_SeekLE         22 /* jump0, synopsis: key=r[P3@P4]              */
 #define OP_SeekGE         23 /* jump0, synopsis: key=r[P3@P4]              */
 #define OP_SeekGT         24 /* jump0, synopsis: key=r[P3@P4]              */
-#define OP_IfNotOpen      25 /* jump, synopsis: if( !csr[P1] ) goto P2     */
-#define OP_IfNoHope       26 /* jump, synopsis: key=r[P3@P4]               */
-#define OP_NoConflict     27 /* jump, synopsis: key=r[P3@P4]               */
-#define OP_NotFound       28 /* jump, synopsis: key=r[P3@P4]               */
-#define OP_Found          29 /* jump, synopsis: key=r[P3@P4]               */
-#define OP_SeekRowid      30 /* jump0, synopsis: intkey=r[P3]              */
-#define OP_NotExists      31 /* jump, synopsis: intkey=r[P3]               */
-#define OP_Last           32 /* jump0                                      */
-#define OP_IfSizeBetween  33 /* jump                                       */
-#define OP_SorterSort     34 /* jump                                       */
-#define OP_Sort           35 /* jump                                       */
-#define OP_Rewind         36 /* jump0                                      */
-#define OP_IfEmpty        37 /* jump, synopsis: if( empty(P1) ) goto P2    */
-#define OP_SorterNext     38 /* jump                                       */
-#define OP_Prev           39 /* jump                                       */
-#define OP_Next           40 /* jump                                       */
-#define OP_IdxLE          41 /* jump, synopsis: key=r[P3@P4]               */
-#define OP_IdxGT          42 /* jump, synopsis: key=r[P3@P4]               */
+#define OP_IfNoHope       25 /* jump, synopsis: key=r[P3@P4]               */
+#define OP_NoConflict     26 /* jump, synopsis: key=r[P3@P4]               */
+#define OP_NotFound       27 /* jump, synopsis: key=r[P3@P4]               */
+#define OP_Found          28 /* jump, synopsis: key=r[P3@P4]               */
+#define OP_SeekRowid      29 /* jump0, synopsis: intkey=r[P3]              */
+#define OP_NotExists      30 /* jump, synopsis: intkey=r[P3]               */
+#define OP_Last           31 /* jump0                                      */
+#define OP_IfSizeBetween  32 /* jump                                       */
+#define OP_SorterSort     33 /* jump                                       */
+#define OP_Sort           34 /* jump                                       */
+#define OP_Rewind         35 /* jump0                                      */
+#define OP_IfEmpty        36 /* jump, synopsis: if( empty(P1) ) goto P2    */
+#define OP_SorterNext     37 /* jump                                       */
+#define OP_Prev           38 /* jump                                       */
+#define OP_Next           39 /* jump                                       */
+#define OP_IdxLE          40 /* jump, synopsis: key=r[P3@P4]               */
+#define OP_IdxGT          41 /* jump, synopsis: key=r[P3@P4]               */
+#define OP_IdxLT          42 /* jump, synopsis: key=r[P3@P4]               */
 #define OP_Or             43 /* same as TK_OR, synopsis: r[P3]=(r[P1] || r[P2]) */
 #define OP_And            44 /* same as TK_AND, synopsis: r[P3]=(r[P1] && r[P2]) */
-#define OP_IdxLT          45 /* jump, synopsis: key=r[P3@P4]               */
-#define OP_IdxGE          46 /* jump, synopsis: key=r[P3@P4]               */
-#define OP_IFindKey       47 /* jump                                       */
-#define OP_RowSetRead     48 /* jump, synopsis: r[P3]=rowset(P1)           */
-#define OP_RowSetTest     49 /* jump, synopsis: if r[P3] in rowset(P1) goto P2 */
-#define OP_Program        50 /* jump0                                      */
+#define OP_IdxGE          45 /* jump, synopsis: key=r[P3@P4]               */
+#define OP_IFindKey       46 /* jump                                       */
+#define OP_RowSetRead     47 /* jump, synopsis: r[P3]=rowset(P1)           */
+#define OP_RowSetTest     48 /* jump, synopsis: if r[P3] in rowset(P1) goto P2 */
+#define OP_Program        49 /* jump0                                      */
+#define OP_FkIfZero       50 /* jump, synopsis: if fkctr[P1]==0 goto P2    */
 #define OP_IsNull         51 /* jump, same as TK_ISNULL, synopsis: if r[P1]==NULL goto P2 */
 #define OP_NotNull        52 /* jump, same as TK_NOTNULL, synopsis: if r[P1]!=NULL goto P2 */
 #define OP_Ne             53 /* jump, same as TK_NE, synopsis: IF r[P3]!=r[P1] */
@@ -17927,49 +17927,49 @@ typedef struct VdbeOpList VdbeOpList;
 #define OP_Lt             57 /* jump, same as TK_LT, synopsis: IF r[P3]<r[P1] */
 #define OP_Ge             58 /* jump, same as TK_GE, synopsis: IF r[P3]>=r[P1] */
 #define OP_ElseEq         59 /* jump, same as TK_ESCAPE                    */
-#define OP_FkIfZero       60 /* jump, synopsis: if fkctr[P1]==0 goto P2    */
-#define OP_IfPos          61 /* jump, synopsis: if r[P1]>0 then r[P1]-=P3, goto P2 */
-#define OP_IfNotZero      62 /* jump, synopsis: if r[P1]!=0 then r[P1]--, goto P2 */
-#define OP_DecrJumpZero   63 /* jump, synopsis: if (--r[P1])==0 goto P2    */
-#define OP_IncrVacuum     64 /* jump                                       */
-#define OP_VNext          65 /* jump                                       */
-#define OP_Filter         66 /* jump, synopsis: if key(P3@P4) not in filter(P1) goto P2 */
-#define OP_PureFunc       67 /* synopsis: r[P3]=func(r[P2@NP])             */
-#define OP_Function       68 /* synopsis: r[P3]=func(r[P2@NP])             */
-#define OP_Return         69
-#define OP_EndCoroutine   70
-#define OP_HaltIfNull     71 /* synopsis: if r[P3]=null halt               */
-#define OP_Halt           72
-#define OP_Integer        73 /* synopsis: r[P2]=P1                         */
-#define OP_Int64          74 /* synopsis: r[P2]=PINT13                     */
-#define OP_String         75 /* synopsis: r[P2]='P4' (len=P1)              */
-#define OP_BeginSubrtn    76 /* synopsis: r[P2]=NULL                       */
-#define OP_Null           77 /* synopsis: r[P2..P3]=NULL                   */
-#define OP_SoftNull       78 /* synopsis: r[P1]=NULL                       */
-#define OP_Blob           79 /* synopsis: r[P2]=P4 (len=P1)                */
-#define OP_Variable       80 /* synopsis: r[P2]=parameter(P1)              */
-#define OP_Move           81 /* synopsis: r[P2@P3]=r[P1@P3]                */
-#define OP_Copy           82 /* synopsis: r[P2@P3+1]=r[P1@P3+1]            */
-#define OP_SCopy          83 /* synopsis: r[P2]=r[P1]                      */
-#define OP_IntCopy        84 /* synopsis: r[P2]=r[P1]                      */
-#define OP_FkCheck        85
-#define OP_ResultRow      86 /* synopsis: output=r[P1@P2]                  */
-#define OP_CollSeq        87
-#define OP_AddImm         88 /* synopsis: r[P1]=r[P1]+P2                   */
-#define OP_RealAffinity   89
-#define OP_Cast           90 /* synopsis: affinity(r[P1])                  */
-#define OP_Permutation    91
-#define OP_Compare        92 /* synopsis: r[P1@P3] <-> r[P2@P3]            */
-#define OP_IsTrue         93 /* synopsis: r[P2] = coalesce(r[P1]==TRUE,P3) ^ P4 */
-#define OP_ZeroOrNull     94 /* synopsis: r[P2] = 0 OR NULL                */
-#define OP_Offset         95 /* synopsis: r[P3] = sqlite_offset(P1)        */
-#define OP_Column         96 /* synopsis: r[P3]=PX cursor P1 column P2     */
-#define OP_TypeCheck      97 /* synopsis: typecheck(r[P1@P2])              */
-#define OP_Affinity       98 /* synopsis: affinity(r[P1@P2])               */
-#define OP_MakeRecord     99 /* synopsis: r[P3]=mkrec(r[P1@P2])            */
-#define OP_Count         100 /* synopsis: r[P2]=count()                    */
-#define OP_ReadCookie    101
-#define OP_SetCookie     102
+#define OP_IfPos          60 /* jump, synopsis: if r[P1]>0 then r[P1]-=P3, goto P2 */
+#define OP_IfNotZero      61 /* jump, synopsis: if r[P1]!=0 then r[P1]--, goto P2 */
+#define OP_DecrJumpZero   62 /* jump, synopsis: if (--r[P1])==0 goto P2    */
+#define OP_IncrVacuum     63 /* jump                                       */
+#define OP_VNext          64 /* jump                                       */
+#define OP_Filter         65 /* jump, synopsis: if key(P3@P4) not in filter(P1) goto P2 */
+#define OP_PureFunc       66 /* synopsis: r[P3]=func(r[P2@NP])             */
+#define OP_Function       67 /* synopsis: r[P3]=func(r[P2@NP])             */
+#define OP_Return         68
+#define OP_EndCoroutine   69
+#define OP_HaltIfNull     70 /* synopsis: if r[P3]=null halt               */
+#define OP_Halt           71
+#define OP_Integer        72 /* synopsis: r[P2]=P1                         */
+#define OP_Int64          73 /* synopsis: r[P2]=PINT13                     */
+#define OP_String         74 /* synopsis: r[P2]='P4' (len=P1)              */
+#define OP_BeginSubrtn    75 /* synopsis: r[P2]=NULL                       */
+#define OP_Null           76 /* synopsis: r[P2..P3]=NULL                   */
+#define OP_SoftNull       77 /* synopsis: r[P1]=NULL                       */
+#define OP_Blob           78 /* synopsis: r[P2]=P4 (len=P1)                */
+#define OP_Variable       79 /* synopsis: r[P2]=parameter(P1)              */
+#define OP_Move           80 /* synopsis: r[P2@P3]=r[P1@P3]                */
+#define OP_Copy           81 /* synopsis: r[P2@P3+1]=r[P1@P3+1]            */
+#define OP_SCopy          82 /* synopsis: r[P2]=r[P1]                      */
+#define OP_IntCopy        83 /* synopsis: r[P2]=r[P1]                      */
+#define OP_FkCheck        84
+#define OP_ResultRow      85 /* synopsis: output=r[P1@P2]                  */
+#define OP_CollSeq        86
+#define OP_AddImm         87 /* synopsis: r[P1]=r[P1]+P2                   */
+#define OP_RealAffinity   88
+#define OP_Cast           89 /* synopsis: affinity(r[P1])                  */
+#define OP_Permutation    90
+#define OP_Compare        91 /* synopsis: r[P1@P3] <-> r[P2@P3]            */
+#define OP_IsTrue         92 /* synopsis: r[P2] = coalesce(r[P1]==TRUE,P3) ^ P4 */
+#define OP_ZeroOrNull     93 /* synopsis: r[P2] = 0 OR NULL                */
+#define OP_Offset         94 /* synopsis: r[P3] = sqlite_offset(P1)        */
+#define OP_Column         95 /* synopsis: r[P3]=PX cursor P1 column P2     */
+#define OP_TypeCheck      96 /* synopsis: typecheck(r[P1@P2])              */
+#define OP_Affinity       97 /* synopsis: affinity(r[P1@P2])               */
+#define OP_MakeRecord     98 /* synopsis: r[P3]=mkrec(r[P1@P2])            */
+#define OP_Count          99 /* synopsis: r[P2]=count()                    */
+#define OP_ReadCookie    100
+#define OP_SetCookie     101
+#define OP_ReopenIdx     102 /* synopsis: root=P2 iDb=P3                   */
 #define OP_BitAnd        103 /* same as TK_BITAND, synopsis: r[P3]=r[P1]&r[P2] */
 #define OP_BitOr         104 /* same as TK_BITOR, synopsis: r[P3]=r[P1]|r[P2] */
 #define OP_ShiftLeft     105 /* same as TK_LSHIFT, synopsis: r[P3]=r[P2]<<r[P1] */
@@ -17980,85 +17980,84 @@ typedef struct VdbeOpList VdbeOpList;
 #define OP_Divide        110 /* same as TK_SLASH, synopsis: r[P3]=r[P2]/r[P1] */
 #define OP_Remainder     111 /* same as TK_REM, synopsis: r[P3]=r[P2]%r[P1] */
 #define OP_Concat        112 /* same as TK_CONCAT, synopsis: r[P3]=r[P2]+r[P1] */
-#define OP_ReopenIdx     113 /* synopsis: root=P2 iDb=P3                   */
-#define OP_OpenRead      114 /* synopsis: root=P2 iDb=P3                   */
+#define OP_OpenRead      113 /* synopsis: root=P2 iDb=P3                   */
+#define OP_OpenWrite     114 /* synopsis: root=P2 iDb=P3                   */
 #define OP_BitNot        115 /* same as TK_BITNOT, synopsis: r[P2]= ~r[P1] */
-#define OP_OpenWrite     116 /* synopsis: root=P2 iDb=P3                   */
-#define OP_OpenDup       117
+#define OP_OpenDup       116
+#define OP_OpenAutoindex 117 /* synopsis: nColumn=P2                       */
 #define OP_String8       118 /* same as TK_STRING, synopsis: r[P2]='P4'    */
-#define OP_OpenAutoindex 119 /* synopsis: nColumn=P2                       */
-#define OP_OpenEphemeral 120 /* synopsis: nColumn=P2                       */
-#define OP_SorterOpen    121
-#define OP_SequenceTest  122 /* synopsis: if( cursor[P1].ctr++ ) pc = P2   */
-#define OP_OpenPseudo    123 /* synopsis: P3 columns in r[P2]              */
-#define OP_Close         124
-#define OP_ColumnsUsed   125 /* synopsis: Cursor P1 uses columns PHEX23    */
-#define OP_SeekScan      126 /* synopsis: Scan-ahead up to P1 rows         */
-#define OP_SeekHit       127 /* synopsis: set P2<=seekHit<=P3              */
-#define OP_Sequence      128 /* synopsis: r[P2]=cursor[P1].ctr++           */
-#define OP_NewRowid      129 /* synopsis: r[P2]=rowid                      */
-#define OP_Insert        130 /* synopsis: intkey=r[P3] data=r[P2]          */
-#define OP_RowCell       131
-#define OP_Delete        132
-#define OP_ResetCount    133
-#define OP_SorterCompare 134 /* synopsis: if key(P1)!=trim(r[P3],P4) goto P2 */
-#define OP_SorterData    135 /* synopsis: r[P2]=data                       */
-#define OP_RowData       136 /* synopsis: r[P2]=data                       */
-#define OP_Rowid         137 /* synopsis: r[P2]=PX rowid of P1             */
-#define OP_NullRow       138
-#define OP_SeekEnd       139
-#define OP_IdxInsert     140 /* synopsis: key=r[P2]                        */
-#define OP_SorterInsert  141 /* synopsis: key=r[P2]                        */
-#define OP_IdxDelete     142 /* synopsis: key=r[P2@P5]                     */
-#define OP_DeferredSeek  143 /* synopsis: Move P3 to P1.rowid if needed    */
-#define OP_IdxRowid      144 /* synopsis: r[P2]=rowid                      */
-#define OP_FinishSeek    145
-#define OP_Destroy       146
-#define OP_Clear         147
-#define OP_ResetSorter   148
-#define OP_CreateBtree   149 /* synopsis: r[P2]=root iDb=P1 flags=P3       */
-#define OP_SqlExec       150
-#define OP_ParseSchema   151
-#define OP_LoadAnalysis  152
-#define OP_DropTable     153
+#define OP_OpenEphemeral 119 /* synopsis: nColumn=P2                       */
+#define OP_SorterOpen    120
+#define OP_SequenceTest  121 /* synopsis: if( cursor[P1].ctr++ ) pc = P2   */
+#define OP_OpenPseudo    122 /* synopsis: P3 columns in r[P2]              */
+#define OP_Close         123
+#define OP_ColumnsUsed   124 /* synopsis: Cursor P1 uses columns PHEX23    */
+#define OP_SeekScan      125 /* synopsis: Scan-ahead up to P1 rows         */
+#define OP_SeekHit       126 /* synopsis: set P2<=seekHit<=P3              */
+#define OP_Sequence      127 /* synopsis: r[P2]=cursor[P1].ctr++           */
+#define OP_NewRowid      128 /* synopsis: r[P2]=rowid                      */
+#define OP_Insert        129 /* synopsis: intkey=r[P3] data=r[P2]          */
+#define OP_RowCell       130
+#define OP_Delete        131
+#define OP_ResetCount    132
+#define OP_SorterCompare 133 /* synopsis: if key(P1)!=trim(r[P3],P4) goto P2 */
+#define OP_SorterData    134 /* synopsis: r[P2]=data                       */
+#define OP_RowData       135 /* synopsis: r[P2]=data                       */
+#define OP_Rowid         136 /* synopsis: r[P2]=PX rowid of P1             */
+#define OP_NullRow       137
+#define OP_SeekEnd       138
+#define OP_IdxInsert     139 /* synopsis: key=r[P2]                        */
+#define OP_SorterInsert  140 /* synopsis: key=r[P2]                        */
+#define OP_IdxDelete     141 /* synopsis: key=r[P2@P5]                     */
+#define OP_DeferredSeek  142 /* synopsis: Move P3 to P1.rowid if needed    */
+#define OP_IdxRowid      143 /* synopsis: r[P2]=rowid                      */
+#define OP_FinishSeek    144
+#define OP_Destroy       145
+#define OP_Clear         146
+#define OP_ResetSorter   147
+#define OP_CreateBtree   148 /* synopsis: r[P2]=root iDb=P1 flags=P3       */
+#define OP_SqlExec       149
+#define OP_ParseSchema   150
+#define OP_LoadAnalysis  151
+#define OP_DropTable     152
+#define OP_DropIndex     153
 #define OP_Real          154 /* same as TK_FLOAT, synopsis: r[P2]=PDBL13   */
-#define OP_DropIndex     155
-#define OP_DropTrigger   156
-#define OP_IntegrityCk   157
-#define OP_RowSetAdd     158 /* synopsis: rowset(P1)=r[P2]                 */
-#define OP_Param         159
-#define OP_FkCounter     160 /* synopsis: fkctr[P1]+=P2                    */
-#define OP_MemMax        161 /* synopsis: r[P1]=max(r[P1],r[P2])           */
-#define OP_OffsetLimit   162 /* synopsis: if r[P1]>0 then r[P2]=r[P1]+max(0,r[P3]) else r[P2]=(-1) */
-#define OP_AggInverse    163 /* synopsis: accum=r[P3] inverse(r[P2@P5])    */
-#define OP_AggStep       164 /* synopsis: accum=r[P3] step(r[P2@P5])       */
-#define OP_AggStep1      165 /* synopsis: accum=r[P3] step(r[P2@P5])       */
-#define OP_AggValue      166 /* synopsis: r[P3]=value N=P2                 */
-#define OP_AggFinal      167 /* synopsis: accum=r[P1] N=P2                 */
-#define OP_Expire        168
-#define OP_CursorLock    169
-#define OP_CursorUnlock  170
-#define OP_TableLock     171 /* synopsis: iDb=P1 root=P2 write=P3          */
-#define OP_VBegin        172
-#define OP_VCreate       173
-#define OP_VDestroy      174
-#define OP_VOpen         175
-#define OP_VCheck        176
-#define OP_VInitIn       177 /* synopsis: r[P2]=ValueList(P1,P3)           */
-#define OP_VColumn       178 /* synopsis: r[P3]=vcolumn(P2)                */
-#define OP_VRename       179
-#define OP_Pagecount     180
-#define OP_MaxPgcnt      181
-#define OP_ClrSubtype    182 /* synopsis: r[P1].subtype = 0                */
-#define OP_GetSubtype    183 /* synopsis: r[P2] = r[P1].subtype            */
-#define OP_SetSubtype    184 /* synopsis: r[P2].subtype = r[P1]            */
-#define OP_FilterAdd     185 /* synopsis: filter(P1) += key(P3@P4)         */
-#define OP_Trace         186
-#define OP_CursorHint    187
-#define OP_ReleaseReg    188 /* synopsis: release r[P1@P2] mask P3         */
-#define OP_Noop          189
-#define OP_Explain       190
-#define OP_Abortable     191
+#define OP_DropTrigger   155
+#define OP_IntegrityCk   156
+#define OP_RowSetAdd     157 /* synopsis: rowset(P1)=r[P2]                 */
+#define OP_Param         158
+#define OP_FkCounter     159 /* synopsis: fkctr[P1]+=P2                    */
+#define OP_MemMax        160 /* synopsis: r[P1]=max(r[P1],r[P2])           */
+#define OP_OffsetLimit   161 /* synopsis: if r[P1]>0 then r[P2]=r[P1]+max(0,r[P3]) else r[P2]=(-1) */
+#define OP_AggInverse    162 /* synopsis: accum=r[P3] inverse(r[P2@P5])    */
+#define OP_AggStep       163 /* synopsis: accum=r[P3] step(r[P2@P5])       */
+#define OP_AggStep1      164 /* synopsis: accum=r[P3] step(r[P2@P5])       */
+#define OP_AggValue      165 /* synopsis: r[P3]=value N=P2                 */
+#define OP_AggFinal      166 /* synopsis: accum=r[P1] N=P2                 */
+#define OP_Expire        167
+#define OP_CursorLock    168
+#define OP_CursorUnlock  169
+#define OP_TableLock     170 /* synopsis: iDb=P1 root=P2 write=P3          */
+#define OP_VBegin        171
+#define OP_VCreate       172
+#define OP_VDestroy      173
+#define OP_VOpen         174
+#define OP_VCheck        175
+#define OP_VInitIn       176 /* synopsis: r[P2]=ValueList(P1,P3)           */
+#define OP_VColumn       177 /* synopsis: r[P3]=vcolumn(P2)                */
+#define OP_VRename       178
+#define OP_Pagecount     179
+#define OP_MaxPgcnt      180
+#define OP_ClrSubtype    181 /* synopsis: r[P1].subtype = 0                */
+#define OP_GetSubtype    182 /* synopsis: r[P2] = r[P1].subtype            */
+#define OP_SetSubtype    183 /* synopsis: r[P2].subtype = r[P1]            */
+#define OP_FilterAdd     184 /* synopsis: filter(P1) += key(P3@P4)         */
+#define OP_Trace         185
+#define OP_CursorHint    186
+#define OP_ReleaseReg    187 /* synopsis: release r[P1@P2] mask P3         */
+#define OP_Noop          188
+#define OP_Explain       189
+#define OP_Abortable     190
 
 /* Properties such as "out2" or "jump" that are specified in
 ** comments following the "case" for each opcode in the vdbe.c
@@ -18076,28 +18075,27 @@ typedef struct VdbeOpList VdbeOpList;
 /*   0 */ 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x41, 0x00,\
 /*   8 */ 0x81, 0x01, 0x01, 0x81, 0x83, 0x83, 0x01, 0x01,\
 /*  16 */ 0x03, 0x03, 0x01, 0x12, 0x01, 0xc9, 0xc9, 0xc9,\
-/*  24 */ 0xc9, 0x01, 0x49, 0x49, 0x49, 0x49, 0xc9, 0x49,\
-/*  32 */ 0xc1, 0x01, 0x41, 0x41, 0xc1, 0x01, 0x01, 0x41,\
-/*  40 */ 0x41, 0x41, 0x41, 0x26, 0x26, 0x41, 0x41, 0x09,\
-/*  48 */ 0x23, 0x0b, 0x81, 0x03, 0x03, 0x0b, 0x0b, 0x0b,\
-/*  56 */ 0x0b, 0x0b, 0x0b, 0x01, 0x01, 0x03, 0x03, 0x03,\
-/*  64 */ 0x01, 0x41, 0x01, 0x00, 0x00, 0x02, 0x02, 0x08,\
-/*  72 */ 0x00, 0x10, 0x10, 0x10, 0x00, 0x10, 0x00, 0x10,\
-/*  80 */ 0x10, 0x00, 0x00, 0x10, 0x10, 0x00, 0x00, 0x00,\
-/*  88 */ 0x02, 0x02, 0x02, 0x00, 0x00, 0x12, 0x1e, 0x20,\
-/*  96 */ 0x40, 0x00, 0x00, 0x00, 0x10, 0x10, 0x00, 0x26,\
+/*  24 */ 0xc9, 0x49, 0x49, 0x49, 0x49, 0xc9, 0x49, 0xc1,\
+/*  32 */ 0x01, 0x41, 0x41, 0xc1, 0x01, 0x01, 0x41, 0x41,\
+/*  40 */ 0x41, 0x41, 0x41, 0x26, 0x26, 0x41, 0x09, 0x23,\
+/*  48 */ 0x0b, 0x81, 0x01, 0x03, 0x03, 0x0b, 0x0b, 0x0b,\
+/*  56 */ 0x0b, 0x0b, 0x0b, 0x01, 0x03, 0x03, 0x03, 0x01,\
+/*  64 */ 0x41, 0x01, 0x00, 0x00, 0x02, 0x02, 0x08, 0x00,\
+/*  72 */ 0x10, 0x10, 0x10, 0x00, 0x10, 0x00, 0x10, 0x10,\
+/*  80 */ 0x00, 0x00, 0x10, 0x10, 0x00, 0x00, 0x00, 0x02,\
+/*  88 */ 0x02, 0x02, 0x00, 0x00, 0x12, 0x1e, 0x20, 0x40,\
+/*  96 */ 0x00, 0x00, 0x00, 0x10, 0x10, 0x00, 0x40, 0x26,\
 /* 104 */ 0x26, 0x26, 0x26, 0x26, 0x26, 0x26, 0x26, 0x26,\
-/* 112 */ 0x26, 0x40, 0x40, 0x12, 0x00, 0x40, 0x10, 0x40,\
-/* 120 */ 0x40, 0x00, 0x00, 0x00, 0x40, 0x00, 0x40, 0x40,\
-/* 128 */ 0x10, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40,\
-/* 136 */ 0x00, 0x50, 0x00, 0x40, 0x04, 0x04, 0x00, 0x40,\
-/* 144 */ 0x50, 0x40, 0x10, 0x00, 0x00, 0x10, 0x00, 0x00,\
-/* 152 */ 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x06, 0x10,\
-/* 160 */ 0x00, 0x04, 0x1a, 0x00, 0x00, 0x00, 0x00, 0x00,\
-/* 168 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40,\
-/* 176 */ 0x10, 0x50, 0x40, 0x00, 0x10, 0x10, 0x02, 0x12,\
-/* 184 */ 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,\
-}
+/* 112 */ 0x26, 0x40, 0x00, 0x12, 0x40, 0x40, 0x10, 0x40,\
+/* 120 */ 0x00, 0x00, 0x00, 0x40, 0x00, 0x40, 0x40, 0x10,\
+/* 128 */ 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00,\
+/* 136 */ 0x50, 0x00, 0x40, 0x04, 0x04, 0x00, 0x40, 0x50,\
+/* 144 */ 0x40, 0x10, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00,\
+/* 152 */ 0x00, 0x00, 0x10, 0x00, 0x00, 0x06, 0x10, 0x00,\
+/* 160 */ 0x04, 0x1a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,\
+/* 168 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x10,\
+/* 176 */ 0x50, 0x40, 0x00, 0x10, 0x10, 0x02, 0x12, 0x12,\
+/* 184 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,}
 
 /* The resolve3P2Values() routine is able to run faster if it knows
 ** the value of the largest JUMP opcode.  The smaller the maximum
@@ -18105,7 +18103,7 @@ typedef struct VdbeOpList VdbeOpList;
 ** generated this include file strives to group all JUMP opcodes
 ** together near the beginning of the list.
 */
-#define SQLITE_MX_JUMP_OPCODE  66  /* Maximum JUMP opcode */
+#define SQLITE_MX_JUMP_OPCODE  65  /* Maximum JUMP opcode */
 
 /************** End of opcodes.h *********************************************/
 /************** Continuing where we left off in vdbe.h ***********************/
@@ -35064,6 +35062,10 @@ SQLITE_PRIVATE void sqlite3TreeViewExpr(TreeView *pView, const Expr *pExpr, u8 m
       sqlite3TreeViewLine(pView,"ID \"%w\"", pExpr->u.zToken);
       break;
     }
+    case TK_ASTERISK: {
+      sqlite3TreeViewLine(pView,"ASKTERISK");
+      break;
+    }
 #ifndef SQLITE_OMIT_CAST
     case TK_CAST: {
       /* Expressions of the form:   CAST(pLeft AS token) */
@@ -39361,32 +39363,32 @@ SQLITE_PRIVATE const char *sqlite3OpcodeName(int i){
     /*  22 */ "SeekLE"           OpHelp("key=r[P3@P4]"),
     /*  23 */ "SeekGE"           OpHelp("key=r[P3@P4]"),
     /*  24 */ "SeekGT"           OpHelp("key=r[P3@P4]"),
-    /*  25 */ "IfNotOpen"        OpHelp("if( !csr[P1] ) goto P2"),
-    /*  26 */ "IfNoHope"         OpHelp("key=r[P3@P4]"),
-    /*  27 */ "NoConflict"       OpHelp("key=r[P3@P4]"),
-    /*  28 */ "NotFound"         OpHelp("key=r[P3@P4]"),
-    /*  29 */ "Found"            OpHelp("key=r[P3@P4]"),
-    /*  30 */ "SeekRowid"        OpHelp("intkey=r[P3]"),
-    /*  31 */ "NotExists"        OpHelp("intkey=r[P3]"),
-    /*  32 */ "Last"             OpHelp(""),
-    /*  33 */ "IfSizeBetween"    OpHelp(""),
-    /*  34 */ "SorterSort"       OpHelp(""),
-    /*  35 */ "Sort"             OpHelp(""),
-    /*  36 */ "Rewind"           OpHelp(""),
-    /*  37 */ "IfEmpty"          OpHelp("if( empty(P1) ) goto P2"),
-    /*  38 */ "SorterNext"       OpHelp(""),
-    /*  39 */ "Prev"             OpHelp(""),
-    /*  40 */ "Next"             OpHelp(""),
-    /*  41 */ "IdxLE"            OpHelp("key=r[P3@P4]"),
-    /*  42 */ "IdxGT"            OpHelp("key=r[P3@P4]"),
+    /*  25 */ "IfNoHope"         OpHelp("key=r[P3@P4]"),
+    /*  26 */ "NoConflict"       OpHelp("key=r[P3@P4]"),
+    /*  27 */ "NotFound"         OpHelp("key=r[P3@P4]"),
+    /*  28 */ "Found"            OpHelp("key=r[P3@P4]"),
+    /*  29 */ "SeekRowid"        OpHelp("intkey=r[P3]"),
+    /*  30 */ "NotExists"        OpHelp("intkey=r[P3]"),
+    /*  31 */ "Last"             OpHelp(""),
+    /*  32 */ "IfSizeBetween"    OpHelp(""),
+    /*  33 */ "SorterSort"       OpHelp(""),
+    /*  34 */ "Sort"             OpHelp(""),
+    /*  35 */ "Rewind"           OpHelp(""),
+    /*  36 */ "IfEmpty"          OpHelp("if( empty(P1) ) goto P2"),
+    /*  37 */ "SorterNext"       OpHelp(""),
+    /*  38 */ "Prev"             OpHelp(""),
+    /*  39 */ "Next"             OpHelp(""),
+    /*  40 */ "IdxLE"            OpHelp("key=r[P3@P4]"),
+    /*  41 */ "IdxGT"            OpHelp("key=r[P3@P4]"),
+    /*  42 */ "IdxLT"            OpHelp("key=r[P3@P4]"),
     /*  43 */ "Or"               OpHelp("r[P3]=(r[P1] || r[P2])"),
     /*  44 */ "And"              OpHelp("r[P3]=(r[P1] && r[P2])"),
-    /*  45 */ "IdxLT"            OpHelp("key=r[P3@P4]"),
-    /*  46 */ "IdxGE"            OpHelp("key=r[P3@P4]"),
-    /*  47 */ "IFindKey"         OpHelp(""),
-    /*  48 */ "RowSetRead"       OpHelp("r[P3]=rowset(P1)"),
-    /*  49 */ "RowSetTest"       OpHelp("if r[P3] in rowset(P1) goto P2"),
-    /*  50 */ "Program"          OpHelp(""),
+    /*  45 */ "IdxGE"            OpHelp("key=r[P3@P4]"),
+    /*  46 */ "IFindKey"         OpHelp(""),
+    /*  47 */ "RowSetRead"       OpHelp("r[P3]=rowset(P1)"),
+    /*  48 */ "RowSetTest"       OpHelp("if r[P3] in rowset(P1) goto P2"),
+    /*  49 */ "Program"          OpHelp(""),
+    /*  50 */ "FkIfZero"         OpHelp("if fkctr[P1]==0 goto P2"),
     /*  51 */ "IsNull"           OpHelp("if r[P1]==NULL goto P2"),
     /*  52 */ "NotNull"          OpHelp("if r[P1]!=NULL goto P2"),
     /*  53 */ "Ne"               OpHelp("IF r[P3]!=r[P1]"),
@@ -39396,49 +39398,49 @@ SQLITE_PRIVATE const char *sqlite3OpcodeName(int i){
     /*  57 */ "Lt"               OpHelp("IF r[P3]<r[P1]"),
     /*  58 */ "Ge"               OpHelp("IF r[P3]>=r[P1]"),
     /*  59 */ "ElseEq"           OpHelp(""),
-    /*  60 */ "FkIfZero"         OpHelp("if fkctr[P1]==0 goto P2"),
-    /*  61 */ "IfPos"            OpHelp("if r[P1]>0 then r[P1]-=P3, goto P2"),
-    /*  62 */ "IfNotZero"        OpHelp("if r[P1]!=0 then r[P1]--, goto P2"),
-    /*  63 */ "DecrJumpZero"     OpHelp("if (--r[P1])==0 goto P2"),
-    /*  64 */ "IncrVacuum"       OpHelp(""),
-    /*  65 */ "VNext"            OpHelp(""),
-    /*  66 */ "Filter"           OpHelp("if key(P3@P4) not in filter(P1) goto P2"),
-    /*  67 */ "PureFunc"         OpHelp("r[P3]=func(r[P2@NP])"),
-    /*  68 */ "Function"         OpHelp("r[P3]=func(r[P2@NP])"),
-    /*  69 */ "Return"           OpHelp(""),
-    /*  70 */ "EndCoroutine"     OpHelp(""),
-    /*  71 */ "HaltIfNull"       OpHelp("if r[P3]=null halt"),
-    /*  72 */ "Halt"             OpHelp(""),
-    /*  73 */ "Integer"          OpHelp("r[P2]=P1"),
-    /*  74 */ "Int64"            OpHelp("r[P2]=PINT13"),
-    /*  75 */ "String"           OpHelp("r[P2]='P4' (len=P1)"),
-    /*  76 */ "BeginSubrtn"      OpHelp("r[P2]=NULL"),
-    /*  77 */ "Null"             OpHelp("r[P2..P3]=NULL"),
-    /*  78 */ "SoftNull"         OpHelp("r[P1]=NULL"),
-    /*  79 */ "Blob"             OpHelp("r[P2]=P4 (len=P1)"),
-    /*  80 */ "Variable"         OpHelp("r[P2]=parameter(P1)"),
-    /*  81 */ "Move"             OpHelp("r[P2@P3]=r[P1@P3]"),
-    /*  82 */ "Copy"             OpHelp("r[P2@P3+1]=r[P1@P3+1]"),
-    /*  83 */ "SCopy"            OpHelp("r[P2]=r[P1]"),
-    /*  84 */ "IntCopy"          OpHelp("r[P2]=r[P1]"),
-    /*  85 */ "FkCheck"          OpHelp(""),
-    /*  86 */ "ResultRow"        OpHelp("output=r[P1@P2]"),
-    /*  87 */ "CollSeq"          OpHelp(""),
-    /*  88 */ "AddImm"           OpHelp("r[P1]=r[P1]+P2"),
-    /*  89 */ "RealAffinity"     OpHelp(""),
-    /*  90 */ "Cast"             OpHelp("affinity(r[P1])"),
-    /*  91 */ "Permutation"      OpHelp(""),
-    /*  92 */ "Compare"          OpHelp("r[P1@P3] <-> r[P2@P3]"),
-    /*  93 */ "IsTrue"           OpHelp("r[P2] = coalesce(r[P1]==TRUE,P3) ^ P4"),
-    /*  94 */ "ZeroOrNull"       OpHelp("r[P2] = 0 OR NULL"),
-    /*  95 */ "Offset"           OpHelp("r[P3] = sqlite_offset(P1)"),
-    /*  96 */ "Column"           OpHelp("r[P3]=PX cursor P1 column P2"),
-    /*  97 */ "TypeCheck"        OpHelp("typecheck(r[P1@P2])"),
-    /*  98 */ "Affinity"         OpHelp("affinity(r[P1@P2])"),
-    /*  99 */ "MakeRecord"       OpHelp("r[P3]=mkrec(r[P1@P2])"),
-    /* 100 */ "Count"            OpHelp("r[P2]=count()"),
-    /* 101 */ "ReadCookie"       OpHelp(""),
-    /* 102 */ "SetCookie"        OpHelp(""),
+    /*  60 */ "IfPos"            OpHelp("if r[P1]>0 then r[P1]-=P3, goto P2"),
+    /*  61 */ "IfNotZero"        OpHelp("if r[P1]!=0 then r[P1]--, goto P2"),
+    /*  62 */ "DecrJumpZero"     OpHelp("if (--r[P1])==0 goto P2"),
+    /*  63 */ "IncrVacuum"       OpHelp(""),
+    /*  64 */ "VNext"            OpHelp(""),
+    /*  65 */ "Filter"           OpHelp("if key(P3@P4) not in filter(P1) goto P2"),
+    /*  66 */ "PureFunc"         OpHelp("r[P3]=func(r[P2@NP])"),
+    /*  67 */ "Function"         OpHelp("r[P3]=func(r[P2@NP])"),
+    /*  68 */ "Return"           OpHelp(""),
+    /*  69 */ "EndCoroutine"     OpHelp(""),
+    /*  70 */ "HaltIfNull"       OpHelp("if r[P3]=null halt"),
+    /*  71 */ "Halt"             OpHelp(""),
+    /*  72 */ "Integer"          OpHelp("r[P2]=P1"),
+    /*  73 */ "Int64"            OpHelp("r[P2]=PINT13"),
+    /*  74 */ "String"           OpHelp("r[P2]='P4' (len=P1)"),
+    /*  75 */ "BeginSubrtn"      OpHelp("r[P2]=NULL"),
+    /*  76 */ "Null"             OpHelp("r[P2..P3]=NULL"),
+    /*  77 */ "SoftNull"         OpHelp("r[P1]=NULL"),
+    /*  78 */ "Blob"             OpHelp("r[P2]=P4 (len=P1)"),
+    /*  79 */ "Variable"         OpHelp("r[P2]=parameter(P1)"),
+    /*  80 */ "Move"             OpHelp("r[P2@P3]=r[P1@P3]"),
+    /*  81 */ "Copy"             OpHelp("r[P2@P3+1]=r[P1@P3+1]"),
+    /*  82 */ "SCopy"            OpHelp("r[P2]=r[P1]"),
+    /*  83 */ "IntCopy"          OpHelp("r[P2]=r[P1]"),
+    /*  84 */ "FkCheck"          OpHelp(""),
+    /*  85 */ "ResultRow"        OpHelp("output=r[P1@P2]"),
+    /*  86 */ "CollSeq"          OpHelp(""),
+    /*  87 */ "AddImm"           OpHelp("r[P1]=r[P1]+P2"),
+    /*  88 */ "RealAffinity"     OpHelp(""),
+    /*  89 */ "Cast"             OpHelp("affinity(r[P1])"),
+    /*  90 */ "Permutation"      OpHelp(""),
+    /*  91 */ "Compare"          OpHelp("r[P1@P3] <-> r[P2@P3]"),
+    /*  92 */ "IsTrue"           OpHelp("r[P2] = coalesce(r[P1]==TRUE,P3) ^ P4"),
+    /*  93 */ "ZeroOrNull"       OpHelp("r[P2] = 0 OR NULL"),
+    /*  94 */ "Offset"           OpHelp("r[P3] = sqlite_offset(P1)"),
+    /*  95 */ "Column"           OpHelp("r[P3]=PX cursor P1 column P2"),
+    /*  96 */ "TypeCheck"        OpHelp("typecheck(r[P1@P2])"),
+    /*  97 */ "Affinity"         OpHelp("affinity(r[P1@P2])"),
+    /*  98 */ "MakeRecord"       OpHelp("r[P3]=mkrec(r[P1@P2])"),
+    /*  99 */ "Count"            OpHelp("r[P2]=count()"),
+    /* 100 */ "ReadCookie"       OpHelp(""),
+    /* 101 */ "SetCookie"        OpHelp(""),
+    /* 102 */ "ReopenIdx"        OpHelp("root=P2 iDb=P3"),
     /* 103 */ "BitAnd"           OpHelp("r[P3]=r[P1]&r[P2]"),
     /* 104 */ "BitOr"            OpHelp("r[P3]=r[P1]|r[P2]"),
     /* 105 */ "ShiftLeft"        OpHelp("r[P3]=r[P2]<<r[P1]"),
@@ -39449,85 +39451,84 @@ SQLITE_PRIVATE const char *sqlite3OpcodeName(int i){
     /* 110 */ "Divide"           OpHelp("r[P3]=r[P2]/r[P1]"),
     /* 111 */ "Remainder"        OpHelp("r[P3]=r[P2]%r[P1]"),
     /* 112 */ "Concat"           OpHelp("r[P3]=r[P2]+r[P1]"),
-    /* 113 */ "ReopenIdx"        OpHelp("root=P2 iDb=P3"),
-    /* 114 */ "OpenRead"         OpHelp("root=P2 iDb=P3"),
+    /* 113 */ "OpenRead"         OpHelp("root=P2 iDb=P3"),
+    /* 114 */ "OpenWrite"        OpHelp("root=P2 iDb=P3"),
     /* 115 */ "BitNot"           OpHelp("r[P2]= ~r[P1]"),
-    /* 116 */ "OpenWrite"        OpHelp("root=P2 iDb=P3"),
-    /* 117 */ "OpenDup"          OpHelp(""),
+    /* 116 */ "OpenDup"          OpHelp(""),
+    /* 117 */ "OpenAutoindex"    OpHelp("nColumn=P2"),
     /* 118 */ "String8"          OpHelp("r[P2]='P4'"),
-    /* 119 */ "OpenAutoindex"    OpHelp("nColumn=P2"),
-    /* 120 */ "OpenEphemeral"    OpHelp("nColumn=P2"),
-    /* 121 */ "SorterOpen"       OpHelp(""),
-    /* 122 */ "SequenceTest"     OpHelp("if( cursor[P1].ctr++ ) pc = P2"),
-    /* 123 */ "OpenPseudo"       OpHelp("P3 columns in r[P2]"),
-    /* 124 */ "Close"            OpHelp(""),
-    /* 125 */ "ColumnsUsed"      OpHelp("Cursor P1 uses columns PHEX23"),
-    /* 126 */ "SeekScan"         OpHelp("Scan-ahead up to P1 rows"),
-    /* 127 */ "SeekHit"          OpHelp("set P2<=seekHit<=P3"),
-    /* 128 */ "Sequence"         OpHelp("r[P2]=cursor[P1].ctr++"),
-    /* 129 */ "NewRowid"         OpHelp("r[P2]=rowid"),
-    /* 130 */ "Insert"           OpHelp("intkey=r[P3] data=r[P2]"),
-    /* 131 */ "RowCell"          OpHelp(""),
-    /* 132 */ "Delete"           OpHelp(""),
-    /* 133 */ "ResetCount"       OpHelp(""),
-    /* 134 */ "SorterCompare"    OpHelp("if key(P1)!=trim(r[P3],P4) goto P2"),
-    /* 135 */ "SorterData"       OpHelp("r[P2]=data"),
-    /* 136 */ "RowData"          OpHelp("r[P2]=data"),
-    /* 137 */ "Rowid"            OpHelp("r[P2]=PX rowid of P1"),
-    /* 138 */ "NullRow"          OpHelp(""),
-    /* 139 */ "SeekEnd"          OpHelp(""),
-    /* 140 */ "IdxInsert"        OpHelp("key=r[P2]"),
-    /* 141 */ "SorterInsert"     OpHelp("key=r[P2]"),
-    /* 142 */ "IdxDelete"        OpHelp("key=r[P2@P5]"),
-    /* 143 */ "DeferredSeek"     OpHelp("Move P3 to P1.rowid if needed"),
-    /* 144 */ "IdxRowid"         OpHelp("r[P2]=rowid"),
-    /* 145 */ "FinishSeek"       OpHelp(""),
-    /* 146 */ "Destroy"          OpHelp(""),
-    /* 147 */ "Clear"            OpHelp(""),
-    /* 148 */ "ResetSorter"      OpHelp(""),
-    /* 149 */ "CreateBtree"      OpHelp("r[P2]=root iDb=P1 flags=P3"),
-    /* 150 */ "SqlExec"          OpHelp(""),
-    /* 151 */ "ParseSchema"      OpHelp(""),
-    /* 152 */ "LoadAnalysis"     OpHelp(""),
-    /* 153 */ "DropTable"        OpHelp(""),
+    /* 119 */ "OpenEphemeral"    OpHelp("nColumn=P2"),
+    /* 120 */ "SorterOpen"       OpHelp(""),
+    /* 121 */ "SequenceTest"     OpHelp("if( cursor[P1].ctr++ ) pc = P2"),
+    /* 122 */ "OpenPseudo"       OpHelp("P3 columns in r[P2]"),
+    /* 123 */ "Close"            OpHelp(""),
+    /* 124 */ "ColumnsUsed"      OpHelp("Cursor P1 uses columns PHEX23"),
+    /* 125 */ "SeekScan"         OpHelp("Scan-ahead up to P1 rows"),
+    /* 126 */ "SeekHit"          OpHelp("set P2<=seekHit<=P3"),
+    /* 127 */ "Sequence"         OpHelp("r[P2]=cursor[P1].ctr++"),
+    /* 128 */ "NewRowid"         OpHelp("r[P2]=rowid"),
+    /* 129 */ "Insert"           OpHelp("intkey=r[P3] data=r[P2]"),
+    /* 130 */ "RowCell"          OpHelp(""),
+    /* 131 */ "Delete"           OpHelp(""),
+    /* 132 */ "ResetCount"       OpHelp(""),
+    /* 133 */ "SorterCompare"    OpHelp("if key(P1)!=trim(r[P3],P4) goto P2"),
+    /* 134 */ "SorterData"       OpHelp("r[P2]=data"),
+    /* 135 */ "RowData"          OpHelp("r[P2]=data"),
+    /* 136 */ "Rowid"            OpHelp("r[P2]=PX rowid of P1"),
+    /* 137 */ "NullRow"          OpHelp(""),
+    /* 138 */ "SeekEnd"          OpHelp(""),
+    /* 139 */ "IdxInsert"        OpHelp("key=r[P2]"),
+    /* 140 */ "SorterInsert"     OpHelp("key=r[P2]"),
+    /* 141 */ "IdxDelete"        OpHelp("key=r[P2@P5]"),
+    /* 142 */ "DeferredSeek"     OpHelp("Move P3 to P1.rowid if needed"),
+    /* 143 */ "IdxRowid"         OpHelp("r[P2]=rowid"),
+    /* 144 */ "FinishSeek"       OpHelp(""),
+    /* 145 */ "Destroy"          OpHelp(""),
+    /* 146 */ "Clear"            OpHelp(""),
+    /* 147 */ "ResetSorter"      OpHelp(""),
+    /* 148 */ "CreateBtree"      OpHelp("r[P2]=root iDb=P1 flags=P3"),
+    /* 149 */ "SqlExec"          OpHelp(""),
+    /* 150 */ "ParseSchema"      OpHelp(""),
+    /* 151 */ "LoadAnalysis"     OpHelp(""),
+    /* 152 */ "DropTable"        OpHelp(""),
+    /* 153 */ "DropIndex"        OpHelp(""),
     /* 154 */ "Real"             OpHelp("r[P2]=PDBL13"),
-    /* 155 */ "DropIndex"        OpHelp(""),
-    /* 156 */ "DropTrigger"      OpHelp(""),
-    /* 157 */ "IntegrityCk"      OpHelp(""),
-    /* 158 */ "RowSetAdd"        OpHelp("rowset(P1)=r[P2]"),
-    /* 159 */ "Param"            OpHelp(""),
-    /* 160 */ "FkCounter"        OpHelp("fkctr[P1]+=P2"),
-    /* 161 */ "MemMax"           OpHelp("r[P1]=max(r[P1],r[P2])"),
-    /* 162 */ "OffsetLimit"      OpHelp("if r[P1]>0 then r[P2]=r[P1]+max(0,r[P3]) else r[P2]=(-1)"),
-    /* 163 */ "AggInverse"       OpHelp("accum=r[P3] inverse(r[P2@P5])"),
-    /* 164 */ "AggStep"          OpHelp("accum=r[P3] step(r[P2@P5])"),
-    /* 165 */ "AggStep1"         OpHelp("accum=r[P3] step(r[P2@P5])"),
-    /* 166 */ "AggValue"         OpHelp("r[P3]=value N=P2"),
-    /* 167 */ "AggFinal"         OpHelp("accum=r[P1] N=P2"),
-    /* 168 */ "Expire"           OpHelp(""),
-    /* 169 */ "CursorLock"       OpHelp(""),
-    /* 170 */ "CursorUnlock"     OpHelp(""),
-    /* 171 */ "TableLock"        OpHelp("iDb=P1 root=P2 write=P3"),
-    /* 172 */ "VBegin"           OpHelp(""),
-    /* 173 */ "VCreate"          OpHelp(""),
-    /* 174 */ "VDestroy"         OpHelp(""),
-    /* 175 */ "VOpen"            OpHelp(""),
-    /* 176 */ "VCheck"           OpHelp(""),
-    /* 177 */ "VInitIn"          OpHelp("r[P2]=ValueList(P1,P3)"),
-    /* 178 */ "VColumn"          OpHelp("r[P3]=vcolumn(P2)"),
-    /* 179 */ "VRename"          OpHelp(""),
-    /* 180 */ "Pagecount"        OpHelp(""),
-    /* 181 */ "MaxPgcnt"         OpHelp(""),
-    /* 182 */ "ClrSubtype"       OpHelp("r[P1].subtype = 0"),
-    /* 183 */ "GetSubtype"       OpHelp("r[P2] = r[P1].subtype"),
-    /* 184 */ "SetSubtype"       OpHelp("r[P2].subtype = r[P1]"),
-    /* 185 */ "FilterAdd"        OpHelp("filter(P1) += key(P3@P4)"),
-    /* 186 */ "Trace"            OpHelp(""),
-    /* 187 */ "CursorHint"       OpHelp(""),
-    /* 188 */ "ReleaseReg"       OpHelp("release r[P1@P2] mask P3"),
-    /* 189 */ "Noop"             OpHelp(""),
-    /* 190 */ "Explain"          OpHelp(""),
-    /* 191 */ "Abortable"        OpHelp(""),
+    /* 155 */ "DropTrigger"      OpHelp(""),
+    /* 156 */ "IntegrityCk"      OpHelp(""),
+    /* 157 */ "RowSetAdd"        OpHelp("rowset(P1)=r[P2]"),
+    /* 158 */ "Param"            OpHelp(""),
+    /* 159 */ "FkCounter"        OpHelp("fkctr[P1]+=P2"),
+    /* 160 */ "MemMax"           OpHelp("r[P1]=max(r[P1],r[P2])"),
+    /* 161 */ "OffsetLimit"      OpHelp("if r[P1]>0 then r[P2]=r[P1]+max(0,r[P3]) else r[P2]=(-1)"),
+    /* 162 */ "AggInverse"       OpHelp("accum=r[P3] inverse(r[P2@P5])"),
+    /* 163 */ "AggStep"          OpHelp("accum=r[P3] step(r[P2@P5])"),
+    /* 164 */ "AggStep1"         OpHelp("accum=r[P3] step(r[P2@P5])"),
+    /* 165 */ "AggValue"         OpHelp("r[P3]=value N=P2"),
+    /* 166 */ "AggFinal"         OpHelp("accum=r[P1] N=P2"),
+    /* 167 */ "Expire"           OpHelp(""),
+    /* 168 */ "CursorLock"       OpHelp(""),
+    /* 169 */ "CursorUnlock"     OpHelp(""),
+    /* 170 */ "TableLock"        OpHelp("iDb=P1 root=P2 write=P3"),
+    /* 171 */ "VBegin"           OpHelp(""),
+    /* 172 */ "VCreate"          OpHelp(""),
+    /* 173 */ "VDestroy"         OpHelp(""),
+    /* 174 */ "VOpen"            OpHelp(""),
+    /* 175 */ "VCheck"           OpHelp(""),
+    /* 176 */ "VInitIn"          OpHelp("r[P2]=ValueList(P1,P3)"),
+    /* 177 */ "VColumn"          OpHelp("r[P3]=vcolumn(P2)"),
+    /* 178 */ "VRename"          OpHelp(""),
+    /* 179 */ "Pagecount"        OpHelp(""),
+    /* 180 */ "MaxPgcnt"         OpHelp(""),
+    /* 181 */ "ClrSubtype"       OpHelp("r[P1].subtype = 0"),
+    /* 182 */ "GetSubtype"       OpHelp("r[P2] = r[P1].subtype"),
+    /* 183 */ "SetSubtype"       OpHelp("r[P2].subtype = r[P1]"),
+    /* 184 */ "FilterAdd"        OpHelp("filter(P1) += key(P3@P4)"),
+    /* 185 */ "Trace"            OpHelp(""),
+    /* 186 */ "CursorHint"       OpHelp(""),
+    /* 187 */ "ReleaseReg"       OpHelp("release r[P1@P2] mask P3"),
+    /* 188 */ "Noop"             OpHelp(""),
+    /* 189 */ "Explain"          OpHelp(""),
+    /* 190 */ "Abortable"        OpHelp(""),
   };
   return azName[i];
 }
@@ -97042,6 +97043,7 @@ static SQLITE_NOINLINE int vdbeColumnFromOverflow(
     }else{
       rc = sqlite3VdbeMemSetStr(pDest, pBuf, len, 0,
                                 sqlite3RCStrUnref);
+      pDest->enc = encoding;
     }
   }else{
     rc = sqlite3VdbeMemFromBtree(pC->uc.pCursor, iOffset, len, pDest);
@@ -101616,24 +101618,6 @@ case OP_SeekHit: {           /* ncycle */
     }
 #endif
     pC->seekHit = pOp->p3;
-  }
-  break;
-}
-
-/* Opcode: IfNotOpen P1 P2 * * *
-** Synopsis: if( !csr[P1] ) goto P2
-**
-** If cursor P1 is not open or if P1 is set to a NULL row using the
-** OP_NullRow opcode, then jump to instruction P2. Otherwise, fall through.
-*/
-case OP_IfNotOpen: {        /* jump */
-  VdbeCursor *pCur;
-
-  assert( pOp->p1>=0 && pOp->p1<p->nCursor );
-  pCur = p->apCsr[pOp->p1];
-  VdbeBranchTaken(pCur==0 || pCur->nullRow, 2);
-  if( pCur==0 || pCur->nullRow ){
-    goto jump_to_p2_and_check_for_interrupt;
   }
   break;
 }
@@ -154171,7 +154155,7 @@ static int flattenSubquery(
   pSub = pSub1;
   for(pParent=p; pParent; pParent=pParent->pPrior, pSub=pSub->pPrior){
     int nSubSrc;
-    u8 jointype = pSubitem->fg.jointype;
+    u8 jointype = pParent->pSrc->a[iFrom].fg.jointype;
     assert( pSub!=0 );
     pSubSrc = pSub->pSrc;     /* FROM clause of subquery */
     nSubSrc = pSubSrc->nSrc;  /* Number of terms in subquery FROM clause */
@@ -154196,7 +154180,6 @@ static int flattenSubquery(
       pSrc = sqlite3SrcListEnlarge(pParse, pSrc, nSubSrc-1,iFrom+1);
       if( pSrc==0 ) break;
       pParent->pSrc = pSrc;
-      pSubitem = &pSrc->a[iFrom];
     }
 
     /* Transfer the FROM clause terms from the subquery into the
@@ -154214,7 +154197,7 @@ static int flattenSubquery(
       pItem->fg.jointype |= (jointype & JT_LTORJ);
       memset(&pSubSrc->a[i], 0, sizeof(pSubSrc->a[i]));
     }
-    pSubitem->fg.jointype |= jointype;
+    pSrc->a[iFrom].fg.jointype |= jointype;
 
     /* Begin substituting subquery result set expressions for
     ** references to the iParent in the outer query.
@@ -155884,6 +155867,7 @@ static int selectExpander(Walker *pWalker, Select *p){
             pRight = sqlite3Expr(db, TK_ID, zName);
             if( (pTabList->nSrc>1
                  && (  (pFrom->fg.jointype & JT_LTORJ)==0
+                     || zTName!=0
                      || (selFlags & SF_NestedFrom)!=0
                      || !inAnyUsingClause(zName,pFrom,pTabList->nSrc-i-1)
                     )
@@ -177302,16 +177286,14 @@ SQLITE_PRIVATE void sqlite3WhereEnd(WhereInfo *pWInfo){
                 (pLoop->wsFlags & WHERE_VIRTUALTABLE)==0
                  && (pLoop->wsFlags & WHERE_IN_EARLYOUT)!=0;
             if( pLevel->iLeftJoin ){
-              /* For LEFT JOIN queries, cursor pIn->iCur may not have been
-              ** opened yet. This occurs for WHERE clauses such as
-              ** "a = ? AND b IN (...)", where the index is on (a, b). If
-              ** the RHS of the (a=?) is NULL, then the "b IN (...)" may
-              ** never have been coded, but the body of the loop run to
-              ** return the null-row. So, if the cursor is not open yet,
-              ** jump over the OP_Next or OP_Prev instruction about to
-              ** be coded.  */
-              sqlite3VdbeAddOp2(v, OP_IfNotOpen, pIn->iCur,
-                  sqlite3VdbeCurrentAddr(v) + 2 + bEarlyOut);
+              /* For LEFT JOIN queries, cursor pIn->iCur might have been
+              ** disabled by OP_NullRow.  This occurs for WHERE clauses such
+              ** as "a = ? AND b IN (...)", where the index is on (a, b).
+              ** When the OP_IfNullRow jump is taken, the pIn->iBase register
+              ** is NULLed out as a side effect.  But as that register is not
+              ** used when the jump is taken, the side-effect is harmless. */
+              sqlite3VdbeAddOp3(v, OP_IfNullRow, pIn->iCur,
+                  sqlite3VdbeCurrentAddr(v) + 2 + bEarlyOut, pIn->iBase);
               VdbeCoverage(v);
             }
             if( bEarlyOut ){
@@ -177379,6 +177361,15 @@ SQLITE_PRIVATE void sqlite3WhereEnd(WhereInfo *pWInfo){
           sqlite3VdbeSetP4KeyInfo(pParse, pIx);
         }
         sqlite3VdbeAddOp1(v, OP_NullRow, pLevel->iIdxCur);
+      }
+      if( ws & WHERE_IN_ABLE ){
+        int m;
+        for(m=0; m<pLevel->u.in.nIn; m++){
+          struct InLoop *pIn = &pLevel->u.in.aInLoop[m];
+          if( pIn->eEndLoopOp!=OP_Noop ){
+            sqlite3VdbeAddOp1(v, OP_NullRow, pIn->iCur);
+          }
+        }
       }
       if( pLevel->op==OP_Return ){
         sqlite3VdbeAddOp2(v, OP_Gosub, pLevel->p1, pLevel->addrFirst);
@@ -178374,7 +178365,9 @@ static int selectWindowRewriteExprCb(Walker *pWalker, Expr *pExpr){
         p->pSub = sqlite3ExprListAppend(pParse, p->pSub, pDup);
       }
       if( p->pSub ){
-        int f = pExpr->flags & EP_Collate;
+        int f = pExpr->flags & (EP_Collate|EP_OuterON|EP_InnerON);
+        int iJoin = pExpr->w.iJoin;
+
         assert( ExprHasProperty(pExpr, EP_Static)==0 );
         ExprSetProperty(pExpr, EP_Static);
         sqlite3ExprDelete(pParse->db, pExpr);
@@ -178386,6 +178379,7 @@ static int selectWindowRewriteExprCb(Walker *pWalker, Expr *pExpr){
         pExpr->iTable = p->pWin->iEphCsr;
         pExpr->y.pTab = p->pTab;
         pExpr->flags = f;
+        if( (f & (EP_OuterON|EP_InnerON)) ) pExpr->w.iJoin = iJoin;
       }
       if( pParse->db->mallocFailed ) return WRC_Abort;
       break;
@@ -185496,7 +185490,11 @@ static YYACTIONTYPE yy_reduce(
       }
     }else{
       Expr *pRHS = yymsp[-1].minor.yy14->a[0].pExpr;
-      if( yymsp[-1].minor.yy14->nExpr==1 && sqlite3ExprIsConstant(pParse,pRHS) && yymsp[-4].minor.yy454->op!=TK_VECTOR ){
+      if( yymsp[-1].minor.yy14->nExpr==1
+       && sqlite3ExprIsConstant(pParse,pRHS)
+       && pRHS->op!=TK_COLLATE
+       && yymsp[-4].minor.yy454->op!=TK_VECTOR
+      ){
         yymsp[-1].minor.yy14->a[0].pExpr = 0;
         sqlite3ExprListDelete(pParse->db, yymsp[-1].minor.yy14);
         pRHS = sqlite3PExpr(pParse, TK_UPLUS, pRHS, 0);
@@ -265411,7 +265409,7 @@ static void fts5SourceIdFunc(
 ){
   assert( nArg==0 );
   UNUSED_PARAM2(nArg, apUnused);
-  sqlite3_result_text(pCtx, "fts5: 2026-10-06 14:34:02 adacd1423f159fa4698f7e40dd1488256a13dff0b31cc90e28c3441109596ef4", -1, SQLITE_TRANSIENT);
+  sqlite3_result_text(pCtx, "fts5: 2026-10-09 11:47:51 a3332bd623d997921c3186433cd1eab0c9413aa0f68d93b1731cf80128ec3a36", -1, SQLITE_TRANSIENT);
 }
 
 /*
