@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3.54.0\srelease\scandidate\sfor\sfinal\stesting.
-D 2026-10-09T14:14:45.586
+C Enhance\sthe\s'uv\sexport'\ssubcommand\sto\smake\sit\seasier\sto\sbulk\sexport\sunversioned\sfiles.
+D 2026-10-10T09:04:51.430
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -588,7 +588,7 @@ F src/tktsetup.c 22e7338e93a4e54d0e91acd0bf0e80dbdfe4c2958638e163a89239391d6cb8b
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c 36128b298c386eb55f45c48d0af0fc49c1e9506e179f88a486c060fec6752a23
 F src/unicode.c a9d294a2914d5bb360c0f5bcc9b9b9d24c6d5d6c9718ed747a9eed01484b3d16
-F src/unversioned.c 7a119f74068d6934346708d74149962af6f75593a8a0582e098020cb7e02cb62
+F src/unversioned.c 968533d61acd11ac8c407b7600ccc0de2f64d094b998717cbc485a22f2bfc954
 F src/update.c 977849692d77b17fd90ab2e8135b4e39c12a44a4a4104089c184c3d98c0b6a22
 F src/url.c 3fcddbeb028cb985b979901f16aa2d0dbda4a52b0d6508a3a2e1a32bfb312408
 F src/user.c 8ed24fbe9586c0a633a91037d9947d1772dfda3562750f5a0c52b0d7f0b4c408
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 349f1a8eabc66b125e8bb622367aaa47dd59135c4eac1c5d40d8f8b1fc6597e6
-R 1ff1098165def4b6c5ed92d1f287d513
-U drh
-Z 19861eab780cee2196446da7de4e45a2
+P 40c5397698246caa76a46f111fbef004a9c1c11b276118b387116583f5433227
+R 328519e0f422791e0c2d7af52dd0fb5d
+U danield
+Z d13b5e9b86c41f4e7cadcd8ba965f62a
 # Remove this line to create a well-formed Fossil manifest.

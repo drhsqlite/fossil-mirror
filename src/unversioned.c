@@ -255,6 +255,17 @@ static int contains_whitespace(const char *zName){
 **
 **    export FILE OUTPUT     Write the content of FILE into OUTPUT on disk
 **
+**                           Options:
+**                              -a|--auto [FILE ...]
+**                                               Write the content of given
+**                                               (or all) unversioned files to
+**                                               current directory on disk
+**                                               using their saved file names
+**                              -f|--force       With --auto, overwrite existing
+**                                               files
+**                              --glob PATTERN   Write only files that match
+**                              --like PATTERN   Write only files that match
+**
 **    list | ls              Show all unversioned files held in the local
 **                           repository.
 **
@@ -414,13 +425,72 @@ void unversioned_cmd(void){
     blob_reset(&content);
   }else if( strncmp(zCmd, "export", nCmd)==0 ){
     Blob content;
-    verify_all_options();
-    if( g.argc!=5 ) usage("export UVFILE OUTPUT");
-    if( unversioned_content(g.argv[3], &content)==0 ){
-      fossil_fatal("no such uv-file: %Q", g.argv[3]);
+    int autoFlag = find_option("auto","a",0)!=0;
+    if( autoFlag ){
+      int forceFlag = find_option("force","f",0)!=0;
+      char *zPattern = sqlite3_mprintf("true");
+      const char *zGlob;
+      zGlob = find_option("glob",0,1);
+      if( zGlob ){
+        sqlite3_free(zPattern);
+        zPattern = sqlite3_mprintf("(name GLOB %Q)", zGlob);
+      }
+      zGlob = find_option("like",0,1);
+      if( zGlob ){
+        sqlite3_free(zPattern);
+        zPattern = sqlite3_mprintf("(name LIKE %Q)", zGlob);
+      }
+
+      verify_all_options();
+      if( zPattern && g.argc > 3 ){
+        fossil_fatal("cannot combine specific files with --like/--glob");
+      }
+      if( g.argc > 3 ){
+        /* Specific unversioned file names given */
+        int i;
+        for( i=3; i<g.argc; ++i ){
+          if( unversioned_content(g.argv[i], &content)==0 ){
+            fossil_print("no such uv-file: %Q\n", g.argv[i]);
+            continue;
+          }
+          if( file_isdir(g.argv[i], ExtFILE)>0 && !forceFlag ){
+            fossil_print("\"%s\" already exists, add -f to overwrite\n",
+                          g.argv[i]);
+          }else{
+            blob_write_to_file(&content, g.argv[i]);
+            blob_reset(&content);
+          }
+        }
+      }else{ 
+        /* All unversioned files */
+        Stmt q;
+        db_prepare(&q, "SELECT name FROM unversioned WHERE %s "
+                       "AND hash IS NOT NULL "
+                       "ORDER BY name", zPattern/*safe-for-%s*/);
+        while( db_step(&q)==SQLITE_ROW ){
+          if( unversioned_content(db_column_text(&q,0), &content)==0 ){
+            fossil_print("no such uv-file: %Q\n", db_column_text(&q,0));
+            continue;
+          }
+          if( file_isdir(db_column_text(&q,0), ExtFILE)>0 && !forceFlag ){
+            fossil_print("\"%s\" already exists, add -f to overwrite\n",
+                          db_column_text(&q,0));
+          }else{
+            blob_write_to_file(&content, db_column_text(&q,0));
+            blob_reset(&content);
+          }
+        }
+        db_finalize(&q);
+      }
+    }else{
+      verify_all_options();
+      if( g.argc!=5 ) usage("export UVFILE OUTPUT");
+      if( unversioned_content(g.argv[3], &content)==0 ){
+        fossil_fatal("no such uv-file: %Q", g.argv[3]);
+      }
+      blob_write_to_file(&content, g.argv[4]);
+      blob_reset(&content);
     }
-    blob_write_to_file(&content, g.argv[4]);
-    blob_reset(&content);
   }else if( strncmp(zCmd, "hash", nCmd)==0 ){  /* undocumented */
     /* Show the hash value used during uv sync */
     int debugFlag = find_option("debug",0,0)!=0;
