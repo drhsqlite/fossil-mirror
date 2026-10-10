@@ -457,11 +457,12 @@ void unversioned_cmd(void){
             fossil_print("\"%s\" already exists, add -f to overwrite\n",
                           g.argv[i]);
           }else{
+            file_mkfolder(g.argv[i], ExtFILE, 1, 0);
             blob_write_to_file(&content, g.argv[i]);
-            blob_reset(&content);
           }
+          blob_reset(&content);
         }
-      }else{ 
+      }else{
         /* All unversioned files */
         Stmt q;
         db_prepare(&q, "SELECT name FROM unversioned WHERE %s "
@@ -476,9 +477,11 @@ void unversioned_cmd(void){
             fossil_print("\"%s\" already exists, add -f to overwrite\n",
                           db_column_text(&q,0));
           }else{
-            blob_write_to_file(&content, db_column_text(&q,0));
-            blob_reset(&content);
+            const char * const z = db_column_text(&q,0);
+            file_mkfolder(z, ExtFILE, 1, 0);
+            blob_write_to_file(&content, z);
           }
+          blob_reset(&content);
         }
         db_finalize(&q);
       }

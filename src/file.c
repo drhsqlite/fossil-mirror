@@ -925,7 +925,7 @@ int file_mkfolder(
       }
     }
   }
-  free(zName);
+  fossil_free(zName);
   return rc;
 }
 
