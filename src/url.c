@@ -65,6 +65,7 @@ struct UrlData {
   unsigned flags;       /* Boolean flags controlling URL processing */
   int useProxy;         /* Used to remember that a proxy is in use */
   int proxyOrigPort;       /* Tunneled port number for https through proxy */
+  char *proxyOrigName;     /* Tunneled host name for https through proxy */
   char *proxyUrlPath;      /* Remember path when proxy is use */
   char *proxyUrlCanonical; /* Remember canonical path when proxy is use */
 };
@@ -629,6 +630,7 @@ void url_enable_proxy(const char *zMsg){
       && !g.url.isSsh && !g.url.isFile ){
     char *zOriginalUrl = g.url.canonical;
     char *zOriginalHost = g.url.hostname;
+    char *zOriginalName = g.url.name;
     int fOriginalIsHttps = g.url.isHttps;
     char *zOriginalUser = g.url.user;
     char *zOriginalPasswd = g.url.passwd;
@@ -654,6 +656,7 @@ void url_enable_proxy(const char *zMsg){
     g.url.proxyUrlCanonical = zOriginalUrl;;
     g.url.proxyUrlPath = zOriginalUrlPath;
     g.url.proxyOrigPort = iOriginalPort;
+    g.url.proxyOrigName = zOriginalName;
     g.url.flags = uOriginalFlags;
   }
 }

@@ -382,17 +382,30 @@ void ssl_close_client(void){
   socket_close();
 }
 
+/*
+** Return the host name of the server that pUrlData connects to, without
+** a port number.  When the connection goes through a proxy,
+** pUrlData->name holds the proxy hostname, and the server hostname is in
+** pUrlData->proxyOrigName.
+*/
+static const char *ssl_server_name(const UrlData *pUrlData){
+  return pUrlData->useProxy ? pUrlData->proxyOrigName : pUrlData->name;
+}
+
 /* See RFC2817 for details */
 static int establish_proxy_tunnel(UrlData *pUrlData, BIO *bio){
   int rc, httpVerMin;
   char *bbuf;
   Blob snd, reply;
   int done=0,end=0;
+  const char *zHost = ssl_server_name(pUrlData);
+  const char *zLb = strchr(zHost, ':') ? "[" : "";  /* IPv6 brackets */
+  const char *zRb = zLb[0] ? "]" : "";
   blob_zero(&snd);
-  blob_appendf(&snd, "CONNECT %s:%d HTTP/1.1\r\n", pUrlData->hostname,
-      pUrlData->proxyOrigPort);
-  blob_appendf(&snd, "Host: %s:%d\r\n",
-               pUrlData->hostname, pUrlData->proxyOrigPort);
+  blob_appendf(&snd, "CONNECT %s%s%s:%d HTTP/1.1\r\n",
+               zLb, zHost, zRb, pUrlData->proxyOrigPort);
+  blob_appendf(&snd, "Host: %s%s%s:%d\r\n",
+               zLb, zHost, zRb, pUrlData->proxyOrigPort);
   if( pUrlData->proxyAuth ){
     blob_appendf(&snd, "Proxy-Authorization: %s\r\n", pUrlData->proxyAuth);
   }
@@ -509,7 +522,7 @@ int ssl_open_client(UrlData *pUrlData){
   BIO_set_ssl_mode(iBio, 1);
   BIO_get_ssl(iBio, &ssl);
 
-  zRemoteHost = pUrlData->useProxy ? pUrlData->hostname : pUrlData->name;
+  zRemoteHost = ssl_server_name(pUrlData);
   isIpAddr = ssl_host_is_ip_address(zRemoteHost);
 
 #if (SSLEAY_VERSION_NUMBER >= 0x00908070) && !defined(OPENSSL_NO_TLSEXT)
@@ -608,7 +621,7 @@ int ssl_open_client(UrlData *pUrlData){
 
       prompt = mprintf("Unable to verify SSL cert from %s\n%.*s\n"
           "accept this cert and continue (y/N/fingerprint)? ",
-          pUrlData->name, desclen, desc);
+          zRemoteHost, desclen, desc);
       BIO_free(mem);
 
       prompt_user(prompt, &ans);
@@ -641,30 +654,30 @@ int ssl_open_client(UrlData *pUrlData){
 
 /*
 ** Remember that the cert with the given hash is acceptable for
-** use with pUrlData->name.
+** use with the server that pUrlData connects to.
 */
 LOCAL void ssl_remember_certificate_exception(
   UrlData *pUrlData,
   const char *zHash
 ){
-  db_set_mprintf(zHash, 1, "cert:%s", pUrlData->name);
+  db_set_mprintf(zHash, 1, "cert:%s", ssl_server_name(pUrlData));
 }
 
 /*
 ** Return true if the there exists a certificate exception for
-** pUrlData->name that matches the hash.
+** the server that pUrlData connects to that matches the hash.
 */
 LOCAL int ssl_certificate_exception_exists(
   UrlData *pUrlData,
   const char *zHash
 ){
   char *zName, *zValue;
-  if( fossil_strcmp(sException.zHost,pUrlData->name)==0
+  if( fossil_strcmp(sException.zHost,ssl_server_name(pUrlData))==0
    && fossil_strcmp(sException.zHash,zHash)==0
   ){
     return 1;
   }
-  zName = mprintf("cert:%s", pUrlData->name);
+  zName = mprintf("cert:%s", ssl_server_name(pUrlData));
   zValue = db_get(zName,0);
   fossil_free(zName);
   return zValue!=0 && strcmp(zHash,zValue)==0;
@@ -678,7 +691,7 @@ LOCAL void ssl_one_time_exception(
   const char *zHash
 ){
   fossil_free(sException.zHost);
-  sException.zHost = fossil_strdup(pUrlData->name);
+  sException.zHost = fossil_strdup(ssl_server_name(pUrlData));
   fossil_free(sException.zHash);
   sException.zHash = fossil_strdup(zHash);
 }

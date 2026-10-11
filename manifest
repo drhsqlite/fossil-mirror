@@ -1,5 +1,5 @@
-C Check\sthe\scertificate\sof\san\shttps\sserver\sgiven\sby\sIP\saddress\sagainst\sthe\scertificate's\sIP\naddresses.\sDon't\ssend\sa\sTLS\sserver\sname\sfor\san\sIP\saddress\sor\sa\snon-ASCII\shost\sname.
-D 2026-10-11T21:20:49.836
+C When\sconnecting\svia\sa\sproxy,\suse\sthe\sserver's\sown\shost\sname,\swithout\sits\sport,\sin\sthe\sCONNECT\nrequest,\sTLS\sserver\sname,\scertificate\scheck\setc.
+D 2026-10-11T22:21:46.247
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -473,7 +473,7 @@ F src/hook.c 622578a5156b42001f583e8446e6418f6419b8a27670c2d5530b91975ff1b35a
 F src/href.js 97641963c7127a0c000c5a90ad2e2b3b2d216614b6f552737b552aa68feb0f21
 F src/http.c d6ca9b7f80d2de524abf8a04c95bd0130d329e0e2ec1dc4563128d2dcbad66e9
 F src/http_socket.c 0c1acae4ddcd1d78d2863ee0c8906173c1bab975670fe5ba10a36c741efce2f6
-F src/http_ssl.c 3607389d159d60eecb88ab1b040864f3284f2502221ccb13b856445e897222fa
+F src/http_ssl.c 6a8a40ec288088e89836066f11e70c3613ebe54556973e275dff08deed0f4d11
 F src/http_transport.c 45bc45771bc72d9428ce2169270c0349e83d3dd3ebe6e51935b967a03caa4119
 F src/import.c 1ee4f154daf3e687e8e8304777448b2bbd877adb279d6c9e7ff7952a02982b7f
 F src/info.c b0b503b2bdf8ebaf097e9fa01711acaa0c842edae246bf4c53488ebdfdc90397
@@ -590,7 +590,7 @@ F src/undo.c 36128b298c386eb55f45c48d0af0fc49c1e9506e179f88a486c060fec6752a23
 F src/unicode.c a9d294a2914d5bb360c0f5bcc9b9b9d24c6d5d6c9718ed747a9eed01484b3d16
 F src/unversioned.c 4f1ec0c70414dffa2fb9662327e684ffabde11b75e376703f645a0d451b69b77
 F src/update.c 977849692d77b17fd90ab2e8135b4e39c12a44a4a4104089c184c3d98c0b6a22
-F src/url.c a797b0e80659beb4b29997dfcecaacdf6f740019b9c6a9ac9a70b1999cd88f3c
+F src/url.c 4385c18b34a7cc5384da51e8ae84beeb65b629ddaf02fc55a628f5cef4d4d5b7
 F src/user.c 8ed24fbe9586c0a633a91037d9947d1772dfda3562750f5a0c52b0d7f0b4c408
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c e752372e0c4c5c4a1fe5f6f60a0ceff42c7c9d498c6b0e202ad4d83a8650dcb6
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P af496edce570b1c43b8107a054050054cf0ee50b10491412be1096b6436d8d2e
-R 373d36f164bb938ba18eb4ac52fa95c7
+P 6753e74e26c9167c2dc573453653980bb365ec93d659de22a8949bd74765c5dd
+R b73a69b72d6cc6b726c94575d774f2c5
 U danshearer
-Z 22100e6f7e18f8371a9c5f94559e4581
+Z 0370b6d68de6a799e05a4902f88cb60d
 # Remove this line to create a well-formed Fossil manifest.
