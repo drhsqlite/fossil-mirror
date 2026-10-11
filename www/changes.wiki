@@ -47,6 +47,8 @@
        <tt>CENGINE=container</tt> on macOS.  For the Docker default, this
        requires Engine 23, as it drops the old <tt>docker build buildx</tt>
        in favor of plain <tt>docker build</tt>. Also tested with Podman 6.
+  <li> Enhance the "uv export" subcommand to make it easier to bulk export
+       unversioned files.
 </ol>
 
 <h2 id='v2_28'>Changes for version 2.28 (2026-03-11)</h2><ol>
