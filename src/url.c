@@ -158,6 +158,8 @@ void url_parse_local(
     char *zLogin;
     char *zExe;
     char cQuerySep = '?';
+    const char *zLb;     /* "[" before an IPv6 address in a URL, else "" */
+    const char *zRb;     /* "]" after an IPv6 address in a URL, else "" */
 
     if( zUrl[4]=='s' ){
       pUrlData->isHttps = 1;
@@ -200,11 +202,13 @@ void url_parse_local(
       }else{
         zLogin = mprintf("%t@", pUrlData->user);
       }
-      for(j=i+1; (c=zUrl[j])!=0 && c!='/' && c!='?' && c!='#' && c!=':';
-          j++){}
-      pUrlData->name = mprintf("%.*s", j-i-1, &zUrl[i+1]);
-      i = j;
+      iStart = i+1;
     }else{
+      zLogin = mprintf("");
+    }
+    {
+      /* An IPv6 address is written within square brackets because it
+      ** contains ':'.  The brackets are not part of pUrlData->name. */
       int inSquare = 0;
       int n;
       for(i=iStart; (c=zUrl[i])!=0 && c!='/' && c!='?' && c!='#'
@@ -212,15 +216,20 @@ void url_parse_local(
         if( c=='[' ) inSquare = 1;
         if( c==']' ) inSquare = 0;
       }
-      pUrlData->name = mprintf("%.*s", i-iStart, &zUrl[iStart]);
-      n = strlen(pUrlData->name);
-      if( pUrlData->name[0]=='[' && n>2 && pUrlData->name[n-1]==']' ){
-        pUrlData->name++;
-        pUrlData->name[n-2] = 0;
+      n = i-iStart;
+      if( n>2 && zUrl[iStart]=='[' && zUrl[i-1]==']' ){
+        pUrlData->name = mprintf("%.*s", n-2, &zUrl[iStart+1]);
+      }else{
+        pUrlData->name = mprintf("%.*s", n, &zUrl[iStart]);
       }
-      zLogin = mprintf("");
     }
     fossil_strtolwr(pUrlData->name);
+    if( strchr(pUrlData->name, ':')!=0 ){
+      zLb = "[";
+      zRb = "]";
+    }else{
+      zLb = zRb = "";
+    }
     if( c==':' ){
       pUrlData->port = 0;
       i++;
@@ -229,10 +238,21 @@ void url_parse_local(
         i++;
       }
       if( c!=0 && c!='/' ) fossil_fatal("url missing '/' after port number");
-      pUrlData->hostname = mprintf("%s:%d", pUrlData->name, pUrlData->port);
+      /* The HTTP Host: header needs the brackets around an IPv6
+      ** address.  For ssh:, the hostname is part of the name of the
+      ** use-path-for-ssh setting, which is stored without them. */
+      pUrlData->hostname = mprintf("%s%s%s:%d",
+                                   pUrlData->isSsh ? "" : zLb,
+                                   pUrlData->name,
+                                   pUrlData->isSsh ? "" : zRb,
+                                   pUrlData->port);
     }else{
       pUrlData->port = pUrlData->dfltPort;
-      pUrlData->hostname = pUrlData->name;
+      if( zLb[0] && !pUrlData->isSsh ){
+        pUrlData->hostname = mprintf("[%s]", pUrlData->name);
+      }else{
+        pUrlData->hostname = pUrlData->name;
+      }
     }
     dehttpize(pUrlData->name);
     pUrlData->path = fossil_strdup(&zUrl[i]);
@@ -271,14 +291,15 @@ void url_parse_local(
     dehttpize(pUrlData->path);
     if( pUrlData->dfltPort==pUrlData->port ){
       pUrlData->canonical = mprintf(
-        "%s://%s%T%T%z",
-        pUrlData->protocol, zLogin, pUrlData->name, pUrlData->path, zExe
+        "%s://%s%s%T%s%T%z",
+        pUrlData->protocol, zLogin, zLb, pUrlData->name, zRb,
+        pUrlData->path, zExe
       );
     }else{
       pUrlData->canonical = mprintf(
-        "%s://%s%T:%d%T%z",
-        pUrlData->protocol, zLogin, pUrlData->name, pUrlData->port,
-        pUrlData->path, zExe
+        "%s://%s%s%T%s:%d%T%z",
+        pUrlData->protocol, zLogin, zLb, pUrlData->name, zRb,
+        pUrlData->port, pUrlData->path, zExe
       );
     }
     if( pUrlData->isSsh && pUrlData->path[1] ){
@@ -338,6 +359,18 @@ void url_parse_local(
 }
 
 /*
+** Append host name zName to the URL being built in x, within square
+** brackets if it is an IPv6 address, which contains ':'.
+*/
+static void url_append_host(Blob *x, const char *zName){
+  if( strchr(zName, ':')!=0 ){
+    blob_appendf(x, "[%T]", zName);
+  }else{
+    blob_appendf(x, "%T", zName);
+  }
+}
+
+/*
 ** Construct the complete URL for a UrlData object, including the
 ** login name and password, into memory obtained from fossil_malloc()
 ** and return a pointer to that URL text.
@@ -355,7 +388,7 @@ char *url_full(const UrlData *p){
     }
     blob_appendf(&x, "@");
   }
-  blob_appendf(&x, "%T", p->name);
+  url_append_host(&x, p->name);
   if( p->dfltPort!=p->port ){
     blob_appendf(&x, ":%d", p->port);
   }
@@ -375,7 +408,7 @@ char *url_nouser(const UrlData *p){
     return fossil_strdup(p->canonical);
   }
   blob_appendf(&x, "%s://", p->protocol);
-  blob_appendf(&x, "%T", p->name);
+  url_append_host(&x, p->name);
   if( p->dfltPort!=p->port ){
     blob_appendf(&x, ":%d", p->port);
   }
