@@ -176,7 +176,10 @@ void url_parse_local(
       pUrlData->dfltPort = 80;
       iStart = 7;
     }
-    for(i=iStart; (c=zUrl[i])!=0 && c!='/' && c!='@'; i++){}
+    /* The user-id ends at an '@' that comes before the path, query,
+    ** or fragment.  An '@' after any of them belongs to that part. */
+    for(i=iStart; (c=zUrl[i])!=0 && c!='/' && c!='?' && c!='#' && c!='@';
+        i++){}
     if( c=='@' ){
       /* Parse up the user-id and password */
       for(j=iStart; j<i && zUrl[j]!=':'; j++){}
@@ -197,13 +200,15 @@ void url_parse_local(
       }else{
         zLogin = mprintf("%t@", pUrlData->user);
       }
-      for(j=i+1; (c=zUrl[j])!=0 && c!='/' && c!=':'; j++){}
+      for(j=i+1; (c=zUrl[j])!=0 && c!='/' && c!='?' && c!='#' && c!=':';
+          j++){}
       pUrlData->name = mprintf("%.*s", j-i-1, &zUrl[i+1]);
       i = j;
     }else{
       int inSquare = 0;
       int n;
-      for(i=iStart; (c=zUrl[i])!=0 && c!='/' && (inSquare || c!=':'); i++){
+      for(i=iStart; (c=zUrl[i])!=0 && c!='/' && c!='?' && c!='#'
+                    && (inSquare || c!=':'); i++){
         if( c=='[' ) inSquare = 1;
         if( c==']' ) inSquare = 0;
       }
