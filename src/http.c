@@ -616,8 +616,29 @@ int http_exchange(
       if( iHttpVersion<0 ) iHttpVersion = 1;
       closeConnection = 0;
     }else if( fossil_strnicmp(zLine, "content-length:", 15)==0 ){
+      /* The value is one or more digits, optionally followed by
+      ** spaces, and fits in an int.  Any other value is an error, and
+      ** so is a second Content-Length with a different value. */
+      sqlite3_int64 n = 0;
+      int iStart;
       for(i=15; fossil_isspace(zLine[i]); i++){}
-      iLength = atoi(&zLine[i]);
+      for(iStart=i; fossil_isdigit(zLine[i]) && n<=0x7fffffff; i++){
+        n = n*10 + zLine[i] - '0';
+      }
+      if( i==iStart || n>0x7fffffff ){
+        fossil_warning("server sent a bad content-length: %s", zLine);
+        goto write_err;
+      }
+      for(; fossil_isspace(zLine[i]); i++){}
+      if( zLine[i]!=0 ){
+        fossil_warning("server sent a bad content-length: %s", zLine);
+        goto write_err;
+      }
+      if( iLength>=0 && iLength!=(int)n ){
+        fossil_warning("server sent two different content-length values");
+        goto write_err;
+      }
+      iLength = (int)n;
     }else if( fossil_strnicmp(zLine, "transfer-encoding:", 18)==0 ){
       /* Fossil never sends a "transfer-encoding:" request header, so we may
       ** reject any encoding other than "chunked", including "gzip, chunked",
