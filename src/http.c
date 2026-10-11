@@ -131,6 +131,25 @@ static void http_build_login_card(Blob * const pPayload, Blob * const pLogin){
 }
 
 /*
+** Append zPath to pBlob as the target of an HTTP request line (RFC 9112
+** section 3.2).  zPath is the decoded path from the URL, so it is
+** percent-encoded again here: each byte outside ASCII and each
+** character that RFC 3986 section 3.3 does not allow in a path is
+** written as %XX.  '+' is encoded too, because the server decodes it
+** as a space.
+*/
+static void http_append_request_target(Blob *pBlob, const char *zPath){
+  for(; *zPath; zPath++){
+    unsigned char c = (unsigned char)*zPath;
+    if( c<=0x20 || c>=0x7f || strchr("\"#%+<>?[\\]^`{|}", c)!=0 ){
+      blob_appendf(pBlob, "%%%02X", c);
+    }else{
+      blob_append_char(pBlob, (char)c);
+    }
+  }
+}
+
+/*
 ** Construct an appropriate HTTP request header.  Write the header
 ** into pHdr.  This routine initializes the pHdr blob.  pPayload is
 ** the complete payload (including the login card if pLogin is NULL or
@@ -143,18 +162,18 @@ static void http_build_header(
   const char *zAltMimetype     /* Alternative mimetype */
 ){
   int nPayload = pPayload ? blob_size(pPayload) : 0;
-  const char *zPath;
 
   blob_zero(pHdr);
+  blob_appendf(pHdr, "%s ", nPayload>0 ? "POST" : "GET");
   if( g.url.subpath ){
-    zPath = g.url.subpath;
+    /* The subpath is already percent-encoded. */
+    blob_append(pHdr, g.url.subpath, -1);
   }else if( g.url.path==0 || g.url.path[0]==0 ){
-    zPath = "/";
+    blob_append_char(pHdr, '/');
   }else{
-    zPath = g.url.path;
+    http_append_request_target(pHdr, g.url.path);
   }
-  blob_appendf(pHdr, "%s %s HTTP/1.1\r\n",
-               nPayload>0 ? "POST" : "GET", zPath);
+  blob_appendf(pHdr, " HTTP/1.1\r\n");
   if( g.url.proxyAuth ){
     blob_appendf(pHdr, "Proxy-Authorization: %s\r\n", g.url.proxyAuth);
   }
