@@ -37,6 +37,7 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/x509.h>
+#include <openssl/x509v3.h>
 
 #include <assert.h>
 #include <sys/types.h>
@@ -440,6 +441,35 @@ void ssl_disable_cert_verification(void){
 }
 
 /*
+** Return true if zHost is an IPv4 or IPv6 address.  A certificate
+** lists an IP address separately from its DNS names, and RFC 6066 does not
+** permit an IP address as the TLS server name.
+*/
+static int ssl_host_is_ip_address(const char *zHost){
+  ASN1_OCTET_STRING *pIp = a2i_IPADDRESS(zHost);
+  if( pIp==0 ){
+    ERR_clear_error();
+    return 0;
+  }
+  ASN1_OCTET_STRING_free(pIp);
+  return 1;
+}
+
+/*
+** Return true if zHost contains a byte outside ASCII.  RFC 6066 permits
+** only an ASCII DNS name as the TLS server name, so an internationalized
+** domain name would have to be sent in its "xn--" form, but Fossil does not 
+** use that form.
+*/
+static int ssl_host_is_non_ascii(const char *zHost){
+  while( *zHost ){
+    if( (unsigned char)*zHost >= 0x80 ) return 1;
+    zHost++;
+  }
+  return 0;
+}
+
+/*
 ** Open an SSL connection as a client that is to connect to the server
 ** identified by pUrlData.
 **
@@ -454,6 +484,7 @@ void ssl_disable_cert_verification(void){
 int ssl_open_client(UrlData *pUrlData){
   X509 *cert;
   const char *zRemoteHost;
+  int isIpAddr;          /* True if zRemoteHost is an IP address */
   BIO *sBio;
 
   ssl_global_init_client();
@@ -479,9 +510,12 @@ int ssl_open_client(UrlData *pUrlData){
   BIO_get_ssl(iBio, &ssl);
 
   zRemoteHost = pUrlData->useProxy ? pUrlData->hostname : pUrlData->name;
+  isIpAddr = ssl_host_is_ip_address(zRemoteHost);
 
 #if (SSLEAY_VERSION_NUMBER >= 0x00908070) && !defined(OPENSSL_NO_TLSEXT)
-  if( !SSL_set_tlsext_host_name(ssl, zRemoteHost)){
+  if( !isIpAddr && !ssl_host_is_non_ascii(zRemoteHost)
+   && !SSL_set_tlsext_host_name(ssl, zRemoteHost)
+  ){
     fossil_warning("WARNING: failed to set server name indication (SNI), "
                   "continuing without it.\n");
   }
@@ -492,7 +526,12 @@ int ssl_open_client(UrlData *pUrlData){
   if( !sslNoCertVerify ){
     X509_VERIFY_PARAM *param = 0;
     param = SSL_get0_param(ssl);
-    if( !X509_VERIFY_PARAM_set1_host(param, zRemoteHost, strlen(zRemoteHost)) ){
+    if( isIpAddr ){
+      if( !X509_VERIFY_PARAM_set1_ip_asc(param, zRemoteHost) ){
+        fossil_fatal("failed to set IP address.");
+      }
+    }else if( !X509_VERIFY_PARAM_set1_host(param, zRemoteHost,
+                                           strlen(zRemoteHost)) ){
       fossil_fatal("failed to set hostname.");
     }
     /* SSL_set_verify(ssl, SSL_VERIFY_PEER, 0); */

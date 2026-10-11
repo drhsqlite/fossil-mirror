@@ -1,5 +1,5 @@
-C Keep\s[square\sbrackets]\sfor\sIPv6\saddresses\sat\sall\stimes\sin\surl_parse_local().\nFrom\slibfossil.
-D 2026-10-11T21:12:05.141
+C Check\sthe\scertificate\sof\san\shttps\sserver\sgiven\sby\sIP\saddress\sagainst\sthe\scertificate's\sIP\naddresses.\sDon't\ssend\sa\sTLS\sserver\sname\sfor\san\sIP\saddress\sor\sa\snon-ASCII\shost\sname.
+D 2026-10-11T21:20:49.836
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -473,7 +473,7 @@ F src/hook.c 622578a5156b42001f583e8446e6418f6419b8a27670c2d5530b91975ff1b35a
 F src/href.js 97641963c7127a0c000c5a90ad2e2b3b2d216614b6f552737b552aa68feb0f21
 F src/http.c d6ca9b7f80d2de524abf8a04c95bd0130d329e0e2ec1dc4563128d2dcbad66e9
 F src/http_socket.c 0c1acae4ddcd1d78d2863ee0c8906173c1bab975670fe5ba10a36c741efce2f6
-F src/http_ssl.c 21448e159871c441e761fa58152860a22d123d279e5e661df8f4a6fad88f7c03
+F src/http_ssl.c 3607389d159d60eecb88ab1b040864f3284f2502221ccb13b856445e897222fa
 F src/http_transport.c 45bc45771bc72d9428ce2169270c0349e83d3dd3ebe6e51935b967a03caa4119
 F src/import.c 1ee4f154daf3e687e8e8304777448b2bbd877adb279d6c9e7ff7952a02982b7f
 F src/info.c b0b503b2bdf8ebaf097e9fa01711acaa0c842edae246bf4c53488ebdfdc90397
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c6fbe0c05a2964dcce2d5030b32d8e0e2b85ba4b1b069ba8a3c7006084a68220
-R d8d45a2130c09ef0832663f9c830a05e
+P af496edce570b1c43b8107a054050054cf0ee50b10491412be1096b6436d8d2e
+R 373d36f164bb938ba18eb4ac52fa95c7
 U danshearer
-Z 8a65e2ef88de9e3f7baefb4b8c1f85b1
+Z 22100e6f7e18f8371a9c5f94559e4581
 # Remove this line to create a well-formed Fossil manifest.
