@@ -333,9 +333,11 @@ int fossil_hexvalue(int c){
 
 /*
 ** Remove the HTTP encodings from a string.  The conversion is done
-** in-place.  Return the length of the string after conversion.
+** in-place.  Return the length of the string after conversion.  Only
+** decode '%' if it is followed by two hex digits (RFC 3986 section 2.1).
 */
 int dehttpize(char *z){
+  static const char zHex[] = "0123456789abcdefABCDEF";
   int i, j;
 
   /* Treat a null pointer as a zero-length string. */
@@ -345,10 +347,13 @@ int dehttpize(char *z){
   while( z[i] ){
     switch( z[i] ){
       case '%':
-        if( z[i+1] && z[i+2] ){
+        if( z[i+1] && strchr(zHex, z[i+1])
+         && z[i+2] && strchr(zHex, z[i+2]) ){
           z[j] = fossil_hexvalue(z[i+1]) << 4;
           z[j] |= fossil_hexvalue(z[i+2]);
           i += 2;
+        }else{
+          z[j] = '%';
         }
         break;
       case '+':
