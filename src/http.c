@@ -450,6 +450,22 @@ char *http_last_trace_reply(void){
 }
 
 /*
+** Return true if z is a valud extension according to RFC 9112 s 7.1.1. 
+** In addition to the ordinary checks, bare CR anywhere is invalid
+** (section 2.2).
+*/
+static int http_chunk_ext_ok(const char *z){
+  if( strchr(z, '\r')!=0 ) return 0;
+  while( *z==' ' || *z=='\t' ) z++;
+  if( *z==0 ) return 1;
+  if( *z!=';' ) return 0;
+  z++;
+  while( *z==' ' || *z=='\t' ) z++;
+  return fossil_isalnum(*z)
+      || (*z!=0 && strchr("!#$%&'*+-.^_`|~", *z)!=0);
+}
+
+/*
 ** Sign the content in pSend, compress it, and send it to the server
 ** via HTTP or HTTPS.  Get a reply, uncompress the reply, and store the reply
 ** in pRecv.  pRecv is assumed to be uninitialized when
@@ -817,21 +833,28 @@ int http_exchange(
     char *zChunk;
     int sawTerminator = 0;  /* True once the 0-length chunk is seen */
     while( (zChunk = transport_receive_line(&g.url))!=0 && zChunk[0]!=0 ){
-      i64 nChunk;           /* Size of this chunk in bytes (wide, unclamped) */
+      i64 nChunk = 0;       /* Size of this chunk in bytes (wide, unclamped) */
       i64 nPrior;           /* Bytes already in pReply (matches blob nUsed) */
-      char *zEnd = 0;       /* End of the hex digits actually parsed */
-      while( fossil_isspace(zChunk[0]) ) zChunk++;
-      nChunk = strtoll(zChunk, &zEnd, 16);
-      if( zEnd==zChunk ){
+      int j;                /* Number of hex digits in the chunk size */
+      /* The size is one or more hex digits (RFC 9112 section 7.1),
+      ** with no sign, "0x" or leading space. */
+      for(j=0; fossil_isXdigit(zChunk[j]) && nChunk<=0x7fffffff; j++){
+        nChunk = nChunk*16 + hex_digit_value(zChunk[j]);
+      }
+      if( j==0 ){
         /* No hex digit consumed: a blank or malformed chunk-size line, which
         ** is the symptom of a connection that closed mid-stream.  Treat it as
         ** a truncated (failed) */
         fossil_warning("chunked reply: missing or malformed chunk size");
         goto write_err;
       }
-      if( nChunk<0 || nChunk>0x7fffffff ){
-        /* Negative, or larger than we will ever accept in one chunk. */
+      if( nChunk>0x7fffffff ){
+        /* Larger than we will ever accept in one chunk. */
         fossil_warning("chunked reply: invalid chunk size");
+        goto write_err;
+      }
+      if( !http_chunk_ext_ok(&zChunk[j]) ){
+        fossil_warning("chunked reply: malformed chunk size line");
         goto write_err;
       }
       if( nChunk==0 ){
