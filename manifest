@@ -1,5 +1,5 @@
-C When\semitting\sa\sci-lock-fail\ssync\scard\sensure\sthat\sthe\slogin\sname\sis\snot\sempty,\sotherwise\swe\semit\sa\smalformed\scard\s(short\sby\sone\stoken)\swhich\sthe\sremote\signores.\sReported\soff-list\sby\sDan\sMestas.
-D 2026-10-12T08:12:18.525
+C Have\stest-delta-apply\sfail\sfatally\sif\sapplication\sof\sthe\sinput\sdelta\sfails,\srather\sthat\swrite\sout\sa\szero-byte\sfile.\sReported\soff-list\sby\sDan\sMestas.
+D 2026-10-12T08:16:21.418
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -418,7 +418,7 @@ F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 572808ec2842b73597017b00a42dea05a076804fd6fc897c9ad537af5e98b3f0
 F src/default.css d3c3794f2b0a55699e3825ce5e983aad777f79db0ede4a005a4efac77343ec1a
 F src/delta.c 14708bc9955a9d74f6542aae48a5a88e4af3db300ac91c714b791d677d19156a
-F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
+F src/deltacmd.c 389fa74121e703677ea6023ced953a2ea7a9c3555f03256f23bf4a832273a2fd
 F src/deltafunc.c a7c23ec82fbe4171b0525ce85f16150a6a96e6b9565da0f6131a396181c27b49
 F src/descendants.c 4bb7fb447369984f041da4a5ec05c201383bde3a59d18c537293d520712a1b09
 F src/diff.c 3e46c56274896ac8ebc3035a32060bf5898f6cd2b6540816d62d6649125eb3bd
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 21d8fadb3084fb1e8229f64dc95a81323d2f782e6434b173e766853a01ac8eaa
-R be0a6eb4040c8679d388655c1210bf1d
+P 8d0de9d3dad9ac43e8672149784afab619f3603ea452d001acaa4075be00a7dd
+R c3e641f984c5763e26126e810017203d
 U stephan
-Z 930722daef8fec722a9bcba93f548b80
+Z 19985afaaa01359a6ac5742567f1c7a7
 # Remove this line to create a well-formed Fossil manifest.
