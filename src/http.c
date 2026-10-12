@@ -861,7 +861,14 @@ int http_exchange(
           pReply->nUsed = (unsigned int)nPrior;
         }
       }
-      transport_receive_line(&g.url); /* CRLF that follows the chunk data */
+      /* The chunk data ends with CRLF (RFC 9112 section 7.1), which
+      ** reads as an empty line.  Anything else means the chunk size
+      ** was wrong. */
+      zChunk = transport_receive_line(&g.url);
+      if( zChunk==0 || zChunk[0]!=0 ){
+        fossil_warning("chunked reply: no line end after chunk data");
+        goto write_err;
+      }
     }
     if( !sawTerminator ){
       /* The loop exited without ever seeing the 0-length terminator chunk,

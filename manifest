@@ -1,5 +1,5 @@
-C Strip\strailing\sdots\son\shostnames,\swhich\sare\svalid\shostnames\sbut\snot\naccepted\sas\sTLS\sor\scertificate\shostnames.\sfrom\slibfossil.
-D 2026-10-12T06:53:49.800
+C The\schunk\ssize\sis\sauthoritative,\sso\sif\smore\sdata\sthan\sthat\sis\ssupplied\swe\sshould\snot\sread\nit.\sFrom\slibfossil.
+D 2026-10-12T06:59:12.117
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -471,7 +471,7 @@ F src/hbmenu.js 1b46625447424257946f4743fe792b71ed9e233c772d3233c643a807f3c626ae
 F src/hname.c a40c637ebad60edc30b99d7307c4f95a55753be20862267787cdf6cd9146f53c
 F src/hook.c 622578a5156b42001f583e8446e6418f6419b8a27670c2d5530b91975ff1b35a
 F src/href.js 97641963c7127a0c000c5a90ad2e2b3b2d216614b6f552737b552aa68feb0f21
-F src/http.c 04ae2700c7ccf5a7bebce45f5988cda7f2fda63a2f7dcab144d6e6716892df69
+F src/http.c 81a1b2ccc74e435f117e9e746b792f212b7ef3052a4f03fbf6efdc8f425c76cf
 F src/http_socket.c 0c1acae4ddcd1d78d2863ee0c8906173c1bab975670fe5ba10a36c741efce2f6
 F src/http_ssl.c 0ad02d8f225bc7ab5cc977ae511056297127b2d6f63c359c635b1a4b7eb5a90e
 F src/http_transport.c 45bc45771bc72d9428ce2169270c0349e83d3dd3ebe6e51935b967a03caa4119
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 629d4ece0ef7f6c52e25f64048a0055d0a1d2fbcbf9644bd243c4c0358d79df3
-R f81ef2818774910ad75291140c4ba346
+P 6362cc0666eaa536b0233be3c23990268eac9fe092e5502bc28f0dafa3dbd2ec
+R 2456d7bd55d9d33946b227db1425518a
 U danshearer
-Z 603d4d23e499542da782926ca9664539
+Z 2e6be7f38ce01e38e3f61f98fd014937
 # Remove this line to create a well-formed Fossil manifest.
