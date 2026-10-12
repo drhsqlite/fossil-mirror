@@ -497,6 +497,8 @@ static int ssl_host_is_non_ascii(const char *zHost){
 int ssl_open_client(UrlData *pUrlData){
   X509 *cert;
   const char *zRemoteHost;
+  const char *zTlsName;  /* zRemoteHost needed by the TLS layer */
+  char zDotless[256];    /* zRemoteHost without a trailing dot */
   int isIpAddr;          /* True if zRemoteHost is an IP address */
   BIO *sBio;
 
@@ -523,11 +525,23 @@ int ssl_open_client(UrlData *pUrlData){
   BIO_get_ssl(iBio, &ssl);
 
   zRemoteHost = ssl_server_name(pUrlData);
-  isIpAddr = ssl_host_is_ip_address(zRemoteHost);
+  /* A fully qualified name may end with a dot, as in "example.com.".
+  ** The RFC 6066 TLS server name and all certificate names are 
+  ** dotless */
+  zTlsName = zRemoteHost;
+  {
+    size_t n = strlen(zRemoteHost);
+    if( n>1 && zRemoteHost[n-1]=='.' && n<sizeof(zDotless) ){
+      memcpy(zDotless, zRemoteHost, n-1);
+      zDotless[n-1] = 0;
+      zTlsName = zDotless;
+    }
+  }
+  isIpAddr = ssl_host_is_ip_address(zTlsName);
 
 #if (SSLEAY_VERSION_NUMBER >= 0x00908070) && !defined(OPENSSL_NO_TLSEXT)
-  if( !isIpAddr && !ssl_host_is_non_ascii(zRemoteHost)
-   && !SSL_set_tlsext_host_name(ssl, zRemoteHost)
+  if( !isIpAddr && !ssl_host_is_non_ascii(zTlsName)
+   && !SSL_set_tlsext_host_name(ssl, zTlsName)
   ){
     fossil_warning("WARNING: failed to set server name indication (SNI), "
                   "continuing without it.\n");
@@ -540,11 +554,11 @@ int ssl_open_client(UrlData *pUrlData){
     X509_VERIFY_PARAM *param = 0;
     param = SSL_get0_param(ssl);
     if( isIpAddr ){
-      if( !X509_VERIFY_PARAM_set1_ip_asc(param, zRemoteHost) ){
+      if( !X509_VERIFY_PARAM_set1_ip_asc(param, zTlsName) ){
         fossil_fatal("failed to set IP address.");
       }
-    }else if( !X509_VERIFY_PARAM_set1_host(param, zRemoteHost,
-                                           strlen(zRemoteHost)) ){
+    }else if( !X509_VERIFY_PARAM_set1_host(param, zTlsName,
+                                           strlen(zTlsName)) ){
       fossil_fatal("failed to set hostname.");
     }
     /* SSL_set_verify(ssl, SSL_VERIFY_PEER, 0); */
