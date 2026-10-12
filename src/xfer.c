@@ -210,6 +210,8 @@ static void xfer_accept_file(
   }
   if( hname_verify_hash(&content, blob_buffer(pUuid), blob_size(pUuid))==0 ){
     blob_appendf(&pXfer->err, "wrong hash on received artifact: %b", pUuid);
+    blob_reset(&content);
+    return;
   }
   rid = content_put_ex(&content, blob_str(pUuid), 0, 0, isPriv);
   Th_AppendToList(pzUuidList, pnUuidList, blob_str(pUuid), blob_size(pUuid));
