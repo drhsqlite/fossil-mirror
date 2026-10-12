@@ -489,6 +489,7 @@ int http_exchange(
   int iLength;          /* Expected length of the reply payload */
   int rc = 0;           /* Result code */
   int iHttpVersion;     /* Which version of HTTP protocol server uses */
+  int nBlank = 0;       /* Empty lines to skip after an interim reply */
   char *zLine;          /* A single line of the reply header */
   int i;                /* Loop counter */
   int isError = 0;      /* True if the reply is an error message */
@@ -599,7 +600,17 @@ int http_exchange(
   closeConnection = 1;
   iLength = -1;
   iHttpVersion = -1;
-  while( (zLine = transport_receive_line(&g.url))!=0 && zLine[0]!=0 ){
+  while( (zLine = transport_receive_line(&g.url))!=0 ){
+    if( zLine[0]==0 ){
+      if( nBlank>0 ){
+        /* A server may send an empty line after an interim reply,
+        ** before the status line of the final reply. */
+        nBlank--;
+        continue;
+      }
+      break;
+    }
+    nBlank = 0;
     if( mHttpFlags & HTTP_VERBOSE ){
       fossil_print("Read: [%s]\n", zLine);
     }
@@ -620,6 +631,7 @@ int http_exchange(
         while( (zLine = transport_receive_line(&g.url))!=0 && zLine[0]!=0 ){}
         iHttpVersion = -1; /* Ensures correct error msg if connection drops */
         if( zLine==0 ) goto write_err;
+        nBlank = 4;
         continue;
       }
       if( rc==401 ){
