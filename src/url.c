@@ -151,9 +151,10 @@ void url_parse_local(
     if( zUrl==0 ) return;
   }
 
-  if( strncmp(zUrl, "http://", 7)==0
-   || strncmp(zUrl, "https://", 8)==0
-   || strncmp(zUrl, "ssh://", 6)==0
+  /* Schemes are case-insensitive (RFC 3986 section 3.1). */
+  if( fossil_strnicmp(zUrl, "http://", 7)==0
+   || fossil_strnicmp(zUrl, "https://", 8)==0
+   || fossil_strnicmp(zUrl, "ssh://", 6)==0
   ){
     int iStart;
     char *zLogin;
@@ -162,12 +163,12 @@ void url_parse_local(
     const char *zLb;     /* "[" before an IPv6 address in a URL, else "" */
     const char *zRb;     /* "]" after an IPv6 address in a URL, else "" */
 
-    if( zUrl[4]=='s' ){
+    if( zUrl[4]=='s' || zUrl[4]=='S' ){
       pUrlData->isHttps = 1;
       pUrlData->protocol = "https";
       pUrlData->dfltPort = 443;
       iStart = 8;
-    }else if( zUrl[0]=='s' ){
+    }else if( zUrl[0]=='s' || zUrl[0]=='S' ){
       pUrlData->isSsh = 1;
       pUrlData->protocol = "ssh";
       pUrlData->dfltPort = 22;
@@ -309,7 +310,7 @@ void url_parse_local(
       fossil_free(zOld);
     }
     free(zLogin);
-  }else if( strncmp(zUrl, "file:", 5)==0 ){
+  }else if( fossil_strnicmp(zUrl, "file:", 5)==0 ){
     pUrlData->isFile = 1;
     if( zUrl[5]=='/' && zUrl[6]=='/' ){
       i = 7;
