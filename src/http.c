@@ -603,6 +603,14 @@ int http_exchange(
     if( mHttpFlags & HTTP_VERBOSE ){
       fossil_print("Read: [%s]\n", zLine);
     }
+    if( zLine[0]==' ' || zLine[0]=='\t' ){
+      /* A line starting with a space or tab continues the previous
+      ** header (obsolete line folding, RFC 9112 section 5.2) and in this
+      ** case we disregard the RFC because it gets messy. This is what
+      ** the llhttp project and others do. */
+      fossil_warning("server sent a folded header line");
+      goto write_err;
+    }
     if( fossil_strnicmp(zLine, "http/1.", 7)==0 ){
       if( sscanf(zLine, "HTTP/1.%d %d", &iHttpVersion, &rc)!=2 ) goto write_err;
       if( rc/100==1 ){
@@ -685,6 +693,11 @@ int http_exchange(
       }
       if( !bOk ){
         fossil_warning("unsupported transfer-encoding: %s", &zLine[18]);
+        goto write_err;
+      }
+      if( isChunked ){
+        /* (RFC 9110 section 5.3), chunked may be applied only once */
+        fossil_warning("server sent two transfer-encoding headers");
         goto write_err;
       }
       isChunked = 1;
