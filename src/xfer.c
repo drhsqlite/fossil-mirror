@@ -1816,6 +1816,7 @@ void page_xfer(void){
             const char *zLogin = db_column_text(&q,0);
             sqlite3_int64 mtime = db_column_int64(&q, 1);
             if( fossil_strcmp(zClientId, blob_str(&xfer.aToken[3]))!=0 ){
+              if( 0==zLogin || 0==zLogin[0] ) zLogin = "nobody";
               @ pragma ci-lock-fail %F(zLogin) %lld(mtime)
             }
             seenFault = 1;

@@ -1,5 +1,5 @@
-C Update\sdeltafunc.c's\sdeltaGetInt()\sto\smatch\sthe\scopy\sfrom\sdelta.c\s(applied\sin\s[60c7b5f423]\sand\sin\ssqlite's\scounterpart\scopy).\sReported\sby\sDan\sMestas.
-D 2026-10-12T08:03:57.439
+C When\semitting\sa\sci-lock-fail\ssync\scard\sensure\sthat\sthe\slogin\sname\sis\snot\sempty,\sotherwise\swe\semit\sa\smalformed\scard\s(short\sby\sone\stoken)\swhich\sthe\sremote\signores.\sReported\soff-list\sby\sDan\sMestas.
+D 2026-10-12T08:12:18.525
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -602,7 +602,7 @@ F src/wiki.wiki bd6ca20a0df1054d68bbd7683acc6f24225652276f0ed53ce6fa564faed4dd60
 F src/wikiformat.c 017ef5d1fd1491629287c992d2f3ee3e9b7d05fc44abb484b486afb05a5b5351
 F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c 093582715f8a7b142b04b651b28473c585fc1e07f4570e33f64b122cf3e9457d
-F src/xfer.c 1b2b80f7c0d2eeedb5186a8c4a7acc116aaba816ad81061f5e0844de4a52dc87
+F src/xfer.c 0a4084b74cfb323c2bd5e0c169499dc4b46b4d685f1e558d520bedb7a56b6875
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
 F src/xsystem.c c8c87776fa160083216bd35c69292a6c3b58870e4c9f6ff1859426b99ea1c106
 F src/zip.c f9a2f373ee26759b73b04797acffadc788f3b6f3d6db6f87773b3126cba661b2
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c272f25079a5dbd0f9e7f929f73c3ef24a9f012e07bb47883added886f87cab8
-R 7aed662207512d696ca22c1155f4dcad
+P 21d8fadb3084fb1e8229f64dc95a81323d2f782e6434b173e766853a01ac8eaa
+R be0a6eb4040c8679d388655c1210bf1d
 U stephan
-Z 43aaf3e058d34f400864b97033f18fbe
+Z 930722daef8fec722a9bcba93f548b80
 # Remove this line to create a well-formed Fossil manifest.
