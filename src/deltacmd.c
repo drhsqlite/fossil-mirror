@@ -119,12 +119,13 @@ void delta_analyze_cmd(void){
 ** Return the length of the target.  Return -1 if there is an error.
 */
 int blob_delta_apply(Blob *pOriginal, Blob *pDelta, Blob *pTarget){
-  int len, n;
+  int len;
+  sqlite3_int64 n;
   Blob out;
 
   n = delta_output_size(blob_buffer(pDelta), blob_size(pDelta));
   blob_zero(&out);
-  if( n<0 ) return -1;
+  if( n<0 || n>0x7fffffff ) return -1;
   blob_resize(&out, n);
   len = delta_apply(
      blob_buffer(pOriginal), blob_size(pOriginal),

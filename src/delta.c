@@ -538,15 +538,15 @@ int delta_create(
 
 /*
 ** Return the size (in bytes) of the output from applying
-** a delta.
+** a delta or a negative value on error.
 **
 ** This routine is provided so that an procedure that is able
 ** to call delta_apply() can learn how much space is required
-** for the output and hence allocate nor more space that is really
+** for the output and hence allocate no more space than is really
 ** needed.
 */
-int delta_output_size(const char *zDelta, int lenDelta){
-  int size;
+sqlite3_int64 delta_output_size(const char *zDelta, int lenDelta){
+  sqlite3_int64 size;
   size = getInt(&zDelta, &lenDelta);
   if( lenDelta<=0 || *zDelta!='\n' ){
     /* ERROR: size integer not terminated by "\n" */
