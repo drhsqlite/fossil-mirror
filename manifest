@@ -1,5 +1,5 @@
-C Minor\shardening\sagainst\smalformed\sand\soversized\sdeltas.\sBased\son\san\soff-list\sreport\sfrom\sDan\sMestas.
-D 2026-10-12T09:54:25.596
+C Drop\sURL\sfragments\s('#',\stypically\san\sHTML\sanchor)\sfrom\saddress\sspecifiers\nfor\shttp/s\sand\sssh.\sFrom\slibfossil.
+D 2026-10-12T10:54:03.345
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -590,7 +590,7 @@ F src/undo.c 36128b298c386eb55f45c48d0af0fc49c1e9506e179f88a486c060fec6752a23
 F src/unicode.c a9d294a2914d5bb360c0f5bcc9b9b9d24c6d5d6c9718ed747a9eed01484b3d16
 F src/unversioned.c 4f1ec0c70414dffa2fb9662327e684ffabde11b75e376703f645a0d451b69b77
 F src/update.c 977849692d77b17fd90ab2e8135b4e39c12a44a4a4104089c184c3d98c0b6a22
-F src/url.c ad9199481a045899aaed84db9282f460fccd677deb19ac96c4edfc24b49efbb9
+F src/url.c 67f3d2bbde4d0cfba4a3bfadcfc851d000bf27cdd4cdd90885053a37602135ba
 F src/user.c 8ed24fbe9586c0a633a91037d9947d1772dfda3562750f5a0c52b0d7f0b4c408
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c e752372e0c4c5c4a1fe5f6f60a0ceff42c7c9d498c6b0e202ad4d83a8650dcb6
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 54a0b17bb1ec14fc404578b8110fdea428fb95ef41c4478c4073a695794febf2
-R 14f241cd252c774db7fbdf3d80376314
-U stephan
-Z 80680879ae354ff14f38fce3ab09ce79
+P 76922609df651140e394b7786222ee9c5ec16cc5dad77dcedb36d552b41be890
+R 135fd75246cca125b7f9c855bc996d81
+U danshearer
+Z b7191b4bda8f426de68f3612e5004c1f
 # Remove this line to create a well-formed Fossil manifest.

@@ -258,6 +258,10 @@ void url_parse_local(
     }
     dehttpize(pUrlData->name);
     pUrlData->path = fossil_strdup(&zUrl[i]);
+    /* A fragment (typically an HTML anchor), should not be sent to a server 
+    ** (RFC 3986 s 3.5, RFC 9112 s 3.2.1). Drop for these schemes.*/
+    for(i=0; pUrlData->path[i] && pUrlData->path[i]!='#'; i++){}
+    pUrlData->path[i] = 0;
     for(i=0; pUrlData->path[i] && pUrlData->path[i]!='?'; i++){}
     if( pUrlData->path[i] ){
       pUrlData->path[i] = 0;
