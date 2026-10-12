@@ -239,7 +239,9 @@ void url_parse_local(
         pUrlData->port = pUrlData->port*10 + c - '0';
         i++;
       }
-      if( c!=0 && c!='/' ) fossil_fatal("url missing '/' after port number");
+      if( c!=0 && c!='/' && c!='?' && c!='#' ){
+        fossil_fatal("url missing '/' after port number");
+      }
       /* The HTTP Host: header needs the brackets around an IPv6
       ** address.  For ssh:, the hostname is part of the name of the
       ** use-path-for-ssh setting, which is stored without them. */
