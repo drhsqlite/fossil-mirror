@@ -1435,7 +1435,9 @@ void page_xfer(void){
      && xfer.nToken==2
      && blob_is_filename(&xfer.aToken[1])
     ){
-      send_unversioned_file(&xfer, blob_str(&xfer.aToken[1]), 0);
+      if( g.perm.Read ){
+        send_unversioned_file(&xfer, blob_str(&xfer.aToken[1]), 0);
+      }
     }else
 
     /*   igot HASH ?ISPRIVATE?
