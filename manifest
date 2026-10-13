@@ -1,5 +1,5 @@
-C After\sthe\sport\snumber\sin\sa\sURL,\snow\saccept\s'?'\sand\s'#'\sas\swell\sas\s'/'\n(RFC\s3986\ssection\s3.2).\sFrom\slibfossil.
-D 2026-10-12T11:19:09.910
+C Add\sthe\s"remote-permalink"\ssetting,\swhich\sif\sset\scauses\sthe\s"Permalink"\nhyperlink\son\sthe\ssubmenu\sof\sthe\s"bisect"\stimeline\sto\sreference\sthe\nremote\srepository\sthat\swas\smost\srecently\ssynced,\srather\sthan\sthe\slocal\nrepository\s(which\sis\sprobably\sa\spop-up\susing\s"fossil\sbisect\sui").
+D 2026-10-13T20:17:38.216
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -582,7 +582,7 @@ F src/th.h 549dd1af2f4b241ede68fadbf426a7707ae9657292b7914a20a3c401513b25a0
 F src/th_lang.c c59bbad1fefb0af72cadd3f32f7c8845b339bf8471640d737b0d4499b787589b
 F src/th_main.c 1c502e67cc252c5f57c0567df93fe5cc1b616d60671c8b94f7e02687c9306da4
 F src/th_tcl.c a3d1d8f2e5e645a54a2f70c60f01c3d04a706ecad60468b3949540ba0c78242c
-F src/timeline.c 82821ef2f411908b881803e3539683de0f1e7cf78c789e86aa69c389807405de
+F src/timeline.c 057678b1a6d81e31c5648b2d9d52507187f49ced5c333a19d3efa54b912c89ee
 F src/tkt.c 2bf10f3e1c7f26b0d925b7ba9acfa49ac921d04125a45f44e586183c64ab376e
 F src/tktsetup.c 22e7338e93a4e54d0e91acd0bf0e80dbdfe4c2958638e163a89239391d6cb8b9
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 973e3e972027c5a9c59890e4cb3b1288aa61654eb64c2ee4cfa8be2a788b121a
-R 096f4a28fc633e3d36f6178993fe57b1
-U danshearer
-Z eec55cf22807efea239de5d101c56e12
+P 36beb09dd571f9da9035872ad28f04af8715fbdcc875d04e67db2f609841a0f3
+R fe1dec77f66122a94dd5ee1fa116721b
+U drh
+Z 53eef4f80860cc31db96470d0602f34c
 # Remove this line to create a well-formed Fossil manifest.

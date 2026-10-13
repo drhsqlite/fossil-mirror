@@ -362,6 +362,14 @@ struct TimelineXtra {
 ** This setting has no effect on the "Classic" view, which always behaves
 ** as if the setting were 2.
 */
+/*
+** SETTING: remote-permalink           boolean default=off
+**
+** If the remote-permalink setting is true, then the "Permalink" hyperlink
+** in the submenu of the "bisect" page of the timeline references the
+** remote repository used for the last sync (and stored in the
+** last-sync-url setting).
+*/
 
 /*
 ** Output a timeline in the web format given a query.  The query
@@ -2163,11 +2171,22 @@ void page_timeline(void){
   if( bisectLocal && cgi_is_loopback(g.zIpAddr) && db_open_local(0) ){
     int iCurrent = db_lget_int("checkout",0);
     char *zPerm = bisect_permalink();
+    char *zHost = 0;
     bisect_create_bilog_table(iCurrent, 0, 1);
     tmFlags |= TIMELINE_UNHIDE | TIMELINE_BISECT | TIMELINE_FILLGAPS;
     zType = "ci";
     disableY = 1;
-    style_submenu_element("Permalink", "%R/timeline?bid=%z", zPerm);
+    if( db_get_boolean("remote-permalink",0) ){
+      zHost = db_text(0,
+        "SELECT value FROM config WHERE name='last-sync-url'"
+        "   AND value GLOB 'http*'"
+      );
+    }
+    if( zHost ){
+      style_submenu_element("Permalink", "%h/timeline?bid=%z", zHost, zPerm);
+    }else{
+      style_submenu_element("Permalink", "%R/timeline?bid=%z", zPerm);
+    }
   }else{
     bisectLocal = 0;
   }
