@@ -536,6 +536,8 @@ static void bisect_run(void){
 **          -i|--interactive    Prompt the user for the good/bad/skip decision
 **                              after each step, rather than using the exit
 **                              code from COMMAND
+**          --ii                Like "-i" but also pauses after showing the
+**                              status for each step.
 **
 ** > fossil bisect skip ?VERSION?
 **
