@@ -539,12 +539,12 @@ void sync_cmd(void){
 ** Handle the "fossil unversioned sync" and "fossil unversioned revert"
 ** commands.
 */
-void sync_unversioned(unsigned syncFlags){
+int sync_unversioned(unsigned syncFlags){
   unsigned configFlags = 0;
   (void)find_option("uv-noop",0,0);
   process_sync_args(&configFlags, &syncFlags, 1, 0);
   verify_all_options();
-  client_sync(syncFlags, 0, 0, 0, 0);
+  return client_sync(syncFlags, 0, 0, 0, 0);
 }
 
 /*

@@ -559,7 +559,9 @@ void unversioned_cmd(void){
         unversioned_sync_flags(SYNC_UNVERSIONED|SYNC_UV_REVERT);
     g.argv[1] = "sync";
     g.argv[2] = "--uv-noop";
-    sync_unversioned(syncFlags);
+    if( sync_unversioned(syncFlags)!=0 ){
+      fossil_exit(1);
+    }
   }else if( strncmp(zCmd, "remove", nCmd)==0 || strncmp(zCmd, "rm", nCmd)==0
          || strncmp(zCmd, "delete", nCmd)==0 ){
     int i;
@@ -593,7 +595,9 @@ void unversioned_cmd(void){
     unsigned syncFlags = unversioned_sync_flags(SYNC_UNVERSIONED);
     g.argv[1] = "sync";
     g.argv[2] = "--uv-noop";
-    sync_unversioned(syncFlags);
+    if( sync_unversioned(syncFlags)!=0 ){
+      fossil_exit(1);
+    }
   }else if( strncmp(zCmd, "touch", nCmd)==0 ){
     int i;
     verify_all_options();
