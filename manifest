@@ -1,5 +1,5 @@
-C Document\sthe\s--ii\sflag\son\s"fossil\sbisect\srun"
-D 2026-10-14T16:23:03.799
+C Exit\swith\snon-zero\scode\swhen\sthe\spull/push/sync\scommands\sfail.\sReported\soff-list\sby\sDan\sMestas.
+D 2026-10-15T13:00:05.116
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -573,7 +573,7 @@ F src/style.forum.css c113bdf0dfdbc643321d14c795bcfb804ae3fe40b66c2153527b328a3a
 F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2673e5c0d3bb
 F src/style.uvlist.css 7b6a497b7e816461e6aa47210fa03c7ab8b618a93d8bc005d029636f12099fbe
 F src/style.wikiedit.css 83243f9873a70e0e1b940b57789aad76b84dc222300b1203a9ffb0f88d807587
-F src/sync.c d028322157a53faa9acded6517ee8baa2fa7760d6085f3ea4fd87e3ecee09cb4
+F src/sync.c 892cdb64ab251c2c397617c009bcd416cc8917d35a1611ee49debb7c76a8911a
 F src/tag.c 7eda0624887a9ee2136818e65e0f78e7e3556f3add3c5df75bdfc903d487a689
 F src/tar.c db48addbc7e5b578be9788a1230b9dc89f5863ee91e358a115885be62dbadd7d
 F src/terminal.c 1f497ac2f122d3fc856aac9386c064c10e10bf148467986ef73c7562f9379872
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4886b7de6d9c5a9df730de3efd84b938b4118b6a7159a3e821dd767185e7bde7
-R 98a6570be110edfbcdcf91092533ea1b
-U drh
-Z 7b2851c7db507d59cd5bf3cd33c156d4
+P 2355d14ec52c6646dd9abac6c91d78fe18d004882ac358e8adeed525ededc79c
+R add2f0ebb4f2ecb5e89ccb08f93c89d1
+U danield
+Z 671a9953ff40e9a3c3c6d7bcc5607a3a
 # Remove this line to create a well-formed Fossil manifest.

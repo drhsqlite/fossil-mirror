@@ -48,7 +48,7 @@ static void sync_explain(unsigned syncFlags){
 /*
 ** Call client_sync() one or more times in order to complete a
 ** sync operation.  Usually, client_sync() is called only once, though
-** is can be called multiple times if the SYNC_ALLURL flags is set.
+** it can be called multiple times if the SYNC_ALLURL flags is set.
 */
 static int client_sync_all_urls(
   unsigned syncFlags,      /* Mask of SYNC_* flags */
@@ -410,7 +410,9 @@ void pull_cmd(void){
   /* We should be done with options.. */
   verify_all_options();
 
-  client_sync_all_urls(syncFlags, configFlags, 0, zAltPCode);
+  if( client_sync_all_urls(syncFlags, configFlags, 0, zAltPCode)!=0 ){
+    fossil_exit(1);
+  }
 }
 
 /*
@@ -460,7 +462,9 @@ void push_cmd(void){
   if( db_get_boolean("dont-push",0) ){
     fossil_fatal("pushing is prohibited: the 'dont-push' option is set");
   }
-  client_sync_all_urls(syncFlags, 0, 0, 0);
+  if( client_sync_all_urls(syncFlags, 0, 0, 0)!=0 ){
+    fossil_exit(1);
+  }
 }
 
 
@@ -526,7 +530,9 @@ void sync_cmd(void){
       fossil_warning("pull only: the 'dont-push' option is set");
     }
   }
-  client_sync_all_urls(syncFlags, configFlags, 0, 0);
+  if( client_sync_all_urls(syncFlags, configFlags, 0, 0)!=0 ){
+    fossil_exit(1);
+  }
 }
 
 /*
