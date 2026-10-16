@@ -787,6 +787,14 @@ void rebuild_database(void){
     db_close(0);
     db_open_repository(g.zRepositoryName);
     if( newPagesize ){
+      /* VACUUM cannot change the page size of a database in WAL mode,
+      ** so leave WAL mode for the VACUUM and return to it afterwards. */
+      char *zMode = db_text(0, "PRAGMA journal_mode");
+      if( fossil_stricmp(zMode, "wal")==0 ){
+        db_multi_exec("PRAGMA journal_mode=DELETE");
+        activateWal = 1;
+      }
+      fossil_free(zMode);
       db_multi_exec("PRAGMA page_size=%d", newPagesize);
       runVacuum = 1;
     }
