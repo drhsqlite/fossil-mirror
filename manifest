@@ -1,5 +1,5 @@
-C Update\sthe\scomment\son\sSHA1\scode\swith\sthe\supstream\scommit\shash\sand\sdate.
-D 2026-10-16T14:13:44.537
+C Do\snot\sclutter\sthe\soutput\sof\s"test-integrity"\swith\sreports\sof\sphantoms.
+D 2026-10-16T14:36:56.708
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -411,7 +411,7 @@ F src/color.c dbea75182cd46c3ed261229766a710df6414aafd8de8e3505621c9109904cad0
 F src/comformat.c 7c13708fbafa03a92d63baee15178f00175fd7add64f918f7e406badae628e69
 F src/config.h 0ed672f15c096edbea44b24657bd91e3acb8bcd5827c62df9f8635abe1da7c21
 F src/configure.c 1c2908547bfebd55d1ed690d18a2f0f73c5a026ee27b89f53082ba3259f68b77
-F src/content.c 3018fea9d9557cb6f1edc6be062f2db5dc76af211a357d5aa13c4a69e248f623
+F src/content.c 99804ad47e36577b1d5aea0a36a306be0c512fa2110a231be5e289d5d2ad79db
 F src/cookies.c 51b9ba6d945c8abd1b4dde2e8cfc2651bfadf219bc34951082e3c8de88667abc
 F src/copybtn.js b56a60f4d8b40667effb40839d88c406146a666f1c0ff62148fd6c847d9c8019
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d243deba6a63cf4e2b0c58fe153505153dbdf26df75b2647b0d01ad511d88efe
-R 99922a9d2d7e4439ee36e0fb037d3a75
-U danield
-Z 38a19d729f48c1d2e5c1f62d8f78a3b7
+P ebbb8a084b47f9c83a27ed2215a21abbd15332c741cd745a8ecf94eb76dee399
+R 5094890728e4e5658c9ab8d9b82222cb
+U drh
+Z b83b408e08b89564eb2604865ed43f90
 # Remove this line to create a well-formed Fossil manifest.

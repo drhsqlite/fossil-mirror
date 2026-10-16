@@ -1007,6 +1007,7 @@ void test_integrity(void){
   int nErr = 0;
   int total;
   int nCA = 0;
+  int nPhantom = 0;
   int anCA[10];
   int bParse = find_option("parse",0,0)!=0;
   int bDbOnly = find_option("db-only","d",0)!=0;
@@ -1058,7 +1059,7 @@ void test_integrity(void){
     fossil_print("  %d/%d\r", n1, total);
     fflush(stdout);
     if( size<0 ){
-      fossil_print("skip phantom %d %s\n", rid, zUuid);
+      nPhantom++;
       continue;  /* Ignore phantoms */
     }
     content_get(rid, &content);
@@ -1103,8 +1104,12 @@ void test_integrity(void){
     n2++;
   }
   db_finalize(&q);
-  fossil_print("%d non-phantom blobs (out of %d total) checked:  %d errors\n",
+  if( nPhantom>0 ){
+    fossil_print("%d non-phantom blobs (out of %d total) checked: %d errors\n",
                n2, n1, nErr);
+  }else{
+    fossil_print("all %d blobs checked: %d errors\n", n1, nErr);
+  }
   if( bParse ){
     static const char *const azType[] = { 0, "manifest", "cluster",
         "control", "wiki", "ticket", "attachment", "event" };
