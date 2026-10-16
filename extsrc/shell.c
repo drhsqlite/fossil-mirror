@@ -16,6 +16,7 @@
 **   ext/misc/fileio.c
 **   ext/misc/ieee754.c
 **   ext/misc/memtrace.c
+**   ext/misc/optname.c
 **   ext/misc/pcachetrace.c
 **   ext/misc/regexp.c
 **   ext/misc/series.c
@@ -6723,6 +6724,31 @@ static Decimal *decimalFromDouble(double r){
 }
 
 /*
+** Extract a 32-bit signed integer from argument pVal and write the
+** results into *pResult.  Return 0 on success and 1 if the value is
+** too larger to fit in 32-bits.
+*/
+static int decimalSafeInt(
+  sqlite3_context *context,
+  sqlite3_value *pVal,
+  int *pResult
+){
+  sqlite3_int64 i64 = sqlite3_value_int64(pVal);
+  if( i64<-2147483648LL || i64>2147483647LL ){
+    char *zMsg = sqlite3_mprintf(
+      "value %lld is too large: range limit -2147483648..+2147483647",
+      i64);
+    sqlite3_result_error(context, zMsg, -1);
+    sqlite3_free(zMsg);
+    *pResult = 0;
+    return 1;
+  }else{
+    *pResult = (int)i64;
+    return 0;
+  }
+}
+
+/*
 ** SQL Function:   decimal(X)
 ** OR:             decimal_exp(X)
 **
@@ -6743,8 +6769,12 @@ static void decimalFunc(
   Decimal *p =  decimal_new(context, argv[0], 0);
   int N;
   if( argc==2 ){
-    N = sqlite3_value_int(argv[1]);
-    if( N>0 ) decimal_round(p, N);
+    if( decimalSafeInt(context, argv[1], &N) ){
+      decimal_free(p);
+      p = 0;
+    }else if( N>0 ){
+      decimal_round(p, N);
+    }
   }else{
     N = 0;
   }
@@ -6919,9 +6949,13 @@ static void decimalPow2Func(
 ){
   UNUSED_PARAMETER(argc);
   if( sqlite3_value_type(argv[0])==SQLITE_INTEGER ){
-    Decimal *pA = decimalPow2(sqlite3_value_int(argv[0]));
-    decimal_result_sci(context, pA, 0);
-    decimal_free(pA);
+    int N;
+    if( decimalSafeInt(context, argv[0], &N) ) return;
+    Decimal *pA = decimalPow2(N);
+    if( pA ){
+      decimal_result_sci(context, pA, 0);
+      decimal_free(pA);
+    }
   }
 }
 
@@ -7731,6 +7765,121 @@ int main(int na, char *av[]){
 #endif
 
 /************************* End ext/misc/base85.c ********************/
+/************************* Begin ext/misc/optname.c ******************/
+/*
+** 2026-10-10
+**
+** The author disclaims copyright to this source code.  In place of
+** a legal notice, here is a blessing:
+**
+**    May you do good and not evil.
+**    May you find forgiveness for yourself and forgive others.
+**    May you share freely, never taking more than you give.
+**
+*************************************************************************
+**
+** The sqlite3_test_control() interface with SQLITE_TESTCTRL_OPTIMIZATIONS
+** and SQLITE_TESTCTRL_GETOPT are used to enable and/or disable various
+** optimizations within SQLite.  Optimizations are identified by a bitmask.
+** This file contains external code that will map symbolic names into
+** bitmask values, and bitmask values into symbolic names.
+**
+** This code is not part of the SQLite core because we don't want to use
+** code space to store all the symbolic names.
+*/
+/* #include "sqlite3.h" */
+
+/*
+** Convert an optimization number (as recorded in sqliteInt.h) into
+** a mask for that optimization.
+*/
+#define OPT_MASK(N)   ((1ull)<<((N)-1))
+
+
+/*
+** This is the mapping between bits and names.
+**
+** Some bit values have multiple names.  The preferred name always
+** comes first.
+*/
+static const struct OptName {
+  sqlite3_uint64 uMask;
+  const char *zName;
+} aOpt[] = {
+    { OPT_MASK(1),           "QueryFlattener" },
+    { OPT_MASK(1),           "Flatten" },         /* Alias for prior */
+    { OPT_MASK(2),           "WindowFunc" },
+    { OPT_MASK(3),           "GroupByOrder" },
+    { OPT_MASK(4),           "JoinMiss" },
+    { OPT_MASK(5),           "DistinctOpt" },
+    { OPT_MASK(6),           "CoverIdxScan" },
+    { OPT_MASK(7),           "OrderByIdxJoin" },
+    { OPT_MASK(8),           "Transitive" },
+    { OPT_MASK(9),           "OmitNoopJoin" },
+    { OPT_MASK(10),          "CountOfView" },
+    { OPT_MASK(11),          "CursorHints" },
+    { OPT_MASK(12),          "Stat4" },
+    { OPT_MASK(13),          "PushDown" },
+    { OPT_MASK(14),          "SimplifyJoin" },
+    { OPT_MASK(15),          "SkipScan" },
+    { OPT_MASK(16),          "PropagateConst" },
+    { OPT_MASK(17),          "MinMaxOpt" },
+    { OPT_MASK(18),          "SeekScan" },
+    { OPT_MASK(19),          "OmitOrderBy" },
+    { OPT_MASK(20),          "BloomFilter" },
+    /* 21 currently unused */
+    { OPT_MASK(22),          "BalancedMerge" },
+    { OPT_MASK(23),          "ReleaseReg" },
+    { OPT_MASK(24),          "FlttnUnionAll" },
+    { OPT_MASK(25),          "IndexedExpr" },
+    { OPT_MASK(26),          "Coroutines" },
+    { OPT_MASK(27),          "NullUnusedCols" },
+    { OPT_MASK(28),          "OnePass" },
+    { OPT_MASK(29),          "OrderBySubq" },
+    { OPT_MASK(29),          "OrderBySubquery" },  /* Alias for prior */
+    { OPT_MASK(30),          "StarQuery" },
+    { OPT_MASK(31),          "ExistsToJoin" },
+    { OPT_MASK(32),          "UnionLimit" },
+    /* Special names */
+    { 0xffffffffffffffffULL, "All" },
+    { 0x0000000000000000ULL, "None" },
+};
+
+/*
+** Given a symbolic name, try to compute the corresponding mask.
+**
+** The return value is:
+**
+**     SQLITE_OK           Successful match
+**     SQLITE_NOTFOUND     No match
+**     SQLITE_MISUSE       Bad arguments
+*/
+int sqlite3_optimization_mask(const char *zName, sqlite3_uint64 *pMask){
+  unsigned int i;
+  if( zName==0 || pMask==0 ){ return SQLITE_MISUSE; }
+  for(i=0; i<sizeof(aOpt)/sizeof(aOpt[0]); i++){
+    if( sqlite3_stricmp(zName, aOpt[i].zName)==0 ){
+      *pMask = aOpt[i].uMask;
+      return SQLITE_OK;
+    }
+  }
+  *pMask = 0;
+  return SQLITE_NOTFOUND;
+}
+
+/*
+** Given a bitmap, return the canonical symbolic name.  Return 0 for
+** a bitmap input of 0 or a bitmap value that matches nothing.
+*/
+const char *sqlite3_optimization_name(sqlite3_uint64 mask){
+  unsigned int i;
+  for(i=0; i<sizeof(aOpt)/sizeof(aOpt[0]); i++){
+    if( aOpt[i].uMask==mask ){ return aOpt[i].zName; }
+  }
+  return 0;
+}
+
+/************************* End ext/misc/optname.c ********************/
 /************************* Begin ext/misc/ieee754.c ******************/
 /*
 ** 2013-04-17
@@ -25078,6 +25227,7 @@ struct ShellState {
   u8 nPopMode;           /* Revert .mode settings when reaching zero */
   u8 enableTimer;        /* Enable the timer.  2: permanently 1: only once */
   u8 bDelimitNonprint;   /* Add \001...\002 around non-printing in prompts */
+  u8 bTestParse;         /* Undocumented --test-parse flags */
   int inputNesting;      /* Track nesting level of .read and other redirects */
   double prevTimer;      /* Last reported timer value */
   double tmProgress;     /* --timeout option for .progress */
@@ -25189,7 +25339,7 @@ static ShellState shellState;
 */
 static const char *qrfEscNames[] = { "auto", "off", "ascii", "symbol" };
 static const char *qrfQuoteNames[] = 
-      { "off","off","sql","hex","csv","tcl","json","relaxed"};
+      { "off","off","sql","csv","html","tcl","json","relaxed"};
 
 /*
 ** These are the allowed shellFlgs values
@@ -25278,7 +25428,7 @@ static const ModeInfo aModeInfo[] = {
   { "c",        4,     1,    10,   5,    5,    4,   1,   12,    0,  0 },
   { "column",   0,     0,    9,    1,    1,    0,   3,   2,     2,  0 },
   { "count",    0,     0,    0,    0,    0,    0,   0,   3,     0,  0 },
-  { "csv",      4,     5,    9,    3,    3,    0,   1,   4,     0,  0 },
+  { "csv",      4,     5,    9,    3,    3,    0,   1,   12,    0,  0 },
   { "html",     0,     0,    9,    4,    4,    0,   3,   7,     0,  0 },
   { "insert",   0,     0,    10,   2,    2,    0,   1,   8,     0,  0 },
   { "jatom",    4,     1,    11,   6,    6,    0,   1,   12,    0,  0 },
@@ -26497,10 +26647,16 @@ static void shellDtostr(
   sqlite3_value **apVal
 ){
   double r = sqlite3_value_double(apVal[0]);
-  int n = nVal>=2 ? sqlite3_value_int(apVal[1]) : 26;
+  i64 nn = nVal>=2 ? sqlite3_value_int64(apVal[1]) : 26;
+  int n;
   char z[400];
-  if( n<1 ) n = 1;
-  if( n>350 ) n = 350;
+  if( nn<1 ){
+    n = 1;
+  }else if( nn>350 ){
+    n = 350;
+  }else{
+    n = (int)nn;
+  }
   z[sizeof(z)-1] = 0;
   snprintf(z, sizeof(z)-1, "%#+.*e", n, r);
   sqlite3_result_text(pCtx, z, -1, SQLITE_TRANSIENT);
@@ -30113,7 +30269,9 @@ static void open_db(ShellState *p, int openFlags){
     sqlite3_diskused_init(p->db, 0, 0);
     sqlite3_strdup_init(p->db, 0, 0);
 #ifndef SQLITE_SHELL_FIDDLE
-    sqlite3_fileio_init(p->db, 0, 0);
+    if( !p->bSafeMode ){
+      sqlite3_fileio_init(p->db, 0, 0);
+    }
     sqlite3_completion_init(p->db, 0, 0);
 #endif
 #ifdef SQLITE_HAVE_ZLIB
@@ -33261,9 +33419,17 @@ static int dotCmdImport(ShellState *p){
       }
     }else if( cli_strcmp(z,"-v")==0 ){
       eVerbose++;
-    }else if( cli_strcmp(z,"-schema")==0 && i<nArg-1 ){
+    }else if( cli_strcmp(z,"-schema")==0 ){
+      if( i==nArg-1 ){
+        dotCmdError(p, i, "missing argument", 0);
+        return 1;
+      }
       zSchema = azArg[++i];
-    }else if( cli_strcmp(z,"-skip")==0 && i<nArg-1 ){
+    }else if( cli_strcmp(z,"-skip")==0 ){
+      if( i==nArg-1 ){
+        dotCmdError(p, i, "missing argument", 0);
+        return 1;
+      }
       nSkip = integerValue(azArg[++i]);
     }else if( cli_strcmp(z,"-ascii")==0 ){
       if( sCtx.cColSep==0 ) sCtx.cColSep = '\037';
@@ -33274,8 +33440,16 @@ static int dotCmdImport(ShellState *p){
       if( sCtx.cRowSep==0 ) sCtx.cRowSep = '\n';
       xRead = csv_read_one_field;
     }else if( cli_strcmp(z,"-esc")==0 ){
+      if( i==nArg-1 ){
+        dotCmdError(p, i, "missing argument", 0);
+        return 1;
+      }
       sCtx.cUQEscape = azArg[++i][0];
     }else if( cli_strcmp(z,"-qesc")==0 ){
+      if( i==nArg-1 ){
+        dotCmdError(p, i, "missing argument", 0);
+        return 1;
+      }
       sCtx.cQEscape = azArg[++i][0];
     }else if( cli_strcmp(z,"-colsep")==0 ){
       if( i==nArg-1 ){
@@ -34253,7 +34427,8 @@ static int dotCmdMode(ShellState *p){
     if( bAll 
      || (pI->eText!=p->mode.spec.eText && (pI->eText>1 || p->mode.spec.eText>1))
     ){
-      sqlite3_str_appendf(pDesc," --quote %s",qrfQuoteNames[p->mode.spec.eText]);
+      sqlite3_str_appendf(pDesc," --quote %s",
+                          qrfQuoteNames[p->mode.spec.eText]);
     }
     if( bAll 
      || ((p->mode.spec.bRowCount==QRF_Yes) != ((pI->mFlg&4)!=0))
@@ -37583,49 +37758,14 @@ static int do_meta_command(const char *zLine, ShellState *p){
         **      INTEGER      Mask of optimizations to disable
         */
         case SQLITE_TESTCTRL_OPTIMIZATIONS: {
-          static const struct {
-             unsigned int mask;    /* Mask for this optimization */
-             unsigned int bDsply;  /* Display this on output */
-             const char *zLabel;   /* Name of optimization */
-          } aLabel[] = {
-            { 0x00000001, 1, "QueryFlattener" },
-            { 0x00000001, 0, "Flatten" },
-            { 0x00000002, 1, "WindowFunc" },
-            { 0x00000004, 1, "GroupByOrder" },
-            { 0x00000010, 1, "DistinctOpt" },
-            { 0x00000020, 1, "CoverIdxScan" },
-            { 0x00000040, 1, "OrderByIdxJoin" },
-            { 0x00000080, 1, "Transitive" },
-            { 0x00000100, 1, "OmitNoopJoin" },
-            { 0x00000200, 1, "CountOfView" },
-            { 0x00000400, 1, "CursorHints" },
-            { 0x00000800, 1, "Stat4" },
-            { 0x00001000, 1, "PushDown" },
-            { 0x00002000, 1, "SimplifyJoin" },
-            { 0x00004000, 1, "SkipScan" },
-            { 0x00008000, 1, "PropagateConst" },
-            { 0x00010000, 1, "MinMaxOpt" },
-            { 0x00020000, 1, "SeekScan" },
-            { 0x00040000, 1, "OmitOrderBy" },
-            { 0x00080000, 1, "BloomFilter" },
-            { 0x00200000, 1, "BalancedMerge" },
-            { 0x00400000, 1, "ReleaseReg" },
-            { 0x00800000, 1, "FlttnUnionAll" },
-            { 0x01000000, 1, "IndexedEXpr" },
-            { 0x02000000, 1, "Coroutines" },
-            { 0x04000000, 1, "NullUnusedCols" },
-            { 0x08000000, 1, "OnePass" },
-            { 0x10000000, 1, "OrderBySubq" },
-            { 0x20000000, 1, "StarQuery" },
-            { 0x40000000, 1, "ExistsToJoin" },
-            { 0x80000000, 1, "UnionLimit" },
-            { 0xffffffff, 0, "All" },
-          };
-          unsigned int curOpt;
-          unsigned int newOpt;
-          unsigned int m;
-          int ii;
-          int nOff;
+          unsigned int curOpt;       /* Current opt-disabled mask */
+          unsigned int newOpt;       /* New opt-disabled mask */
+          unsigned int m;            /* A working mask value */
+          sqlite3_uint64 mm;         /* 64-bit working mask value */
+          int ii, jj;                /* Loop counters */
+          int nOff;                  /* Number of disabled optimizations */
+          const char *zName;         /* Name of an optimization */
+
           sqlite3_test_control(SQLITE_TESTCTRL_GETOPT, p->db, &curOpt);
           newOpt = curOpt;
           for(ii=2; ii<nArg; ii++){
@@ -37642,25 +37782,23 @@ static int do_meta_command(const char *zLine, ShellState *p){
               newOpt = (unsigned int)strtol(z,0,0);
             }
             if( useLabel ){
-              int jj;
-              for(jj=0; jj<ArraySize(aLabel); jj++){
-                if( sqlite3_stricmp(zLabel, aLabel[jj].zLabel)==0 ) break;
-              }
-              if( jj>=ArraySize(aLabel) ){
+              if( sqlite3_optimization_mask(zLabel,&mm)==SQLITE_NOTFOUND ){
                 cli_printf(stderr,
                     "Error: no such optimization: \"%s\"\n", zLabel);
-                cli_puts("Should be one of:", stderr);
-                for(jj=0; jj<ArraySize(aLabel); jj++){
-                  cli_printf(stderr," %s", aLabel[jj].zLabel);
+                cli_puts("Should be one of: All", stderr);
+                for(jj=0; jj<32; jj++){
+                  zName = sqlite3_optimization_name(1ull<<jj);
+                  if( zName ) cli_printf(stderr," %s", zName);
                 }
                 cli_puts("\n", stderr);
                 rc = 1;
                 goto meta_command_exit;
               }
+              m = (u32)mm;
               if( useLabel=='+' ){
-                newOpt &= ~aLabel[jj].mask;
+                newOpt &= ~m;
               }else{
-                newOpt |= aLabel[jj].mask;
+                newOpt |= m;
               }
             }
           }
@@ -37672,18 +37810,20 @@ static int do_meta_command(const char *zLine, ShellState *p){
           }
           if( nOff<12 ){
             cli_puts("+All", p->out);
-            for(ii=0; ii<ArraySize(aLabel); ii++){
-              if( !aLabel[ii].bDsply  ) continue;
-              if( (newOpt & aLabel[ii].mask)!=0 ){
-                cli_printf(p->out, " -%s", aLabel[ii].zLabel);
+            for(ii=0, m=1; ii<32; ii++, m <<= 1){
+              if( (newOpt & m)!=0 
+               && (zName = sqlite3_optimization_name(m))!=0
+              ){
+                cli_printf(p->out, " -%s", zName);
               }
             }
           }else{
             cli_puts("-All", p->out);
-            for(ii=0; ii<ArraySize(aLabel); ii++){
-              if( !aLabel[ii].bDsply  ) continue;
-              if( (newOpt & aLabel[ii].mask)==0 ){
-                cli_printf(p->out, " +%s", aLabel[ii].zLabel);
+            for(ii=0, m=1; ii<32; ii++, m <<= 1){
+              if( (newOpt & m)==0
+               && (zName = sqlite3_optimization_name(m))!=0
+              ){
+                cli_printf(p->out, " +%s", zName);
               }
             }
           }
@@ -38317,6 +38457,63 @@ static int doAutoDetectRestore(ShellState *p, const char *zSql){
 }
 
 /*
+** When the (undocumented) command-line option --test-parse is used,
+** this routine is run instead of runOneSqlLine() to process SQL.  Don't
+** actually run any SQL.  Instead just provide a one-line summary of the
+** SQL that would have run.
+*/
+static void runTestParse(
+  ShellState *p,            /* Execution context */
+  char *zSql                /* SQL to be run */
+){
+  int nNL = 0;
+  char *zNL;
+  size_t i, j, n;
+  int nPre = 0;
+  int nSuf = 0;
+  int mxPre = 20;
+  char zPre[50], zSuf[50];
+
+  for(zNL=strchr(zSql,'\n'); zNL!=0; zNL=strchr(zNL+1,'\n')){ nNL++; }
+  n = strlen(zSql);
+  if( n<40 ) mxPre = 40;
+  for(i=0; nPre<mxPre && i<n; i++){
+      char c = zSql[i];
+      if( c=='\n' ){
+      zPre[nPre++] = '\\';
+      zPre[nPre++] = 'n';
+    }else if( c>0 && c<' ' ){
+      zPre[nPre++] = '^';
+      zPre[nPre++] = c+0x40;
+    }else{
+      zPre[nPre++] = c;
+    }
+  }
+  zPre[nPre] = 0;
+  j = n - 20;
+  if( j<i ){
+    j = i;
+  }else{
+    memcpy(zSuf," ... ", 5);
+    nSuf = 5;
+  }
+  for(i=j; i<n; i++){
+    char c = zSql[i];
+    if( c=='\n' ){
+      zSuf[nSuf++] = '\\';
+      zSuf[nSuf++] = 'n';
+    }else if( c>0 && c<' ' ){
+      zSuf[nSuf++] = '^';
+      zSuf[nSuf++] = c+0x40;
+    }else{
+      zSuf[nSuf++] = c;
+    }
+  }
+  zSuf[nSuf] = 0;
+  cli_printf(p->out, "%d line%s: %s%s\n", nNL+1, (nNL?"s":""), zPre, zSuf);
+}
+
+/*
 ** Run a single line of SQL.  Return the number of errors.
 */
 static int runOneSqlLine(
@@ -38331,9 +38528,14 @@ static int runOneSqlLine(
   open_db(p, 0);
   if( ShellHasFlag(p,SHFLG_Backslash) ) resolve_backslashes(zSql);
   if( p->flgProgress & SHELL_PROGRESS_RESET ) p->nProgress = 0;
-  BEGIN_TIMER(p);
-  rc = shell_exec(p, zSql, &zErrMsg);
-  END_TIMER(p);
+  if( p->bTestParse ){
+    runTestParse(p, zSql);
+    rc = SQLITE_OK;
+  }else{
+    BEGIN_TIMER(p);
+    rc = shell_exec(p, zSql, &zErrMsg);
+    END_TIMER(p);
+  }
   if( rc || zErrMsg ){
     sqlite3_str *pPrefix = sqlite3_str_new(p->db);
     const char *zErrorTail;
@@ -38430,6 +38632,27 @@ static char *one_input_line(
 #endif /* SQLITE_SHELL_FIDDLE */
 
 /*
+** Return true if the input would is complete SQL, or complete SQL
+** followed by only whitespace.  This is similar to sqlite3_complete()
+** except that if the final semicolon is followed by whitespace, it
+** still returns true.
+*/
+static int line_is_complete(char *zSql, int nSql){
+  sqlite3_int64 x;
+  assert( nSql>=0 && zSql[nSql]==0 );
+  x = sqlite3_incomplete(zSql);
+  if( x==0x00 || x==0x10 ) return 1;
+  if( x==0x2d0001 ){
+    zSql[nSql] = '\n';
+    zSql[nSql+1] = 0;
+    x = sqlite3_incomplete(zSql);
+    zSql[nSql] = 0;
+    if( x==0x00 || x==0x10 ) return 1;
+  }
+  return 0;
+}
+
+/*
 ** Read input from *in and process it.  If *in==0 then input
 ** is interactive - the user is typing it it.  Otherwise, input
 ** is coming from a file or device.  A prompt is issued and history
@@ -38497,9 +38720,9 @@ static int process_input(ShellState *p, const char *zSrc){
       memcpy(zLine,";",2);
     }
 #endif
-    hasSemi = strchr(zLine,';')!=0;
+    if( strchr(zLine,';')!=0 ) hasSemi = 1;
     nLine = strlen(zLine);
-    if( nSql+nLine+2>=nAlloc ){
+    if( nSql+nLine+4>=nAlloc ){
       /* Grow buffer by half-again increments when big. */
       nAlloc = nSql+(nSql>>1)+nLine+100;
       zSql = realloc(zSql, nAlloc);
@@ -38526,7 +38749,7 @@ static int process_input(ShellState *p, const char *zSrc){
       errCnt++;
       break;
     }
-    if( nSql && hasSemi && sqlite3_complete(zSql) ){
+    if( nSql && hasSemi && line_is_complete(zSql, nSql) ){
       echo_group_input(p, zSql);
       errCnt += runOneSqlLine(p, zSql, p->zInFile, startline);
       nSql = 0;
@@ -39260,7 +39483,8 @@ int SQLITE_CDECL main(int argc, char **argv){
     }else if( cli_strcmp(z,"-nonce")==0 ){
       free(data.zNonce);
       data.zNonce = strdup(cmdline_option_value(argc, argv, ++i));
-    }else if( cli_strcmp(z,"-unsafe-testing")==0 ){
+    }else if( cli_strcmp(z,"-unsafe-testing")==0
+           || cli_strcmp(z,"-unsafe")==0 ){
       ShellSetFlag(&data,SHFLG_TestingMode);
     }else if( cli_strcmp(z,"-safe")==0 ){
       /* no-op - catch this on the second pass */
@@ -39279,6 +39503,13 @@ int SQLITE_CDECL main(int argc, char **argv){
         sqlite3_fprintf(stdout,"argv[%d] = \"%s\"\n", kk, argv[kk]);
       }
       return 0;
+    }else if( cli_strcmp(z,"-test-parse")==0 ){
+      /* Undocumented test option.  Read input normally and process all
+      ** dot-commands.  But do not process any SQL.  Instead, whenever input
+      ** text would have been processed as SQL, print a one-line summary of
+      ** the input.  This is used by test script to verify that the end-of-SQL
+      ** parsing logic is working correctly. */
+      data.bTestParse = 1;
     }
   }
 #ifndef SQLITE_SHELL_FIDDLE
@@ -39575,7 +39806,10 @@ int SQLITE_CDECL main(int argc, char **argv){
 #endif
     }else if( cli_strcmp(z,"-safe")==0 ){
       data.bSafeMode = data.bSafeModePersist = 1;
-    }else if( cli_strcmp(z,"-unsafe-testing")==0 ){
+    }else if( cli_strcmp(z,"-unsafe-testing")==0 
+           || cli_strcmp(z,"-unsafe")==0 ){
+      /* Acted upon in first pass. */
+    }else if( cli_strcmp(z,"-test-parse")==0 ){
       /* Acted upon in first pass. */
     }else{
       cli_printf(stderr,"%s: Error: unknown option: %s\n", Argv0, z);
