@@ -17,7 +17,6 @@
 */
 /*MAKEHEADERS-STOP*/
 #include "config.h"
-#if FOSSIL_HARDENED_SHA1  /* Only do this code if requested */
 /*************** File:  lib/sha1.c ****************/
 /***
 * Copyright 2017 Marc Stevens <marc@marc-stevens.nl>, Dan Shumow (danshu@microsoft.com)
@@ -1414,7 +1413,6 @@ void sha1_process(SHA1_CTX* ctx, const uint32_t block[16])
           || (ctx->reduced_round_coll && ctx->ihv1[0] == ctx->ihv2[0] && ctx->ihv1[1] == ctx->ihv2[1] && ctx->ihv1[2] == ctx->ihv2[2] && ctx->ihv1[3] == ctx->ihv2[3] && ctx->ihv1[4] == ctx->ihv2[4]))
         {
           ctx->found_collision = 1;
-          /* TODO: call callback */
           if (ctx->callback != NULL)
             ctx->callback(ctx->total - 64, ctx->ihv1, ctx->ihv2, ctx->m1, ctx->m2);
 
@@ -1430,10 +1428,6 @@ void sha1_process(SHA1_CTX* ctx, const uint32_t block[16])
     }
   }
 }
-
-
-
-
 
 void swap_bytes(uint32_t val[16])
 {
@@ -1593,4 +1587,3 @@ int SHA1DCFinal(unsigned char output[20], SHA1_CTX *ctx)
   output[19] = (unsigned char)(ctx->ihv[4]);
   return ctx->found_collision;
 }
-#endif /* FOSSIL_HARDENED_SHA1 */
