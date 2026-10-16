@@ -21,12 +21,15 @@
 #include "sha1.h"
 
 /*
-** SHA1 Implementation #1 is the hardened SHA1 implementation by
-** Marc Stevens.  Code obtained from GitHub
+** This is the hardened SHA1 implementation by Marc Stevens (under MIT License).
+**
+** Code obtained from GitHub
 **
 **     https://github.com/cr-marcstevens/sha1collisiondetection
 **
-** Downloaded on 2017-03-01 then repackaged to work with Fossil
+** at commit   a06f1adbe5522f3c939cd6a3f13d5ec7f4c1a988   (2025-10-25).
+**
+** Downloaded on 2026-10-16 then repackaged to work with Fossil
 ** and makeheaders.
 */
 #if INTERFACE

@@ -1457,7 +1457,7 @@ void diff_cmd(void){
   isGDiff = g.argv[1][0]=='g';
   if( find_option("tk",0,0)!=0
    || has_option("tclsh")
-   || gdiff_using_tk(isGDiff)
+  /* || gdiff_using_tk(isGDiff) */
   ){
     diff_tk("diff", 2);
     return;

@@ -1,5 +1,5 @@
-C Update\ssrc/sha1hard.c\sto\smatch\sthe\scurrent\supstream\simplementation,\swhich\sLLM\sanalysis\sassures\sus\sis\sfaster.\sThe\sonly\slocal\schanges\sapplied\swere\sminor\sformatting,\sadd\s'static'\sto\sa\sfew\sfunctions,\sand\sremove\sthose\swhich\sfail\sthe\sresulting\s'defined\sbut\snot\sused'\swarning.\sThis\schange\srequires\sstdint.h:\sC99\sbut\sunsupported\sby\sMSC\suntil\smid-2000-teens,\sso\sthis\smight\snot\sbuild\swith\san\sancient\sMSC.\sPasses\stests\swith\srebuild,\stest-integrity,\sand\sthis\scheck-in.
-D 2026-10-16T13:48:08.268
+C Update\sthe\scomment\son\sSHA1\scode\swith\sthe\supstream\scommit\shash\sand\sdate.
+D 2026-10-16T14:10:53.081
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -424,7 +424,7 @@ F src/descendants.c 4bb7fb447369984f041da4a5ec05c201383bde3a59d18c537293d520712a
 F src/diff.c 3e46c56274896ac8ebc3035a32060bf5898f6cd2b6540816d62d6649125eb3bd
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl 6208e877c1ce30bfd81b04aa2e486d58c2394bfd2a477e4855e758eb7d6e75b8
-F src/diffcmd.c de89310489017122ede51ebdd46800498f9e56afab55d0626d36ef6a9f3aa3ac
+F src/diffcmd.c ca46a0d318ffb9390d107b63cae4ea01777161cc96a19e20564aef8f60750604
 F src/dispatch.c 668bb146c946b55cdebd7dc3275f7b321240490ae82873b8e893268435ea8673
 F src/doc.c f938d93ea40675e563863b06631a4b266a9f343965ee31c9b1ea999b753a8d0a
 F src/encode.c 016efece00d0d4436f87c61cfc3f6a41ef014ee3bb52e234dce38bc9711791ee
@@ -535,7 +535,7 @@ F src/search.c c4bd56d8638015525bdacf03d2609e90f9c46f283bb1bfc97d467b7f504365c7
 F src/security_audit.c 657b0f1810ec264a29c17e0ec38c117982bdee94fb030e2fe186b43035001b37
 F src/setup.c 8f15afcdc357cc7a35c7555a38e07428c426a7158bab07fdd3c2cdfb2481724a
 F src/setupuser.c e2332600755153655c9c01a0f3073c0abd6091d7150e9321abdcf2f3c02c58c9
-F src/sha1.c 194e005417f28852b8b2e694b5b3acb97041c690ead0edc714c800ddd74b3908
+F src/sha1.c 58fb2b11857bd03d2211797bcd5be5c8529600e599fb4c90af52fb00223bcdd0
 F src/sha1hard.c 341e98e1d4b6af2c2ea092cde6b07ebcf5a71c527c847df8f657cf335543e1f5
 F src/sha3.c 6f51bfb14500f8fb7594fc2ea45bbad2b4d06bc0107d011576bb3d9bfb94fc71
 F src/shun.c 29c9cf679b993b96ef7d087743a6d83eb9eb57289e716270097d4e733f85e69b
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c54604f830cbfd0b15bf85747e90659f6023891e4978fb090d08525c114908ff
-R 126474cad34b46dcfe9d77c6109c5229
-U stephan
-Z 143f530f2dbac50988fa4a6a6d9343df
+P d243deba6a63cf4e2b0c58fe153505153dbdf26df75b2647b0d01ad511d88efe
+R cfc6e0d850511bd2d9d68e51e97820c9
+U danield
+Z 2f6a12a395d0b286db9a10eff6cd8ae9
 # Remove this line to create a well-formed Fossil manifest.
