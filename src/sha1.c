@@ -18,9 +18,7 @@
 ** This implementation of SHA1.
 */
 #include "config.h"
-#include <sys/types.h>
 #include "sha1.h"
-
 
 /*
 ** SHA1 Implementation #1 is the hardened SHA1 implementation by
@@ -38,7 +36,6 @@ struct SHA1_CTX {
   uint64_t total;
   uint32_t ihv[5];
   unsigned char buffer[64];
-  int bigendian;
   int found_collision;
   int safe_hash;
   int detect_coll;
@@ -52,6 +49,7 @@ struct SHA1_CTX {
   uint32_t m2[80];
   uint32_t states[80][5];
 };
+typedef struct SHA1_CTX SHA1_CTX;
 
 void SHA1DCInit(SHA1_CTX*);
 void SHA1DCUpdate(SHA1_CTX*, const unsigned char*, unsigned);
