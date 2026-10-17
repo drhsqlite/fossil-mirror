@@ -2190,6 +2190,10 @@ void page_timeline(void){
   }else{
     bisectLocal = 0;
   }
+  if( zBisect!=0 && bisectLocal ){
+    zBisect = 0;   /* bisect=1 takes precedence over bid= */
+  }
+  if( zBisect!=0 && robot_restrict("timelineX") ) return;
   if( zBisect!=0 && bisect_create_bilog_table(0, zBisect, 1) ){
     tmFlags |= TIMELINE_UNHIDE | TIMELINE_BISECT | TIMELINE_FILLGAPS;
     zType = "ci";
