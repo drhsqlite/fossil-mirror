@@ -1405,9 +1405,9 @@ static void qrfEqpStats(Qrf *p){
   }
   if( p->u.pGraph ) p->u.pGraph->nWidth = nWidth;
   qrfStrErr(p, pLine);
-  sqlite3_free(sqlite3_str_finish(pLine));
+  sqlite3_str_free(pLine);
   qrfStrErr(p, pStats);
-  sqlite3_free(sqlite3_str_finish(pStats));
+  sqlite3_str_free(pStats);
 #endif
 }
 
@@ -2925,6 +2925,21 @@ static void qrfRestrictScreenWidth(qrfColData *pData, Qrf *p){
 }
 
 /*
+** Invoke sqlite3_str_finish().  But if it returns NULL, try to allocate
+** an empty string to replace the result.
+**
+** The result might still be an empty string, but only after an OOM and
+** in that case qrfOom() has been called already and so it is safe to
+** return immediately.
+*/
+static char *qrfStrFinish(Qrf *p, sqlite3_str *pStr){
+  char *z = sqlite3_str_finish(pStr);
+  if( z==0 ) z = sqlite3_mprintf("");
+  if( z==0 ) qrfOom(p);
+  return z;
+}
+
+/*
 ** Columnar modes require that the entire query be evaluated first, with
 ** results written into memory, so that we can compute appropriate column
 ** widths.
@@ -2987,7 +3002,8 @@ static void qrfColumnar(Qrf *p){
       qrfEncodeText(p, pStr, z ? z : "");
       n = sqlite3_str_length(pStr);
       qrfStrErr(p, pStr);
-      z = data.az[data.n] = sqlite3_str_finish(pStr);
+      z = data.az[data.n] = qrfStrFinish(p, pStr);
+      if( z==0 ) goto columnar_done;
       if( p->spec.nTitleLimit ){
         nNL = 0;
         data.aiWth[data.n] = w = qrfTitleLimit(data.az[data.n],
@@ -3016,7 +3032,8 @@ static void qrfColumnar(Qrf *p){
       qrfRenderValue(p, pStr, i);
       n = sqlite3_str_length(pStr);
       qrfStrErr(p, pStr);
-      z = data.az[data.n] = sqlite3_str_finish(pStr);
+      z = data.az[data.n] = qrfStrFinish(p,pStr);
+      if( z==0 ) goto columnar_done;
       data.abNum[data.n] = eType==SQLITE_INTEGER || eType==SQLITE_FLOAT;
       data.aiWth[data.n] = w = qrfDisplayWidth(z, n, &nNL);
       data.n++;
@@ -3304,6 +3321,7 @@ static void qrfColumnar(Qrf *p){
   }
   qrfWrite(p);
 
+columnar_done:
   qrfColDataFree(&data);
   return;
 }
@@ -3735,7 +3753,7 @@ static void qrfOneSimpleRow(Qrf *p){
         sqlite3_str_reset(pVal);
       }
       qrfStrErr(p, pVal);
-      sqlite3_free(sqlite3_str_finish(pVal));
+      sqlite3_str_free(pVal);
       qrfWrite(p);
       break;
     }
@@ -4018,12 +4036,12 @@ static void qrfFinalize(Qrf *p){
         p->spec.pzOutput[0] = zCombined;
         memcpy(zCombined+sz, sqlite3_str_value(p->pOut), n+1);
       }
-      sqlite3_free(sqlite3_str_finish(p->pOut));
+      sqlite3_str_free(p->pOut);
     }else{
-      p->spec.pzOutput[0] = sqlite3_str_finish(p->pOut);
+      p->spec.pzOutput[0] = qrfStrFinish(p, p->pOut);
     }
   }else if( p->pOut ){
-    sqlite3_free(sqlite3_str_finish(p->pOut));
+    sqlite3_str_free(p->pOut);
   }
   if( p->expMode>0 ){
     sqlite3_stmt_explain(p->pStmt, p->expMode-1);
@@ -6950,8 +6968,9 @@ static void decimalPow2Func(
   UNUSED_PARAMETER(argc);
   if( sqlite3_value_type(argv[0])==SQLITE_INTEGER ){
     int N;
+    Decimal *pA;
     if( decimalSafeInt(context, argv[0], &N) ) return;
-    Decimal *pA = decimalPow2(N);
+    pA = decimalPow2(N);
     if( pA ){
       decimal_result_sci(context, pA, 0);
       decimal_free(pA);
@@ -8422,6 +8441,7 @@ struct series_cursor {
   sqlite3_int64 iValue;      /* Current value */
   u8 bDesc;                  /* iStep is really negative */
   u8 bDone;                  /* True if stepped past last element */
+  u8 bLimit;                 /* There exists a limit clause */
 };
 
 /*
@@ -8533,10 +8553,10 @@ static int seriesNext(sqlite3_vtab_cursor *cur){
     pCur->bDone = 1;
   }else if( pCur->bDesc ){
     pCur->iValue = sub64(pCur->iValue, pCur->iStep);
-    assert( pCur->iValue>=pCur->iTerm );
+    assert( pCur->iValue>=pCur->iTerm || pCur->bLimit );
   }else{
     pCur->iValue = add64(pCur->iValue, pCur->iStep);
-    assert( pCur->iValue<=pCur->iTerm );
+    assert( pCur->iValue<=pCur->iTerm || pCur->bLimit );
   }
   return SQLITE_OK;
 }
@@ -8766,6 +8786,7 @@ static int seriesFilter(
     if( idxNum & 0x40 ){
       iOffset = sqlite3_value_int64(argv[iArg++]);
     }
+    if( iLimit>0 ) pCur->bLimit = 1;
   }
 
   /* Narrow the range of iMin and iMax (the minimum and maximum outputs)
@@ -16237,12 +16258,21 @@ static int idxCreateFromCons(
       do{
         int i;
         char *zFind;
-        for(i=0; zCols[i]; i++){
-          h += ((h<<3) + zCols[i]);
-        }
+
         sqlite3_free(zName);
-        zName = sqlite3_mprintf("%s_idx_%08x", zTable, h);
+        if( collisions<10 ){
+          for(i=0; zCols[i]; i++){
+            h += ((h<<3) + zCols[i]);
+          }
+          zName = sqlite3_mprintf("%s_idx_%08x", zTable, h);
+        }else{
+          /* After several hash attempts, generate a random name */
+          sqlite3_uint64 u;
+          sqlite3_randomness(sizeof(u), &u);
+          zName = sqlite3_mprintf("%s_idx_%llx", zTable, u);
+        }
         if( zName==0 ) break;
+         
         /* Is is unique among table, view and index names? */
         zFmt = "SELECT count(*) FROM sqlite_schema WHERE name=%Q"
           " AND type in ('index','table','view')";
@@ -16256,8 +16286,8 @@ static int idxCreateFromCons(
           break;
         }
         ++collisions;
-      }while( collisions<50 && zName!=0 );
-      if( collisions ){
+      }while( ALWAYS(collisions<500) && zName!=0 );
+      if( NEVER(collisions) ){
         /* This return means "Gave up trying to find a unique index name." */
         rc = SQLITE_BUSY_TIMEOUT;
       }else if( zName==0 ){
@@ -16279,9 +16309,9 @@ static int idxCreateFromCons(
             idxHashAdd(&rc, &p->hIdx, zName, zIdx);
           }
         }
-        sqlite3_free(zName);
         sqlite3_free(zIdx);
       }
+      sqlite3_free(zName);
     }
 
     sqlite3_free(zCols);
@@ -34277,10 +34307,10 @@ static int dotCmdMode(ShellState *p){
         return 1;
       }
       zW = azArg[++i];
-      /* Every width value takes at least 2 bytes in the input string to
-      ** specify, so strlen(zW) bytes should be plenty of space to hold the
-      ** result. */
-      aWidth = malloc( strlen(zW) );
+      /* Every width value except a single-digit final value takes at
+      ** least 2 bytes in the input string to specify, so strlen(zW)+1
+      ** entries is plenty of space to hold the result. */
+      aWidth = malloc( strlen(zW)+1 );
       while( IsSpace(zW[0]) ) zW++;
       while( zW[0] ){
         int w = 0;

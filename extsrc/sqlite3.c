@@ -18,7 +18,7 @@
 ** separate file. This file contains only code for the core SQLite library.
 **
 ** The content in this amalgamation comes from Fossil check-in
-** 668541c592b89d32716420615450d55d9faf with changes in files:
+** c75eff906c11d8f17ae198e5f6cfea34636d with changes in files:
 **
 **    
 */
@@ -469,10 +469,10 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.55.0"
 #define SQLITE_VERSION_NUMBER 3055000
-#define SQLITE_SOURCE_ID      "2026-10-16 14:31:53 668541c592b89d32716420615450d55d9faf89da8a8e389c673973d8383cca98"
+#define SQLITE_SOURCE_ID      "2026-10-17 12:10:02 c75eff906c11d8f17ae198e5f6cfea34636df2bde0104440fd0b6983ddb2f918"
 #define SQLITE_SCM_BRANCH     "trunk"
 #define SQLITE_SCM_TAGS       ""
-#define SQLITE_SCM_DATETIME   "2026-10-16T14:31:53.543Z"
+#define SQLITE_SCM_DATETIME   "2026-10-17T12:10:02.088Z"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -86457,11 +86457,16 @@ SQLITE_PRIVATE void sqlite3VdbeMemMove(Mem *pTo, Mem *pFrom){
 ** either case, SQLITE_TOOBIG is returned.
 **
 ** The "enc" parameter is the text encoding for the string, or zero
-** to store a blob.
+** to store a blob.  If enc not 0 or SQLITE_UTF8 and the string
+** begins with a BOM, the BOM is removed.  To retain the BOM on a UTF16
+** string, use a non-negative "n" and set enc to SQLITE_UTF8, and
+** separately set pMem->enc to the correct encoding after this function
+** returns.
 **
-** If n is negative, then the string consists of all bytes up to but
-** excluding the first zero character.  The n parameter must be
-** non-negative for blobs.
+** If n is negative and enc is not zero and is set correctly, then the
+** string consists of all bytes up to but excluding the first zero
+** character.  The n parameter must be non-negative for blobs or if
+** enc is not set accurately.
 */
 SQLITE_PRIVATE int sqlite3VdbeMemSetStr(
   Mem *pMem,          /* Memory cell to set to string value */
@@ -86550,6 +86555,10 @@ SQLITE_PRIVATE int sqlite3VdbeMemSetStr(
   pMem->enc = enc;
 
 #ifndef SQLITE_OMIT_UTF16
+  /* tag-20261016-1:  To retain the BOM, use enc==SQLITE_UTF8, even
+  ** for UTF-16 text, and then set pMem->enc correctly after this
+  ** function returns.  Note, however, that n must be non-negative
+  ** for this trick to work. */
   if( enc>SQLITE_UTF8 && sqlite3VdbeMemHandleBom(pMem) ){
     return SQLITE_NOMEM_BKPT;
   }
@@ -93407,6 +93416,7 @@ SQLITE_API int sqlite3_clear_bindings(sqlite3_stmt *pStmt){
   int i;
   int rc = SQLITE_OK;
   Vdbe *p = (Vdbe*)pStmt;
+  u32 maskSmallInt = 0;  /* Bitmask of bindings with value 0 or 1 */
 #if SQLITE_THREADSAFE
   sqlite3_mutex *mutex;
 #endif
@@ -93418,13 +93428,18 @@ SQLITE_API int sqlite3_clear_bindings(sqlite3_stmt *pStmt){
 #if SQLITE_THREADSAFE
   mutex = p->db->mutex;
 #endif
+
   sqlite3_mutex_enter(mutex);
   for(i=0; i<p->nVar; i++){
-    sqlite3VdbeMemRelease(&p->aVar[i]);
-    p->aVar[i].flags = MEM_Null;
+    Mem *pVar = &p->aVar[i];
+    if( (pVar->flags & MEM_Int)!=0 && pVar->u.i>=0 && pVar->u.i<=1 ){
+      maskSmallInt |= i>=31 ? 0x80000000 : ((u32)1)<<i;
+    }
+    sqlite3VdbeMemRelease(pVar);
+    pVar->flags = MEM_Null;
   }
   assert( (p->prepFlags & SQLITE_PREPARE_SAVESQL)!=0 || p->expmask==0 );
-  if( p->expmask ){
+  if( (p->expmask&~p->smimask)!=0 || (p->smimask&maskSmallInt)!=0 ){
     p->expired = 1;
   }
   sqlite3_mutex_leave(mutex);
@@ -97079,14 +97094,18 @@ static SQLITE_NOINLINE int vdbeColumnFromOverflow(
     assert( t>=12 );
     sqlite3RCStrRef(pBuf);
     if( t&1 ){
-      rc = sqlite3VdbeMemSetStr(pDest, pBuf, len, encoding,
+      /* Prevents the removal of a BOM in UTF16 text.  Otherwise
+      ** it causes no harm as long as len>=0, and pDest->enc is set
+      ** to the correct encoding afterwards: ----
+      ** (tag-20261016-1)                        `vvvvvvvvvvv    */
+      rc = sqlite3VdbeMemSetStr(pDest, pBuf, len, SQLITE_UTF8,
                                 sqlite3RCStrUnref);
       pDest->flags |= MEM_Term;
     }else{
       rc = sqlite3VdbeMemSetStr(pDest, pBuf, len, 0,
                                 sqlite3RCStrUnref);
-      pDest->enc = encoding;
-    }
+     }
+    pDest->enc = encoding;
   }else{
     rc = sqlite3VdbeMemFromBtree(pC->uc.pCursor, iOffset, len, pDest);
     if( rc ) return rc;
@@ -136646,7 +136665,7 @@ static void groupConcatInverse(
       pGCC->str.nChar -= nVS;
       memmove(pGCC->str.zText, &pGCC->str.zText[nVS], pGCC->str.nChar);
     }
-    if( pGCC->str.nChar==0 ){
+    if( pGCC->nAccum==0 ){
       pGCC->str.mxAlloc = 0;
       sqlite3_free(pGCC->pnSepLengths);
       pGCC->pnSepLengths = 0;
@@ -155894,6 +155913,7 @@ static int selectExpander(Walker *pWalker, Select *p){
           assert( ExprUseWOfst(pE->pLeft) );
           iErrOfst = pE->pRight->w.iOfst;
         }else{
+          assert( pE->pLeft==0 );
           assert( ExprUseWOfst(pE) );
           iErrOfst = pE->w.iOfst;
         }
@@ -156016,6 +156036,7 @@ static int selectExpander(Walker *pWalker, Select *p){
               pLeft = sqlite3Expr(db, TK_ID, zTabName);
               pExpr = sqlite3PExpr(pParse, TK_DOT, pLeft, pRight);
               if( IN_RENAME_OBJECT && pE->pLeft ){
+                assert( pE->op==TK_DOT && pE->pRight->op==TK_ASTERISK );
                 sqlite3RenameTokenRemap(pParse, pLeft, pE->pLeft);
               }
               if( zSchemaName ){
@@ -265752,7 +265773,7 @@ static void fts5SourceIdFunc(
 ){
   assert( nArg==0 );
   UNUSED_PARAM2(nArg, apUnused);
-  sqlite3_result_text(pCtx, "fts5: 2026-10-16 14:31:53 668541c592b89d32716420615450d55d9faf89da8a8e389c673973d8383cca98", -1, SQLITE_TRANSIENT);
+  sqlite3_result_text(pCtx, "fts5: 2026-10-17 12:10:02 c75eff906c11d8f17ae198e5f6cfea34636df2bde0104440fd0b6983ddb2f918", -1, SQLITE_TRANSIENT);
 }
 
 /*
