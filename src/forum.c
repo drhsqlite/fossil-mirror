@@ -2639,7 +2639,6 @@ void forum_main_page(void){
   style_set_current_feature("forum");
   style_header("%s%s", db_get("forum-title","Forum"),
                        isSearch ? " Search Results" : "");
-  style_submenu_element("Timeline", "%R/timeline?ss=v&y=f&vfx");
   if( g.perm.WrForum ){
     style_submenu_element("New Thread","%R/forumnew");
   }else{
@@ -2679,6 +2678,12 @@ void forum_main_page(void){
     }else{
       bFilter = bHasStatus;
     }
+  }
+  if( bFilter ){
+    style_submenu_element("Timeline", 
+             "%R/timeline?ss=v&y=f&status=%t", zStatusFilter);
+  }else{
+    style_submenu_element("Timeline", "%R/timeline?ss=v&y=f");
   }
   if( bHasForum ){
     Stmt qStat = empty_Stmt;     /* Query to get status information */
