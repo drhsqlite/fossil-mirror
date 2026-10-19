@@ -1749,6 +1749,9 @@ void timeline_test_endpoint(void){
 **                    "like", or "regexp".
 **    u=USER          Only show items associated with USER
 **    y=TYPE          'ci', 'w', 't', 'n', 'e', 'f', 'h', or 'all'.
+**    status=NAME     With y=f or y=h, show only forum posts or threads
+**                    whose thread has status NAME.  See the
+**                    forum-statuses setting.
 **    ss=VIEWSTYLE    c: "Compact", v: "Verbose", m: "Modern", j: "Columnar",
 **                    x: "Classic".
 **    advm            Use the "Advanced" or "Busy" menu design.
@@ -2628,6 +2631,7 @@ void page_timeline(void){
     /* Otherwise, a timeline based on a span of time */
     int n;
     const char *zEType = "event";
+    const char *zStatus = 0;   /* status=NAME filter for forum threads */
     char *zDate;
     Blob cond;
     blob_zero(&cond);
@@ -3041,6 +3045,14 @@ void page_timeline(void){
       }else if( zType[0]=='h' ){
         zEType = "new forum thread";
       }
+      if( (zType[0]=='f' || zType[0]=='h')
+       && forum_status_match_setup(P("status"))
+      ){
+        zStatus = P("status");
+        blob_append_sql(&cond,
+            " AND status_match((SELECT froot FROM forumpost"
+                              " WHERE fpid=event.objid))");
+      }
     }
     if( zUser ){
       int n = db_int(0,"SELECT count(*) FROM event"
@@ -3135,6 +3147,9 @@ void page_timeline(void){
       blob_appendf(&desc, "%d most recent %s%s", n, zEType, zPlural);
     }else{
       blob_appendf(&desc, "%d %s%s", n, zEType, zPlural);
+    }
+    if( zStatus ){
+      blob_appendf(&desc, " with status %h", zStatus);
     }
     if( zUses ){
       char *zFilenames = names_of_file(zUses);
@@ -3254,6 +3269,9 @@ void page_timeline(void){
       }
     }
     blob_zero(&cond);
+    if( zStatus ){
+      sqlite3_create_function(g.db,"status_match",1,SQLITE_UTF8,0,0,0,0);
+    }
   }
   if( showSql ){
     db_append_dml_to_blob(0);

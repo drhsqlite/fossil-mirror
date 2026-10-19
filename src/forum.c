@@ -2563,6 +2563,37 @@ static void forum_status_match(
 }
 
 /*
+** Register the status_match() SQL function so that it matches forum
+** threads having status zStatus.  Used to implement the status=NAME
+** query parameter on /timeline.
+**
+** Return true if the status_match() function was registered and
+** filtering should be applied.  Return false (and register nothing)
+** if zStatus is NULL, empty, or "*", or if the forum-statuses setting
+** has fewer than two entries, or if there is no forum.
+*/
+int forum_status_match_setup(const char *zStatus){
+  static ForumStatusMatch sFSM;
+  const ForumStatusList *pFstat;
+  if( zStatus==0 || zStatus[0]==0 || fossil_strcmp(zStatus,"*")==0 ){
+    return 0;
+  }
+  if( !db_table_exists("repository","forumpost") ) return 0;
+  pFstat = forum_statuses();
+  if( pFstat->n<2 ) return 0;
+  sFSM.pFses = pFstat;
+  sFSM.eStatusTag = db_int(0, "SELECT tagid FROM tag WHERE tagname='status'");
+  for(sFSM.iMatch=0; sFSM.iMatch<pFstat->n; sFSM.iMatch++){
+    if( 0==fossil_strcmp(zStatus, pFstat->aStatus[sFSM.iMatch].zValue) ){
+      break;
+    }
+  }
+  sqlite3_create_function(g.db,"status_match",1,SQLITE_UTF8,(void*)&sFSM,
+                          forum_status_match, 0, 0);
+  return 1;
+}
+
+/*
 ** WEBPAGE: forummain
 ** WEBPAGE: forum
 **
