@@ -2376,7 +2376,9 @@ void page_timeline(void){
     tmFlags |= TIMELINE_XMERGE | TIMELINE_FILLGAPS;
     db_multi_exec("%s", blob_sql_text(&sql));
     if( advancedMenu ){
-      style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c'),0);
+      if( zType[0]=='a' || zType[0]=='c' ){
+        style_submenu_checkbox("v", "Files", 0, 0);
+      }
     }
     nNodeOnPath = db_int(0, "SELECT count(*) FROM temp.pathnode");
     if( nNodeOnPath==1 && from_to_mode>0 ){
@@ -2593,7 +2595,9 @@ void page_timeline(void){
       blob_appendf(&desc, " that make changes to files matching \"%h\"", zChng);
     }
     if( advancedMenu ){
-      style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c'),0);
+      if( zType[0]=='a' || zType[0]=='c' ){
+        style_submenu_checkbox("v", "Files", 0, 0);
+      }
     }
     style_submenu_entry("n","Max:",4,0);
     timeline_y_submenu(1);
@@ -2625,7 +2629,9 @@ void page_timeline(void){
     tmFlags |= TIMELINE_XMERGE;
     if( advancedMenu ){
       style_submenu_checkbox("unhide", "Unhide", 0, 0);
-      style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c'),0);
+      if( zType[0]=='a' || zType[0]=='c' ){
+        style_submenu_checkbox("v", "Files", 0, 0);
+      }
     }
   }else{
     /* Otherwise, a timeline based on a span of time */
@@ -3258,8 +3264,8 @@ void page_timeline(void){
       if( advancedMenu ){
         if( zType[0]=='a' || zType[0]=='c' ){
           style_submenu_checkbox("unhide", "Unhide", 0, 0);
+          style_submenu_checkbox("v", "Files", 0, 0);
         }
-        style_submenu_checkbox("v", "Files",(zType[0]!='a' && zType[0]!='c'),0);
       }
       style_submenu_entry("n","Max:",4,0);
       timeline_y_submenu(disableY);
