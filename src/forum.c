@@ -2334,6 +2334,7 @@ void forum_setup(void){
   static const char *azForumSettings[] =  {
     "forum-close-policy",
     "forum-title",
+    "forum-statuses",
   };
 
   login_check_credentials();
@@ -2434,6 +2435,20 @@ void forum_setup(void){
         @ <a href='%R/help/%h(pSetting->name)'>%h(pSetting->name)</a>:
         @ </td><td>
         onoff_attribute("", zQP, pSetting->name/*works-like:"x"*/, 0, 0);
+        @ </td></tr>
+      }else if( pSetting->forceTextArea ){
+        /* Multi-line text value setting */
+        @ <tr><td align="right" valign="top">
+        @ <a href='%R/help/%h(pSetting->name)'>%h(pSetting->name)</a>:
+        @ </td><td>
+        textarea_attribute("", 6, 60, pSetting->name, zQP/*works-like:""*/,
+                           pSetting->def, 0);
+        if( fossil_strcmp(pSetting->name,"forum-statuses")==0
+         && db_int(0, "SELECT value<>'' AND NOT json_valid(value,0x02)"
+                      "  FROM config WHERE name='forum-statuses'") ){
+          @ <br><span class='error'>Warning: this value is not \
+          @ well-formed JSON5 and will be ignored.</span>
+        }
         @ </td></tr>
       }else{
         /* Text value setting */
