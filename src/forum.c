@@ -2472,8 +2472,11 @@ void forum_setup(void){
 ** If the forum-statuses setting is active and has 2 or more entries,
 ** this adds a submenu for selecting the status filter, else it emits
 ** nothing.
+**
+** If bCookie is true, the status selection is remembered in the
+** forumStatus cookie.
 */
-static void forum_status_submenu(void){
+void forum_status_submenu(int bCookie){
   const ForumStatusList * const fss = forum_statuses();
   static int i = 0;
   static const char **az;
@@ -2492,7 +2495,7 @@ static void forum_status_submenu(void){
     //assert( i==(1+fss->n)*2 );
   }
   if( i ){
-    cookie_link_parameter("status","forumStatus","*");
+    if( bCookie ) cookie_link_parameter("status","forumStatus","*");
     style_submenu_multichoice("status", i/2, az, 0);
   }
 }
@@ -2666,7 +2669,7 @@ void forum_main_page(void){
     iLimit = 25;
   }
   style_submenu_entry("n","Max:",4,0);
-  forum_status_submenu();
+  forum_status_submenu(1);
   zStatusFilter = P("status") /*must be after forum_status_submenu()!*/;
   iOfst = atoi(PD("x","0"));
   iCnt = 0;

@@ -3265,6 +3265,7 @@ void page_timeline(void){
       timeline_y_submenu(disableY);
       if( zType[0]=='f' || zType[0]=='h' ){
         style_submenu_checkbox("vfx", "Content", 0, 0);
+        forum_status_submenu(0);
       }
       if( advancedMenu ){
         style_submenu_entry("t", "Tag Filter:", -8, 0);
