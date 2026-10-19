@@ -130,6 +130,7 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_REFS     0x8000000 /* Output intended for References tab */
 #define TIMELINE_DELTA   0x10000000 /* Background color shows delta manifests */
 #define TIMELINE_NOCOLOR 0x20000000 /* No colors except for highlights */
+#define TIMELINE_NOPOST  0x40000000 /* Omit bullet and "Post:" on forum posts */
 #endif
 
 /*
@@ -676,7 +677,8 @@ void www_print_timeline(
     if( pGraph ){
       if( zType[0]=='e' ){
         @ <b>Note:</b>
-      }else if( zType[0]!='c' ){
+      }else if( zType[0]!='c'
+             && (zType[0]!='f' || (tmFlags & TIMELINE_NOPOST)==0) ){
         @ &bull;
       }
     }
@@ -756,6 +758,15 @@ void www_print_timeline(
         }
         wiki_hyperlink_override(0);
       }else{
+        if( zType[0]=='f' && (tmFlags & TIMELINE_NOPOST)!=0
+         && strncmp(blob_str(&comment), "Post: ", 6)==0
+        ){
+          Blob x;
+          blob_init(&x, 0, 0);
+          blob_append(&x, blob_str(&comment)+6, -1);
+          blob_reset(&comment);
+          comment = x;
+        }
         if( mxWikiLen>0 && blob_size(&comment)>mxWikiLen ){
           blob_truncate_utf8(&comment, mxWikiLen);
           blob_append(&comment, "...", 3);
@@ -3050,6 +3061,7 @@ void page_timeline(void){
         zEType = "forum post";
       }else if( zType[0]=='h' ){
         zEType = "new forum thread";
+        tmFlags |= TIMELINE_NOPOST;
       }
       if( (zType[0]=='f' || zType[0]=='h')
        && forum_status_match_setup(P("status"))
