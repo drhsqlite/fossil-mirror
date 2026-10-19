@@ -1,5 +1,5 @@
-C Omit\spointless\s"*\sPost:"\stext\sfrom\seach\s/timeline\sentry\swhen\sy=h.
-D 2026-10-19T10:54:00.725
+C Merge\srebuild-wal-pagesize\sinto\strunk.\sAllows\sfossil\srebuild\s--pagesize\sto\swork\son\sWAL\ndb's\sby\stemporarily\sswitching\sto\sjournal\smode\sfor\sthe\sVACUUM\sstep.
+D 2026-10-19T13:53:14.478
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -523,7 +523,7 @@ F src/pqueue.c 4bc9471b252a8624435660be144d0031c40d8c10cb023321ab9234cda156eb02
 F src/printf.c 240217e21f7c14c2ac45c70e6101c5065dd511f498016f2358650a05ce075655
 F src/publish.c 53bb0d84c7f9f803c8535c2c2743fc06c15fa09cf0b60ebdb0227fd8caadc058
 F src/purge.c 60f0d84a74f18dce46c977dd8d6c9d422cb3f8065a840b13215c5e92c1045e32
-F src/rebuild.c 283e00c74a1654b8e33ce5e9697afdc4d2f50b8b4e05aead6d65534b2a07a1c8
+F src/rebuild.c 7a82a88e2e542b217bbb510f5ee7508905ce5875f5133d1d34f2adb21541903c
 F src/regexp.c ff7f1ecf7508ca82b6af060b5c1a108005c6e57c5ada88339f7aa0b5f72a4054
 F src/repolist.c 30f8b2415ccc5450eaf6de4d9f5c44ea688f5e1c1f2b4166b077ccf502fb1d0c
 F src/report.c 3aa94251d24255b266460bb653dd51959a0199f62bafd0cdf5362faeb502360c
@@ -985,8 +985,9 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d6dcee660e8e12f007fcf7555b9e159c58ac52aac21604a5522985e78fce181a
-R 511bc2e32cc8ce98bd2eb9755d11ff4f
-U drh
-Z ad04cfe6c626a357c72758a5a7626135
+P 2cfc398ed0776de240ec322db9e7810ade2c504b62cf9b0f778da01f3ebe0994 f38aa798e0c80c3b5ec9350d4b78b7de195b620cdde00945c987f71ae10955b8
+R 999bcef9ce6895e92f995493af2c2741
+T +closed f38aa798e0c80c3b5ec9350d4b78b7de195b620cdde00945c987f71ae10955b8
+U danshearer
+Z 912bf99b7285c4fadbb76a552f39f963
 # Remove this line to create a well-formed Fossil manifest.
