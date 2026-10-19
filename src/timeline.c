@@ -3263,6 +3263,9 @@ void page_timeline(void){
       }
       style_submenu_entry("n","Max:",4,0);
       timeline_y_submenu(disableY);
+      if( zType[0]=='f' || zType[0]=='h' ){
+        style_submenu_checkbox("vfx", "Content", 0, 0);
+      }
       if( advancedMenu ){
         style_submenu_entry("t", "Tag Filter:", -8, 0);
         style_submenu_multichoice("ms", count(azMatchStyles)/2,azMatchStyles,0);
