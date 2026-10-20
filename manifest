@@ -1,5 +1,5 @@
-C Merge\srebuild-wal-pagesize\sinto\strunk.\sAllows\sfossil\srebuild\s--pagesize\sto\swork\son\sWAL\ndb's\sby\stemporarily\sswitching\sto\sjournal\smode\sfor\sthe\sVACUUM\sstep.
-D 2026-10-19T13:53:14.478
+C Set\sSQLite\spage\scache\sto\s32,000\sKiB\s(repository.cache_size=-32000)\sand\sFossil\ncontent-cache\sto\s2000\sartifacts\s+\s256,000,000\sbytes.\sImproves\sperformance\non\srebuild,\stest-integrity\sand\sexport.\sSee\s[forum:e5d056e719685108|forum\spost\se5d056e719685108].
+D 2026-10-20T07:47:09.561
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -411,11 +411,11 @@ F src/color.c dbea75182cd46c3ed261229766a710df6414aafd8de8e3505621c9109904cad0
 F src/comformat.c 7c13708fbafa03a92d63baee15178f00175fd7add64f918f7e406badae628e69
 F src/config.h 0ed672f15c096edbea44b24657bd91e3acb8bcd5827c62df9f8635abe1da7c21
 F src/configure.c 1c2908547bfebd55d1ed690d18a2f0f73c5a026ee27b89f53082ba3259f68b77
-F src/content.c 99804ad47e36577b1d5aea0a36a306be0c512fa2110a231be5e289d5d2ad79db
+F src/content.c 66b8fb005d46519dba62d55e32322c1fdbecc51e8f517027771d3ce9fd8073f0
 F src/cookies.c 51b9ba6d945c8abd1b4dde2e8cfc2651bfadf219bc34951082e3c8de88667abc
 F src/copybtn.js b56a60f4d8b40667effb40839d88c406146a666f1c0ff62148fd6c847d9c8019
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 572808ec2842b73597017b00a42dea05a076804fd6fc897c9ad537af5e98b3f0
+F src/db.c 418b368210c2e2d2e3ae2747760cb8edeb83789b18648ce1e22fce9a7ff1d5d6
 F src/default.css d3c3794f2b0a55699e3825ce5e983aad777f79db0ede4a005a4efac77343ec1a
 F src/delta.c e57f4fa0737288c2e69bf9b41bdcc99c1b5558425385ebd637c097203c92c796
 F src/deltacmd.c 33649e63c451694522e8d0c8765e4ef89e000efe30f54cdae4d78f0287c36eca
@@ -985,9 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2cfc398ed0776de240ec322db9e7810ade2c504b62cf9b0f778da01f3ebe0994 f38aa798e0c80c3b5ec9350d4b78b7de195b620cdde00945c987f71ae10955b8
-R 999bcef9ce6895e92f995493af2c2741
-T +closed f38aa798e0c80c3b5ec9350d4b78b7de195b620cdde00945c987f71ae10955b8
+P 205060d4b2b23c668553d627661e0d3fbeed7b436cfba0286d465e849da7af39
+R 7fb518c16290794dcd3a23ae1097cdfe
 U danshearer
-Z 912bf99b7285c4fadbb76a552f39f963
+Z a5aa31a3c547e7e2428affac0abd89e7
 # Remove this line to create a well-formed Fossil manifest.

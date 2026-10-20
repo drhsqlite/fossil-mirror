@@ -2763,6 +2763,7 @@ void db_open_repository(const char *zDbName){
   g.zRepositoryName = fossil_strdup(zDbName);
   db_open_or_attach(g.zRepositoryName, "repository");
   g.repositoryOpen = 1;
+  db_multi_exec("PRAGMA repository.cache_size=-32000");
   sqlite3_file_control(g.db, "repository", SQLITE_FCNTL_DATA_VERSION,
                        &g.iRepoDataVers);
 
