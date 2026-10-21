@@ -1486,7 +1486,9 @@ static size_t char_link(
 
     /* skip "inter-bracket-whitespace" - any amount of whitespace or newline */
     /* (this is much more lax than original markdown syntax) */
+    /* --> Commented out on 2026-10-21 in response to forum post 1d0bf6d9df    
     while( i<size && (data[i]==' ' || data[i]=='\t' || data[i]=='\n') ){ i++; }
+    */
 
     /* allocate temporary buffers to store content, link and title */
     title = new_work_buffer(rndr);
