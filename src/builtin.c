@@ -681,17 +681,20 @@ void builtin_emit_script_fossil_bootstrap(int addScriptTag){
        skin_detail_boolean("white-foreground") ? "true" : "false");
     CX("}\n"/*fossil.config.skin*/);
     CX("};\n"/* fossil.config */);
+    CX("window.fossil.config.forum = {");
     if( forum_statuses()->n>1 ){
       const ForumStatusList * fsl = forum_statuses();
       int i;
-      CX("window.fossil.config.forumStatuses = [");
+      CX("statuses: [");
       for(i = 0; i < fsl->n; ++i){
         const ForumStatus *fs = &fsl->aStatus[i];
         if(i) CX(",");
         CX("{label:%!j, value:%!j}", fs->zLabel, fs->zValue);
       }
-      CX("];\n");
+      CX("],\n");
     }
+    CX("maxTitleLength: %d", db_get_int("forum-max-title", 0));
+    CX("};\n"/*window.fossil.config.forum*/);
 #define JBOOL(COND) ((COND) ? "true" : "false")
     CX("window.fossil.user = {");
     CX("name: %!j,", (g.zLogin&&*g.zLogin) ? g.zLogin : "guest");
