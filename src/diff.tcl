@@ -513,6 +513,112 @@ bind .wfiles.lb <Motion> {
   %W selection set @%x,%y
 }
 
+# Return the context setting found in fossilcmd, or 6 (the default)
+# if fossilcmd contains no -c or --context option.  Negative values
+# mean "All".
+#
+proc initContext {} {
+  set n 6
+  set nn [llength $::fossilcmd]
+  for {set i 2} {$i<$nn} {incr i} {
+    set arg [lindex $::fossilcmd $i]
+    if {[regexp {^--?(c|context)$} $arg] && $i+1<$nn} {
+      set n [lindex $::fossilcmd [incr i]]
+    } elseif {[regexp {^--?(?:c|context)=(.*)$} $arg all val]} {
+      set n $val
+    }
+  }
+  if {![string is integer -strict $n]} {return 6}
+  if {$n<0} {return All}
+  return $n
+}
+
+# Invoked whenever the ncontext variable changes.  Rewrite fossilcmd
+# to use the new context setting and reload the diff, keeping the
+# file that was showing at the top of the window in view.
+#
+proc changeContext {args} {
+  global fossilcmd ncontext
+  set cmd [lrange $fossilcmd 0 1]
+  set nn [llength $fossilcmd]
+  for {set i 2} {$i<$nn} {incr i} {
+    set arg [lindex $fossilcmd $i]
+    if {[regexp {^--?(c|context)$} $arg]} {
+      incr i
+    } elseif {![regexp {^--?(c|context)=} $arg]} {
+      lappend cmd $arg
+    }
+  }
+  if {$ncontext eq "All"} {
+    lappend cmd -c -1
+  } else {
+    lappend cmd -c $ncontext
+  }
+  set fossilcmd $cmd
+  set range [.txtA tag prevrange fn {@0,0 +1c} 1.0]
+  set iFile 0
+  if {$range ne ""} {
+    set iFile [expr {[lsearch -exact [.txtA tag ranges fn] \
+                                       [lindex $range 0]]/2}]
+  }
+  unset -nocomplain ::difftxt
+  readDiffs 1
+  update
+  set idx [lindex [.txtA tag ranges fn] [expr {$iFile*2}]]
+  if {$idx eq ""} {set idx 1.0}
+  viewDiff $idx
+}
+
+label .bb.ctxtag -text "Context:"
+set context_choices {3 6 12 25 50 100 All}
+if {$fossilcmd ne ""} {
+  set ncontext [initContext]
+  if {[lsearch -exact $context_choices $ncontext]<0} {
+    set context_choices [lsort -integer \
+        [concat [lrange $context_choices 0 end-1] $ncontext]]
+    lappend context_choices All
+  }
+  trace add variable ncontext write changeContext
+}
+if {$tcl_platform(os)=="Darwin"} {
+  tk_optionMenu .bb.ctx ncontext {*}$context_choices
+} else {
+  ::ttk::menubutton .bb.ctx -text [expr {[info exists ncontext]?$ncontext:""}]
+  if {[tk windowingsystem] eq "win32"} {
+    .bb.ctx configure -padding {20 1 10 2}
+  }
+  toplevel .wctx
+  wm withdraw .wctx
+  update idletasks
+  wm transient .wctx .
+  wm overrideredirect .wctx 1
+  listbox .wctx.lb -width 0 -height [llength $context_choices] \
+     -activestyle none
+  .wctx.lb insert end {*}$context_choices
+  pack .wctx.lb
+  bind .bb.ctx <1> {
+    set x [winfo rootx %W]
+    set y [expr {[winfo rooty %W]+[winfo height %W]}]
+    wm geometry .wctx +$x+$y
+    wm deiconify .wctx
+    focus .wctx.lb
+  }
+  bind .wctx <FocusOut> {wm withdraw .wctx}
+  bind .wctx <Escape> {focus .}
+  foreach evt {1 Return} {
+    bind .wctx.lb <$evt> {
+      set ::ncontext [lindex $::context_choices [%W curselection]]
+      .bb.ctx config -text $::ncontext
+      focus .
+      break
+    }
+  }
+  bind .wctx.lb <Motion> {
+    %W selection clear 0 end
+    %W selection set @%x,%y
+  }
+}
+
 foreach {side syncCol} {A .txtB B .txtA} {
   set ln .ln$side
   text $ln
@@ -678,7 +784,11 @@ if {$fossilcmd ne ""} {
 }
 pack .bb.invert -side left
 if {$fossilcmd!=""} {pack .bb.save -side left}
-pack .bb.files .bb.search -side left
+pack .bb.files -side left
+if {$fossilcmd ne ""} {
+  pack .bb.ctxtag .bb.ctx -side left
+}
+pack .bb.search -side left
 grid rowconfigure . 1 -weight 1
 grid columnconfigure . 1 -weight 1
 grid columnconfigure . 4 -weight 1
