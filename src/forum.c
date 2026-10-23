@@ -1848,8 +1848,13 @@ static void forum_post_widget(
   const char *zContent
 ){
   if( zTitle ){
+    int mxTitle = db_get_int("forum-max-title", 125);
     @ Title: <input type="input" name="title" value="%h(zTitle)" size="50"
-    @ maxlength="125"><br>
+    if( mxTitle>0 ){
+      @ maxlength="%d(mxTitle)"><br>
+    }else{
+      @ ><br>
+    }
   }
   @ %z(href("%R/markup_help"))Markup style</a>:
   mimetype_option_menu(zMimetype, "mimetype");
@@ -2307,6 +2312,11 @@ void forumedit_page(void){
 ** change it to "Developer Forum" or "User Forum" or whatever other name
 ** seems more appropriate for the particular usage.
 **
+** SETTING: forum-max-title      width=10 default=125
+** The maximum number of characters allowed in the title of a new
+** forum thread, as enforced by the web browser on the post editor.
+** A value of zero or less means there is no limit.
+**
 ** SETTING: attachment-size-limit    width=16
 ** The maximum number of bytes for an attachment to a wiki page,
 ** ticket, tech note, or forum post. The default (or 0) is unlimited
@@ -2334,6 +2344,7 @@ void forum_setup(void){
   static const char *azForumSettings[] =  {
     "forum-close-policy",
     "forum-title",
+    "forum-max-title",
     "forum-statuses",
   };
 
