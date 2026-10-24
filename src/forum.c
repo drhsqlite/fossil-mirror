@@ -835,15 +835,15 @@ void forumthread_cmd(void){
 ** Usage:  /forumthreadhashlist/HASH-OF-ROOT
 **
 ** This page (accessibly only to admins) shows a list of all artifacts
-** associated with a single forum thread.  An admin might copy/paste this
-** list into the /shun page in order to shun an entire thread.
+** associated with a single forum thread, including control artifacts
+** that close or reopen posts or change the status of the thread.
+** An admin might copy/paste the list of hashes into the /shun page in
+** order to shun an entire thread.
 */
 void forumthreadhashlist(void){
   int fpid;
   int froot;
   const char *zName = P("name");
-  ForumThread *pThread;
-  ForumPost *p;
   char *fuuid;
   Stmt q;
 
@@ -870,15 +870,124 @@ void forumthreadhashlist(void){
   fuuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", froot);
   style_set_current_feature("forum");
   style_header("Artifacts Of Forum Thread");
+
+  /* The fthread table holds the RID of every artifact associated with
+  ** the thread.  That is the forum posts themselves, plus any control
+  ** artifacts that tag those posts, such as to close or reopen a post
+  ** or to change the status of the thread.  For control artifacts,
+  ** zDesc is an HTML description of the tags applied.
+  **
+  ** Candidate control artifacts come from tagxref.srcid, which only
+  ** remembers the most recent tag of each name on each post, and from
+  ** the event.comment that manifest_crosslink() generates for each
+  ** control artifact, which also finds tags that have since been
+  ** superseded.  That comment includes a hash prefix of at least 12
+  ** characters for each tagged artifact.  Each candidate is then
+  ** parsed to verify that it really does tag a post in this thread.
+  */
+  db_multi_exec(
+    "CREATE TEMP TABLE IF NOT EXISTS fthread("
+    "  rid INTEGER PRIMARY KEY, isCtrl BOOLEAN, zDesc TEXT);"
+    "DELETE FROM fthread;"
+    "INSERT OR IGNORE INTO fthread(rid,isCtrl)"
+    " SELECT fpid, 0 FROM forumpost WHERE froot=%d;"
+    "INSERT OR IGNORE INTO fthread(rid,isCtrl)"
+    " SELECT srcid, 1 FROM tagxref"
+    "  WHERE rid IN (SELECT fpid FROM forumpost WHERE froot=%d)"
+    "    AND srcid>0 AND srcid!=rid;"
+    "INSERT OR IGNORE INTO fthread(rid,isCtrl)"
+    " SELECT event.objid, 1 FROM event, forumpost, blob"
+    "  WHERE forumpost.froot=%d"
+    "    AND blob.rid=forumpost.fpid"
+    "    AND event.type='g'"
+    "    AND instr(event.comment, '['||substr(blob.uuid,1,12))>0"
+    "    AND event.mtime >= forumpost.fmtime-0.01"
+    "    AND event.mtime <= (SELECT max(mtime) FROM tagxref"
+                            " WHERE rid=%d);",
+    froot, froot, froot, froot
+  );
+  db_prepare(&q, "SELECT rid FROM fthread WHERE isCtrl");
+  while( db_step(&q)==SQLITE_ROW ){
+    int rid = db_column_int(&q, 0);
+    Manifest *pCtrl = manifest_get(rid, CFTYPE_CONTROL, 0);
+    Blob desc = BLOB_INITIALIZER;
+    int i;
+    for(i=0; pCtrl && i<pCtrl->nTag; i++){
+      const char *zTag = pCtrl->aTag[i].zName;
+      const char *zVal = pCtrl->aTag[i].zValue;
+      const char *zTarget = pCtrl->aTag[i].zUuid;
+      int isCancel = zTag[0]=='-';
+      if( zTarget==0
+       || !db_exists("SELECT 1 FROM forumpost, blob"
+                     " WHERE forumpost.froot=%d AND blob.rid=forumpost.fpid"
+                     "   AND blob.uuid=%Q", froot, zTarget)
+      ){
+        continue;
+      }
+      if( blob_size(&desc) ) blob_append(&desc, "; ", 2);
+      if( fossil_strcmp(&zTag[1], "closed")==0 ){
+        blob_append(&desc, isCancel ? "reopen" : "close", -1);
+      }else if( fossil_strcmp(&zTag[1], "status")==0 ){
+        if( isCancel || zVal==0 || zVal[0]==0 ){
+          blob_append(&desc, "clear status of", -1);
+        }else{
+          blob_appendf(&desc, "set status \"%h\" on", zVal);
+        }
+      }else if( zVal && zVal[0] ){
+        blob_appendf(&desc, "tag %h=\"%h\" on", zTag, zVal);
+      }else{
+        blob_appendf(&desc, "tag %h on", zTag);
+      }
+      blob_appendf(&desc, " post %z%S</a>",
+                   href("%R/forumpost/%!S", zTarget), zTarget);
+    }
+    manifest_destroy(pCtrl);
+    if( blob_size(&desc)==0 ){
+      db_multi_exec("DELETE FROM fthread WHERE rid=%d", rid);
+    }else{
+      db_multi_exec("UPDATE fthread SET zDesc=%Q WHERE rid=%d",
+                    blob_str(&desc), rid);
+    }
+    blob_reset(&desc);
+  }
+  db_finalize(&q);
+  describe_artifacts("IN (SELECT rid FROM fthread)");
+
   @ <h2>
   @ Artifacts associated with the forum thread
   @ <a href="%R/forumthread/%S(fuuid)">%S(fuuid)</a>:</h2>
-  @ <pre>
-  pThread = forumthread_create(froot, 1);
-  for(p=pThread->pFirst; p; p=p->pNext){
-    @ %h(p->zUuid)
+  @ <table border="1" cellpadding="4" cellspacing="0">
+  @ <tr><th>Date<th>Hash<th>User<th>Description
+  db_prepare(&q,
+    "SELECT description.uuid,"
+    "       datetime(coalesce(event.mtime,description.ctime)),"
+    "       coalesce(event.euser,event.user),"
+    "       description.summary, fthread.zDesc"
+    "  FROM fthread JOIN description USING(rid)"
+    "       LEFT JOIN event ON event.objid=fthread.rid"
+    " ORDER BY coalesce(event.mtime,description.ctime), fthread.rid"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zUuid = db_column_text(&q, 0);
+    const char *zCtrlDesc = db_column_text(&q, 4);
+    @ <tr><td>%h(db_column_text(&q,1))\
+    @ <td>%z(href("%R/artifact/%!S",zUuid))%S(zUuid)</a>\
+    @ <td>%h(db_column_text(&q,2))\
+    if( zCtrlDesc ){
+      @ <td>forum-tag: %s(zCtrlDesc)</tr>
+    }else{
+      @ <td>%h(db_column_text(&q,3))</tr>
+    }
   }
-  forumthread_delete(pThread);
+  @ </table>
+  @ <h2>Artifact hashes, suitable for pasting into
+  @ %z(href("%R/shun"))/shun</a>:</h2>
+  @ <pre>
+  db_reset(&q);
+  while( db_step(&q)==SQLITE_ROW ){
+    @ %h(db_column_text(&q,0))
+  }
+  db_finalize(&q);
   @ </pre>
   @ <hr>
   @ <h2>Related FORUMPOST Table Content</h2>
