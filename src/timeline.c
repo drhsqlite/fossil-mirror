@@ -1418,6 +1418,26 @@ static void addFileGlobExclusion(
       "   AND %s)",
       glob_expr("filename.name", mprintf("\"%s\"", zChng)));
 }
+/*
+** An SQL expression that is the FPID of the forum post that is tagged
+** by the tag event (event.type='g') of the current row of the event
+** table, or NULL if that tag event does not tag a forum post.
+**
+** The target is found from the first "Edit [HASH|" in the event.comment
+** that manifest_crosslink() generates for each control artifact.  HASH
+** is at least 12 characters, so a range lookup on the first 12
+** characters, which can use the index on blob.uuid, is used to find
+** the tagged artifact.  Only the first artifact tagged by each control
+** artifact is considered.
+*/
+#define FORUM_TAG_TARGET_SQL \
+  "(SELECT ftb.rid FROM blob AS ftb" \
+  "   WHERE instr(event.comment,'Edit [')>0" \
+  "     AND ftb.uuid>=substr(event.comment,instr(event.comment,'Edit [')+6,12)" \
+  "     AND ftb.uuid<substr(event.comment," \
+                         "instr(event.comment,'Edit [')+6,12)||'g'" \
+  "     AND EXISTS(SELECT 1 FROM forumpost WHERE fpid=ftb.rid))"
+
 static void addFileGlobDescription(
   const char *zChng,        /* The filename GLOB list */
   Blob *pDescription        /* Result description */
@@ -3074,6 +3094,11 @@ void page_timeline(void){
       }else if( zType[0]=='h' ){
         blob_append_sql(&cond,
             " AND event.type='f' AND event.comment GLOB 'Post:*'");
+      }else if( zType[0]=='f' ){
+        /* Forum posts plus tag events that tag forum posts */
+        blob_append_sql(&cond,
+            " AND (event.type='f' OR (event.type='g'"
+            " AND " FORUM_TAG_TARGET_SQL " IS NOT NULL))");
       }else{
         blob_append_sql(&cond, " AND event.type=%Q", zType);
       }
@@ -3090,7 +3115,7 @@ void page_timeline(void){
       }else if( zType[0]=='g' ){
         zEType = "tag";
       }else if( zType[0]=='f' ){
-        zEType = "forum post";
+        zEType = "forum event";
       }else if( zType[0]=='h' ){
         zEType = "new forum thread";
         tmFlags |= TIMELINE_NOPOST;
@@ -3099,9 +3124,18 @@ void page_timeline(void){
        && forum_status_match_setup(P("status"))
       ){
         zStatus = P("status");
-        blob_append_sql(&cond,
-            " AND status_match((SELECT froot FROM forumpost"
-                              " WHERE fpid=event.objid))");
+        if( zType[0]=='f' ){
+          /* A tag event matches the status of the thread it tags */
+          blob_append_sql(&cond,
+              " AND status_match((SELECT froot FROM forumpost"
+                                " WHERE fpid=CASE WHEN event.type='g'"
+                                " THEN " FORUM_TAG_TARGET_SQL
+                                " ELSE event.objid END))");
+        }else{
+          blob_append_sql(&cond,
+              " AND status_match((SELECT froot FROM forumpost"
+                                " WHERE fpid=event.objid))");
+        }
       }
     }
     if( zUser ){
