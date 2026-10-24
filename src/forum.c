@@ -1834,6 +1834,7 @@ void forumthread_page(void){
   }
   style_submenu_checkbox("unf", "Unformatted", 0, 0);
   style_submenu_checkbox("hist", "History", 0, 0);
+  style_submenu_element("Timeline", "%R/timeline?thread=%t", zName);
   if( g.perm.Admin ){
     style_submenu_element("Artifacts", "%R/forumthreadhashlist/%t", zName);
   }

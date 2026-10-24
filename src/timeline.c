@@ -1760,6 +1760,10 @@ void timeline_test_endpoint(void){
 **                    "like", or "regexp".
 **    u=USER          Only show items associated with USER
 **    y=TYPE          'ci', 'w', 't', 'n', 'e', 'f', 'h', or 'all'.
+**    thread=POST     Show the complete history of the forum thread that
+**                    contains POST, including all edits, replies, and
+**                    tags.  POST is a hash prefix or timestamp for any
+**                    post, reply, or edit within the thread.
 **    status=NAME     With y=f or y=h, show only forum posts or threads
 **                    whose thread has status NAME.  See the
 **                    forum-statuses setting.
@@ -1858,6 +1862,7 @@ void page_timeline(void){
   const char *zNDays = P("days");    /* Show events over the previous N days */
   int nDays = 0;                     /* Numeric value for zNDays */
   const char *zChng = P("chng");     /* List of GLOBs for files that changed */
+  const char *zThread = P("thread"); /* Show the forum thread holding this */
   int useDividers = P("nd")==0;      /* Show dividers if "nd" is missing */
   int renameOnly = P("namechng")!=0; /* Show only check-ins that rename files */
   int forkOnly = PB("forks");        /* Show only forks and their children */
@@ -2259,6 +2264,33 @@ void page_timeline(void){
                    P("from"), from_to_mode==1 ? "forward" : "back", zTo);
      }
   }
+  if( zThread && g.perm.RdForum ){
+    /* If thread= is present, show every post, edit, reply, and tag
+    ** associated with the forum thread that contains the post identified
+    ** by thread=.  Other parameters except vfx= are ignored. */
+    int fpid = symbolic_name_to_rid(zThread, "f");
+    int froot = 0;
+    if( fpid>0 ){
+      froot = db_int(0, "SELECT froot FROM forumpost WHERE fpid=%d", fpid);
+    }
+    if( froot==0 ){
+      blob_appendf(&desc, "No such forum post: \"%h\"", zThread);
+    }else{
+      char *zUuid;
+      int n;
+      forum_thread_artifacts("fthread", froot, 1, 0);
+      blob_append_sql(&sql, " AND event.objid IN (SELECT rid FROM fthread)");
+      db_multi_exec("%s", blob_sql_text(&sql));
+      if( useDividers && !selectedRid ) selectedRid = fpid;
+      n = db_int(0, "SELECT count(*) FROM timeline WHERE etype!='div'");
+      zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", froot);
+      blob_appendf(&desc, "%d event%s in the history of forum thread %z%S</a>",
+                   n, n==1 ? "" : "s",
+                   href("%R/forumthread/%!S", zUuid), zUuid);
+      fossil_free(zUuid);
+    }
+    style_submenu_checkbox("vfx", "Content", 0, 0);
+  }else
   if( ((from_rid && to_rid) || (me_rid && you_rid)) && g.perm.Read ){
     /* If from= and to= are present, display all nodes on a path connecting
     ** the two */
