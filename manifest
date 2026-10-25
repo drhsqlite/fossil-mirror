@@ -1,5 +1,5 @@
-C Merge\sforum\senhancements\sto\strunk:\s\s(1)\sThe\snew\sthread=\squery\sparameter\non\s/timeline,\swith\sa\s"Timeline"\slink\sin\sthe\ssubmenu\sof\sthe\sthread\sdisplay,\n(2)\srelated\stags\sshow\sup\sin\sthe\sartifacts\spage\sfor\sa\sforum\sthread,\n(3)\srelated\stags\sshow\sup\sin\sthe\s/timeline?y=f\stimeline\sfor\sthe\sforum.
-D 2026-10-24T20:12:36.167
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion\sfor\nbeta\stesting.
+D 2026-10-25T00:50:08.948
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -278,9 +278,9 @@ F extsrc/pikchr.c 080044411bbd03956d8e488e56fe2ea135c06e96b3bc7fe148740f2e7cbe70
 F extsrc/pikchr.js e4808790ff38ede2acad784cfab62acd25caf41d23ace454c0190b637934f031
 F extsrc/pikchr.wasm 023299eec760d3c7addba21b415dfb07ca2172afcb46be4b13e95f4e0fcbbfcf
 F extsrc/qrf.h b04e50048695aa4a5a41577fb4a56c1feed0bef816354995713116780a4bdacb
-F extsrc/shell.c f3c201673ad25a00cb213eacca504ef7139abe23838ff596a70bdce955c844da
-F extsrc/sqlite3.c 69252d2947278bee190ef8edf041ba47f3ec22495f1b38689920ba4229e4eab1
-F extsrc/sqlite3.h 444bc3e8f368c3b280c532edfeb14ee0c5fa2551a1a64ec81bf7d28397ab16fd
+F extsrc/shell.c a498e502cdc20e2b35fde1c44be1ad336ac90f31e1a3c3e846ea32a12352ed7a
+F extsrc/sqlite3.c b7a9dbf49f03cc9bf8fbe3de1ee2a44a7dc6381d63defacbea6c67cfc3e4feb1
+F extsrc/sqlite3.h bce333d17140ab1a2b3ede4c7573d2d3b92d5ae1d94bad92706ab5258e75fdba
 F fossil.1 6d60e2730db24b0edb145d45374065c3b0f65c78449e4551a972eca7ba416191
 F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec7f3
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
@@ -985,9 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a6b17d2a7e68cc18022dac97a88b477038fe9ada17f592f61aeb8160b0cf6b31 8e48eab25f63fc4c662ea5aba4931dd8d726983ba6014d71f0eaba19f9bc94b5
-R 11b7583fa643860503eb23159f53bbf2
-T +closed 8e48eab25f63fc4c662ea5aba4931dd8d726983ba6014d71f0eaba19f9bc94b5
+P 0d2ceb89e1ef8d938e840ef53268259c0308f203eaff51237f6161b1b45dee3d
+R 27175320570eab65306724a1757bd045
 U drh
-Z 8378f7a7e1bb412934774e39ad6e8694
+Z da2a513d1ab21399115b7af4a65a25b5
 # Remove this line to create a well-formed Fossil manifest.

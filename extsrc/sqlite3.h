@@ -148,10 +148,10 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.55.0"
 #define SQLITE_VERSION_NUMBER 3055000
-#define SQLITE_SOURCE_ID      "2026-10-17 12:10:02 c75eff906c11d8f17ae198e5f6cfea34636df2bde0104440fd0b6983ddb2f918"
+#define SQLITE_SOURCE_ID      "2026-10-24 22:25:07 d08cabd778f7844d04f3852d93197e80c0d0f4f30a589f7fd0d28577fa3fa68b"
 #define SQLITE_SCM_BRANCH     "trunk"
 #define SQLITE_SCM_TAGS       ""
-#define SQLITE_SCM_DATETIME   "2026-10-17T12:10:02.088Z"
+#define SQLITE_SCM_DATETIME   "2026-10-24T22:25:07.764Z"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -4449,6 +4449,15 @@ SQLITE_API int sqlite3_limit(sqlite3*, int id, int newVal);
 ** [[SQLITE_LIMIT_TRIGGER_STEPS]] ^(<dt>SQLITE_LIMIT_TRIGGER_STEPS</dt>
 ** <dd>The maximum number of SQL statements that can be contained within
 ** a single trigger.</dd>)^
+**
+** [[SQLITE_LIMIT_CTES]] ^(<dt>SQLITE_LIMIT_CTES</dt>
+** <dd>The maximum number of [common table expressions] (CTEs) allowed
+** in a single SQL statements.  This limit is used to limit possible
+** exponential growth in the number of required cursors required for
+** nested joins of CTEs.  The limit is an absolute upper bound, and
+** SQLite may refuse to compile a statement if the number of CTEs simply
+** approaches this limit.  Set this limit to 0 to disable the restriction.
+** </dd>)^
 ** </dl>
 */
 #define SQLITE_LIMIT_LENGTH                    0
@@ -4466,6 +4475,7 @@ SQLITE_API int sqlite3_limit(sqlite3*, int id, int newVal);
 #define SQLITE_LIMIT_PARSER_DEPTH             12
 #define SQLITE_LIMIT_SCHEMA                   13
 #define SQLITE_LIMIT_TRIGGER_STEPS            14
+#define SQLITE_LIMIT_CTES                     15
 
 /*
 ** CAPI3REF: Prepare Flags
@@ -5878,6 +5888,10 @@ SQLITE_API int sqlite3_create_window_function(
 ** These constants define integer codes that represent the various
 ** text encodings supported by SQLite.
 **
+** If any value other than the ones defined here are passed into the
+** "encoding" argument of an API function, then the results are
+** unspecified and subject to change.
+**
 ** <dl>
 ** [[SQLITE_UTF8]] <dt>SQLITE_UTF8</dt><dd>Text is encoding as UTF-8</dd>
 **
@@ -6860,6 +6874,10 @@ SQLITE_API void sqlite3_activate_cerod(
 ** at all. ^In SQLite version 3.42.0 and later, a negative
 ** argument passed into sqlite3_sleep() is changed to zero before it is relayed
 ** down into the xSleep method of the VFS.
+**
+** The maximum sleep time is 2147483 milliseconds (about 35 minutes and
+** 47 seconds).  If the argument to sqlite3_sleep() is greater than 2147483,
+** the sleep time is capped at 2147483 milliseconds.
 */
 SQLITE_API int sqlite3_sleep(int);
 
@@ -11254,7 +11272,7 @@ SQLITE_API int sqlite3_snapshot_recover(sqlite3 *db, const char *zDb);
 **
 ** A call to sqlite3_serialize(D,S,P,F) might return NULL even if the
 ** SQLITE_SERIALIZE_NOCOPY bit is omitted from argument F if a memory
-** allocation error occurs.
+** allocation or I/O error occurs.
 **
 ** This interface is omitted if SQLite is compiled with the
 ** [SQLITE_OMIT_DESERIALIZE] option.
