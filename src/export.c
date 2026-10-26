@@ -1237,7 +1237,10 @@ static int gitmirror_send_checkin(
       pMan->azParent[iParent], zUuid
     );
     while( db_step(&q)==SQLITE_ROW ){
-      fprintf(xCmd, "D %s\n", db_column_text(&q,0));
+      const char *zFilename = db_column_text(&q,0);
+      char *zFNQuoted = gitmirror_quote_filename_if_needed(zFilename);
+      fprintf(xCmd, "D %s\n", zFNQuoted);
+      fossil_free(zFNQuoted);
     }
     db_finalize(&q);
   }

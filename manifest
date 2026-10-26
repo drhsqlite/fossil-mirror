@@ -1,5 +1,5 @@
-C Add\scomment\sto\sourselves\sthat\scopying\sthe\srebuild\sloop\sdesign\sinto\stest-integrity\nwill\sspeed\sup\stest-integrity\ssignificantly.
-D 2026-10-26T14:35:16.001
+C Fix\sfossil\sgit\sexport\sto\ssafely\squote\sfilenames\sthat\shave\sbeen\sdeleted\s(D\slines)\swith\sspecial\scharacters\sin\sthem\ssuch\sas\nnewline.\sD\slines\salready\sdo\sthis.
+D 2026-10-26T18:21:56.171
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -430,7 +430,7 @@ F src/doc.c f938d93ea40675e563863b06631a4b266a9f343965ee31c9b1ea999b753a8d0a
 F src/encode.c 016efece00d0d4436f87c61cfc3f6a41ef014ee3bb52e234dce38bc9711791ee
 F src/etag.c f5ae12e6858162847c26183858f6ed58520af6b91fb3a6d786a69770c74de1c4
 F src/event.c 2f44da7c6151346d8879a0b16e65120a9a092844dbb666c0dcf42f778408ac10
-F src/export.c 2e2ac4948461b50701ded314f4394f20c7110eaa9b9ea6be76e584f99b156d82
+F src/export.c f0a644e5faccff3addc1a4dad09d655f73ac2e5d27af96e1274c153e2f8b1dcf
 F src/extcgi.c ba1285ef63307493e837f74e4f0c98e0cfc8029a43dcc0c90b81c59f5dff12dc
 F src/file.c 087bc4b64ae1cfb21f8d1adb21707735ffaa3de84432ac56f1850484f807b82a
 F src/fileedit.c 1c047bcbaec5896615d7ef869ef5d572ff307903ab4754e5e5c596b99a030125
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8db155e97962356a426aa9283a397c8a990035e34120cc0a4e4a8892cb058fd9
-R 9d75b4edfaf5ef7a39b5c41d029c27e2
+P c088cf957fffc55b4faaaf97ee5563ebe23a88e97fe5c20846485eff8b752776
+R e6185bba585a2763f02f127e8a3fab03
 U danshearer
-Z c03fbde851a6bb2129ef0262b702b220
+Z f60ae58a92792b49410f1ef35dc37590
 # Remove this line to create a well-formed Fossil manifest.
