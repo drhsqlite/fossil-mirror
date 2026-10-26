@@ -1048,6 +1048,8 @@ void test_integrity(void){
   }
   db_finalize(&q);
 
+  /* This test-integrity loop is inefficient. Need to copy the rebuild loop
+  ** design here */
   db_prepare(&q, "SELECT rid, uuid, size FROM blob ORDER BY rid");
   total = db_int(0, "SELECT max(rid) FROM blob");
   while( db_step(&q)==SQLITE_ROW ){
