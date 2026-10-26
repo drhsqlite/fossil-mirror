@@ -1,5 +1,5 @@
-C Fix\sfossil\sgit\sexport\sto\ssafely\squote\sfilenames\sthat\shave\sbeen\sdeleted\s(D\slines)\swith\sspecial\scharacters\sin\sthem\ssuch\sas\nnewline.\sD\slines\salready\sdo\sthis.
-D 2026-10-26T18:21:56.171
+C In\simport\s--git,\sdecode\sthe\sescapes\s\\a,\s\\b,\s\\f,\s\\n,\s\\r,\s\\t\sand\s\\v\swhen\sthey\sappear\sin\nquoted\sfile\snames.\sThe\sfossil\srepo\scontains\sa\stest\sfile\scalled\s"abc\\ndef.txt"\sfrom\s2012\nwhich\swe\swere\simporting\sas\sabcndef.txt.
+D 2026-10-26T18:24:42.376
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -475,7 +475,7 @@ F src/http.c 89cdc607ddcd880f83333fd5d3cddb6ab5a721d246ec35ff9884d85ccfa8812c
 F src/http_socket.c 0c1acae4ddcd1d78d2863ee0c8906173c1bab975670fe5ba10a36c741efce2f6
 F src/http_ssl.c 0ad02d8f225bc7ab5cc977ae511056297127b2d6f63c359c635b1a4b7eb5a90e
 F src/http_transport.c 45bc45771bc72d9428ce2169270c0349e83d3dd3ebe6e51935b967a03caa4119
-F src/import.c 1ee4f154daf3e687e8e8304777448b2bbd877adb279d6c9e7ff7952a02982b7f
+F src/import.c 5e5520e69e7c5ee9bad9fb45c8fabef998085b877525754c5b56bd902cd1dee8
 F src/info.c b0b503b2bdf8ebaf097e9fa01711acaa0c842edae246bf4c53488ebdfdc90397
 F src/interwiki.c ad8719f0771c685fc7de0e79acb661a6ce59a0c4298300f1024ee9a22b1d5b67
 F src/json.c 226c093fa877714454de330b45ce76e447fe85b99f17d0347b8a5207f3c92b42
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c088cf957fffc55b4faaaf97ee5563ebe23a88e97fe5c20846485eff8b752776
-R e6185bba585a2763f02f127e8a3fab03
+P 78e6add989c7d798f1a12d635a8880430010fa87d369617406bcda8b2988c082
+R 821769d67da6f4933ec71f422570ffe6
 U danshearer
-Z f60ae58a92792b49410f1ef35dc37590
+Z 5f93eaed1cb1613ef8c1f873065a45a7
 # Remove this line to create a well-formed Fossil manifest.

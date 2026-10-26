@@ -516,6 +516,15 @@ static void dequote_git_filename(char *zName){
         j += 3;
       }else{
         c = zName[++j];
+        switch( c ){
+          case 'a':  c = '\a';  break;
+          case 'b':  c = '\b';  break;
+          case 'f':  c = '\f';  break;
+          case 'n':  c = '\n';  break;
+          case 'r':  c = '\r';  break;
+          case 't':  c = '\t';  break;
+          case 'v':  c = '\v';  break;
+        }
       }
     }
     zName[i++] = c;
