@@ -1369,6 +1369,15 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
 }
 
 /*
+** Set the zlib compression level used by blob_compress().  Level 0
+** stores content without compressing it, and -1 is the zlib default.
+*/
+static int blobCompressLevel = Z_DEFAULT_COMPRESSION;
+void blob_compress_level(int iLevel){
+  blobCompressLevel = iLevel;
+}
+
+/*
 ** Compress a blob pIn.  Store the result in pOut.  It is ok for pIn and
 ** pOut to be the same blob.
 **
@@ -1388,8 +1397,9 @@ void blob_compress(Blob *pIn, Blob *pOut){
   outBuf[2] = nIn>>8 & 0xff;
   outBuf[3] = nIn & 0xff;
   nOut2 = (long int)nOut;
-  compress(&outBuf[4], &nOut2,
-           (unsigned char*)blob_buffer(pIn), blob_size(pIn));
+  compress2(&outBuf[4], &nOut2,
+           (unsigned char*)blob_buffer(pIn), blob_size(pIn),
+           blobCompressLevel);
   if( pOut==pIn ) blob_reset(pOut);
   assert_blob_is_reset(pOut);
   *pOut = temp;

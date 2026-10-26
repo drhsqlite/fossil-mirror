@@ -149,7 +149,11 @@ static int fast_insert_content(
     );
     db_bind_text(&ins, ":uuid", blob_str(&hash));
     db_bind_int(&ins, ":size", gg.nData);
+    /* Most artifacts become deltas when a later version arrives, so
+    ** store them uncompressed, and import_cmd() compresses the rest. */
+    blob_compress_level(0);
     blob_compress(pContent, &cmpr);
+    blob_compress_level(-1);
     db_bind_blob(&ins, ":content", &cmpr);
     db_step(&ins);
     db_reset(&ins);
@@ -2013,6 +2017,14 @@ void import_cmd(void){
     manifest_crosslink_end(MC_NONE);
   }
 
+  /* Compress the artifacts that fast_insert_content() stored
+  ** uncompressed and that did not become deltas. */
+  add_content_sql_commands(g.db);
+  db_multi_exec(
+    "UPDATE blob SET content=compress(decompress(content))"
+    " WHERE rcvid=%d AND size>=0 AND rid NOT IN (SELECT rid FROM delta)",
+    g.rcvid
+  );
   verify_cancel();
   db_end_transaction(0);
   fossil_print("                               \r");

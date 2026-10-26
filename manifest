@@ -1,5 +1,5 @@
-C Repack\sa\snew\sgit\smirror,\sand\sany\sgit\smirror\swith\smore\sthan\s20\spacks.\sThe\s\ninefficient\s"git\sfast\sformat"\spacks\saccumulate\sand,\sif\snot\srepacked,\sthe\nmirror\sbecomes\senormous.\sNote\s--keep-unreachable\sis\sessential.\nnodes\sthat\sa\sparticular\spack\sdoesn't\sknow\sabout.
-D 2026-10-26T19:28:22.341
+C In\simport\s--git\sstore\seach\sartifact\suncompressed,\sand\sthen\scompress\sthe\sones\sthat\sdid\snot\nbecome\sdeltas\sat\sthe\send\sof\sthe\simport.\sMuch\smore\sefficient\sthan\scompressing\sall\sartifacts\nand\sthen\sreplacing\smost\sof\sthem\swith\scompressed\sdeltas.
+D 2026-10-26T22:30:53.063
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -392,7 +392,7 @@ F src/backlink.c 686d9f30d8bf45af61144d70e1757da067163a1d37f454e76849c0f2491e78a
 F src/backoffice.c b7b9c26549593245206fceaac5f044a21da623271886230cf0c912202c65f22f
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
 F src/bisect.c fc5da69bd6b9d0a71f58c573c5c44f04b940a34229c2ef6ffdf5d6e96f704814
-F src/blob.c 64626576a10fbe2bfe2c1f24a23d7ccad470bf553a19eb46e065384deeb83a3f
+F src/blob.c 88d8b5744ea226cf66e657018393dff0ed886454a40841086d8bc95e945fccf8
 F src/branch.c 9ac51ee492d81d79be857084c9207949c293c846d6d2204ca84d99fbeb8e401c
 F src/browse.c a0ff8e6a87321663e4ebb223373aa7c9d9b4007c2e930327f48c94f4d0753234
 F src/builtin.c b181c1ba1d0c9dd9d7045fcdb7910d7c3eafb3193e54adf4f5183156d40e460c
@@ -475,7 +475,7 @@ F src/http.c 89cdc607ddcd880f83333fd5d3cddb6ab5a721d246ec35ff9884d85ccfa8812c
 F src/http_socket.c 0c1acae4ddcd1d78d2863ee0c8906173c1bab975670fe5ba10a36c741efce2f6
 F src/http_ssl.c 0ad02d8f225bc7ab5cc977ae511056297127b2d6f63c359c635b1a4b7eb5a90e
 F src/http_transport.c 45bc45771bc72d9428ce2169270c0349e83d3dd3ebe6e51935b967a03caa4119
-F src/import.c 5e5520e69e7c5ee9bad9fb45c8fabef998085b877525754c5b56bd902cd1dee8
+F src/import.c 4cf7357bd6767f91e1252c4f5bc054685e3fc5bc036ac82dcc28be6d7dab55ad
 F src/info.c b0b503b2bdf8ebaf097e9fa01711acaa0c842edae246bf4c53488ebdfdc90397
 F src/interwiki.c ad8719f0771c685fc7de0e79acb661a6ce59a0c4298300f1024ee9a22b1d5b67
 F src/json.c 226c093fa877714454de330b45ce76e447fe85b99f17d0347b8a5207f3c92b42
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fac7c2bac95b803a20762f67df5e4bbf2c8d7e730b9ba8f65aa2b6fda35b3537
-R 4e3eb0705abffe8285a6ee46501469f5
+P b89bd70a3d091ebed76f5711d1a5d87f05f534f59fe7b7f172e203e7c9faff8d
+R b66cccdd26fd38affb4859726b9a3458
 U danshearer
-Z a4b43b1c237e44261e531f0d6a77d3a2
+Z 53b2fe5331b96874025c44a345524a62
 # Remove this line to create a well-formed Fossil manifest.
