@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion\sfor\nbeta\stesting.
-D 2026-10-25T00:50:08.948
+C In\sexport\s--git,\slook\sup\seach\scheck-in's\sprimary\sparent\sby\sprimary\skey\sinstead\sof\sa\nsubquery.\sSpeeds\sup\sexport\sby\s~2.5x.
+D 2026-10-26T14:10:31.688
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -430,7 +430,7 @@ F src/doc.c f938d93ea40675e563863b06631a4b266a9f343965ee31c9b1ea999b753a8d0a
 F src/encode.c 016efece00d0d4436f87c61cfc3f6a41ef014ee3bb52e234dce38bc9711791ee
 F src/etag.c f5ae12e6858162847c26183858f6ed58520af6b91fb3a6d786a69770c74de1c4
 F src/event.c 2f44da7c6151346d8879a0b16e65120a9a092844dbb666c0dcf42f778408ac10
-F src/export.c 463d889f18e961456d53bfe7c68f02ce255c5d4fb9e274cd9a5c7a4e5a9f351c
+F src/export.c 2e2ac4948461b50701ded314f4394f20c7110eaa9b9ea6be76e584f99b156d82
 F src/extcgi.c ba1285ef63307493e837f74e4f0c98e0cfc8029a43dcc0c90b81c59f5dff12dc
 F src/file.c 087bc4b64ae1cfb21f8d1adb21707735ffaa3de84432ac56f1850484f807b82a
 F src/fileedit.c 1c047bcbaec5896615d7ef869ef5d572ff307903ab4754e5e5c596b99a030125
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0d2ceb89e1ef8d938e840ef53268259c0308f203eaff51237f6161b1b45dee3d
-R 27175320570eab65306724a1757bd045
-U drh
-Z da2a513d1ab21399115b7af4a65a25b5
+P e66a8c79ad286ed3acdacc595c0ce7196d578982bd3c333552741d94dbfff99a
+R 19b8944fe4c91910e89ef5349a8147b3
+U danshearer
+Z e6fa9df6cd751de56827da1fff858072
 # Remove this line to create a well-formed Fossil manifest.

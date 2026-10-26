@@ -648,7 +648,7 @@ void export_cmd(void){
     db_prepare(&q3,
       "SELECT pid FROM plink"
       " WHERE cid=%d AND isprim"
-      "   AND pid IN (SELECT objid FROM event)",
+      "   AND EXISTS(SELECT 1 FROM event WHERE objid=pid)",
       ckinId
     );
     if( db_step(&q3) == SQLITE_ROW ){
