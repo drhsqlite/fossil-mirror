@@ -210,6 +210,8 @@ static void xfer_accept_file(
   }
   if( hname_verify_hash(&content, blob_buffer(pUuid), blob_size(pUuid))==0 ){
     blob_appendf(&pXfer->err, "wrong hash on received artifact: %b", pUuid);
+    blob_reset(&content);
+    return;
   }
   rid = content_put_ex(&content, blob_str(pUuid), 0, 0, isPriv);
   Th_AppendToList(pzUuidList, pnUuidList, blob_str(pUuid), blob_size(pUuid));
@@ -1435,7 +1437,9 @@ void page_xfer(void){
      && xfer.nToken==2
      && blob_is_filename(&xfer.aToken[1])
     ){
-      send_unversioned_file(&xfer, blob_str(&xfer.aToken[1]), 0);
+      if( g.perm.Read ){
+        send_unversioned_file(&xfer, blob_str(&xfer.aToken[1]), 0);
+      }
     }else
 
     /*   igot HASH ?ISPRIVATE?
@@ -1812,6 +1816,7 @@ void page_xfer(void){
             const char *zLogin = db_column_text(&q,0);
             sqlite3_int64 mtime = db_column_int64(&q, 1);
             if( fossil_strcmp(zClientId, blob_str(&xfer.aToken[3]))!=0 ){
+              if( 0==zLogin || 0==zLogin[0] ) zLogin = "nobody";
               @ pragma ci-lock-fail %F(zLogin) %lld(mtime)
             }
             seenFault = 1;

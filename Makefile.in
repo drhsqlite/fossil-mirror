@@ -136,7 +136,7 @@ CENGINE := docker
 container:
 	$(CENGINE) image inspect $(IMGVER) > /dev/null 2>&1 || \
 		$(MAKE) container-image
-	$(CENGINE) container inspect $(CNTVER) > /dev/null 2>&1 || \
+	$(CENGINE) inspect $(CNTVER) > /dev/null 2>&1 || \
 		$(CENGINE) create \
 			--name $(CNTVER) \
 			--cap-drop AUDIT_WRITE \
@@ -152,14 +152,13 @@ container:
 			$(DCFLAGS) $(IMGVER) $(DCCMD)
 
 container-clean:
-	-$(CENGINE) container kill $(CNTVER)
-	-$(CENGINE) container rm   $(CNTVER)
-	-$(CENGINE) image     rm   $(IMGVER)
+	-$(CENGINE) kill $(CNTVER)
+	-$(CENGINE) rm   $(CNTVER)
+	-$(CENGINE) image rm $(IMGVER)
 
 container-image:
 	$(APPNAME) tarball --name src @FOSSIL_CI_PFX@ $(SRCTB)
-	$(CENGINE) buildx build \
-		--load \
+	$(CENGINE) build \
 		--tag $(IMGVER) \
 		--build-arg FSLURL=$(SRCTB) \
 		$(DBFLAGS) @srcdir@
@@ -168,7 +167,7 @@ container-image:
 container-run container-start: container
 	$(CENGINE) start $(DSFLAGS) $(CNTVER)
 	@sleep 1   # decrease likelihood of logging race condition
-	$(CENGINE) container logs $(CNTVER)
+	$(CENGINE) logs $(CNTVER)
 
 container-stop:
 	$(CENGINE) stop $(CNTVER)

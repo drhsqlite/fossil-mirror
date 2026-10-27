@@ -135,7 +135,9 @@ static int fociBestIndex(sqlite3_vtab *tab, sqlite3_index_info *pIdxInfo){
       }else{
         pIdxInfo->idxNum = 2;
       }
-      pIdxInfo->estimatedCost = 1.0;
+      pIdxInfo->estimatedCost = 100.0
+        /* values of 1 (historical) and 10 (tested) can make this
+        ** extremely slow. forum:2d15009e0e */ ;
       pIdxInfo->aConstraintUsage[i].argvIndex = 1;
       pIdxInfo->aConstraintUsage[i].omit = 1;
       break;

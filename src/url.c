@@ -65,6 +65,7 @@ struct UrlData {
   unsigned flags;       /* Boolean flags controlling URL processing */
   int useProxy;         /* Used to remember that a proxy is in use */
   int proxyOrigPort;       /* Tunneled port number for https through proxy */
+  char *proxyOrigName;     /* Tunneled host name for https through proxy */
   char *proxyUrlPath;      /* Remember path when proxy is use */
   char *proxyUrlCanonical; /* Remember canonical path when proxy is use */
 };
@@ -150,21 +151,24 @@ void url_parse_local(
     if( zUrl==0 ) return;
   }
 
-  if( strncmp(zUrl, "http://", 7)==0
-   || strncmp(zUrl, "https://", 8)==0
-   || strncmp(zUrl, "ssh://", 6)==0
+  /* Schemes are case-insensitive (RFC 3986 section 3.1). */
+  if( fossil_strnicmp(zUrl, "http://", 7)==0
+   || fossil_strnicmp(zUrl, "https://", 8)==0
+   || fossil_strnicmp(zUrl, "ssh://", 6)==0
   ){
     int iStart;
     char *zLogin;
     char *zExe;
     char cQuerySep = '?';
+    const char *zLb;     /* "[" before an IPv6 address in a URL, else "" */
+    const char *zRb;     /* "]" after an IPv6 address in a URL, else "" */
 
-    if( zUrl[4]=='s' ){
+    if( zUrl[4]=='s' || zUrl[4]=='S' ){
       pUrlData->isHttps = 1;
       pUrlData->protocol = "https";
       pUrlData->dfltPort = 443;
       iStart = 8;
-    }else if( zUrl[0]=='s' ){
+    }else if( zUrl[0]=='s' || zUrl[0]=='S' ){
       pUrlData->isSsh = 1;
       pUrlData->protocol = "ssh";
       pUrlData->dfltPort = 22;
@@ -176,7 +180,10 @@ void url_parse_local(
       pUrlData->dfltPort = 80;
       iStart = 7;
     }
-    for(i=iStart; (c=zUrl[i])!=0 && c!='/' && c!='@'; i++){}
+    /* The user-id ends at an '@' that comes before the path, query,
+    ** or fragment.  An '@' after any of them belongs to that part. */
+    for(i=iStart; (c=zUrl[i])!=0 && c!='/' && c!='?' && c!='#' && c!='@';
+        i++){}
     if( c=='@' ){
       /* Parse up the user-id and password */
       for(j=iStart; j<i && zUrl[j]!=':'; j++){}
@@ -197,25 +204,34 @@ void url_parse_local(
       }else{
         zLogin = mprintf("%t@", pUrlData->user);
       }
-      for(j=i+1; (c=zUrl[j])!=0 && c!='/' && c!=':'; j++){}
-      pUrlData->name = mprintf("%.*s", j-i-1, &zUrl[i+1]);
-      i = j;
+      iStart = i+1;
     }else{
+      zLogin = mprintf("");
+    }
+    {
+      /* An IPv6 address is written within square brackets because it
+      ** contains ':'.  The brackets are not part of pUrlData->name. */
       int inSquare = 0;
       int n;
-      for(i=iStart; (c=zUrl[i])!=0 && c!='/' && (inSquare || c!=':'); i++){
+      for(i=iStart; (c=zUrl[i])!=0 && c!='/' && c!='?' && c!='#'
+                    && (inSquare || c!=':'); i++){
         if( c=='[' ) inSquare = 1;
         if( c==']' ) inSquare = 0;
       }
-      pUrlData->name = mprintf("%.*s", i-iStart, &zUrl[iStart]);
-      n = strlen(pUrlData->name);
-      if( pUrlData->name[0]=='[' && n>2 && pUrlData->name[n-1]==']' ){
-        pUrlData->name++;
-        pUrlData->name[n-2] = 0;
+      n = i-iStart;
+      if( n>2 && zUrl[iStart]=='[' && zUrl[i-1]==']' ){
+        pUrlData->name = mprintf("%.*s", n-2, &zUrl[iStart+1]);
+      }else{
+        pUrlData->name = mprintf("%.*s", n, &zUrl[iStart]);
       }
-      zLogin = mprintf("");
     }
     fossil_strtolwr(pUrlData->name);
+    if( strchr(pUrlData->name, ':')!=0 ){
+      zLb = "[";
+      zRb = "]";
+    }else{
+      zLb = zRb = "";
+    }
     if( c==':' ){
       pUrlData->port = 0;
       i++;
@@ -223,14 +239,31 @@ void url_parse_local(
         pUrlData->port = pUrlData->port*10 + c - '0';
         i++;
       }
-      if( c!=0 && c!='/' ) fossil_fatal("url missing '/' after port number");
-      pUrlData->hostname = mprintf("%s:%d", pUrlData->name, pUrlData->port);
+      if( c!=0 && c!='/' && c!='?' && c!='#' ){
+        fossil_fatal("url missing '/' after port number");
+      }
+      /* The HTTP Host: header needs the brackets around an IPv6
+      ** address.  For ssh:, the hostname is part of the name of the
+      ** use-path-for-ssh setting, which is stored without them. */
+      pUrlData->hostname = mprintf("%s%s%s:%d",
+                                   pUrlData->isSsh ? "" : zLb,
+                                   pUrlData->name,
+                                   pUrlData->isSsh ? "" : zRb,
+                                   pUrlData->port);
     }else{
       pUrlData->port = pUrlData->dfltPort;
-      pUrlData->hostname = pUrlData->name;
+      if( zLb[0] && !pUrlData->isSsh ){
+        pUrlData->hostname = mprintf("[%s]", pUrlData->name);
+      }else{
+        pUrlData->hostname = pUrlData->name;
+      }
     }
     dehttpize(pUrlData->name);
     pUrlData->path = fossil_strdup(&zUrl[i]);
+    /* A fragment (typically an HTML anchor), should not be sent to a server 
+    ** (RFC 3986 s 3.5, RFC 9112 s 3.2.1). Drop for these schemes.*/
+    for(i=0; pUrlData->path[i] && pUrlData->path[i]!='#'; i++){}
+    pUrlData->path[i] = 0;
     for(i=0; pUrlData->path[i] && pUrlData->path[i]!='?'; i++){}
     if( pUrlData->path[i] ){
       pUrlData->path[i] = 0;
@@ -266,14 +299,15 @@ void url_parse_local(
     dehttpize(pUrlData->path);
     if( pUrlData->dfltPort==pUrlData->port ){
       pUrlData->canonical = mprintf(
-        "%s://%s%T%T%z",
-        pUrlData->protocol, zLogin, pUrlData->name, pUrlData->path, zExe
+        "%s://%s%s%T%s%T%z",
+        pUrlData->protocol, zLogin, zLb, pUrlData->name, zRb,
+        pUrlData->path, zExe
       );
     }else{
       pUrlData->canonical = mprintf(
-        "%s://%s%T:%d%T%z",
-        pUrlData->protocol, zLogin, pUrlData->name, pUrlData->port,
-        pUrlData->path, zExe
+        "%s://%s%s%T%s:%d%T%z",
+        pUrlData->protocol, zLogin, zLb, pUrlData->name, zRb,
+        pUrlData->port, pUrlData->path, zExe
       );
     }
     if( pUrlData->isSsh && pUrlData->path[1] ){
@@ -282,7 +316,7 @@ void url_parse_local(
       fossil_free(zOld);
     }
     free(zLogin);
-  }else if( strncmp(zUrl, "file:", 5)==0 ){
+  }else if( fossil_strnicmp(zUrl, "file:", 5)==0 ){
     pUrlData->isFile = 1;
     if( zUrl[5]=='/' && zUrl[6]=='/' ){
       i = 7;
@@ -333,6 +367,18 @@ void url_parse_local(
 }
 
 /*
+** Append host name zName to the URL being built in x, within square
+** brackets if it is an IPv6 address, which contains ':'.
+*/
+static void url_append_host(Blob *x, const char *zName){
+  if( strchr(zName, ':')!=0 ){
+    blob_appendf(x, "[%T]", zName);
+  }else{
+    blob_appendf(x, "%T", zName);
+  }
+}
+
+/*
 ** Construct the complete URL for a UrlData object, including the
 ** login name and password, into memory obtained from fossil_malloc()
 ** and return a pointer to that URL text.
@@ -350,7 +396,7 @@ char *url_full(const UrlData *p){
     }
     blob_appendf(&x, "@");
   }
-  blob_appendf(&x, "%T", p->name);
+  url_append_host(&x, p->name);
   if( p->dfltPort!=p->port ){
     blob_appendf(&x, ":%d", p->port);
   }
@@ -370,7 +416,7 @@ char *url_nouser(const UrlData *p){
     return fossil_strdup(p->canonical);
   }
   blob_appendf(&x, "%s://", p->protocol);
-  blob_appendf(&x, "%T", p->name);
+  url_append_host(&x, p->name);
   if( p->dfltPort!=p->port ){
     blob_appendf(&x, ":%d", p->port);
   }
@@ -591,6 +637,7 @@ void url_enable_proxy(const char *zMsg){
       && !g.url.isSsh && !g.url.isFile ){
     char *zOriginalUrl = g.url.canonical;
     char *zOriginalHost = g.url.hostname;
+    char *zOriginalName = g.url.name;
     int fOriginalIsHttps = g.url.isHttps;
     char *zOriginalUser = g.url.user;
     char *zOriginalPasswd = g.url.passwd;
@@ -616,6 +663,7 @@ void url_enable_proxy(const char *zMsg){
     g.url.proxyUrlCanonical = zOriginalUrl;;
     g.url.proxyUrlPath = zOriginalUrlPath;
     g.url.proxyOrigPort = iOriginalPort;
+    g.url.proxyOrigName = zOriginalName;
     g.url.flags = uOriginalFlags;
   }
 }

@@ -121,7 +121,8 @@
           'placeholder',
           'Thread title (required)'
         );
-        e.title.setAttribute('maxlength', 125);
+        const maxLen = F.config.forum.maxTitleLength;
+        e.title.setAttribute('maxlength', (maxLen>0) ? maxLen : 125);
         e.titleBar.append(
           D.append(D.span(), "Title:"),
           e.title
@@ -312,11 +313,11 @@
 
       if( opt.edit
           && !opt.inReplyTo
-          && F.config.forumStatuses?.length>0 ){
+          && F.config.forum?.statuses?.length>0 ){
         const sel = e.status = D.select();
         sel.setAttribute('title', 'The status tag value for this post.');
         D.option(sel, "", "- Status -").disabled = true;
-        for( const status of F.config.forumStatuses ){
+        for( const status of F.config.forum.statuses ){
           D.option(sel, status.value, status.label);
         }
         e.buttons.append(sel);
@@ -326,7 +327,7 @@
           if( this.#draft.status ){
             sel.value = this.#draft.status;
           }else{
-            this.#draft.status = sel.value = F.config.forumStatuses[0].value;
+            this.#draft.status = sel.value = F.config.forum.statuses[0].value;
           }
           sel.addEventListener('change',ev=>{
             const v = sel.value;

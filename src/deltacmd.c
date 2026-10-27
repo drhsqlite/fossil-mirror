@@ -119,12 +119,13 @@ void delta_analyze_cmd(void){
 ** Return the length of the target.  Return -1 if there is an error.
 */
 int blob_delta_apply(Blob *pOriginal, Blob *pDelta, Blob *pTarget){
-  int len, n;
+  int len;
+  sqlite3_int64 n;
   Blob out;
 
   n = delta_output_size(blob_buffer(pDelta), blob_size(pDelta));
   blob_zero(&out);
-  if( n<0 ) return -1;
+  if( n<0 || n>0x7fffffff ) return -1;
   blob_resize(&out, n);
   len = delta_apply(
      blob_buffer(pOriginal), blob_size(pOriginal),
@@ -161,7 +162,9 @@ void delta_apply_cmd(void){
     fossil_fatal("cannot read %s", g.argv[3]);
   }
   blob_init(&target, 0, 0);
-  blob_delta_apply(&orig, &delta, &target);
+  if( blob_delta_apply(&orig, &delta, &target) < 0 ){
+    fossil_fatal("Delta application failed.");
+  }
   if( blob_write_to_file(&target, g.argv[4])<(int)blob_size(&target) ){
     fossil_fatal("cannot write %s", g.argv[4]);
   }

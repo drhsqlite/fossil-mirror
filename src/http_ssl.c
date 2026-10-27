@@ -37,6 +37,7 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/x509.h>
+#include <openssl/x509v3.h>
 
 #include <assert.h>
 #include <sys/types.h>
@@ -381,17 +382,30 @@ void ssl_close_client(void){
   socket_close();
 }
 
+/*
+** Return the host name of the server that pUrlData connects to, without
+** a port number.  When the connection goes through a proxy,
+** pUrlData->name holds the proxy hostname, and the server hostname is in
+** pUrlData->proxyOrigName.
+*/
+static const char *ssl_server_name(const UrlData *pUrlData){
+  return pUrlData->useProxy ? pUrlData->proxyOrigName : pUrlData->name;
+}
+
 /* See RFC2817 for details */
 static int establish_proxy_tunnel(UrlData *pUrlData, BIO *bio){
   int rc, httpVerMin;
   char *bbuf;
   Blob snd, reply;
   int done=0,end=0;
+  const char *zHost = ssl_server_name(pUrlData);
+  const char *zLb = strchr(zHost, ':') ? "[" : "";  /* IPv6 brackets */
+  const char *zRb = zLb[0] ? "]" : "";
   blob_zero(&snd);
-  blob_appendf(&snd, "CONNECT %s:%d HTTP/1.1\r\n", pUrlData->hostname,
-      pUrlData->proxyOrigPort);
-  blob_appendf(&snd, "Host: %s:%d\r\n",
-               pUrlData->hostname, pUrlData->proxyOrigPort);
+  blob_appendf(&snd, "CONNECT %s%s%s:%d HTTP/1.1\r\n",
+               zLb, zHost, zRb, pUrlData->proxyOrigPort);
+  blob_appendf(&snd, "Host: %s%s%s:%d\r\n",
+               zLb, zHost, zRb, pUrlData->proxyOrigPort);
   if( pUrlData->proxyAuth ){
     blob_appendf(&snd, "Proxy-Authorization: %s\r\n", pUrlData->proxyAuth);
   }
@@ -440,6 +454,35 @@ void ssl_disable_cert_verification(void){
 }
 
 /*
+** Return true if zHost is an IPv4 or IPv6 address.  A certificate
+** lists an IP address separately from its DNS names, and RFC 6066 does not
+** permit an IP address as the TLS server name.
+*/
+static int ssl_host_is_ip_address(const char *zHost){
+  ASN1_OCTET_STRING *pIp = a2i_IPADDRESS(zHost);
+  if( pIp==0 ){
+    ERR_clear_error();
+    return 0;
+  }
+  ASN1_OCTET_STRING_free(pIp);
+  return 1;
+}
+
+/*
+** Return true if zHost contains a byte outside ASCII.  RFC 6066 permits
+** only an ASCII DNS name as the TLS server name, so an internationalized
+** domain name would have to be sent in its "xn--" form, but Fossil does not 
+** use that form.
+*/
+static int ssl_host_is_non_ascii(const char *zHost){
+  while( *zHost ){
+    if( (unsigned char)*zHost >= 0x80 ) return 1;
+    zHost++;
+  }
+  return 0;
+}
+
+/*
 ** Open an SSL connection as a client that is to connect to the server
 ** identified by pUrlData.
 **
@@ -454,6 +497,9 @@ void ssl_disable_cert_verification(void){
 int ssl_open_client(UrlData *pUrlData){
   X509 *cert;
   const char *zRemoteHost;
+  const char *zTlsName;  /* zRemoteHost needed by the TLS layer */
+  char zDotless[256];    /* zRemoteHost without a trailing dot */
+  int isIpAddr;          /* True if zRemoteHost is an IP address */
   BIO *sBio;
 
   ssl_global_init_client();
@@ -478,10 +524,25 @@ int ssl_open_client(UrlData *pUrlData){
   BIO_set_ssl_mode(iBio, 1);
   BIO_get_ssl(iBio, &ssl);
 
-  zRemoteHost = pUrlData->useProxy ? pUrlData->hostname : pUrlData->name;
+  zRemoteHost = ssl_server_name(pUrlData);
+  /* A fully qualified name may end with a dot, as in "example.com.".
+  ** The RFC 6066 TLS server name and all certificate names are 
+  ** dotless */
+  zTlsName = zRemoteHost;
+  {
+    size_t n = strlen(zRemoteHost);
+    if( n>1 && zRemoteHost[n-1]=='.' && n<sizeof(zDotless) ){
+      memcpy(zDotless, zRemoteHost, n-1);
+      zDotless[n-1] = 0;
+      zTlsName = zDotless;
+    }
+  }
+  isIpAddr = ssl_host_is_ip_address(zTlsName);
 
 #if (SSLEAY_VERSION_NUMBER >= 0x00908070) && !defined(OPENSSL_NO_TLSEXT)
-  if( !SSL_set_tlsext_host_name(ssl, zRemoteHost)){
+  if( !isIpAddr && !ssl_host_is_non_ascii(zTlsName)
+   && !SSL_set_tlsext_host_name(ssl, zTlsName)
+  ){
     fossil_warning("WARNING: failed to set server name indication (SNI), "
                   "continuing without it.\n");
   }
@@ -492,7 +553,12 @@ int ssl_open_client(UrlData *pUrlData){
   if( !sslNoCertVerify ){
     X509_VERIFY_PARAM *param = 0;
     param = SSL_get0_param(ssl);
-    if( !X509_VERIFY_PARAM_set1_host(param, zRemoteHost, strlen(zRemoteHost)) ){
+    if( isIpAddr ){
+      if( !X509_VERIFY_PARAM_set1_ip_asc(param, zTlsName) ){
+        fossil_fatal("failed to set IP address.");
+      }
+    }else if( !X509_VERIFY_PARAM_set1_host(param, zTlsName,
+                                           strlen(zTlsName)) ){
       fossil_fatal("failed to set hostname.");
     }
     /* SSL_set_verify(ssl, SSL_VERIFY_PEER, 0); */
@@ -569,7 +635,7 @@ int ssl_open_client(UrlData *pUrlData){
 
       prompt = mprintf("Unable to verify SSL cert from %s\n%.*s\n"
           "accept this cert and continue (y/N/fingerprint)? ",
-          pUrlData->name, desclen, desc);
+          zRemoteHost, desclen, desc);
       BIO_free(mem);
 
       prompt_user(prompt, &ans);
@@ -602,30 +668,30 @@ int ssl_open_client(UrlData *pUrlData){
 
 /*
 ** Remember that the cert with the given hash is acceptable for
-** use with pUrlData->name.
+** use with the server that pUrlData connects to.
 */
 LOCAL void ssl_remember_certificate_exception(
   UrlData *pUrlData,
   const char *zHash
 ){
-  db_set_mprintf(zHash, 1, "cert:%s", pUrlData->name);
+  db_set_mprintf(zHash, 1, "cert:%s", ssl_server_name(pUrlData));
 }
 
 /*
 ** Return true if the there exists a certificate exception for
-** pUrlData->name that matches the hash.
+** the server that pUrlData connects to that matches the hash.
 */
 LOCAL int ssl_certificate_exception_exists(
   UrlData *pUrlData,
   const char *zHash
 ){
   char *zName, *zValue;
-  if( fossil_strcmp(sException.zHost,pUrlData->name)==0
+  if( fossil_strcmp(sException.zHost,ssl_server_name(pUrlData))==0
    && fossil_strcmp(sException.zHash,zHash)==0
   ){
     return 1;
   }
-  zName = mprintf("cert:%s", pUrlData->name);
+  zName = mprintf("cert:%s", ssl_server_name(pUrlData));
   zValue = db_get(zName,0);
   fossil_free(zName);
   return zValue!=0 && strcmp(zHash,zValue)==0;
@@ -639,7 +705,7 @@ LOCAL void ssl_one_time_exception(
   const char *zHash
 ){
   fossil_free(sException.zHost);
-  sException.zHost = fossil_strdup(pUrlData->name);
+  sException.zHost = fossil_strdup(ssl_server_name(pUrlData));
   fossil_free(sException.zHash);
   sException.zHash = fossil_strdup(zHash);
 }

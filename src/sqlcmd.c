@@ -474,7 +474,7 @@ void cmd_sqlite3(void){
   zConfigDb = fossil_strdup(g.zConfigDbName);
   fossil_close(1, noRepository);
   sqlite3_shutdown();
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(BROKEN_MINGW_CMDLINE)
   linenoiseSetMultiLine(1);
 #endif
   atexit(sqlcmd_atexit);

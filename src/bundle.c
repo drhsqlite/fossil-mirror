@@ -460,6 +460,19 @@ static void bundle_import_elements(int iSrc, Blob *pBasis, int isPriv){
     }else if( pBasis ){
       blob_delta_apply(pBasis, &c1, &c2);
       blob_reset(&c1);
+    }else if( db_column_type(&q,2)==SQLITE_INTEGER ){
+      /* This is a delta against another bundle entry which was not
+      ** imported because the repository already has it.  Use the
+      ** repository's copy. [forum:2629a1deaa] */
+      Blob basis;
+      rid = db_int(0,"SELECT rid FROM blob, bblob"
+                   " WHERE bblob.blobid=%d"
+                   " AND blob.uuid=bblob.uuid",
+                   db_column_int(&q,2));
+      content_get(rid, &basis);
+      blob_delta_apply(&basis, &c1, &c2);
+      blob_reset(&basis);
+      blob_reset(&c1);
     }else{
       c2 = c1;
     }
@@ -613,7 +626,11 @@ static void bundle_import_cmd(void){
     "         CASE WHEN typeof(delta)=='integer'"
     "              THEN delta ELSE 0 END"
     "    FROM bblob"
-    "   WHERE NOT EXISTS(SELECT 1 FROM blob WHERE uuid=bblob.uuid AND size>=0);"
+    "    WHERE NOT EXISTS("
+    "      SELECT 1 FROM blob WHERE uuid=bblob.uuid AND size>=0"
+    "    );"
+    "UPDATE bix SET delta=0"
+    " WHERE delta>0 AND delta NOT IN (SELECT blobid FROM bix);"
     "CREATE TEMP TABLE got(rid INTEGER PRIMARY KEY ON CONFLICT IGNORE);"
   );
   manifest_crosslink_begin();

@@ -916,7 +916,7 @@ static int wiki_ajax_emit_page_object(const char *zPageName,
        pWiki->zWikiTitle,
        wiki_page_type_name(pWiki->zWikiTitle),
        zUuid,
-       pWiki->zMimetype ? pWiki->zMimetype : "text/x-fossil-wiki");
+       pWiki->zMimetype ? pWiki->zMimetype : "text/x-markdown");
     CX("\"parent\": ");
     if(pWiki->nParent){
       CX("%!j", pWiki->azParent[0]);
@@ -1511,7 +1511,7 @@ void wikiedit_page(void){
        "\"parent\": null, \"version\": null"
        "};\n",
        zPageName,
-       zMimetype ? zMimetype : "text/x-fossil-wiki",
+       zMimetype ? zMimetype : "text/x-markdown",
        wiki_page_type_name(zPageName));
     /* If the JS-side stash already has this page, load that
        copy from the stash, otherwise inject a new stash entry
@@ -2148,17 +2148,18 @@ int wiki_technote_to_rid(const char *zETime) {
       ** such time as tags have the errant prefix dropped.
       */
       rid = db_int(0, "SELECT e.objid"
-          "  FROM event e, tag t, tagxref tx"
+          "  FROM event e"
           " WHERE e.type='e'"
           "   AND e.tagid IS NOT NULL"
-          "   AND e.objid IN"
+          "   AND (e.objid IN"
                       "       (SELECT rid FROM tagxref"
                       "         WHERE tagid=(SELECT tagid FROM tag"
                       "                       WHERE tagname GLOB '%q'))"
-          "    OR e.objid IN"
+          "     OR (e.objid IN"
                       "       (SELECT rid FROM tagxref"
                       "         WHERE tagid=(SELECT tagid FROM tag"
-                      "                       WHERE tagname GLOB 'sym-%q'))"
+                      "                       WHERE tagname GLOB 'sym-%q')))"
+         "    )"
           "   ORDER BY e.mtime DESC LIMIT 1",
        zETime, zETime);
   }

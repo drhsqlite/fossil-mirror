@@ -212,7 +212,8 @@ SCHEME: box "https://" mono fit
 DOMAIN: box "example.com" mono fit
 SCRIPT: box "/cgis/example2" mono fit
 PATH:   box "/subdir/three/timeline" mono fit
-QUERY:  box "?c=55d7e1" mono fit
+QMARK:  box "?" mono fit
+QUERY:  box "c=55d7e1" mono fit
 
 thickness = 0.01
 
@@ -225,6 +226,7 @@ RB: box at 0.5 above PATH   "REQUEST_URI"  mono fit invis
 color = lightgray
 
 box at SCHEME width SCHEME.width height SCHEME.height
+box at QMARK width QMARK.width height QMARK.height
 line fill 0x7799CC behind QUERY \
   from SCRIPT.nw \
     to RB.sw \

@@ -131,6 +131,25 @@ static void http_build_login_card(Blob * const pPayload, Blob * const pLogin){
 }
 
 /*
+** Append zPath to pBlob as the target of an HTTP request line (RFC 9112
+** section 3.2).  zPath is the decoded path from the URL, so it is
+** percent-encoded again here: each byte outside ASCII and each
+** character that RFC 3986 section 3.3 does not allow in a path is
+** written as %XX.  '+' is encoded too, because the server decodes it
+** as a space.
+*/
+static void http_append_request_target(Blob *pBlob, const char *zPath){
+  for(; *zPath; zPath++){
+    unsigned char c = (unsigned char)*zPath;
+    if( c<=0x20 || c>=0x7f || strchr("\"#%+<>?[\\]^`{|}", c)!=0 ){
+      blob_appendf(pBlob, "%%%02X", c);
+    }else{
+      blob_append_char(pBlob, (char)c);
+    }
+  }
+}
+
+/*
 ** Construct an appropriate HTTP request header.  Write the header
 ** into pHdr.  This routine initializes the pHdr blob.  pPayload is
 ** the complete payload (including the login card if pLogin is NULL or
@@ -143,18 +162,18 @@ static void http_build_header(
   const char *zAltMimetype     /* Alternative mimetype */
 ){
   int nPayload = pPayload ? blob_size(pPayload) : 0;
-  const char *zPath;
 
   blob_zero(pHdr);
+  blob_appendf(pHdr, "%s ", nPayload>0 ? "POST" : "GET");
   if( g.url.subpath ){
-    zPath = g.url.subpath;
+    /* The subpath is already percent-encoded. */
+    blob_append(pHdr, g.url.subpath, -1);
   }else if( g.url.path==0 || g.url.path[0]==0 ){
-    zPath = "/";
+    blob_append_char(pHdr, '/');
   }else{
-    zPath = g.url.path;
+    http_append_request_target(pHdr, g.url.path);
   }
-  blob_appendf(pHdr, "%s %s HTTP/1.1\r\n",
-               nPayload>0 ? "POST" : "GET", zPath);
+  blob_appendf(pHdr, " HTTP/1.1\r\n");
   if( g.url.proxyAuth ){
     blob_appendf(pHdr, "Proxy-Authorization: %s\r\n", g.url.proxyAuth);
   }
@@ -431,6 +450,22 @@ char *http_last_trace_reply(void){
 }
 
 /*
+** Return true if z is a valud extension according to RFC 9112 s 7.1.1. 
+** In addition to the ordinary checks, bare CR anywhere is invalid
+** (section 2.2).
+*/
+static int http_chunk_ext_ok(const char *z){
+  if( strchr(z, '\r')!=0 ) return 0;
+  while( *z==' ' || *z=='\t' ) z++;
+  if( *z==0 ) return 1;
+  if( *z!=';' ) return 0;
+  z++;
+  while( *z==' ' || *z=='\t' ) z++;
+  return fossil_isalnum(*z)
+      || (*z!=0 && strchr("!#$%&'*+-.^_`|~", *z)!=0);
+}
+
+/*
 ** Sign the content in pSend, compress it, and send it to the server
 ** via HTTP or HTTPS.  Get a reply, uncompress the reply, and store the reply
 ** in pRecv.  pRecv is assumed to be uninitialized when
@@ -454,6 +489,7 @@ int http_exchange(
   int iLength;          /* Expected length of the reply payload */
   int rc = 0;           /* Result code */
   int iHttpVersion;     /* Which version of HTTP protocol server uses */
+  int nBlank = 0;       /* Empty lines to skip after an interim reply */
   char *zLine;          /* A single line of the reply header */
   int i;                /* Loop counter */
   int isError = 0;      /* True if the reply is an error message */
@@ -564,9 +600,27 @@ int http_exchange(
   closeConnection = 1;
   iLength = -1;
   iHttpVersion = -1;
-  while( (zLine = transport_receive_line(&g.url))!=0 && zLine[0]!=0 ){
+  while( (zLine = transport_receive_line(&g.url))!=0 ){
+    if( zLine[0]==0 ){
+      if( nBlank>0 ){
+        /* A server may send an empty line after an interim reply,
+        ** before the status line of the final reply. */
+        nBlank--;
+        continue;
+      }
+      break;
+    }
+    nBlank = 0;
     if( mHttpFlags & HTTP_VERBOSE ){
       fossil_print("Read: [%s]\n", zLine);
+    }
+    if( zLine[0]==' ' || zLine[0]=='\t' ){
+      /* A line starting with a space or tab continues the previous
+      ** header (obsolete line folding, RFC 9112 section 5.2) and in this
+      ** case we disregard the RFC because it gets messy. This is what
+      ** the llhttp project and others do. */
+      fossil_warning("server sent a folded header line");
+      goto write_err;
     }
     if( fossil_strnicmp(zLine, "http/1.", 7)==0 ){
       if( sscanf(zLine, "HTTP/1.%d %d", &iHttpVersion, &rc)!=2 ) goto write_err;
@@ -577,6 +631,7 @@ int http_exchange(
         while( (zLine = transport_receive_line(&g.url))!=0 && zLine[0]!=0 ){}
         iHttpVersion = -1; /* Ensures correct error msg if connection drops */
         if( zLine==0 ) goto write_err;
+        nBlank = 4;
         continue;
       }
       if( rc==401 ){
@@ -616,8 +671,29 @@ int http_exchange(
       if( iHttpVersion<0 ) iHttpVersion = 1;
       closeConnection = 0;
     }else if( fossil_strnicmp(zLine, "content-length:", 15)==0 ){
+      /* The value is one or more digits, optionally followed by
+      ** spaces, and fits in an int.  Any other value is an error, and
+      ** so is a second Content-Length with a different value. */
+      sqlite3_int64 n = 0;
+      int iStart;
       for(i=15; fossil_isspace(zLine[i]); i++){}
-      iLength = atoi(&zLine[i]);
+      for(iStart=i; fossil_isdigit(zLine[i]) && n<=0x7fffffff; i++){
+        n = n*10 + zLine[i] - '0';
+      }
+      if( i==iStart || n>0x7fffffff ){
+        fossil_warning("server sent a bad content-length: %s", zLine);
+        goto write_err;
+      }
+      for(; fossil_isspace(zLine[i]); i++){}
+      if( zLine[i]!=0 ){
+        fossil_warning("server sent a bad content-length: %s", zLine);
+        goto write_err;
+      }
+      if( iLength>=0 && iLength!=(int)n ){
+        fossil_warning("server sent two different content-length values");
+        goto write_err;
+      }
+      iLength = (int)n;
     }else if( fossil_strnicmp(zLine, "transfer-encoding:", 18)==0 ){
       /* Fossil never sends a "transfer-encoding:" request header, so we may
       ** reject any encoding other than "chunked", including "gzip, chunked",
@@ -629,6 +705,11 @@ int http_exchange(
       }
       if( !bOk ){
         fossil_warning("unsupported transfer-encoding: %s", &zLine[18]);
+        goto write_err;
+      }
+      if( isChunked ){
+        /* (RFC 9110 section 5.3), chunked may be applied only once */
+        fossil_warning("server sent two transfer-encoding headers");
         goto write_err;
       }
       isChunked = 1;
@@ -777,21 +858,28 @@ int http_exchange(
     char *zChunk;
     int sawTerminator = 0;  /* True once the 0-length chunk is seen */
     while( (zChunk = transport_receive_line(&g.url))!=0 && zChunk[0]!=0 ){
-      i64 nChunk;           /* Size of this chunk in bytes (wide, unclamped) */
+      i64 nChunk = 0;       /* Size of this chunk in bytes (wide, unclamped) */
       i64 nPrior;           /* Bytes already in pReply (matches blob nUsed) */
-      char *zEnd = 0;       /* End of the hex digits actually parsed */
-      while( fossil_isspace(zChunk[0]) ) zChunk++;
-      nChunk = strtoll(zChunk, &zEnd, 16);
-      if( zEnd==zChunk ){
+      int j;                /* Number of hex digits in the chunk size */
+      /* The size is one or more hex digits (RFC 9112 section 7.1),
+      ** with no sign, "0x" or leading space. */
+      for(j=0; fossil_isXdigit(zChunk[j]) && nChunk<=0x7fffffff; j++){
+        nChunk = nChunk*16 + hex_digit_value(zChunk[j]);
+      }
+      if( j==0 ){
         /* No hex digit consumed: a blank or malformed chunk-size line, which
         ** is the symptom of a connection that closed mid-stream.  Treat it as
         ** a truncated (failed) */
         fossil_warning("chunked reply: missing or malformed chunk size");
         goto write_err;
       }
-      if( nChunk<0 || nChunk>0x7fffffff ){
-        /* Negative, or larger than we will ever accept in one chunk. */
+      if( nChunk>0x7fffffff ){
+        /* Larger than we will ever accept in one chunk. */
         fossil_warning("chunked reply: invalid chunk size");
+        goto write_err;
+      }
+      if( !http_chunk_ext_ok(&zChunk[j]) ){
+        fossil_warning("chunked reply: malformed chunk size line");
         goto write_err;
       }
       if( nChunk==0 ){
@@ -821,7 +909,14 @@ int http_exchange(
           pReply->nUsed = (unsigned int)nPrior;
         }
       }
-      transport_receive_line(&g.url); /* CRLF that follows the chunk data */
+      /* The chunk data ends with CRLF (RFC 9112 section 7.1), which
+      ** reads as an empty line.  Anything else means the chunk size
+      ** was wrong. */
+      zChunk = transport_receive_line(&g.url);
+      if( zChunk==0 || zChunk[0]!=0 ){
+        fossil_warning("chunked reply: no line end after chunk data");
+        goto write_err;
+      }
     }
     if( !sawTerminator ){
       /* The loop exited without ever seeing the 0-length terminator chunk,

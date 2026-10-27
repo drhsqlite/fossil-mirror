@@ -49,7 +49,7 @@
 ** It is non-functional on Windows.
 */
 void shell_cmd(void){
-#ifdef _WIN32
+#if defined(_WIN32) || defined(BROKEN_MINGW_CMDLINE)
   fossil_fatal("the 'shell' command is not supported on windows");
 #else
   int nArg;

@@ -615,6 +615,7 @@ void tarball_of_checkin(
       int fid;
       if( pInclude!=0 && !glob_match(pInclude, pFile->zName) ) continue;
       if( glob_match(pExclude, pFile->zName) ) continue;
+      if( pFile->zUuid==0 ) continue;
       fid = uuid_to_rid(pFile->zUuid, 0);
       if( fid ){
         blob_resize(&filename, nPrefix);

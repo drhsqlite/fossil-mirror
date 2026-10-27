@@ -130,6 +130,7 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_REFS     0x8000000 /* Output intended for References tab */
 #define TIMELINE_DELTA   0x10000000 /* Background color shows delta manifests */
 #define TIMELINE_NOCOLOR 0x20000000 /* No colors except for highlights */
+#define TIMELINE_NOPOST  0x40000000 /* Omit bullet and "Post:" on forum posts */
 #endif
 
 /*
@@ -361,6 +362,14 @@ struct TimelineXtra {
 ** The default is currently 1.  Prior to 2025-10-19, the default was 2.
 ** This setting has no effect on the "Classic" view, which always behaves
 ** as if the setting were 2.
+*/
+/*
+** SETTING: remote-permalink           boolean default=off
+**
+** If the remote-permalink setting is true, then the "Permalink" hyperlink
+** in the submenu of the "bisect" page of the timeline references the
+** remote repository used for the last sync (and stored in the
+** last-sync-url setting).
 */
 
 /*
@@ -668,7 +677,8 @@ void www_print_timeline(
     if( pGraph ){
       if( zType[0]=='e' ){
         @ <b>Note:</b>
-      }else if( zType[0]!='c' ){
+      }else if( zType[0]!='c'
+             && (zType[0]!='f' || (tmFlags & TIMELINE_NOPOST)==0) ){
         @ &bull;
       }
     }
@@ -748,6 +758,15 @@ void www_print_timeline(
         }
         wiki_hyperlink_override(0);
       }else{
+        if( zType[0]=='f' && (tmFlags & TIMELINE_NOPOST)!=0
+         && strncmp(blob_str(&comment), "Post: ", 6)==0
+        ){
+          Blob x;
+          blob_init(&x, 0, 0);
+          blob_append(&x, blob_str(&comment)+6, -1);
+          blob_reset(&comment);
+          comment = x;
+        }
         if( mxWikiLen>0 && blob_size(&comment)>mxWikiLen ){
           blob_truncate_utf8(&comment, mxWikiLen);
           blob_append(&comment, "...", 3);
@@ -1399,6 +1418,26 @@ static void addFileGlobExclusion(
       "   AND %s)",
       glob_expr("filename.name", mprintf("\"%s\"", zChng)));
 }
+/*
+** An SQL expression that is the FPID of the forum post that is tagged
+** by the tag event (event.type='g') of the current row of the event
+** table, or NULL if that tag event does not tag a forum post.
+**
+** The target is found from the first "Edit [HASH|" in the event.comment
+** that manifest_crosslink() generates for each control artifact.  HASH
+** is at least 12 characters, so a range lookup on the first 12
+** characters, which can use the index on blob.uuid, is used to find
+** the tagged artifact.  Only the first artifact tagged by each control
+** artifact is considered.
+*/
+#define FORUM_TAG_TARGET_SQL \
+  "(SELECT ftb.rid FROM blob AS ftb" \
+  "   WHERE instr(event.comment,'Edit [')>0" \
+  "     AND ftb.uuid>=substr(event.comment,instr(event.comment,'Edit [')+6,12)" \
+  "     AND ftb.uuid<substr(event.comment," \
+                         "instr(event.comment,'Edit [')+6,12)||'g'" \
+  "     AND EXISTS(SELECT 1 FROM forumpost WHERE fpid=ftb.rid))"
+
 static void addFileGlobDescription(
   const char *zChng,        /* The filename GLOB list */
   Blob *pDescription        /* Result description */
@@ -1741,6 +1780,13 @@ void timeline_test_endpoint(void){
 **                    "like", or "regexp".
 **    u=USER          Only show items associated with USER
 **    y=TYPE          'ci', 'w', 't', 'n', 'e', 'f', 'h', or 'all'.
+**    thread=POST     Show the complete history of the forum thread that
+**                    contains POST, including all edits, replies, and
+**                    tags.  POST is a hash prefix or timestamp for any
+**                    post, reply, or edit within the thread.
+**    status=NAME     With y=f or y=h, show only forum posts or threads
+**                    whose thread has status NAME.  See the
+**                    forum-statuses setting.
 **    ss=VIEWSTYLE    c: "Compact", v: "Verbose", m: "Modern", j: "Columnar",
 **                    x: "Classic".
 **    advm            Use the "Advanced" or "Busy" menu design.
@@ -1836,6 +1882,7 @@ void page_timeline(void){
   const char *zNDays = P("days");    /* Show events over the previous N days */
   int nDays = 0;                     /* Numeric value for zNDays */
   const char *zChng = P("chng");     /* List of GLOBs for files that changed */
+  const char *zThread = P("thread"); /* Show the forum thread holding this */
   int useDividers = P("nd")==0;      /* Show dividers if "nd" is missing */
   int renameOnly = P("namechng")!=0; /* Show only check-ins that rename files */
   int forkOnly = PB("forks");        /* Show only forks and their children */
@@ -2163,14 +2210,29 @@ void page_timeline(void){
   if( bisectLocal && cgi_is_loopback(g.zIpAddr) && db_open_local(0) ){
     int iCurrent = db_lget_int("checkout",0);
     char *zPerm = bisect_permalink();
+    char *zHost = 0;
     bisect_create_bilog_table(iCurrent, 0, 1);
     tmFlags |= TIMELINE_UNHIDE | TIMELINE_BISECT | TIMELINE_FILLGAPS;
     zType = "ci";
     disableY = 1;
-    style_submenu_element("Permalink", "%R/timeline?bid=%z", zPerm);
+    if( db_get_boolean("remote-permalink",0) ){
+      zHost = db_text(0,
+        "SELECT value FROM config WHERE name='last-sync-url'"
+        "   AND value GLOB 'http*'"
+      );
+    }
+    if( zHost ){
+      style_submenu_element("Permalink", "%h/timeline?bid=%z", zHost, zPerm);
+    }else{
+      style_submenu_element("Permalink", "%R/timeline?bid=%z", zPerm);
+    }
   }else{
     bisectLocal = 0;
   }
+  if( zBisect!=0 && bisectLocal ){
+    zBisect = 0;   /* bisect=1 takes precedence over bid= */
+  }
+  if( zBisect!=0 && robot_restrict("timelineX") ) return;
   if( zBisect!=0 && bisect_create_bilog_table(0, zBisect, 1) ){
     tmFlags |= TIMELINE_UNHIDE | TIMELINE_BISECT | TIMELINE_FILLGAPS;
     zType = "ci";
@@ -2222,6 +2284,33 @@ void page_timeline(void){
                    P("from"), from_to_mode==1 ? "forward" : "back", zTo);
      }
   }
+  if( zThread && g.perm.RdForum ){
+    /* If thread= is present, show every post, edit, reply, and tag
+    ** associated with the forum thread that contains the post identified
+    ** by thread=.  Other parameters except vfx= are ignored. */
+    int fpid = symbolic_name_to_rid(zThread, "f");
+    int froot = 0;
+    if( fpid>0 ){
+      froot = db_int(0, "SELECT froot FROM forumpost WHERE fpid=%d", fpid);
+    }
+    if( froot==0 ){
+      blob_appendf(&desc, "No such forum post: \"%h\"", zThread);
+    }else{
+      char *zUuid;
+      int n;
+      forum_thread_artifacts("fthread", froot, 1, 0);
+      blob_append_sql(&sql, " AND event.objid IN (SELECT rid FROM fthread)");
+      db_multi_exec("%s", blob_sql_text(&sql));
+      if( useDividers && !selectedRid ) selectedRid = fpid;
+      n = db_int(0, "SELECT count(*) FROM timeline WHERE etype!='div'");
+      zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", froot);
+      blob_appendf(&desc, "%d event%s in the history of forum thread %z%S</a>",
+                   n, n==1 ? "" : "s",
+                   href("%R/forumthread/%!S", zUuid), zUuid);
+      fossil_free(zUuid);
+    }
+    style_submenu_checkbox("vfx", "Content", 0, 0);
+  }else
   if( ((from_rid && to_rid) || (me_rid && you_rid)) && g.perm.Read ){
     /* If from= and to= are present, display all nodes on a path connecting
     ** the two */
@@ -2350,7 +2439,9 @@ void page_timeline(void){
     tmFlags |= TIMELINE_XMERGE | TIMELINE_FILLGAPS;
     db_multi_exec("%s", blob_sql_text(&sql));
     if( advancedMenu ){
-      style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c'),0);
+      if( zType[0]=='a' || zType[0]=='c' ){
+        style_submenu_checkbox("v", "Files", 0, 0);
+      }
     }
     nNodeOnPath = db_int(0, "SELECT count(*) FROM temp.pathnode");
     if( nNodeOnPath==1 && from_to_mode>0 ){
@@ -2567,7 +2658,9 @@ void page_timeline(void){
       blob_appendf(&desc, " that make changes to files matching \"%h\"", zChng);
     }
     if( advancedMenu ){
-      style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c'),0);
+      if( zType[0]=='a' || zType[0]=='c' ){
+        style_submenu_checkbox("v", "Files", 0, 0);
+      }
     }
     style_submenu_entry("n","Max:",4,0);
     timeline_y_submenu(1);
@@ -2599,12 +2692,15 @@ void page_timeline(void){
     tmFlags |= TIMELINE_XMERGE;
     if( advancedMenu ){
       style_submenu_checkbox("unhide", "Unhide", 0, 0);
-      style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c'),0);
+      if( zType[0]=='a' || zType[0]=='c' ){
+        style_submenu_checkbox("v", "Files", 0, 0);
+      }
     }
   }else{
     /* Otherwise, a timeline based on a span of time */
     int n;
     const char *zEType = "event";
+    const char *zStatus = 0;   /* status=NAME filter for forum threads */
     char *zDate;
     Blob cond;
     blob_zero(&cond);
@@ -2998,6 +3094,11 @@ void page_timeline(void){
       }else if( zType[0]=='h' ){
         blob_append_sql(&cond,
             " AND event.type='f' AND event.comment GLOB 'Post:*'");
+      }else if( zType[0]=='f' ){
+        /* Forum posts plus tag events that tag forum posts */
+        blob_append_sql(&cond,
+            " AND (event.type='f' OR (event.type='g'"
+            " AND " FORUM_TAG_TARGET_SQL " IS NOT NULL))");
       }else{
         blob_append_sql(&cond, " AND event.type=%Q", zType);
       }
@@ -3014,9 +3115,27 @@ void page_timeline(void){
       }else if( zType[0]=='g' ){
         zEType = "tag";
       }else if( zType[0]=='f' ){
-        zEType = "forum post";
+        zEType = "forum event";
       }else if( zType[0]=='h' ){
         zEType = "new forum thread";
+        tmFlags |= TIMELINE_NOPOST;
+      }
+      if( (zType[0]=='f' || zType[0]=='h')
+       && forum_status_match_setup(P("status"))
+      ){
+        zStatus = P("status");
+        if( zType[0]=='f' ){
+          /* A tag event matches the status of the thread it tags */
+          blob_append_sql(&cond,
+              " AND status_match((SELECT froot FROM forumpost"
+                                " WHERE fpid=CASE WHEN event.type='g'"
+                                " THEN " FORUM_TAG_TARGET_SQL
+                                " ELSE event.objid END))");
+        }else{
+          blob_append_sql(&cond,
+              " AND status_match((SELECT froot FROM forumpost"
+                                " WHERE fpid=event.objid))");
+        }
       }
     }
     if( zUser ){
@@ -3112,6 +3231,9 @@ void page_timeline(void){
       blob_appendf(&desc, "%d most recent %s%s", n, zEType, zPlural);
     }else{
       blob_appendf(&desc, "%d %s%s", n, zEType, zPlural);
+    }
+    if( zStatus ){
+      blob_appendf(&desc, " with status %h", zStatus);
     }
     if( zUses ){
       char *zFilenames = names_of_file(zUses);
@@ -3220,17 +3342,24 @@ void page_timeline(void){
       if( advancedMenu ){
         if( zType[0]=='a' || zType[0]=='c' ){
           style_submenu_checkbox("unhide", "Unhide", 0, 0);
+          style_submenu_checkbox("v", "Files", 0, 0);
         }
-        style_submenu_checkbox("v", "Files",(zType[0]!='a' && zType[0]!='c'),0);
       }
       style_submenu_entry("n","Max:",4,0);
       timeline_y_submenu(disableY);
+      if( zType[0]=='f' || zType[0]=='h' ){
+        style_submenu_checkbox("vfx", "Content", 0, 0);
+        forum_status_submenu(0);
+      }
       if( advancedMenu ){
         style_submenu_entry("t", "Tag Filter:", -8, 0);
         style_submenu_multichoice("ms", count(azMatchStyles)/2,azMatchStyles,0);
       }
     }
     blob_zero(&cond);
+    if( zStatus ){
+      sqlite3_create_function(g.db,"status_match",1,SQLITE_UTF8,0,0,0,0);
+    }
   }
   if( showSql ){
     db_append_dml_to_blob(0);

@@ -648,7 +648,7 @@ void export_cmd(void){
     db_prepare(&q3,
       "SELECT pid FROM plink"
       " WHERE cid=%d AND isprim"
-      "   AND pid IN (SELECT objid FROM event)",
+      "   AND EXISTS(SELECT 1 FROM event WHERE objid=pid)",
       ckinId
     );
     if( db_step(&q3) == SQLITE_ROW ){
@@ -1237,7 +1237,10 @@ static int gitmirror_send_checkin(
       pMan->azParent[iParent], zUuid
     );
     while( db_step(&q)==SQLITE_ROW ){
-      fprintf(xCmd, "D %s\n", db_column_text(&q,0));
+      const char *zFilename = db_column_text(&q,0);
+      char *zFNQuoted = gitmirror_quote_filename_if_needed(zFilename);
+      fprintf(xCmd, "D %s\n", zFNQuoted);
+      fossil_free(zFNQuoted);
     }
     db_finalize(&q);
   }
@@ -1705,9 +1708,14 @@ void gitmirror_export_command(void){
   }
   db_commit_transaction();
 
-  /* Maybe run a git repack */
-  if( bNeedRepack ){
-    const char *zRepack = "git repack -adf";
+  /* Repack a new mirror, and any mirror with more than 20 packs.  Each
+  ** "git fast-import" run adds an inefficient pack (that's why its fast)
+  ** so we need to regularly repack otherwise the mirror becomes huge.
+  */
+  if( bNeedRepack
+   || file_directory_list(".git/objects/pack", "*.pack", 0, 0, 0)>20
+  ){
+    const char *zRepack = "git repack -adf --keep-unreachable";
     gitmirror_message(VERB_NORMAL, "%s\n", zRepack);
     fossil_system(zRepack);
   }
