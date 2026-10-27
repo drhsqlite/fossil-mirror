@@ -1,5 +1,5 @@
-C Commit\sbuild\sfixes\sfor\sNetBSD,\sOpenBSD,\sNixOS
-D 2026-10-27T10:34:08.350
+C Add\slinks\sto\sQuarry,\sgo-libfossil,\sand\stktaalik\sto\srelatedworks.md.
+D 2026-10-27T12:33:17.798
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -924,7 +924,7 @@ F www/qandc.wiki 256511da7ec09719877dbc2e8161c1caae85d8344ccc514e145fbb38810fb2b
 F www/quickstart.wiki e2127ef8726171c44cf3f99b1fd12a1c9749e64f65ead133c007ebb57d992e7b
 F www/quotes.wiki d4a684d0ac5838ddbc76688284b7043e561d4e52ecbeb4b0bf0ac3e10bc70d3c
 F www/rebaseharm.md 5b92e77bf22d5de5d620812133d2869f11dd63a2319ea74097d361f807ae73c1
-F www/relatedwork.md 29516a196c7f37fb383cfeb70ef609532f590c206f8b06b76afdd5f9b3507301
+F www/relatedwork.md 3729711866fc285c73f35a9d55647bc4ad9f29a4c13c20acbd0dc1a478f7aa2e
 F www/reviews.wiki 3580e243337cdf328c839ad47862f3e2008d60cbe4b92db341f045aad043d0f6
 F www/scgi.wiki 8a0f5e5ba635f40fc9e2e8d9afc5eaa6df854152ab9413ebacd2809866e104b7
 F www/selfcheck.wiki bdadf16dc00fe01497186397287d311b4eeb3a578d8afc56b279a1bd65da1b2c
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 99b0bd8f9d2246d6426ed2546ff1ffba9c1de9b1f8d888bead83b267bbd3f62b 56b84e306d02d46430e8eefbd86c3343f4ab4f838ea1bb80a24c70c750f7a10b
-R 228d95210f608091c7b38f8dce44902c
-U danshearer
-Z f84c2dea0d6e2007c87a88420cd646eb
+P b99a9977c9f65dabb4a6cfc70e91cb8935be3a6b1a2aa5a307e4f3983ba3b078
+R 2b55d8ba9dccf9448ce7c16b739c5ee8
+U stephan
+Z cb1a71c911625d7ffa1c6b1e228154f7
 # Remove this line to create a well-formed Fossil manifest.

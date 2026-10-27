@@ -14,12 +14,21 @@
 
 ## Fossil Inspired Projects
 
-* [libfossil]: 3rd party Fossil SCM Library API
+In the order they were added to this list...
+
+* [libfossil]: Fossil SCM Library API maintained by Fossil maintainers
 * [fnc]: interactive text-based user interface for Fossil
 * [ChiselApp]: Free Fossil SCM hosting!
 * [Inskinerator]: The Fossil Skin Generator
 * [Fuel]: cross-platform GUI front-end for the excellent Fossil SCM
 * [fsl]: Tcl/Expect wrapper script extending Fossil functionality
+* [go-libfossil]: standalone fossil library and app implemented
+  in the Go programming language
+* [Quarry]: self-hosting forge-style site for Fossil repositories,
+  based on its own independent implementation of the fossil artifact
+  and sync protocols
+* [tktaalik]: Tcl/Tk front-end for fossil covering all day-to-day
+  uses
 
 
 ## Editor Plugins
@@ -72,6 +81,7 @@
 [fsl]:           http://fossil.0branch.com/fsl
 [Fuel]:          https://fuel-scm.org/fossil/index
 [Git]:           https://git-scm.com
+[go-libfossil]:  https://github.com/danmestas/go-libfossil
 [GoLand]:        https://www.jetbrains.com/go/
 [got]:           https://gameoftrees.org
 [Inskinerator]:  https://tangentsoft.com/inskinerator
@@ -85,9 +95,11 @@
 [Pijul]:         https://pijul.org
 [pikchr]:        https://pikchr.org
 [qtfsl]:         https://code.qt.io/cgit/qt-creator/plugin-fossil-scm.git/
+[quarry]:        https://zeitforge.app/r/dmestas/quarry
 [Sapling]:       https://sapling-scm.com
 [SQLite]:        https://sqlite.org/index.html
 [Subversion]:    https://subversion.apache.org/
 [swed]:          https://softwareengineeringdaily.com/2015/11/13/sqlite-with-d-richard-hipp/
 [Tcl]:           https://core.tcl-lang.org/tcl/wiki?name=Index
+[tktaalik]:      https://github.com/serhiy-storchaka/tktaalik
 [VSCode]:        https://marketplace.visualstudio.com/items?itemName=koog1000.fossil
