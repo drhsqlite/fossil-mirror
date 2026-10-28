@@ -192,8 +192,8 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
   db_prepare(&q, "%s", blob_sql_text(&sql));
   blob_reset(&sql);
   db_prepare(&ins,
-     "INSERT INTO stashfile(stashid, isAdded, isRemoved, isExec, isLink, rid, "
-                           "hash, origname, newname, delta)"
+     "INSERT OR IGNORE INTO stashfile(stashid, isAdded, isRemoved, isExec, "
+                           "isLink, rid, hash, origname, newname, delta)"
      "VALUES(%d,:isadd,:isrm,:isexe,:islink,:rid,"
      "(SELECT uuid FROM blob WHERE rid=:rid),:orig,:new,:content)",
      stashid
@@ -400,6 +400,13 @@ static void stash_apply(int stashid, int nConflict){
     }
   }
   stash_add_files_in_sfile(vid);
+  /* Clear the recorded mtimes of the stashed files, as (stash goto)
+  ** does, so that the next change check is forced to hash them, to
+  ** avoid that a same-size file written in the same second as the
+  ** last revert looks unchanged. */
+  db_multi_exec("UPDATE vfile SET mtime=0 WHERE pathname IN "
+                "(SELECT newname FROM stashfile WHERE stashid=%d)",
+                stashid);
   db_finalize(&q);
   if( nConflict ){
     fossil_print(
