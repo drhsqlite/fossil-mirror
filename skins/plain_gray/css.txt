@@ -148,3 +148,11 @@ table.label-value th {
   text-align: right;
   padding: 0.2ex 2ex;
 }
+
+/* Ticket comments */
+.tktCommentEntry {
+  border-style: solid;
+  border-width: 1px;
+  background-color: white;
+  padding: 10px;
+}
