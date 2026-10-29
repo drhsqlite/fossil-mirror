@@ -22,6 +22,9 @@
 #include "config.h"
 #include "bisect.h"
 #include <assert.h>
+#if !defined(_WIN32)
+#  include <sys/wait.h>
+#endif
 
 /*
 ** Local variables for this module
@@ -449,6 +452,11 @@ static void bisect_run(void){
     blob_init(&cmd, 0, 0);
     blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
     rc = fossil_unsafe_system(zCmd);
+#if !defined(_WIN32)
+    /* system() returns a wait status, not the exit code, so 125
+    ** ("skip") arrives as 125<<8. */
+    if( rc!=-1 && WIFEXITED(rc) ) rc = WEXITSTATUS(rc);
+#endif
     if( isInteractive ){
       Blob in;
       fossil_print("test-command result: %d\n", rc);
@@ -658,6 +666,7 @@ void bisect_cmd(void){
     for(i=0; i<cnt-1; i++){
       int rid;
       blob_token(&log, &id);
+      if( blob_str(&id)[0]=='s' ) continue /* a skip */;
       rid = atoi(blob_str(&id));
       if( rid<0 ) ridBad = -rid;
       else        ridGood = rid;

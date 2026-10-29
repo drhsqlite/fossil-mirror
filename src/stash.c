@@ -728,8 +728,9 @@ void stash_cmd(void){
       }
       undo_finish();
     }else{
+      stashid = stash_get_id(0);
       undo_begin();
-      undo_save_stash(0);
+      undo_save_stash(stashid);
       stash_drop(stashid);
       undo_finish();
     }
