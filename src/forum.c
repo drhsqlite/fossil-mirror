@@ -3412,3 +3412,124 @@ ajax_save_end:
   fossil_free(zNewUuid);
   db_end_transaction(rc || bRollback);
 }
+
+/*
+** COMMAND: forum
+**
+** Usage: %fossil forum SUBCOMMAND ...
+**
+** Command-line access to the forum.  Subcommands:
+**
+** > fossil forum new --title TITLE --content FILE ?OPTIONS?
+**
+**       Create a new forum thread.  The text of the initial post is
+**       read from FILE, or from standard input if FILE is "-".
+**
+**       Options:
+**           --content FILE     Read the post content from FILE.  Required.
+**           --dry-run          Do not commit changes. Just print the artifact.
+**           --markup FORMAT    The markup format of the content.  FORMAT
+**                              is one of "markdown" (the default), "wiki",
+**                              or "plaintext".
+**           --moderate         Hold the new post pending moderation
+**           --title TITLE      Title of the new thread.  Required.
+**           -U|--user USER     Post as USER instead of the default user
+*/
+void forum_cmd(void){
+  const char *zCmd;
+  size_t n;
+  if( g.argc<3 ){
+    usage("new ...");
+  }
+  zCmd = g.argv[2];
+  n = strlen(zCmd);
+  if( strncmp(zCmd, "new", n)==0 ){
+    const char *zTitle = find_option("title", 0, 1);
+    const char *zMarkup = find_option("markup", 0, 1);
+    const char *zFile = find_option("content", 0, 1);
+    const int bModerate = find_option("moderate", 0, 0)!=0;
+    const int bDryRun = find_option("dry-run", 0, 0)!=0;
+    const char *zMimetype;
+    char *zDate;
+    char *zUuid;
+    Blob content, x, cksum, formatCheck, errMsg;
+    Manifest *pPost;
+    int nrid;
+
+    db_find_and_open_repository(0, 0);
+    verify_all_options();
+    if( g.argc!=3 ){
+      usage("new --title TITLE --content FILE [--markup FORMAT] "
+            "[--moderate] [--user USER]");
+    }
+    if( zTitle==0 || zTitle[0]==0 ){
+      fossil_fatal("the --title option is required");
+    }
+    if( zFile==0 ){
+      fossil_fatal("the --content option is required");
+    }
+    if( zMarkup==0 || fossil_strcmp(zMarkup,"markdown")==0 ){
+      zMimetype = "text/x-markdown";
+    }else if( fossil_strcmp(zMarkup,"wiki")==0 ){
+      zMimetype = 0;
+    }else if( fossil_strcmp(zMarkup,"plaintext")==0 ){
+      zMimetype = "text/plain";
+    }else{
+      fossil_fatal("unknown --markup \"%s\". Should be one of: "
+                   "markdown, wiki, plaintext", zMarkup);
+    }
+    if( fossil_strcmp(zFile,"-")==0 ){
+      blob_read_from_channel(&content, stdin, -1);
+    }else{
+      blob_read_from_file(&content, zFile, ExtFILE);
+    }
+    if( fossil_all_whitespace(blob_str(&content)) ){
+      fossil_fatal("forum post content is empty");
+    }
+    user_select();
+
+    schema_forum();
+    blob_init(&x, 0, 0);
+    zDate = date_in_standard_format("now");
+    blob_appendf(&x, "D %s\n", zDate);
+    fossil_free(zDate);
+    blob_appendf(&x, "H %F\n", zTitle);
+    if( zMimetype ){
+      blob_appendf(&x, "N %F\n", zMimetype);
+    }
+    blob_appendf(&x, "U %F\n", login_name());
+    blob_appendf(&x, "W %d\n%s\n", blob_size(&content), blob_str(&content));
+    blob_reset(&content);
+    md5sum_blob(&x, &cksum);
+    blob_appendf(&x, "Z %b\n", &cksum);
+    blob_reset(&cksum);
+
+    /* Verify that the artifact we are creating is well-formed */
+    blob_init(&formatCheck, 0, 0);
+    blob_init(&errMsg, 0, 0);
+    blob_copy(&formatCheck, &x);
+    pPost = manifest_parse(&formatCheck, 0, &errMsg);
+    if( pPost==0 ){
+      fossil_fatal("malformed forum post artifact - %s", blob_str(&errMsg));
+    }
+    if( pPost->type!=CFTYPE_FORUM ){
+      fossil_fatal("artifact is not a forum post");
+    }
+    manifest_destroy(pPost);
+
+    if( bDryRun ){
+      fossil_print("%s", blob_str(&x));
+    }else{
+      db_begin_transaction();
+      nrid = wiki_put(&x, 0, bModerate);
+      db_end_transaction(0);
+      zUuid = rid_to_uuid(nrid);
+      fossil_print("New forum thread %S%s\n", zUuid,
+                   bModerate ? " (pending moderation)" : "");
+      fossil_free(zUuid);
+    }
+    blob_reset(&x);
+  }else{
+    usage("new ...");
+  }
+}
