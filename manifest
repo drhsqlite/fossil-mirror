@@ -1,5 +1,5 @@
-C Add\sthe\sbeginnings\sof\sa\snew\s"forum"\scommand.\s\sThe\sonly\ssubcommand\scurrently\navailable\sis\s"new"\swhich\sis\sused\sto\sstart\sa\snew\sForum\sthread.
-D 2026-10-29T20:01:10.707
+C Replace\sa\sfew\serrant\sfree()\swith\sfossil_free().\sFree\sa\stempfile\sbuffer\sused\sby\sclearsign().
+D 2026-11-01T07:43:08.831
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -405,7 +405,7 @@ F src/chat.c f8d3e074b5ef88e0d4b856657ef2bde7bca5414ae81e157cbb7a4d13c9b02afa
 F src/checkin.c b793af1aea4d66fb49aeedd380b53cad65d7a11eb747b999c2f4f7d6d39f1f03
 F src/checkout.c b4403d7fa11a813fd248c9ffbea29f5cda04264a5393d4ccfd723811a3cafce4
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
-F src/clearsign.c 417833fd52e6187ef9fb7737161eaae4bc65e7feb0cf1351ac3912ebd31c17f6
+F src/clearsign.c 80c05a678f508479fd70dea31706e7263b0c14b4238bacbaec14660ab7859697
 F src/clone.c 1b14e1fe42556ec080492e77c94f50dbb047952f40ba41bd4ca1d0a154d13e15
 F src/color.c dbea75182cd46c3ed261229766a710df6414aafd8de8e3505621c9109904cad0
 F src/comformat.c 7c13708fbafa03a92d63baee15178f00175fd7add64f918f7e406badae628e69
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cad9d29a97afe9d327cdbf4fb6896b2a5e7fc2400d1135b8d0ee6cf89be9f2d1
-R 7fa81156882bb2a22aac745d9465467b
-U drh
-Z ebbaf62f74b3cb1c0e19ba96c1365bf1
+P 8bdb8bc4ccc21fc442a0371f023a511b970dcd2aa5a9365e28990c31f53f1306
+R 6ad62fb358ecb9d19998b568d6f2fbbb
+U stephan
+Z 79443fc851191a7d2e564230a4cf1747
 # Remove this line to create a well-formed Fossil manifest.

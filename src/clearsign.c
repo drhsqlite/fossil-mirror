@@ -49,7 +49,7 @@ int clearsign(Blob *pIn, Blob *pOut){
     zCmd = mprintf("%s %s %s", zBase, zIn, zOut);
   }
   rc = fossil_system(zCmd);
-  free(zCmd);
+  fossil_free(zCmd);
   if( rc==0 ){
     if( pOut==pIn ){
       blob_reset(pIn);
@@ -68,6 +68,7 @@ int clearsign(Blob *pIn, Blob *pOut){
         blob_read_from_file(&tmpBlob, zIn, ExtFILE);
         /* Add signature - already armored by SSH */
         blob_appendb(pOut, &tmpBlob);
+        blob_reset(&tmpBlob);
     }else{
       /* Assume that the external command creates non-detached signatures */
       blob_read_from_file(pOut, zIn, ExtFILE);
@@ -79,7 +80,7 @@ int clearsign(Blob *pIn, Blob *pOut){
   }
   file_delete(zOut);
   file_delete(zIn);
-  free(zOut);
-  free(zIn);
+  fossil_free(zOut);
+  fossil_free(zIn);
   return rc;
 }
