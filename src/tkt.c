@@ -665,8 +665,22 @@ void ticket_create_table(int separateConnection){
 */
 void ticket_rebuild(void){
   Stmt q;
-  ticket_create_table(1);
-  db_begin_transaction();
+  if( db_database_slot("repository")==0 ){
+    /* forum:4f3f572abff6b8c1: to avoid losing all of the tickets if the
+    ** current operation fails at some point after this call, we need
+    ** to start the transaction before dropping the ticket tables.
+    **
+    ** Claude was able to reproduce that report reliably using a
+    ** fossil server running with --max-latency 2 and 40k tickets. */
+    db_begin_transaction();
+    ticket_create_table(0);
+  }else{
+    /* A checkout: the tickets go into the associated repo db via
+    ** ticket_create_table(). Delay transaction start until that
+    ** succeeds. */
+    ticket_create_table(1);
+    db_begin_transaction();
+  }
   db_prepare(&q,"SELECT tagname FROM tag WHERE tagname GLOB 'tkt-*'");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
