@@ -1,5 +1,5 @@
-C Add\shttp\sauthorisation\sto\sUPDATE\scommand
-D 2026-11-03T01:35:28.412
+C Clear\sthe\slinkname\sfield\sin\sthe\star\sfile\sheader\safter\sadding\sa\ssymlink.\sSee\s[forum:24c2cf9eba|forumpost\s24c2cf9eba].
+D 2026-11-03T15:19:06.728
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -575,7 +575,7 @@ F src/style.uvlist.css 7b6a497b7e816461e6aa47210fa03c7ab8b618a93d8bc005d029636f1
 F src/style.wikiedit.css 83243f9873a70e0e1b940b57789aad76b84dc222300b1203a9ffb0f88d807587
 F src/sync.c 5057e2f69c479d4570b8b96e2bf0e69a56bf9d13ebdf6f8060419880d85178b3
 F src/tag.c 7eda0624887a9ee2136818e65e0f78e7e3556f3add3c5df75bdfc903d487a689
-F src/tar.c db48addbc7e5b578be9788a1230b9dc89f5863ee91e358a115885be62dbadd7d
+F src/tar.c 2968bed35cac3501d7158ce056692c75574b68e7d679d24cc7f45ee1071ba19c
 F src/terminal.c 1f497ac2f122d3fc856aac9386c064c10e10bf148467986ef73c7562f9379872
 F src/th.c b09f277fb687cb594f69215e91ee4a3fd86a245eec45985da4b824e969bfbeb5
 F src/th.h 549dd1af2f4b241ede68fadbf426a7707ae9657292b7914a20a3c401513b25a0
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f815d4820d389dde3447912e0a33a09c1814b4ee0769b1cb41f2f8bcde11cdaa
-R 2944340b785111ad0ec8057c5d9bd2a6
-U danshearer
-Z 3ca7840508e58238371d70490246c1ec
+P 4e4ae18fc5d87f2e7842757f13e0a20c83f4d1cfc6bafc7bc498b77766c8b9c2
+R 6c96b7707425a5cca51afb77271248ce
+U danield
+Z 081ec460b1578c57da09db0a572e4449
 # Remove this line to create a well-formed Fossil manifest.

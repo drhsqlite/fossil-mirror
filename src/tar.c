@@ -445,6 +445,12 @@ static void tar_add_file(
 
   tar_add_header(zName, nName, ( mPerm==PERM_EXE ) ? 0755 : 0644,
                  mTime, n, cType);
+  /* Clear the linkname field, lest it leak to subsequent non-symlink entries.
+  ** See https://fossil-scm.org/forum/forumpost/24c2cf9eba */
+  if( cType=='2' ){
+    memset(&tball.aHdr[157], 0, 100);
+  }
+
   if( n ){
     gzip_step(blob_buffer(pContent), n);
     lastPage = n % 512;
