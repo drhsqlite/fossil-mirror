@@ -93,6 +93,8 @@ int update_to(int vid){
 ** unchanged files in addition to those files that actually do change.
 **
 ** Options:
+**   -B|--httpauth USER:PASS  Credentials for the simple HTTP auth protocol,
+**                           if required by the remote site
 **   --case-sensitive BOOL   Override case-sensitive setting
 **   --debug                 Print debug information on stdout
 **   -n|--dry-run            If given, display instead of run actions
@@ -135,6 +137,7 @@ void update_cmd(void){
   int width;            /* Width of printed comment lines */
   Stmt mtimeXfer;       /* Statement to transfer mtimes */
   const char *zWidth;   /* Width option string value */
+  const char *zHttpAuth;       /* --httpauth USER:PASS for the autosync */
   const char *zCurBrName;      /* Current branch name */
   const char *zNewBrName;      /* New branch name */
   const char *zBrChgMsg = "";  /* Message to display if branch changes */
@@ -163,6 +166,8 @@ void update_cmd(void){
   setmtimeFlag = find_option("setmtime",0,0)!=0;
   keepMergeFlag = find_option("keep-merge-files", "K",0)!=0;
   bNosync = find_option("nosync",0,0)!=0;
+  zHttpAuth = find_option("httpauth","B",1);
+  if( zHttpAuth && zHttpAuth[0] ) g.zHttpAuth = fossil_strdup(zHttpAuth);
 
   /* We should be done with options.. */
   verify_all_options();

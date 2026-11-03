@@ -188,7 +188,7 @@ static int autosync(int flags, const char *zSubsys){
     g.url.flags |= URL_PROMPT_PW;
     url_prompt_for_password();
   }
-  g.zHttpAuth = get_httpauth();
+  if( g.zHttpAuth==0 ) g.zHttpAuth = get_httpauth();
   if( sqlite3_strglob("*all*", zAutosync)==0 ){
     rc = client_sync_all_urls(flags|SYNC_ALLURL, configSync, 0, 0);
   }else{
