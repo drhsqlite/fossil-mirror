@@ -870,7 +870,11 @@ static int html_link(
   blob_append(ob, zClose, -1);
   return 1;
 }
-
+#if defined(MARKDOWN_ENABLE_TAGSPAN)
+/* 2026-11-04: if a document has an embedded style tag and that tag
+** uses #rgb colors, they get parsed as hashtags.  We do not yet
+** have a way of distinguishing that case and these produce broken
+** documents, so disabling #hashtags until this can be resolved. */
 /* Invoked for @name and #tag tagged words, marked up in the
 ** output text in a way that JS and CSS can do something
 ** interesting with them.  This isn't standard Markdown, so
@@ -902,6 +906,7 @@ static int html_tagspan(
   }
   return 1;
 }
+#endif
 
 static int html_triple_emphasis(
   struct Blob *ob,
@@ -960,7 +965,9 @@ void markdown_to_html(
     html_linebreak,
     html_link,
     html_raw_html_tag,
+#if defined(MARKDOWN_ENABLE_TAGSPAN)
     html_tagspan,
+#endif
     html_triple_emphasis,
     html_footnote_ref,
 

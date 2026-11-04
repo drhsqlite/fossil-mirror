@@ -88,8 +88,10 @@ struct mkd_renderer {
   int (*link)(struct Blob *ob, struct Blob *link, struct Blob *title,
           struct Blob *content, void *opaque);
   int (*raw_html_tag)(struct Blob *ob, struct Blob *tag, void *opaque);
-  int (*tagspan)(struct Blob *ob, struct Blob *ref, enum mkd_tagspan type,
-        void *opaque);
+#if defined(MARKDOWN_ENABLE_TAGSPAN)
+    int (*tagspan)(struct Blob *ob, struct Blob *ref, enum mkd_tagspan type,
+    void *opaque);
+#endif
   int (*triple_emphasis)(struct Blob *ob, struct Blob *text,
             char c, void *opaque);
   int (*footnote_ref)(struct Blob *ob, const struct Blob *span,
@@ -961,6 +963,7 @@ static size_t char_entity(
   return end;
 }
 
+#if defined(MARKDOWN_ENABLE_TAGSPAN)
 /* char_hashref_tag -- '#' followed by "word" characters to tag
 ** post numbers, hashtags, etc.
 **
@@ -1113,6 +1116,7 @@ static size_t char_hashref_tag(
 #undef HASHTAG_LEGAL_END
   return 0;
 }
+#endif /* MARKDOWN_ENABLE_TAGSPAN */
 
 /*
 ** char_langle_tag -- '<' when tags or autolinks are allowed.
@@ -2851,7 +2855,9 @@ void markdown(
   if( rndr.make.codespan ) rndr.active_char['`'] = char_codespan;
   if( rndr.make.linebreak ) rndr.active_char['\n'] = char_linebreak;
   if( rndr.make.image || rndr.make.link ) rndr.active_char['['] = char_link;
+#if defined(MARKDOWN_ENABLE_TAGSPAN)
   rndr.active_char['#'] = char_hashref_tag;
+#endif
   if( rndr.make.footnote_ref ) rndr.active_char['('] = char_footnote;
   rndr.active_char['<'] = char_langle_tag;
   rndr.active_char['\\'] = char_escape;
