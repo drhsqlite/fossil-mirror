@@ -3422,18 +3422,20 @@ ajax_save_end:
 **
 ** > fossil forum new --title TITLE --content FILE ?OPTIONS?
 **
-**       Create a new forum thread.  The text of the initial post is
-**       read from FILE, or from standard input if FILE is "-".
+**     Create a new forum thread.  The text of the initial post is
+**     read from FILE, or from standard input if FILE is "-".
 **
-**       Options:
-**           --content FILE     Read the post content from FILE.  Required.
-**           --dry-run          Do not commit changes. Just print the artifact.
-**           --markup FORMAT    The markup format of the content.  FORMAT
+**     Options:
+**       --content FILE         Read the post content from FILE.  Required.
+**       --date-override DATE   Set the date and time of the post using
+**                              the format 'YYYY-MM-DD HH:MM:SS'.
+**       --dry-run              Do not commit. Just print the artifact.
+**       --markup FORMAT        The markup format of the content.  FORMAT
 **                              is one of "markdown" (the default), "wiki",
 **                              or "plaintext".
-**           --moderate         Hold the new post pending moderation
-**           --title TITLE      Title of the new thread.  Required.
-**           -U|--user USER     Post as USER instead of the default user
+**       --moderate             Hold the new post pending moderation
+**       --title TITLE          Title of the new thread.  Required.
+**       --user-override USER   Post as USER instead of the default user
 */
 void forum_cmd(void){
   const char *zCmd;
@@ -3447,9 +3449,11 @@ void forum_cmd(void){
     const char *zTitle = find_option("title", 0, 1);
     const char *zMarkup = find_option("markup", 0, 1);
     const char *zFile = find_option("content", 0, 1);
+    const char *zDateOvrd = find_option("date-override", 0, 1);
     const int bModerate = find_option("moderate", 0, 0)!=0;
     const int bDryRun = find_option("dry-run", 0, 0)!=0;
     const char *zMimetype;
+    const char *zUserOvrd = find_option("user-override",0,1);
     char *zDate;
     char *zUuid;
     Blob content, x, cksum, formatCheck, errMsg;
@@ -3459,8 +3463,7 @@ void forum_cmd(void){
     db_find_and_open_repository(0, 0);
     verify_all_options();
     if( g.argc!=3 ){
-      usage("new --title TITLE --content FILE [--markup FORMAT] "
-            "[--moderate] [--user USER]");
+      usage("new --title TITLE --content FILE [OPTIONS]");
     }
     if( zTitle==0 || zTitle[0]==0 ){
       fossil_fatal("the --title option is required");
@@ -3487,17 +3490,18 @@ void forum_cmd(void){
       fossil_fatal("forum post content is empty");
     }
     user_select();
+    if( zUserOvrd==0 ) zUserOvrd = login_name();
 
     schema_forum();
     blob_init(&x, 0, 0);
-    zDate = date_in_standard_format("now");
+    zDate = date_in_standard_format(zDateOvrd ? zDateOvrd : "now");
     blob_appendf(&x, "D %s\n", zDate);
     fossil_free(zDate);
     blob_appendf(&x, "H %F\n", zTitle);
     if( zMimetype ){
       blob_appendf(&x, "N %F\n", zMimetype);
     }
-    blob_appendf(&x, "U %F\n", login_name());
+    blob_appendf(&x, "U %F\n", zUserOvrd);
     blob_appendf(&x, "W %d\n%s\n", blob_size(&content), blob_str(&content));
     blob_reset(&content);
     md5sum_blob(&x, &cksum);
