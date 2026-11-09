@@ -700,7 +700,7 @@ void builtin_emit_script_fossil_bootstrap(int addScriptTag){
     CX("name: %!j,", (g.zLogin&&*g.zLogin) ? g.zLogin : "guest");
     CX("isAdmin: %s,", JBOOL(g.perm.Admin || g.perm.Setup));
     CX("mayAttachForum: %d,", g.perm.AttachForum
-       ? 1 : (g.perm.WrForum
+       ? 1 : (g.perm.WrTForum
               ? -1 : 0))
       /* 0 = no, 1 = 'B' permissions,
       ** -1 = moderated attachments. Potential TODO is a setting

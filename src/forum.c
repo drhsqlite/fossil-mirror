@@ -2193,7 +2193,7 @@ static void forum_render_debug_options(void){
 ** attachment support.
 */
 static void forum_render_attachment_notice(void){
-  if( g.perm.AttachForum ){
+  if( g.perm.AttachForum || g.perm.WrTForum ){
     @ <noscript><div>You will be able to attach files to this post
     @ after saving it.</div></noscript>
   }
@@ -3046,10 +3046,10 @@ void forum_main_page(void){
 ** an error.
 **
 ** This function does some work to try to ensure that duplicate
-** entries are not save (this can happen as a side effect of the forum
-** post editor added in 2026-06). If the given post will not have been
-** materially edited by these changes, they are not applied and the
-** rid of the existing entry is used.
+** entries are not saved (this can happen as a side effect of the
+** forum post editor added in 2026-06). If the given post will not
+** have been materially edited by these changes, they are not applied
+** and the rid of the existing entry is used.
 **
 ** Maintenance reminders:
 **
@@ -3269,11 +3269,13 @@ void forum_ajax_save_page(void){
   int bRollback;       /* True = roll back. */
   int nAttach = 0;     /* Number of attachments added */
   int bStatusSet = 0;  /* True if status tag set. */
-  int bNeedsModeration = -1; /* -1 = we don't yet know */
+  int bModPost   = 0;  /* Moderate post? */
+  int bModAttach;      /* Moderate attachment? */
 
   if( !ajax_route_bootstrap(0, 1) ){
     return;
-  }else if( !g.perm.WrForum ){
+  }else if( !g.perm.WrForum ||
+            (bHasAttachment && !g.perm.WrTForum) ){
     ajax_route_error_forbidden();
     return;
   }else if( !ajax_check_csrf(2) ){
@@ -3281,11 +3283,6 @@ void forum_ajax_save_page(void){
     return;
   }
 
-  if( bHasAttachment && !g.perm.AttachForum && g.perm.WrTForum ){
-    /* 2026-11-09: a user with WrForum but not AttachForum may attach
-    ** but they'll be moderated. */
-    bNeedsModeration = 1;
-  }
   iPostFlags = forum_post_flags(/*must come after permissions init*/);
   bRollback = (FPOST_DRYRUN & iPostFlags);
   zFpid = P("fpid");
@@ -3329,13 +3326,14 @@ void forum_ajax_save_page(void){
     }
   }
 
-  if( 0 ){
-    rc = -ajax_route_error(400, "Save is TODO. "
-                           "iPostFlags=%d debug=%d",
-                           iPostFlags, g.perm.Debug);
-    goto ajax_save_end;
+  bModPost = forum_need_moderation();
+  if( bHasAttachment && !g.perm.AttachForum && g.perm.WrTForum ){
+    /* A user with WrTForum but not AttachForum may attach but
+    ** the attachments will be moderated. */
+    bModAttach = 1;
+  }else{
+    bModAttach = bModPost;
   }
-
   zTitle = firt ? 0 : P("title");
   nrid = forum_post_ajax(zTitle, firt, fpid, 0, zMimetype,
                          zContent, iPostFlags);
@@ -3355,19 +3353,16 @@ void forum_ajax_save_page(void){
     const int fpHead = forumpost_head_rid(nrid);
     assert( nrid>0 );
     assert( fpHead>0 );
-    if( bNeedsModeration<0 ){
-      bNeedsModeration = forum_need_moderation();
-    }
     zNewUuid = rid_to_uuid(nrid);
     if( bHasAttachment ){
       /* Attachments */
       if( !g.perm.Admin && !(g.perm.AttachForum ||g.perm.WrTForum) ){
-        rc = -ajax_route_error(403, "No permission no attach files.");
+        rc = -ajax_route_error(403, "No permission to attach files.");
         goto ajax_save_end;
       }else{
         char *zRoot = (nrid==fpHead) ? 0 : rid_to_uuid(fpHead);
         nAttach = attachments_ajax_from_POST(zRoot ? zRoot : zNewUuid,
-                                             bNeedsModeration);
+                                             bModAttach);
         fossil_free(zRoot);
         if( nAttach<0 ){
           rc = nAttach;
@@ -3394,7 +3389,7 @@ void forum_ajax_save_page(void){
         }
       }
     }
-    if( 0==bNeedsModeration
+    if( 0==bModPost
         /* ^^^ Do not allow a status tag on a pending-moderation post
         ** because it will introduce a reference to an artifact which
         ** will become a phantom if it is rejected by a moderator. */
