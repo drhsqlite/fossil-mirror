@@ -590,9 +590,7 @@
       this.#att = new F.Attacher({
         reverse: true
       });
-      if( this.#opt.edit && F.user.mayAttachForum>0 ){
-        /* -----------------^^^^ standalone attachment page does not
-        ** yet honor the F.user.mayAttachForum<0 case. */
+      if( this.#opt.edit ){
         const eNote = D.append(
           D.div(),
           "Tip: attachments can be added to posts without editing them ",

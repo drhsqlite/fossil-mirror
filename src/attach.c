@@ -179,7 +179,8 @@ int attach_user_may(int rid, int eArtifactType){
   if( !login_is_individual() ) return 0;
   switch(eArtifactType){
     case CFTYPE_FORUM:
-      return g.perm.AttachForum && forumpost_is_owner(rid, 0);
+      return (g.perm.AttachForum || g.perm.WrTForum)
+        && forumpost_is_owner(rid, 0);
     case CFTYPE_WIKI:
       return g.perm.ApndWiki && g.perm.Attach;
     case CFTYPE_TICKET:
@@ -647,7 +648,7 @@ void attachadd_page(void){
   int szContent;
   int goodCaptcha = 1;
   int szLimit = 0;
-
+  int bNeedsModeration = -1; /* -1==don't yet know */
   if( P("target")!=0 ){
     attachaddV2_page();
     return;
@@ -672,8 +673,12 @@ void attachadd_page(void){
   if( zForumPost ){
     int fpid;
     if( g.perm.AttachForum==0 ){
-      login_needed(g.anon.AttachForum);
-      return;
+      if( g.perm.WrTForum ){
+        bNeedsModeration = 1;
+      }else{
+        login_needed(g.anon.AttachForum);
+        return;
+      }
     }
     fpid = forumpost_head_rid2(zForumPost);
     if( fpid<=0 ){
@@ -739,10 +744,13 @@ void attachadd_page(void){
              && cgi_csrf_safe(2)
              && szContent>0
              && (goodCaptcha = captcha_is_correct(0)) ){
-    int needModerator = (zForumPost!=0 && forum_need_moderation()) ||
-                        (zTkt!=0 && ticket_need_moderation(0)) ||
-                        (zPage!=0 && wiki_need_moderation(0));
-    attach_commit(zName, zTarget, aContent, szContent, needModerator, zComment);
+    if( bNeedsModeration<0 ){
+      bNeedsModeration = (zForumPost!=0 && forum_need_moderation()) ||
+        (zTkt!=0 && ticket_need_moderation(0)) ||
+        (zPage!=0 && wiki_need_moderation(0));
+    }
+    attach_commit(zName, zTarget, aContent, szContent,
+                  bNeedsModeration, zComment);
     cgi_redirect(zTo ? zTo : zFrom);
   }
 
@@ -806,7 +814,13 @@ void attachadd_ajax_post(void){
     case CFTYPE_FORUM:{
       int fpid;
       if( g.perm.AttachForum==0 ){
-        goto ajax_err_403;
+        if( g.perm.WrTForum ){
+          bNeedsModeration = 1;
+        }else{
+          goto ajax_err_403;
+        }
+      }else{
+        bNeedsModeration = -1;
       }
       fpid = forumpost_head_rid2(zTarget);
       if( fpid<=0 ){
@@ -818,7 +832,9 @@ void attachadd_ajax_post(void){
         return;
       }
       zTarget = zExtraFree = rid_to_uuid(fpid);
-      bNeedsModeration = forum_need_moderation();
+      if( bNeedsModeration < 0 ){
+        bNeedsModeration = forum_need_moderation();
+      }
       break;
     }
     case CFTYPE_EVENT:{
