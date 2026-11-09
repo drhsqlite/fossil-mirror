@@ -4930,6 +4930,15 @@ struct Setting {
 ** and "ui" commands.
 */
 /*
+** SETTING: hide-by-user     width=40 block-text
+** The VALUE of this setting is a list of GLOB patterns.  On the /timeline
+** page, any check-in whose user login name matches one of these patterns
+** is treated as if it carried the "hidden" tag, and is omitted unless the
+** "unhide=on" query parameter is used.  Example: bot-*,*-robot
+** The parsing rules are complex; see
+** https://fossil-scm.org/home/doc/trunk/www/globs.md#syntax
+*/
+/*
 ** SETTING: https-login      boolean default=off
 ** If true, then the Fossil web server will redirect unencrypted
 ** login screen requests to HTTPS.
