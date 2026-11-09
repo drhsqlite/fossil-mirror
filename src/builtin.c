@@ -699,7 +699,12 @@ void builtin_emit_script_fossil_bootstrap(int addScriptTag){
     CX("window.fossil.user = {");
     CX("name: %!j,", (g.zLogin&&*g.zLogin) ? g.zLogin : "guest");
     CX("isAdmin: %s,", JBOOL(g.perm.Admin || g.perm.Setup));
-    CX("mayAttachForum: %s,", JBOOL(g.perm.AttachForum));
+    CX("mayAttachForum: %d,", g.perm.AttachForum
+       ? 1 : (g.perm.WrForum
+              ? -1 : 0))
+      /* 0 = no, 1 = 'B' permissions,
+      ** -1 = moderated attachments. Potential TODO is a setting
+      ** to enable this. */;
     CX("enableDebug: %s,", JBOOL(g.perm.Debug || g.perm.Admin));
     CX("isIndividual: %s", JBOOL(login_is_individual()));
     CX("};\n"/*fossil.user*/);

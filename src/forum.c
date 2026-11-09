@@ -2240,8 +2240,8 @@ void forumnew_page(void){
   login_insert_csrf_secret();
   @ </form>
   /* When JS is disabled the block above will work.  When it's
-     enabled, the above will be removed and JS will render the editor
-     form in the next element. */
+  ** enabled, the above will be removed and JS will render the editor
+  ** form in the next element. */
   @ <div hidden id='forumnew-placeholder'>
   @ <input type='hidden' name='title' value='%h(zTitle)'>
   login_insert_csrf_secret();
@@ -3245,11 +3245,11 @@ post_ajax_end:
 /*
 ** WEBPAGE: forumajax_save hidden
 **
-** WIP
+** Used by the forum JS pages to save a post.
 **
 ** Response JSON:
 **
-** { uuid: hash, ...tbd }
+** { uuid: hash, ...TO DOCUMENT }
 */
 void forum_ajax_save_page(void){
   const char *zFpid;
@@ -3269,11 +3269,11 @@ void forum_ajax_save_page(void){
   int bRollback;       /* True = roll back. */
   int nAttach = 0;     /* Number of attachments added */
   int bStatusSet = 0;  /* True if status tag set. */
+  int bNeedsModeration = -1; /* -1 = we don't yet know */
 
   if( !ajax_route_bootstrap(0, 1) ){
     return;
-  }else if( !g.perm.WrForum
-            || (bHasAttachment && !g.perm.AttachForum) ){
+  }else if( !g.perm.WrForum ){
     ajax_route_error_forbidden();
     return;
   }else if( !ajax_check_csrf(2) ){
@@ -3281,6 +3281,11 @@ void forum_ajax_save_page(void){
     return;
   }
 
+  if( bHasAttachment && !g.perm.AttachForum && g.perm.WrTForum ){
+    /* 2026-11-09: a user with WrForum but not AttachForum may attach
+    ** but they'll be moderated. */
+    bNeedsModeration = 1;
+  }
   iPostFlags = forum_post_flags(/*must come after permissions init*/);
   bRollback = (FPOST_DRYRUN & iPostFlags);
   zFpid = P("fpid");
@@ -3347,14 +3352,16 @@ void forum_ajax_save_page(void){
     }
     goto ajax_save_end;
   }else{
-    const int bNeedsModeration = forum_need_moderation();
     const int fpHead = forumpost_head_rid(nrid);
     assert( nrid>0 );
     assert( fpHead>0 );
+    if( bNeedsModeration<0 ){
+      bNeedsModeration = forum_need_moderation();
+    }
     zNewUuid = rid_to_uuid(nrid);
-    if( 0!=P("file1") ){
+    if( bHasAttachment ){
       /* Attachments */
-      if( !g.perm.Admin && !g.perm.AttachForum ){
+      if( !g.perm.Admin && !(g.perm.AttachForum ||g.perm.WrTForum) ){
         rc = -ajax_route_error(403, "No permission no attach files.");
         goto ajax_save_end;
       }else{

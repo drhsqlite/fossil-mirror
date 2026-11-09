@@ -339,7 +339,7 @@
         }
       }/*e.status*/
 
-      if( F.user.mayAttachForum ){
+      if( 0!==F.user.mayAttachForum ){
         //e.buttons.append( e.button.addAttach = this.#att.takeAddButton() );
         e.tabAttach = D.div();
         e.tabAttach.setAttribute('id', idPrefix+'-attach');
@@ -590,7 +590,9 @@
       this.#att = new F.Attacher({
         reverse: true
       });
-      if( this.#opt.edit ){
+      if( this.#opt.edit && F.user.mayAttachForum>0 ){
+        /* -----------------^^^^ standalone attachment page does not
+        ** yet honor the F.user.mayAttachForum<0 case. */
         const eNote = D.append(
           D.div(),
           "Tip: attachments can be added to posts without editing them ",
@@ -600,9 +602,19 @@
             'target',
             '_new'
           ),
-          ".",
+          "."
         );
         this.#e.tabAttach.append(eNote);
+      }
+      if( F.user.mayAttachForum < 0 ){
+        /* Users with permission '4' (forum unmoderated) but not 'B'
+        ** (forum-attach) may attach files but they will undergo
+        ** moderation. */
+        const w = D.div();
+        w.append("Your attachments will be held "+
+                 "for moderation.");
+        w.classList.add('warning');
+        this.#e.tabAttach.append(w);
       }
       this.#e.tabAttach.append(this.#att.widget);
     }
