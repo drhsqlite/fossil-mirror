@@ -1024,7 +1024,7 @@ void attachaddV2_page(void){
       break;
     case CFTYPE_FORUM:{
       int fpid;
-      if( g.perm.AttachForum==0 ){
+      if( 0==g.perm.AttachForum && 0==g.perm.WrTForum ){
         login_needed(g.anon.AttachForum);
         return;
       }
