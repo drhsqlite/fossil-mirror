@@ -1,5 +1,5 @@
-C Remove\sthe\smention\sof\s#hashtag\ssupport\sfrom\sthe\schange\slog.\sThat\scapability\swas\sremoved\sin\s[54db6de2d2]\sand\scurrently\sseems\sunlikely\sto\sreturn.
-D 2026-11-06T19:13:03.879
+C Resolve\san\sobscure\sUB\scase\sinvolving\sunaligned\sread\son\sa\suint32_t\spointer\sin\ssha1hard.c.\sSugggestion,\sand\slink\sto\srelated\supstream\spatches,\scontributed\sby\sDan\sMestas.
+D 2026-11-10T12:48:27.499
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -536,7 +536,7 @@ F src/security_audit.c 657b0f1810ec264a29c17e0ec38c117982bdee94fb030e2fe186b4303
 F src/setup.c 8f15afcdc357cc7a35c7555a38e07428c426a7158bab07fdd3c2cdfb2481724a
 F src/setupuser.c e2332600755153655c9c01a0f3073c0abd6091d7150e9321abdcf2f3c02c58c9
 F src/sha1.c 58fb2b11857bd03d2211797bcd5be5c8529600e599fb4c90af52fb00223bcdd0
-F src/sha1hard.c 341e98e1d4b6af2c2ea092cde6b07ebcf5a71c527c847df8f657cf335543e1f5
+F src/sha1hard.c 5d02539150f6d37783978e5078d6dd73462a07b3974ec5de51bc7e5aa5fe6ea4
 F src/sha3.c 6f51bfb14500f8fb7594fc2ea45bbad2b4d06bc0107d011576bb3d9bfb94fc71
 F src/shun.c 29c9cf679b993b96ef7d087743a6d83eb9eb57289e716270097d4e733f85e69b
 F src/sitemap.c 70bafe184b63950f53cd20712aca5501e090387e6a8361f70da5b6da2afc4d34
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8e94450a9177caadef1288cd1f3788b6ff9a6bc3c07dc31c9bf64906868b59da
-R d3dba434679c3d0ea6735e5c2db424ac
+P 9b0c207621de910f92f7eba038d7433085072ac70e848672ba041f6750423e77
+R 8dacdd48332a83288ee34f07a99f8908
 U stephan
-Z 6d312ad8628cbf3845c4f5ab5a21d98c
+Z f6e3eaff19cfdacede1bf167ebcdc013
 # Remove this line to create a well-formed Fossil manifest.

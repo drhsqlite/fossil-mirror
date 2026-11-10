@@ -1361,7 +1361,14 @@ void SHA1DCUpdate(SHA1_CTX* ctx, const unsigned char* buf, unsigned len)
   while (len >= 64)
   {
     ctx->total += 64;
-    sha1_process(ctx, (uint32_t*)(buf));
+    if( (uintptr_t)buf & 3 ){
+      /* A uint32_t load from a misaligned buf is undefined behavior.
+      ** See notes in upstream sha1dc re. SHA1DC_ALLOW_UNALIGNED_ACCESS. */
+      memcpy(ctx->buffer, buf, 64);
+      sha1_process(ctx, (uint32_t*)(ctx->buffer));
+    }else{
+      sha1_process(ctx, (uint32_t*)(buf));
+    }
     buf += 64;
     len -= 64;
   }
