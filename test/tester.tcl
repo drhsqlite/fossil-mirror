@@ -859,6 +859,21 @@ proc random_changes {body blocksize count index prob} {
   return [string range $out 1 end]
 }
 
+# Return true if a TCP connection can be made over the loopback interface,
+# as the tests that run "fossil server" need.  Listening succeeds even when
+# the interface is down, so this procedure also connects.
+proc loopback_available {} {
+  if {[catch {socket -server {apply {{c a p} {close $c}}} \
+                  -myaddr 127.0.0.1 0} srv]} {
+    return 0
+  }
+  set port [lindex [fconfigure $srv -sockname] 2]
+  set ok [expr {[catch {socket 127.0.0.1 $port} cli] == 0}]
+  if {$ok} { close $cli }
+  close $srv
+  return $ok
+}
+
 # This procedure executes the "fossil server" command.  The return value
 # is a list comprised of the new process identifier and the port on which
 # the server started.  The varName argument refers to a variable

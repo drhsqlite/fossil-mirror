@@ -1,5 +1,5 @@
-C In\sthe\stest\ssummary,\sgive\sa\sreason\sif\sa\stest\sfile\sis\sskipped
-D 2026-11-11T08:30:55.597
+C Skip\stests\sneeding\sloopback\sif\sit\sis\sunavailable,\seg\son\sisolated\snetwork\snamespaces.
+D 2026-11-11T08:32:29.650
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -659,7 +659,7 @@ F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 38517706363b152452eaa75b141417b29547e46e76490b9ccd2000cc6a59b780
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl b84a65dc7fecc3146a4c13f44b2dde905e2386c83f8e06555dfd7a9f3e8b3f76
+F test/tester.tcl e06ec65241ca35792ac230726b2d56e5e442b4a89aa60e4d521eed5d0586d941
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 8e01b27354ec3f95d3af1b855c32364acd8cd5fde3a44733dc17a9c7020fe14c
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -677,7 +677,7 @@ F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
 F test/th1.test c06e29cc6f876e8de960ac87193c882b21031722a4c172dca946f1cbffa1948a
-F test/unversioned.test f93918603541efa98b08992bd5c8e618d95afd3c4958d3f8408eb1a3271451da
+F test/unversioned.test 341d7627248d3fbe094511baa6af8c3c4ce34c22297f42c1a2857b6ed2a0cabc
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/update.test b214828beab009553c475932494c9108d401503640012d717fb4f5b649cad879
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c2b55363da1cd693c6c02dbcbac681bb0eb111d7dc0215444af6717ff9e383a0
-R 438530de4dffd498aacaa24a6c2e864e
+P 202176237fbe08fe305b3689cb7af08085cca6a3e393dc95ac8cfbd445996e47
+R 3f4acca9967153a42ab2cb6ed5dae77e
 U danshearer
-Z e3aaff356b20aa2f7aa08e3bafb030fe
+Z 0621cd2382ef4a5372460acc45db38c2
 # Remove this line to create a well-formed Fossil manifest.

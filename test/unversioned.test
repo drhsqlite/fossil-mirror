@@ -322,6 +322,11 @@ fossil user capabilities uvtester oy
 
 ###############################################################################
 
+if {![loopback_available]} {
+  test_skip "Loopback networking is not available, so the tests that run\
+\"fossil server\" cannot start a server."
+}
+
 foreach {pid port outTmpFile} [test_start_server $repository stopArg] {}
 if {! $::QUIET} {
   puts [appendArgs "Started Fossil server, pid \"" $pid \" ", port \"" $port \".]
