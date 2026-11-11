@@ -1,5 +1,5 @@
-C Skip\stests\sneeding\sloopback\sif\sit\sis\sunavailable,\seg\son\sisolated\snetwork\snamespaces.
-D 2026-11-11T08:32:29.650
+C Report\sexpected\sand\sactual\svalues\sof\sa\sfailed\stest.\sConvert\ssettings.test\sto\nuse\sthe\snew\sprocedures.
+D 2026-11-11T08:34:16.970
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -650,7 +650,7 @@ F test/revert.test abbddaa272ec0ed5e5d9ffbee5636eefc242e45e383abac8e27e45ddd84ac
 F test/rewrite-test-output.tcl fc2affc10d2ce6911836db498990d72ce5ba6e911cc5036d5f78391c022843ef
 F test/set-manifest.test de6f92e82fdb672dc20f586944e9fd98423e0e28b1a5142e0b1680506545e906
 F test/settings-repo.test 6303e59097b3b9ae650f7b4b1287436a1c33518955a3de26cbcc6796a73fd6a5
-F test/settings.test 884285683c6f52b406db4ca22f74bff8a62521421133f1bec3cd3466b52ea2ae
+F test/settings.test e500c410d0def6a8c9bcecddb6ed75a095906ddae8739723a718b500e4a563a1
 F test/stash.test 5bb17a4de7a9a60ab433db14b71cbf447c78d8986efb7b21f504b612b4ef1d15
 F test/subdir\swith\sspaces/filename\swith\sspaces.txt 4c1f053a9aa422cde7f33113511a70ca3a9f77ddebff4458fbf776752fc3a006
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
@@ -659,7 +659,7 @@ F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 38517706363b152452eaa75b141417b29547e46e76490b9ccd2000cc6a59b780
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl e06ec65241ca35792ac230726b2d56e5e442b4a89aa60e4d521eed5d0586d941
+F test/tester.tcl 9ae1da3b166191a5d78d009dd2cb996c1e9c404a7cfc88195e7b0e5edb4ee267
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 8e01b27354ec3f95d3af1b855c32364acd8cd5fde3a44733dc17a9c7020fe14c
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 202176237fbe08fe305b3689cb7af08085cca6a3e393dc95ac8cfbd445996e47
-R 3f4acca9967153a42ab2cb6ed5dae77e
+P 1b458fd37748449cdca76285ba7121651e49a95526954fb77afa3f57000943d9
+R ddb5481a428b11659b7fb8d2058355cd
 U danshearer
-Z 0621cd2382ef4a5372460acc45db38c2
+Z 30815c2340ebd1a10c72ab48a205825c
 # Remove this line to create a well-formed Fossil manifest.

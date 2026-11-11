@@ -72,41 +72,37 @@ set local_settings [extract_setting_names [normalize_result_no_trim]]
 fossil settings --global
 set global_settings [extract_setting_names [normalize_result_no_trim]]
 
+# NOTE: In these tests the actual value is the setting name when the list
+#       contains it, and empty when it does not.
+#
 foreach name $all_settings {
-  test settings-have-local-$name {
-    [lsearch -exact $local_settings $name] != -1
-  }
+  test_eq settings-have-local-$name \
+      [lsearch -inline -exact $local_settings $name] $name
 
-  test settings-have-global-$name {
-    [lsearch -exact $global_settings $name] != -1
-  }
+  test_eq settings-have-global-$name \
+      [lsearch -inline -exact $global_settings $name] $name
 }
 
 foreach name $local_settings {
-  test settings-valid-local-$name {
-    [lsearch -exact $all_settings $name] != -1
-  }
+  test_eq settings-valid-local-$name \
+      [lsearch -inline -exact $all_settings $name] $name
 }
 
 foreach name $global_settings {
-  test settings-valid-global-$name {
-    [lsearch -exact $all_settings $name] != -1
-  }
+  test_eq settings-valid-global-$name \
+      [lsearch -inline -exact $all_settings $name] $name
 }
 
 ###############################################################################
 
-set pattern(1) {^%name%$}
-set pattern(2) {^%name%[ ]+\((?:local|global)\)[ ]+[^ ]+$}
+set queryPattern {^%name%(?:[ ]+\((?:local|global)\)[ ]+[^ ]+)?$}
 
 foreach name $all_settings {
   fossil settings $name --exact
   set data [normalize_result]
 
-  test settings-query-local-$name {
-    [regexp -- [string map [list %name% $name] $pattern(1)] $data] ||
-    [regexp -- [string map [list %name% $name] $pattern(2)] $data]
-  }
+  test_match settings-query-local-$name $data \
+      [string map [list %name% $name] $queryPattern]
 
   if {$name eq "manifest"} {
     fossil settings $name --exact --global -expectError
@@ -116,14 +112,11 @@ foreach name $all_settings {
   set data [normalize_result]
 
   if {$name eq "manifest"} {
-    test settings-query-global-$name {
-      $data eq "cannot set 'manifest' globally"
-    }
+    test_eq settings-query-global-$name $data \
+        "cannot set 'manifest' globally"
   } else {
-    test settings-query-global-$name {
-      [regexp -- [string map [list %name% $name] $pattern(1)] $data] ||
-      [regexp -- [string map [list %name% $name] $pattern(2)] $data]
-    }
+    test_match settings-query-global-$name $data \
+        [string map [list %name% $name] $queryPattern]
   }
 }
 
@@ -131,15 +124,13 @@ foreach name $all_settings {
 
 fossil settings bad-setting -expectError
 
-test settings-query-bad-local {
-  [normalize_result] eq "no such setting: bad-setting"
-}
+test_eq settings-query-bad-local [normalize_result] \
+    "no such setting: bad-setting"
 
 fossil settings bad-setting --global -expectError
 
-test settings-query-bad-global {
-  [normalize_result] eq "no such setting: bad-setting"
-}
+test_eq settings-query-bad-global [normalize_result] \
+    "no such setting: bad-setting"
 
 ###############################################################################
 

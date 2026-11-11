@@ -161,7 +161,8 @@ proc fossil {args} {
 # Consults the VERBOSE global variable to determine if
 # diagnostics should be emitted when no error is seen.
 # Sets the CODE and RESULT global variables for use in
-# test expressions.
+# test expressions, and the LASTCMD global variable to the
+# command, for the report of a failed test.
 #
 proc fossil_maybe_answer {answer args} {
   global fossilexe
@@ -217,7 +218,8 @@ proc fossil_maybe_answer {answer args} {
       [string range $result end-$ab(off) end] eq $ab(str)} {
     set result [string range $result 0 end-$ab(len)]
   }
-  global RESULT CODE
+  global RESULT CODE LASTCMD
+  set LASTCMD $cmd
   set CODE $rc
   if {!$whatIf} {
     if {($rc && !$expectError) || (!$rc && $expectError)} {
@@ -432,8 +434,7 @@ proc test_skip {reason} {
 # that the rest of the file depends on has failed.
 #
 proc test_fail_then_return {name reason} {
-  test $name 0
-  protOut "$name: $reason" 1
+  test_report $name 0 "" [list "reason: $reason"]
   uplevel 1 [list test_cleanup]
   return -code return
 }
@@ -771,15 +772,31 @@ proc restoreTh1SetupFile {} {
   }
 }
 
-# Perform a test
+# Return VALUE as lines for the report of a failed test, after LABEL.
+# A value on one line is shown in double quotes.  Each line of a value
+# on several lines is shown between "|" characters, so that leading and
+# trailing white space is visible.
 #
-set test_count 0
-proc test {name expr {constraints ""}} {
-  global bad_test ignored_test test_count RESULT
+proc test_value_lines {label value} {
+  if {[string first \n $value] < 0} {
+    return [list "$label \"$value\""]
+  }
+  set lines [list [string trimright $label]]
+  foreach line [split $value \n] {
+    lappend lines "  |$line|"
+  }
+  return $lines
+}
+
+# Count test NAME as passed if OK is true, and as failed otherwise.
+# For a failure that is not a known bug, write each line of DETAIL
+# after the failure line.
+#
+proc test_report {name ok constraints detail} {
+  global bad_test ignored_test test_count
   incr test_count
   set knownBug [expr {"knownBug" in $constraints}]
-  set r [uplevel 1 [list expr $expr]]
-  if {$r} {
+  if {$ok} {
     if {$knownBug && !$::STRICT} {
       protOut "test $name OK (knownBug)?"
     } else {
@@ -791,11 +808,61 @@ proc test {name expr {constraints ""}} {
       lappend ignored_test $name
     } else {
       protOut "test $name FAILED!" 1
-      if {$::QUIET} {protOut "RESULT: $RESULT" 1}
+      foreach line $detail {
+        protOut "  $line" 1
+      }
       lappend bad_test $name
       if {$::HALT} {exit 1}
     }
   }
+}
+
+# Perform a test: test NAME passes if the expression EXPR, evaluated in
+# the caller, is true.  A failure is reported with EXPR, the value of
+# each variable in EXPR except RESULT, the last fossil command run
+# and its output.  The commands in EXPR are not run again.
+#
+set test_count 0
+set LASTCMD ""
+proc test {name expr {constraints ""}} {
+  set r [uplevel 1 [list expr $expr]]
+  set detail [list]
+  if {!$r} {
+    lappend detail "expression: [string trim $expr]"
+    set shown [list]
+    foreach ref [regexp -all -inline \
+        {\$\{[^\}]*\}|\$(?:::)?[A-Za-z_][A-Za-z0-9_:]*(?:\([^)]*\))?} $expr] {
+      if {$ref in $shown ||
+          $ref in {$RESULT $::RESULT ${RESULT} ${::RESULT}}} continue
+      lappend shown $ref
+      if {![catch {uplevel 1 [list subst -nocommands $ref]} value]} {
+        lappend detail {*}[test_value_lines "$ref:" $value]
+      }
+    }
+    lappend detail "last command: $::LASTCMD"
+    if {[info exists ::RESULT]} {
+      lappend detail {*}[test_value_lines "its output:" $::RESULT]
+    }
+  }
+  test_report $name $r $constraints $detail
+}
+
+# Test NAME passes if ACTUAL equals EXPECTED.  A failure is reported
+# with both values.
+#
+proc test_eq {name actual expected {constraints ""}} {
+  set detail [concat [test_value_lines "expected:" $expected] \
+                     [test_value_lines "actual:  " $actual]]
+  test_report $name [expr {$actual eq $expected}] $constraints $detail
+}
+
+# Test NAME passes if ACTUAL matches the regular expression PATTERN.  A
+# failure is reported with the pattern and the actual value.
+#
+proc test_match {name actual pattern {constraints ""}} {
+  set detail [concat [list "pattern:  $pattern"] \
+                     [test_value_lines "actual:  " $actual]]
+  test_report $name [regexp -- $pattern $actual] $constraints $detail
 }
 set bad_test {}
 set ignored_test {}
@@ -1083,7 +1150,7 @@ cd $tempHomePath
 foreach testfile $argv {
   protOut "***** $testfile ******"
   if { [catch {source $testdir/$testfile.test} testerror testopts] } {
-    test test-framework-$testfile 0
+    test_report test-framework-$testfile 0 "" [list "error: $testerror"]
     protOut "!!!!! $testfile: $testerror"
     protOutDict $testopts"
   } else {
