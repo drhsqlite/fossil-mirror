@@ -1,5 +1,5 @@
-C Make\sutf.test\swork\swith\sTcl\s9.\sNot\ssure\sif\sthis\sis\sthe\sbest\sfix,\sbut\sit\sdoes\sseem\sto\nwork\swith\s8.6\sas\swell\sunder\sassorted\sinputs.
-D 2026-11-11T09:16:10.352
+C Read\sthe\sport\sof\sa\stest\sserver\sfrom\sits\slistening\sline,\smaking\sallowances\sfor\sdifferences\nin\sthe\stext\sline,\seg\s"localhost"\sappears\son\sUnix\sbut\snot\sWindows,\sand\sif\swe\sadd\sTLS\sto\sthe\ntest\ssuite\sthen\sthat\sis\sdifferent\sagain,\setc.
+D 2026-11-11T09:27:01.708
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -659,7 +659,7 @@ F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 38517706363b152452eaa75b141417b29547e46e76490b9ccd2000cc6a59b780
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl c9609a0d0ec5dd07485fa56041d7ebeac3b5aa4d7e4d96275570dc471c3c9b50
+F test/tester.tcl e95ae93708f6a4a0db75b936d8115c0f97ff4a6c81ed83c42c482e18d35ec692
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 8e01b27354ec3f95d3af1b855c32364acd8cd5fde3a44733dc17a9c7020fe14c
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 098e61579f75d94b2674274f616e50632c0b2f4820659b5c1f572ef6c8249c68
-R 4e99a8f42e927b141fab9b25b30dc867
+P ab45d34c9dd727cc609659cab15f8f50826c8efee958b0db121eb25288fe0575
+R ee519de18369354f46de593bf25df673
 U danshearer
-Z ef5460181f01e58bc0b455095a75abad
+Z a69a0b04d7d28e523a023e9cbe231f3e
 # Remove this line to create a well-formed Fossil manifest.

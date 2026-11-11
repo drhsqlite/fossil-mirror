@@ -969,11 +969,18 @@ proc test_start_server { repository {varName ""} } {
   if {!$::is_windows} {
     set stopArg $pid
   }
-  after 1000; # output might not be there yet
-  set output [read_file $outFileName]
-  if {![regexp {Listening.*TCP port (\d+)} $output dummy port]} {
-    puts stdout "Could not detect Fossil server port, using default..."
-    set port 8080; # return the default port just in case
+  # The server prints its port in a line such as "Listening for HTTP
+  # requests on TCP port localhost:8081, IPv4 and IPv6".
+  set port ""
+  for {set i 0} {$i < 100 && $port eq ""} {incr i} {
+    after 100
+    set output [read_file $outFileName]
+    regexp -line {Listening for .+ requests on (?:TCP port )?(?:\S*:)?(\d+)} \
+        $output -> port
+  }
+  if {$port eq ""} {
+    test_stop_server $stopArg $pid $outFileName
+    error "fossil server did not report its port: $output"
   }
   return [list $pid $port $outFileName]
 }
