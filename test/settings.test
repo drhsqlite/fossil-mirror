@@ -18,7 +18,15 @@
 # The "settings" and "unset" commands.
 #
 
-set path [file dirname [info script]]; test_setup
+set path [file dirname [info script]]
+
+if {![file isdirectory [get_source_dir]]} {
+  puts "The source directory [get_source_dir], which defines the settings\
+to test, is not present."
+  test_cleanup_then_return
+}
+
+test_setup
 
 ###############################################################################
 #
@@ -31,9 +39,10 @@ set path [file dirname [info script]]; test_setup
 #
 ###############################################################################
 #
-# NOTE: The [get_all_settings] procedure from test/tester.tcl returns the list
-#       of settings to test and needs to be manually updated when new settings
-#       are added.
+# NOTE: The [get_all_settings] procedure from test/tester.tcl reads the list
+#       of settings to test from the "SETTING:" comments in the source files,
+#       so these tests compare the settings of the fossil binary with the
+#       settings its source defines.
 #
 ###############################################################################
 #

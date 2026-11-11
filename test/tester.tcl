@@ -251,167 +251,84 @@ proc write_file_indented {filename txt} {
   write_file $filename [string trim [string map [list "\n  " \n] $txt]]\n
 }
 
+# Returns the directory of Fossil source files that the settings come
+# from: src/, beside the directory of this script.
+#
+proc get_source_dir {} {
+  return [file join [file dirname $::testfiledir] src]
+}
+
+# Returns a dictionary of the settings defined in the source files, with
+# the setting name as key and a list {VERSIONABLE CONDITIONAL} as value.
+#
+# A setting is defined by a "** SETTING: NAME ?FLAGS?" comment, which
+# tools/mkindex.c reads to build the table of settings compiled into
+# fossil.  The setting is versionable if FLAGS include "versionable".
+# As in mkindex, a setting is conditional when the last preprocessor
+# line before it starts with "#if", and a line starting with "#e", such
+# as "#else" or "#endif", ends that condition.  A setting defined more
+# than once, such as case-sensitive, is defined under alternative
+# conditions, so it is not conditional.
+#
+proc get_source_settings {} {
+  set count [dict create]
+  set result [dict create]
+  foreach fileName [glob -nocomplain -directory [get_source_dir] *.c] {
+    set inIf 0
+    foreach line [split [read_file $fileName] \n] {
+      if {[regexp {^#\s*(\S)(\S)?} $line dummy c1 c2]} {
+        if {"$c1$c2" eq "if"} {
+          set inIf 1
+        } elseif {$c1 eq "e"} {
+          set inIf 0
+        }
+      } elseif {[regexp -- {^\*\* SETTING:\s+(\S+)(.*)$} $line \
+                    dummy name flags]} {
+        set flags [regexp -all -inline {\S+} $flags]
+        set versionable [expr {"versionable" in $flags}]
+        dict incr count $name
+        dict set result $name [list $versionable $inIf]
+      }
+    }
+  }
+  if {[dict size $result] == 0} {
+    error "No \"** SETTING:\" comments found in [get_source_dir]/*.c"
+  }
+  dict for {name n} $count {
+    if {$n > 1} {
+      dict set result $name [list [lindex [dict get $result $name] 0] 0]
+    }
+  }
+  return $result
+}
+
+# Returns the settings defined in the source files that this fossil
+# binary has: every unconditional setting, and each conditional setting
+# that "fossil settings NAME --exact" accepts.  With VERSIONABLE true,
+# returns only the versionable ones.
+#
+proc get_source_settings_in_binary {versionable} {
+  set result [list]
+  dict for {name info} [get_source_settings] {
+    lassign $info isVersionable isConditional
+    if {$versionable && !$isVersionable} continue
+    if {$isConditional && \
+        [catch {exec $::fossilexe settings $name --exact}]} continue
+    lappend result $name
+  }
+  return [lsort -dictionary $result]
+}
+
 # Returns the list of all supported versionable settings.
 #
 proc get_versionable_settings {} {
-  #
-  # TODO: If the list of supported versionable settings in "db.c" is modified,
-  #       this list (and procedure) most likely needs to be modified as well.
-  #
-  set result [list \
-      binary-glob \
-      clean-glob \
-      crlf-glob \
-      crnl-glob \
-      dotfiles \
-      empty-dirs \
-      encoding-glob \
-      ignore-glob \
-      keep-glob \
-      manifest]
-
-  return [lsort -dictionary $result]
+  return [get_source_settings_in_binary 1]
 }
 
 # Returns the list of all supported settings.
 #
 proc get_all_settings {} {
-  #
-  # TODO: If the list of supported settings in "db.c" is modified, this list
-  #       (and procedure) most likely needs to be modified as well.
-  #
-  set result [list \
-      access-log \
-      admin-log \
-      allow-symlinks \
-      auto-captcha \
-      auto-hyperlink \
-      auto-hyperlink-delay \
-      auto-hyperlink-mouseover \
-      auto-shun \
-      autosync \
-      autosync-tries \
-      backoffice-disable \
-      backoffice-logfile \
-      backoffice-nodelay \
-      binary-glob \
-      case-sensitive \
-      chat-alert-sound \
-      chat-initial-history \
-      chat-inline-images \
-      chat-keep-count \
-      chat-keep-days \
-      chat-poll-timeout \
-      chat-timeline-user \
-      clean-glob \
-      clearsign \
-      comment-format \
-      crlf-glob \
-      crnl-glob \
-      default-csp \
-      default-perms \
-      default-skin \
-      diff-binary \
-      diff-command \
-      dont-commit \
-      dont-push \
-      dotfiles \
-      editor \
-      email-admin \
-      email-listid \
-      email-renew-interval \
-      email-self \
-      email-send-command \
-      email-send-db \
-      email-send-dir \
-      email-send-method \
-      email-send-relayhost \
-      email-subname \
-      email-url \
-      empty-dirs \
-      encoding-glob \
-      exec-rel-paths \
-      fileedit-glob \
-      forbid-delta-manifests \
-      forum-close-policy \
-      forum-title \
-      gdiff-command \
-      gmerge-command \
-      hash-digits \
-      hooks \
-      http-port \
-      https-login \
-      ignore-glob \
-      keep-glob \
-      large-file-size \
-      localauth \
-      lock-timeout \
-      main-branch \
-      mainmenu \
-      manifest \
-      max-cache-entry \
-      max-loadavg \
-      max-upload \
-      mimetypes \
-      mtime-changes \
-      mv-rm-files \
-      pgp-command \
-      preferred-diff-type \
-      proxy \
-      raw-bgcolor \
-      redirect-to-https \
-      relative-paths \
-      repo-cksum \
-      repolist-skin \
-      robot-restrict \
-      robots-txt \
-      safe-html \
-      self-pw-reset \
-      self-register \
-      sitemap-extra \
-      ssh-command \
-      ssl-ca-location \
-      ssl-identity \
-      tclsh \
-      th1-setup \
-      th1-uri-regexp \
-      ticket-default-report \
-      timeline-hard-newlines \
-      timeline-plaintext \
-      timeline-truncate-at-blank \
-      timeline-tslink-info \
-      timeline-utc \
-      user-color-map \
-      verify-comments \
-      uv-sync \
-      vuln-report \
-      web-browser]
-
-  fossil test-th-eval "hasfeature legacyMvRm"
-
-  if {[normalize_result] eq "1"} {
-    lappend result mv-rm-files
-  }
-
-  fossil test-th-eval "hasfeature tcl"
-
-  if {[normalize_result] eq "1"} {
-    lappend result tcl tcl-setup
-  }
-
-  fossil test-th-eval "hasfeature th1Docs"
-
-  if {[normalize_result] eq "1"} {
-    lappend result th1-docs
-  }
-
-  fossil test-th-eval "hasfeature th1Hooks"
-
-  if {[normalize_result] eq "1"} {
-    lappend result th1-hooks
-  }
-
-  return [lsort -dictionary $result]
+  return [get_source_settings_in_binary 0]
 }
 
 # Return true if two files are the same
