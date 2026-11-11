@@ -21,8 +21,7 @@
 fossil test-th-eval "hasfeature th1Hooks"
 
 if {[normalize_result] ne "1"} {
-  puts "Fossil was not compiled with TH1 hooks support."
-  test_cleanup_then_return
+  test_skip "Fossil was not compiled with TH1 hooks support."
 }
 
 ###############################################################################

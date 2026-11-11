@@ -21,15 +21,13 @@
 fossil test-th-eval "hasfeature th1Docs"
 
 if {[normalize_result] ne "1"} {
-  puts "Fossil was not compiled with TH1 docs support."
-  test_cleanup_then_return
+  test_skip "Fossil was not compiled with TH1 docs support."
 }
 
 fossil test-th-eval "hasfeature tcl"
 
 if {[normalize_result] ne "1"} {
-  puts "Fossil was not compiled with Tcl support."
-  test_cleanup_then_return
+  test_skip "Fossil was not compiled with Tcl support."
 }
 
 ###############################################################################

@@ -26,8 +26,7 @@
 fossil test-th-eval "hasfeature json"
 
 if {[normalize_result] ne "1"} {
-  puts "Fossil was not compiled with JSON support."
-  test_cleanup_then_return
+  test_skip "Fossil was not compiled with JSON support."
 }
 
 # We need a JSON parser to effectively test the JSON produced by
@@ -36,11 +35,8 @@ if {[normalize_result] ne "1"} {
 # teacup install json
 # teacup install json::write
 if {[catch {package require json}] != 0} then {
-  puts {
-The "json" package for Tcl is not available.
-Please see: https://core.tcl-lang.org/tcllib
-}
-  test_cleanup_then_return
+  test_skip "The \"json\" package for Tcl is not available.\
+Please see: https://core.tcl-lang.org/tcllib"
 }
 
 proc json2dict {txt} {
@@ -56,8 +52,8 @@ proc json2dict {txt} {
 fossil json -expectError
 set JR [json2dict $RESULT]
 if {$JR eq ""} {
-  puts "Fossil was not compiled with JSON support (bad JSON)."
-  test_cleanup_then_return
+  test_fail_then_return json-bad-output \
+      "\"fossil json\" did not return valid JSON: $RESULT"
 }
 test json-1 {[dict exists $JR resultCode]
              && [dict get $JR resultCode] in "FOSSIL-3002 FOSSIL-4102"}

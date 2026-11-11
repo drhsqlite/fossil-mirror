@@ -36,8 +36,7 @@ proc file_contains {fname match} {
 # On ActiveTcl, add it with teacup. On other platforms, YMMV.
 # teacup install sha1
 if {[catch {package require sha1}] != 0} {
-  puts "The \"sha1\" package is not available."
-  test_cleanup_then_return
+  test_skip "The \"sha1\" package for Tcl is not available."
 }
 
 # We need a repository, so let it have one.

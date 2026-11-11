@@ -52,15 +52,15 @@ test_setup
 ########################################
 
 if {![uuid_from_checkout HASHINIT]} {
-  test amend-checkout-failure false
-  test_cleanup_then_return
+  test_fail_then_return amend-checkout-failure \
+      "could not read the check-out's hash"
 }
 write_file datafile "data"
 fossil add datafile
 fossil commit -m "c1"
 if {![uuid_from_commit $RESULT HASH]} {
-  test amend-setup-failure false
-  test_cleanup_then_return
+  test_fail_then_return amend-setup-failure \
+      "could not read the hash of the first commit: $RESULT"
 }
 
 ########################################

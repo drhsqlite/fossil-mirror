@@ -18,15 +18,9 @@
 # Tests of the "merge" command
 #
 
-if {! $::QUIET} {
-  puts "Skipping Merge5 tests"
-}
-protOut {
-fossil sqlite3 --no-repository reacts badly to SQL dumped from
-repositories created from fossil older than version 2.0.
-}
 #test merge5-sqlite3-issue false knownBug
-test_cleanup_then_return
+test_skip "fossil sqlite3 --no-repository reacts badly to SQL dumped from\
+repositories created from fossil older than version 2.0."
 
 # Verify the results of a check-out
 #

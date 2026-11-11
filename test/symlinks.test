@@ -21,8 +21,7 @@
 set path [file dirname [info script]]
 
 if {$is_windows} {
-  puts "Symlinks are not supported on Windows."
-  test_cleanup_then_return
+  test_skip "Symlinks are not supported on Windows."
 }
 
 require_no_open_checkout
@@ -38,8 +37,8 @@ fossil test-th-eval --open-config {repository}
 set repository [normalize_result]
 
 if {[string length $repository] == 0} {
-  puts "Detection of the open repository file failed."
-  test_cleanup_then_return
+  test_fail_then_return symlinks-repository \
+      "Detection of the open repository file failed."
 }
 
 #######################################

@@ -379,8 +379,6 @@ proc require_no_open_checkout {} {
   }
   catch {exec $::fossilexe info} res
   if {[regexp {local-root:} $res]} {
-    global skipped_tests testfile
-    lappend skipped_tests $testfile
     set projectName <unknown>
     set localRoot <unknown>
     regexp -line -- {^project-name: (.*)$} $res dummy projectName
@@ -417,9 +415,25 @@ proc robust_delete { path {force ""} } {
   error "Could not delete \"$path\", error: $error"
 }
 
-proc test_cleanup_then_return {} {
+# Skip the rest of the current test file because of REASON, which the
+# final summary reports beside the file name.  Call it from the top
+# level of a test file.
+#
+proc test_skip {reason} {
   global skipped_tests testfile
-  lappend skipped_tests $testfile
+  lappend skipped_tests [list $testfile $reason]
+  protOut "SKIPPED $testfile: $reason" 1
+  uplevel 1 [list test_cleanup]
+  return -code return
+}
+
+# Record test NAME as failed because of REASON, then stop the current
+# test file.  Call it from the top level of a test file when a step
+# that the rest of the file depends on has failed.
+#
+proc test_fail_then_return {name reason} {
+  test $name 0
+  protOut "$name: $reason" 1
   uplevel 1 [list test_cleanup]
   return -code return
 }
@@ -1084,7 +1098,10 @@ if {$nErr>0} {
 }
 set nSkipped [llength $skipped_tests]
 if {$nSkipped>0} {
-  protOut "***** Skipped tests: $skipped_tests" 1
+  protOut "***** Skipped tests: [lmap s $skipped_tests {lindex $s 0}]" 1
+  foreach s $skipped_tests {
+    protOut "*****   [lindex $s 0]: [lindex $s 1]" 1
+  }
 }
 if {$bad_test>0} {
   exit 1

@@ -21,8 +21,7 @@
 set path [file dirname [info script]]
 
 if {[catch {package require sha1}] != 0} {
-  puts "The \"sha1\" package is not available."
-  test_cleanup_then_return
+  test_skip "The \"sha1\" package for Tcl is not available."
 }
 
 require_no_open_checkout
@@ -36,8 +35,8 @@ fossil test-th-eval --open-config {repository}
 set repository [normalize_result]
 
 if {[string length $repository] == 0} {
-  puts "Detection of the open repository file failed."
-  test_cleanup_then_return
+  test_fail_then_return unversioned-repository \
+      "Detection of the open repository file failed."
 }
 
 write_file unversioned1.txt "This is unversioned file #1."
