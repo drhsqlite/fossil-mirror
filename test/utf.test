@@ -288,6 +288,28 @@ proc deleteTestFiles {path num} {
   }
 }
 
+# Returns S converted to the encoding ENC.  Tcl 9 refuses an unpaired
+# surrogate unless the conversion uses the tcl8 profile, which Tcl 8 does
+# not have.
+proc convert_to {enc s} {
+  if {[package vsatisfies [package provide Tcl] 9-]} {
+    return [encoding convertto -profile tcl8 $enc $s]
+  }
+  return [encoding convertto $enc $s]
+}
+
+# Returns the bytes that Tcl 8 writes for S to a channel in the binary
+# encoding: the low byte of each UTF-16 unit.  Tcl 9 does not have the
+# binary encoding.
+proc binary_bytes {s} {
+  if {![package vsatisfies [package provide Tcl] 9-]} {
+    return $s
+  }
+  set format [expr {$::tcl_platform(byteOrder) eq "littleEndian" ? "s*" : "S*"}]
+  binary scan [convert_to unicode $s] $format units
+  return [binary format c* $units]
+}
+
 proc createTestFiles {path num} {
   set fn $num
   for {set i 0} {$i < [array size ::bom]} {incr i} {
@@ -295,18 +317,18 @@ proc createTestFiles {path num} {
       for {set k 0} {$k < [array size ::extraData]} {incr k} {
         set f [open [file join $path utf-check-$fn-$i-$j-$k.jnk] \
             {WRONLY CREAT TRUNC}]; incr fn
-        fconfigure $f -encoding binary -translation binary
+        fconfigure $f -translation binary
         puts -nonewline $f $::bom($i)
         switch -exact $::enc($i) {
           binary {
-            puts -nonewline $f $::data($j)
+            puts -nonewline $f [binary_bytes $::data($j)]
           }
           unicode-reverse {
-            puts -nonewline $f [swap_byte_order \
-                [encoding convertto unicode $::data($j)]]
+            puts -nonewline $f [binary_bytes \
+                [swap_byte_order [convert_to unicode $::data($j)]]]
           }
           default {
-            puts -nonewline $f [encoding convertto $::enc($i) $::data($j)]
+            puts -nonewline $f [convert_to $::enc($i) $::data($j)]
           }
         }
         puts -nonewline $f $::extraData($k)
@@ -328,7 +350,7 @@ proc createTestResults {path num} {
   for {set i 0} {$i < [array size ::bom]} {incr i} {
     for {set j 0} {$j < [array size ::data]} {incr j} {
       for {set k 0} {$k < [array size ::extraData]} {incr k} {
-        fconfigure $f -encoding binary -translation binary
+        fconfigure $f -translation binary
         set data \n\n
         append data {utf-check $fn }
         append data {utf-check-$fn-$i-$j-$k.jnk \\\n}

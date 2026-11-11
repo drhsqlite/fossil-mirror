@@ -1,5 +1,5 @@
-C Clean\sup\safter\sa\stest\sfails,\sotherwise\sthe\sdirectories\sit\sleaves\smakes\sthe\snext\stest\sfail
-D 2026-11-11T08:42:39.317
+C Make\sutf.test\swork\swith\sTcl\s9.\sNot\ssure\sif\sthis\sis\sthe\sbest\sfix,\sbut\sit\sdoes\sseem\sto\nwork\swith\s8.6\sas\swell\sunder\sassorted\sinputs.
+D 2026-11-11T09:16:10.352
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -681,7 +681,7 @@ F test/unversioned.test 341d7627248d3fbe094511baa6af8c3c4ce34c22297f42c1a2857b6e
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/update.test b214828beab009553c475932494c9108d401503640012d717fb4f5b649cad879
-F test/utf.test c2426351ad7a2ea1fd9f8ea16284a62155080fcebbc33b17065b7f2235bd1f5d
+F test/utf.test c54e06422c929e576d212222f7924a16d46e99b5076e3cbaf81c408ad3d9f29f
 F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
 F test/utf8-comment.txt 0964b79ef7d4065702dd6c304b44d26a796409e2e5a3e5eb31d64300df58b165
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bb353407c1b5ffbaeb090172d340107303d5d23b587d52802508aa24095d8a40
-R cafdbf10179b2776db9f4e85a0dbb8c9
+P 098e61579f75d94b2674274f616e50632c0b2f4820659b5c1f572ef6c8249c68
+R 4e99a8f42e927b141fab9b25b30dc867
 U danshearer
-Z c9e6c2c8fc9c3ed030db97b5f4cc367b
+Z ef5460181f01e58bc0b455095a75abad
 # Remove this line to create a well-formed Fossil manifest.
