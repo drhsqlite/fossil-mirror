@@ -1,0 +1,304 @@
+#
+# Round trips: "fossil export --git" into "fossil import --git",
+# "fossil bundle export" into "fossil bundle import", "fossil patch
+# create" into "fossil patch apply", and the files in "fossil zip" and
+# "fossil tarball" compared with the files of the check-in.
+#
+
+set path [file dirname [info script]]
+
+require_no_open_checkout
+
+# Returns the F-cards of the manifest of CHECKIN in REPO, sorted, as a
+# list of {NAME HASH} pairs.
+#
+proc roundtrip_files {repo checkin} {
+  fossil artifact $checkin -R $repo
+  set files [list]
+  foreach line [split $::RESULT \n] {
+    if {[regexp {^F (\S+) (\S+)} $line -> name hash]} {
+      lappend files [list $name $hash]
+    }
+  }
+  return [lsort $files]
+}
+
+# Returns the check-ins of REPO as a dictionary from comment to
+# {BRANCH HASH}.  The comments of the check-ins in these tests are
+# distinct.
+#
+proc roundtrip_checkins {repo} {
+  fossil timeline -R $repo -t ci -n 0 -F {%H|%b|%c}
+  set result [dict create]
+  foreach line [split $::RESULT \n] {
+    if {[regexp {^([0-9a-f]{40,})\|([^|]*)\|(.*)$} $line -> hash branch c]} {
+      dict set result $c [list $branch $hash]
+    }
+  }
+  return $result
+}
+
+# Returns the files of an archive as a dictionary from name to content,
+# without the top-level directory PREFIX and without directories.
+# FORMAT is "zip" or "tarball".
+#
+proc roundtrip_archive_files {fileName format prefix} {
+  set fd [open $fileName rb]
+  set data [read $fd]
+  close $fd
+  set result [dict create]
+  if {$format eq "tarball"} {
+    set data [zlib gunzip $data]
+    set pos 0
+    while {$pos + 512 <= [string length $data]} {
+      set header [string range $data $pos [expr {$pos + 511}]]
+      binary scan $header a100a24a12a12a8a1a100a6a2a32a32a8a8a155 \
+          name x sizeText x x type x magic x x x x x tarPrefix
+      set name [string trimright $name \0]
+      if {$name eq ""} break
+      set tarPrefix [string trimright $tarPrefix \0]
+      if {$tarPrefix ne ""} {set name $tarPrefix/$name}
+      set size [scan [string trim $sizeText "\0 "] %o]
+      set start [expr {$pos + 512}]
+      if {$type eq "0" || $type eq "\0"} {
+        dict set result $name \
+            [string range $data $start [expr {$start + $size - 1}]]
+      }
+      set pos [expr {$start + (($size + 511) / 512) * 512}]
+    }
+  } else {
+    set end [string last "PK\x05\x06" $data]
+    binary scan $data @[expr {$end + 10}]su count
+    binary scan $data @[expr {$end + 16}]iu pos
+    for {set i 0} {$i < $count} {incr i} {
+      binary scan $data @${pos}a4x6sux4x4iuiusususu \
+          sig method csize usize nameLen extraLen commentLen
+      binary scan $data @[expr {$pos + 42}]iu localPos
+      set name [string range $data [expr {$pos + 46}] \
+                    [expr {$pos + 45 + $nameLen}]]
+      set pos [expr {$pos + 46 + $nameLen + $extraLen + $commentLen}]
+      if {[string index $name end] eq "/"} continue
+      binary scan $data @[expr {$localPos + 26}]susu localNameLen localExtraLen
+      set start [expr {$localPos + 30 + $localNameLen + $localExtraLen}]
+      set content [string range $data $start [expr {$start + $csize - 1}]]
+      if {$method == 8} {
+        set content [zlib inflate $content]
+      }
+      dict set result $name $content
+    }
+  }
+  set files [dict create]
+  dict for {name content} $result {
+    if {[string first $prefix/ $name] == 0} {
+      dict set files [string range $name [string length $prefix/] end] \
+          $content
+    } else {
+      dict set files $name $content
+    }
+  }
+  return $files
+}
+
+# Returns the files of CHECKIN in the open repository as a dictionary
+# from name to content.
+#
+proc roundtrip_checkin_files {checkin} {
+  set files [dict create]
+  fossil ls -r $checkin
+  foreach name [split [string trim $::RESULT] \n] {
+    set fd [open "|[list $::fossilexe cat -r $checkin $name]" rb]
+    dict set files $name [read $fd]
+    close $fd
+  }
+  return $files
+}
+
+# Returns a dictionary from the name of each file in the current
+# directory and below, except those in SKIP, to its content.
+#
+proc roundtrip_dir_files {{dir .} {skip {}}} {
+  set files [dict create]
+  foreach f [glob -nocomplain -directory $dir -tails *] {
+    set p [expr {$dir eq "." ? $f : "$dir/$f"}]
+    if {$p in $skip} continue
+    if {[file isdirectory $p]} {
+      set files [dict merge $files [roundtrip_dir_files $p $skip]]
+    } else {
+      dict set files $p [read_file $p]
+    }
+  }
+  return $files
+}
+
+###############################################################################
+#
+# A history with a branch, a rename, a deletion, a merge and a file
+# with no newline at its end.
+#
+test_setup
+set repo [file join [pwd] .rep.fossil]
+
+write_file a.txt "one\ntwo\nthree\n"
+write_file b.txt "b\n"
+file mkdir sub
+write_file sub/c.txt "c\n"
+write_file noeol.txt "no newline"
+fossil add a.txt b.txt sub noeol.txt
+fossil commit -m "rt-c1"
+
+write_file a.txt "one\nTWO\nthree\n"
+write_file d.txt "d\n"
+fossil add d.txt
+fossil commit -m "rt-c2"
+
+fossil branch new rt-feature current
+fossil update rt-feature
+write_file a.txt "one\nTWO\nthree\nfour\n"
+fossil commit -m "rt-f1"
+write_file b.txt "b2\n"
+fossil commit -m "rt-f2"
+
+fossil update trunk
+fossil rm --hard d.txt
+fossil mv --hard sub/c.txt sub/c2.txt
+fossil commit -m "rt-c3"
+fossil merge rt-feature
+fossil commit -m "rt-c4"
+
+set original [roundtrip_checkins $repo]
+test_eq roundtrip-setup-checkins [lsort [dict keys $original]] \
+    [lsort {rt-c1 rt-c2 rt-c3 rt-c4 rt-f1 rt-f2 {initial empty check-in}
+            {Create new branch named "rt-feature"}}]
+
+###############################################################################
+#
+# "fossil export --git" into "fossil import --git": each check-in keeps
+# its comment, its branch and its files with their content.
+#
+exec $::fossilexe export --git > export.git
+fossil import --git imported.fossil export.git
+set imported [roundtrip_checkins imported.fossil]
+
+test_eq roundtrip-git-checkins [lsort [dict keys $imported]] \
+    [lsort [dict keys $original]]
+
+dict for {comment info} $original {
+  if {![dict exists $imported $comment]} continue
+  lassign $info branch ciHash
+  lassign [dict get $imported $comment] importedBranch importedHash
+  set label [string trim [regsub -all {[^A-Za-z0-9]+} $comment -] -]
+  test_eq roundtrip-git-branch-$label $importedBranch $branch
+  test_eq roundtrip-git-files-$label \
+      [roundtrip_files imported.fossil $importedHash] \
+      [roundtrip_files $repo $ciHash]
+}
+
+# The merge keeps both parents: its P-card lists two check-ins.
+#
+fossil artifact [lindex [dict get $imported rt-c4] 1] -R imported.fossil
+regexp -line {^P (.*)$} $RESULT -> parents
+test_eq roundtrip-git-merge-parents [llength $parents] 2
+
+file delete export.git imported.fossil
+
+###############################################################################
+#
+# "fossil bundle export" of a branch, and "fossil bundle import
+# --publish" into a clone made before the branch: the clone then has
+# each check-in of the branch under the same hash, with the same files.
+#
+fossil clone $repo clone.fossil
+
+fossil update trunk
+fossil branch new rt-bundled current
+fossil update rt-bundled
+write_file a.txt "bundled\n"
+fossil commit -m "rt-b1"
+write_file e.txt "e\n"
+fossil add e.txt
+fossil commit -m "rt-b2"
+fossil update trunk
+
+fossil bundle export rt.bundle --branch rt-bundled
+fossil bundle import rt.bundle --publish -R clone.fossil
+
+set afterBundle [roundtrip_checkins clone.fossil]
+foreach comment {rt-b1 rt-b2} {
+  set ciHash [lindex [dict get [roundtrip_checkins $repo] $comment] 1]
+  test_eq "roundtrip-bundle-hash-$comment" \
+      [lindex [dict get $afterBundle $comment] 1] $ciHash
+  test_eq "roundtrip-bundle-files-$comment" \
+      [roundtrip_files clone.fossil $ciHash] [roundtrip_files $repo $ciHash]
+}
+fossil cat e.txt -r rt-bundled -R clone.fossil
+test_eq roundtrip-bundle-content $RESULT "e"
+
+file delete rt.bundle clone.fossil
+
+###############################################################################
+#
+# "fossil patch create" of uncommitted changes, then "fossil revert" and
+# "fossil patch apply": the check-out has the same changes and files.
+#
+fossil update trunk
+write_file a.txt "patched\n"
+write_file new.txt "new\n"
+fossil add new.txt
+fossil rm --hard b.txt
+fossil mv --hard sub/c2.txt sub/c3.txt
+write_file noeol.txt "still no newline"
+
+fossil changes
+set changesBefore [normalize_result]
+set filesBefore [roundtrip_dir_files . {rt.patch}]
+
+fossil patch create rt.patch
+
+# The patch records the name of the computer it was made on.  fossil
+# reads the name from the "hostname" program, so where that program is
+# missing, the name is empty and the shell's error appears on standard
+# error.
+#
+fossil sqlite3 --no-repository rt.patch \
+    "SELECT value FROM cfg WHERE key='hostname'"
+if {[auto_execok hostname] eq ""} {
+  set hostnameConstraint knownBug
+} else {
+  set hostnameConstraint ""
+}
+test_eq roundtrip-patch-hostname [normalize_result] [info hostname] \
+    $hostnameConstraint
+
+fossil revert
+file delete new.txt
+fossil changes
+test_eq roundtrip-patch-reverted [normalize_result] ""
+
+fossil patch apply rt.patch
+fossil changes
+test_eq roundtrip-patch-changes [normalize_result] $changesBefore
+test_eq roundtrip-patch-files [roundtrip_dir_files . {rt.patch}] $filesBefore
+
+fossil revert
+file delete new.txt rt.patch
+
+###############################################################################
+#
+# The files in "fossil zip" and "fossil tarball" of a check-in are the
+# files of the check-in, with the same content.
+#
+set mergeHash [lindex [dict get $original rt-c4] 1]
+set expected [roundtrip_checkin_files $mergeHash]
+test_eq roundtrip-archive-names [lsort [dict keys $expected]] \
+    {a.txt b.txt noeol.txt sub/c2.txt}
+fossil zip $mergeHash rt.zip --name rt
+test_eq roundtrip-zip-files \
+    [roundtrip_archive_files rt.zip zip rt] $expected
+fossil tarball $mergeHash rt.tar.gz --name rt
+test_eq roundtrip-tarball-files \
+    [roundtrip_archive_files rt.tar.gz tarball rt] $expected
+file delete rt.zip rt.tar.gz
+
+###############################################################################
+
+test_cleanup

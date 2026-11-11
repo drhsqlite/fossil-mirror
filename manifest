@@ -1,5 +1,5 @@
-C Add\sREADME\sfor\stest\ssuite
-D 2026-11-11T10:41:06.540
+C Extend\scommand\scoverage.\sbundle\sand\sexport\sare\stested\sby\sroundtripping,\sand\sso\nis\spatch\screate/revert/patch\sapply.\sAlso\stest\smerge,\sbranch,\szip\sand\starball.
+D 2026-11-11T10:51:39.769
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -608,8 +608,9 @@ F src/xsystem.c c8c87776fa160083216bd35c69292a6c3b58870e4c9f6ff1859426b99ea1c106
 F src/zip.c 66a5c78dd2afbb2067b8283ccc8d62e367e761ff2e2b31f3713f7dde10db63bd
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
-F test/README.md 0d43e10b5145374ffaa68568f1abdac745b252112e5e5d7b86d37ec8627571b6
+F test/README.md 34e8a6170226784661a1064a64a5f980a5d83c4812193fe71318361195789688
 F test/amend.test e6b4dc88a979be9f055d87427551e3120f9326d20f59e9f4131ea12cb6637e1b
+F test/branch-tag.test 2865db5e09af4cda41ad36f4d816dbba973a62192a20563b881141223331ceee
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
 F test/cmdline.test 19bc9570d2d43264f80111d877fb20e8236dd7346777cc8b9b3b6d5c1d9a0ed2
 F test/commit-warning.test 5a6417e95c35cf8819348a4bbddbd3be2940193b22f51aa769ba6ffe48735faa
@@ -633,6 +634,7 @@ F test/many-www.tcl a50f03578004a396d29041748aeb2cc9acbef0cc31e2975c93b563d378fa
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
 F test/markdown-test2.md 9a2440fd9b07fb8a8182c323cd38d8a2f0eb4068785aeb09da4f978fb741b87b
 F test/markdown-test3.md 70e697a5e9bab2f1a5bbb7bb4223a8d4b2d7f1a43973f7455e8c7eaebb0ae34a
+F test/merge-history.test bafd5a6e5605df8b3eaa83c66897993012a24c2716430f7d4f2346a6677da877
 F test/merge1.test 431091c27e8478ce1520c91764f82a1129af9533476379f416d63acd4eb741b8
 F test/merge2.test c569f06bd3a13f01648db1796805972251ccc5fe1a575fa4e2c885172cb4b4ff
 F test/merge3.test 363f50779245dc4f84ac165b2a561c6fa3fbcc4a67b7c3cb4bb875ac1b4dfe2c
@@ -649,6 +651,7 @@ F test/release-checklist.wiki e2c611eee0ce2899d72f389e7518e7b8a71284f8b7992def42
 F test/reserved-names.test df65768408b881eed35fe276dce13a49b637ed0d11fd46a63c1a9bdb9faaabd2
 F test/revert.test abbddaa272ec0ed5e5d9ffbee5636eefc242e45e383abac8e27e45ddd84ac75a
 F test/rewrite-test-output.tcl fc2affc10d2ce6911836db498990d72ce5ba6e911cc5036d5f78391c022843ef
+F test/roundtrip.test 6fe1af3c181bd7f4f23a48207c508aa16b7f1f197085153924d69f80076d43ee
 F test/set-manifest.test de6f92e82fdb672dc20f586944e9fd98423e0e28b1a5142e0b1680506545e906
 F test/settings-repo.test 6303e59097b3b9ae650f7b4b1287436a1c33518955a3de26cbcc6796a73fd6a5
 F test/settings.test e500c410d0def6a8c9bcecddb6ed75a095906ddae8739723a718b500e4a563a1
@@ -986,8 +989,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 049fe12082c807f8eae1ae3a0906c6e096fdfbc491cfa54569406833939ba96c
-R 91e70490063d3ebc67497bd14aec67cd
+P 557743d09a83fb9dd5686fe9be862c3dc1ceb77bacea7d7d764ead6bc4479040
+R f8d5317d7246da0f7c8747810039f79d
 U danshearer
-Z 591228ed89828a5e89398429dd46e8fc
+Z 7a3c1766b468383e71e0718d73ba7c76
 # Remove this line to create a well-formed Fossil manifest.

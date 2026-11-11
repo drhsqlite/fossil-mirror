@@ -56,7 +56,9 @@ suite accounts for that.)
 | Area | Test files |
 | --- | --- |
 | Check-ins and the working tree | `amend`, `clean`, `commit-warning`, `mv-rm`, `revert`, `stash`, `symlinks`, `update` |
-| Merges | `merge1` to `merge6`, `merge_exe`, `merge_renames`, `merge_renames_2`, `merge_warn` |
+| Branches and tags | `branch-tag` |
+| Merges, cherrypicks, backouts, and annotate and blame after them | `merge1` to `merge6`, `merge-history`, `merge_exe`, `merge_renames`, `merge_renames_2`, `merge_warn` |
+| Git export and import, bundles, patches, ZIP and tarball archives | `roundtrip` |
 | Diffs and deltas | `delta1`, `diff` |
 | Settings | `settings`, `settings-repo`, `set-manifest` |
 | Wiki, attachments and unversioned files | `wiki`, `unversioned` |

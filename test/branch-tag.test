@@ -1,0 +1,139 @@
+#
+# Creating, closing and reopening a branch, and adding and cancelling a
+# tag, a tag with a value and a propagating tag.
+#
+
+set path [file dirname [info script]]
+
+require_no_open_checkout
+
+# Returns the hash of the check-in of the open repository whose comment
+# is COMMENT.
+#
+proc branchtag_hash {comment} {
+  fossil timeline -t ci -n 0 -F {%H %c}
+  regexp -line "^(\[0-9a-f\]+) $comment\$" $::RESULT -> hash
+  return $hash
+}
+
+# Returns the hash of the current check-out.
+#
+proc branchtag_current {} {
+  fossil timeline before current -n 1 -t ci -F %H
+  return [first_data_line]
+}
+
+# Returns the output lines of the last command, without leading and
+# trailing white space, as a sorted list.
+#
+proc branchtag_lines {} {
+  set lines [list]
+  foreach line [split [normalize_result] \n] {
+    lappend lines [string trim $line]
+  }
+  return [lsort $lines]
+}
+
+test_setup
+
+write_file a.txt "a\n"
+fossil add a.txt
+fossil commit -m "bt-c1"
+set c1 [branchtag_hash bt-c1]
+write_file a.txt "a2\n"
+fossil commit -m "bt-c2"
+set c2 [branchtag_hash bt-c2]
+
+###############################################################################
+#
+# A new branch is listed as open, and a check-in on it stays on it.
+#
+fossil branch new bt-branch $c2
+fossil branch list
+test_eq branch-tag-new-listed [branchtag_lines] \
+    [lsort [list bt-branch {* trunk}]]
+
+fossil update bt-branch
+fossil branch current
+test_eq branch-tag-new-current [normalize_result] bt-branch
+write_file a.txt "on branch\n"
+fossil commit -m "bt-b1"
+fossil branch current
+test_eq branch-tag-new-commit [normalize_result] bt-branch
+
+###############################################################################
+#
+# A closed branch is listed only with --closed, and a check-in on it is
+# refused.  Reopened, it is listed as open and accepts check-ins.
+#
+fossil branch close bt-branch
+fossil branch list
+test_eq branch-tag-close-open-list [branchtag_lines] [list trunk]
+fossil branch list --closed
+test_eq branch-tag-close-closed-list [branchtag_lines] [list {* bt-branch}]
+
+write_file a.txt "on closed branch\n"
+fossil commit -m "bt-on-closed" -expectError
+test_eq branch-tag-close-commit [normalize_result] \
+    "cannot commit against a closed leaf"
+
+fossil branch reopen bt-branch
+fossil branch list
+test_eq branch-tag-reopen-list [branchtag_lines] [list {* bt-branch} trunk]
+fossil commit -m "bt-b2"
+fossil branch current
+test_eq branch-tag-reopen-commit [normalize_result] bt-branch
+
+###############################################################################
+#
+# A tag on a check-in is listed for that check-in only, and "fossil
+# update TAG" moves the check-out to it.  Cancelled, the tag is not
+# listed and "fossil update TAG" fails.
+#
+fossil update trunk
+fossil tag add bt-rel $c1
+fossil tag list $c1
+test_eq branch-tag-add-list [branchtag_lines] [list branch=trunk bt-rel trunk]
+fossil tag list $c2
+test_eq branch-tag-add-other [branchtag_lines] [list branch=trunk trunk]
+
+fossil update bt-rel
+test_eq branch-tag-add-update [branchtag_current] $c1
+
+fossil update trunk
+fossil tag cancel bt-rel $c1
+fossil tag list $c1
+test_eq branch-tag-cancel-list [branchtag_lines] [list branch=trunk trunk]
+fossil update bt-rel -expectError
+test_eq branch-tag-cancel-update [branchtag_current] $c2
+
+###############################################################################
+#
+# A tag with a value is listed as NAME=VALUE.
+#
+fossil tag add bt-value $c1 hello
+fossil tag list $c1
+test_eq branch-tag-value-list [branchtag_lines] \
+    [list branch=trunk bt-value=hello trunk]
+
+###############################################################################
+#
+# A propagating tag is listed for the check-in and its descendants on
+# the branch.  Cancelled on the check-in, it is not listed for either.
+#
+fossil tag add --propagate bt-prop $c1
+fossil tag list $c2
+test_eq branch-tag-propagate-descendant [branchtag_lines] \
+    [list branch=trunk bt-prop trunk]
+
+fossil tag cancel bt-prop $c1
+fossil tag list $c1
+test_eq branch-tag-propagate-cancel [branchtag_lines] \
+    [list branch=trunk bt-value=hello trunk]
+fossil tag list $c2
+test_eq branch-tag-propagate-cancel-descendant [branchtag_lines] \
+    [list branch=trunk trunk]
+
+###############################################################################
+
+test_cleanup

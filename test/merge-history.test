@@ -1,0 +1,152 @@
+#
+# The check-ins that "fossil merge --cherrypick" and "fossil merge
+# --backout" record, and the check-in and user that "fossil annotate"
+# and "fossil blame" report for each line of a file after those merges
+# and a full merge.
+#
+
+set path [file dirname [info script]]
+
+require_no_open_checkout
+
+# Returns the hash of the check-in of the open repository whose comment
+# is COMMENT.
+#
+proc mergehist_hash {comment} {
+  fossil timeline -t ci -n 0 -F {%H %c}
+  regexp -line "^(\[0-9a-f\]+) [string map {. \\.} $comment]\$" \
+      $::RESULT -> hash
+  return $hash
+}
+
+# Returns the P-card and Q-cards of the manifest of CHECKIN as a list of
+# lines.
+#
+proc mergehist_cards {checkin} {
+  fossil artifact $checkin
+  return [regexp -all -inline -line {^[PQ] .*$} $::RESULT]
+}
+
+# Returns the check-in hash prefix and the text of each line of the
+# output of "fossil annotate" or "fossil blame", as a list of pairs.
+#
+proc mergehist_lines {result} {
+  set lines [list]
+  foreach line [split $result \n] {
+    if {[regexp {^([0-9a-f]+) \S+ +(?:\d+|\S+): (.*)$} $line -> h text]} {
+      lappend lines [list $h $text]
+    }
+  }
+  return $lines
+}
+
+test_setup
+
+write_file a.txt "1\n2\n3\n4\n5\n"
+fossil add a.txt
+fossil commit -m "mh-c1" --user-override alice
+set c1 [mergehist_hash mh-c1]
+
+write_file a.txt "1\n2-trunk\n3\n4\n5\n"
+fossil commit -m "mh-c2" --user-override bob
+set c2 [mergehist_hash mh-c2]
+
+fossil update $c1
+write_file a.txt "1\n2\n3\n4-feature\n5\n"
+fossil commit -m "mh-f1" --branch mh-feature --user-override carol
+set f1 [mergehist_hash mh-f1]
+write_file a.txt "1\n2\n3\n4-feature\n5\n6-feature\n"
+write_file g.txt "g\n"
+fossil add g.txt
+fossil commit -m "mh-f2" --user-override carol
+set f2 [mergehist_hash mh-f2]
+
+###############################################################################
+#
+# "fossil merge --cherrypick" applies the changes of one check-in: the
+# edit of f1 and not the line and file that f2 adds.  The check-in that
+# follows has one parent and a Q-card "+F1".
+#
+fossil update trunk
+fossil merge --cherrypick $f1
+fossil commit -m "mh-pick" --user-override dave
+set pick [mergehist_hash mh-pick]
+
+test_eq merge-history-cherrypick-content [read_file a.txt] \
+    "1\n2-trunk\n3\n4-feature\n5\n"
+test_eq merge-history-cherrypick-no-g [file exists g.txt] 0
+test_eq merge-history-cherrypick-cards [mergehist_cards $pick] \
+    [list "P $c2" "Q +$f1"]
+
+###############################################################################
+#
+# "fossil merge --backout" reverses the changes of one check-in, here
+# the edit of c2.  The check-in that follows has one parent and a
+# Q-card "-C2".  A backout of the parent itself is recorded without a
+# Q-card, so these tests back out an earlier check-in.
+#
+fossil merge --backout $c2
+fossil commit -m "mh-backout" --user-override erin
+set backout [mergehist_hash mh-backout]
+
+test_eq merge-history-backout-content [read_file a.txt] \
+    "1\n2\n3\n4-feature\n5\n"
+test_eq merge-history-backout-cards [mergehist_cards $backout] \
+    [list "P $pick" "Q -$c2"]
+
+###############################################################################
+#
+# A full merge of the branch brings in both of its check-ins, and the
+# check-in that follows has two parents.
+#
+fossil merge mh-feature
+fossil commit -m "mh-merge" --user-override frank
+set merge [mergehist_hash mh-merge]
+
+test_eq merge-history-merge-content [read_file a.txt] \
+    "1\n2\n3\n4-feature\n5\n6-feature\n"
+test_eq merge-history-merge-g [read_file g.txt] "g\n"
+test_eq merge-history-merge-cards [mergehist_cards $merge] \
+    [list "P $backout $f2"]
+
+###############################################################################
+#
+# "fossil annotate" follows the primary parent of each check-in, so it
+# reports each line that came in with the merge as changed by the merge
+# check-in, and the other lines as changed by the trunk check-in that
+# last changed them: the backout for line 2, and the cherrypick for
+# line 4.
+#
+set expected [list \
+    [list $c1 1] [list $backout 2] [list $c1 3] \
+    [list $pick 4-feature] [list $c1 5] [list $merge 6-feature]]
+
+fossil annotate a.txt
+set annotated [mergehist_lines $RESULT]
+test_eq merge-history-annotate-count [llength $annotated] 6
+foreach got $annotated want $expected {
+  lassign $got gotHash gotText
+  lassign $want wantHash wantText
+  test_eq merge-history-annotate-$wantText-text $gotText $wantText
+  test_eq merge-history-annotate-$wantText-checkin \
+      [string range $wantHash 0 [string length $gotHash]-1] $gotHash
+}
+
+# "fossil blame" reports the same check-ins, with the user who made each.
+#
+set users [dict create $c1 alice $pick dave $backout erin $merge frank]
+fossil blame a.txt
+set n 0
+foreach line [split $RESULT \n] {
+  if {![regexp {^([0-9a-f]+) \S+ +(\S+): (.*)$} $line -> h user text]} {
+    continue
+  }
+  set wantHash [lindex $expected $n 0]
+  test_eq merge-history-blame-$text-user $user [dict get $users $wantHash]
+  incr n
+}
+test_eq merge-history-blame-count $n 6
+
+###############################################################################
+
+test_cleanup
