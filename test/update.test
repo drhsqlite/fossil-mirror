@@ -89,7 +89,7 @@ test_update $testname $message $changes -expectError
 
 set testname "add-overwrites"
 set fname [test_update_setup $testname]
-set message "ADD $fname - overwrites an unmanaged file, original copy backed up locally"
+set message "ADD $fname - overwrites an unmanaged file, original copy backed up as \"./$fname-original\""
 set changes ""
 write_seq_to_file $fname
 fossil add $fname

@@ -1602,7 +1602,7 @@ test th1-markdown-5 {[normalize_result] eq \
 
 <p>Another paragraph.</p>
 
-<h2>Other Features</h2>
+<h2 id="other-features">Other Features</h2>
 <p>Text can show <em>emphasis</em> or <em>emphasis</em> or <strong>strong emphassis</strong>.</p>
 
 </div>

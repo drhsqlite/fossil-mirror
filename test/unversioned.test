@@ -355,10 +355,7 @@ test unversioned-45 {[normalize_result] eq {}}
 
 fossil_maybe_answer y unversioned sync $remote
 test unversioned-46 {[regexp \
-{Round-trips: 1   Artifacts sent: 0  received: 0
-Round-trips: 1   Artifacts sent: 0  received: 0
-Round-trips: 2   Artifacts sent: 0  received: 0
-Round-trips: 2   Artifacts sent: 0  received: 2
+{Round-trips: 2   Artifacts sent: 0  received: 2
 \n? done, wire bytes sent: \d+  received: \d+  remote: (?:127\.0\.0\.1|::1)} \
 [normalize_result]]}
 
@@ -401,10 +398,7 @@ unversioned5\.txt$} [normalize_result]]}
 
 fossil_maybe_answer y unversioned revert $remote
 test unversioned-52 {[regexp \
-{Round-trips: 1   Artifacts sent: 0  received: 0
-Round-trips: 1   Artifacts sent: 0  received: 0
-Round-trips: 2   Artifacts sent: 0  received: 0
-Round-trips: 2   Artifacts sent: 0  received: 2
+{Round-trips: 2   Artifacts sent: 0  received: 2
 \n? done, wire bytes sent: \d+  received: \d+  remote: (?:127\.0\.0\.1|::1)} \
 [normalize_result]]}
 
@@ -426,10 +420,7 @@ test unversioned-54 {[normalize_result] eq {}}
 
 fossil_maybe_answer y unversioned sync $remote
 test unversioned-55 {[regexp \
-{Round-trips: 1   Artifacts sent: 0  received: 0
-Round-trips: 1   Artifacts sent: 0  received: 0
-Round-trips: 2   Artifacts sent: 1  received: 0
-Round-trips: 2   Artifacts sent: 1  received: 0
+{Round-trips: 2   Artifacts sent: 1  received: 0
 \n? done, wire bytes sent: \d+  received: \d+  remote: (?:127\.0\.0\.1|::1)} \
 [normalize_result]]}
 
