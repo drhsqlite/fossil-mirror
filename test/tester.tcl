@@ -439,7 +439,9 @@ proc test_fail_then_return {name reason} {
   return -code return
 }
 
-proc test_cleanup {} {
+# Deletes the temporary repositories that test_setup made for the test
+# file SCRIPTNAME, by default the file being sourced.
+proc test_cleanup {{scriptName ""}} {
   if {$::KEEP} {
       # To avoid errors with require_no_open_checkout, cd out of here.
       if {[info exists ::tempSavedPwd]} {cd $::tempSavedPwd; unset ::tempSavedPwd}
@@ -456,7 +458,9 @@ proc test_cleanup {} {
   if {[info exists ::tempSavedPwd]} {cd $::tempSavedPwd; unset ::tempSavedPwd}
   # First, attempt to delete the specific temporary repository directories
   # for this test file.
-  set scriptName [file tail [get_script_or_fail]]
+  if {$scriptName eq ""} {
+    set scriptName [file tail [get_script_or_fail]]
+  }
   foreach repoSeed $::tempRepoSeeds {
     set repoPath [file join $::tempRepoPath $repoSeed $scriptName]
     robust_delete $repoPath YES_DO_IT; # FORCE, arbitrary children.
@@ -1152,7 +1156,12 @@ foreach testfile $argv {
   if { [catch {source $testdir/$testfile.test} testerror testopts] } {
     test_report test-framework-$testfile 0 "" [list "error: $testerror"]
     protOut "!!!!! $testfile: $testerror"
-    protOutDict $testopts"
+    protOutDict $testopts
+    # A test file that raises an error stops before its own test_cleanup,
+    # and the directories it leaves make the next file's test_cleanup fail.
+    if {[catch {test_cleanup $testfile.test} cleanuperror]} {
+      protOut "!!!!! $testfile cleanup: $cleanuperror"
+    }
   } else {
     test test-framework-$testfile 1
   }
