@@ -792,9 +792,27 @@ proc test_value_lines {label value} {
   return $lines
 }
 
+# Return FILE:LINE of the statement at the top level of the test file
+# that led to the current test, outside the procedures that the test
+# file defines.
+#
+proc test_location {} {
+  set where ""
+  for {set i [info frame]} {$i > 0} {incr i -1} {
+    set frame [info frame $i]
+    if {![dict exists $frame file]} continue
+    set file [dict get $frame file]
+    if {![string match *.test $file]} continue
+    set where [file tail $file]:[dict get $frame line]
+    if {![dict exists $frame proc]} break
+  }
+  return $where
+}
+
 # Count test NAME as passed if OK is true, and as failed otherwise.
 # For a failure that is not a known bug, write each line of DETAIL
-# after the failure line.
+# after the failure line.  A known bug is reported with the place in
+# its test file from test_location.
 #
 proc test_report {name ok constraints detail} {
   global bad_test ignored_test test_count
@@ -802,13 +820,13 @@ proc test_report {name ok constraints detail} {
   set knownBug [expr {"knownBug" in $constraints}]
   if {$ok} {
     if {$knownBug && !$::STRICT} {
-      protOut "test $name OK (knownBug)?"
+      protOut "test $name OK (knownBug)? [test_location]"
     } else {
       protOut "test $name OK"
     }
   } else {
     if {$knownBug && !$::STRICT} {
-      protOut "test $name FAILED (knownBug)!" 1
+      protOut "test $name FAILED (knownBug)! [test_location]" 1
       lappend ignored_test $name
     } else {
       protOut "test $name FAILED!" 1
