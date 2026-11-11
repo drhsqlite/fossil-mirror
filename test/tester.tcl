@@ -511,7 +511,7 @@ proc test_setup {{filename ".rep.fossil"}} {
     file mkdir $repoPath
   } error] != 0} {
     error "Could not make directory \"$repoPath\",\
-please set TEMP variable in environment, error: $error"
+please set TMPDIR or TEMP variable in environment, error: $error"
   }
   if {![info exists ::tempSavedPwd]} {set ::tempSavedPwd [pwd]}; cd $repoPath
   if {[string length $filename] > 0} {
@@ -675,7 +675,7 @@ proc getTemporaryPath {} {
   #
   # TODO: Add more here, if necessary.
   #
-  foreach name [list FOSSIL_TEST_TEMP FOSSIL_TEMP TEMP TMP] {
+  foreach name [list FOSSIL_TEST_TEMP FOSSIL_TEMP TMPDIR TEMP TMP] {
     lappend names [string toupper $name] [string tolower $name] \
         [string totitle $name]
   }
@@ -1118,7 +1118,7 @@ if {[catch {
   write_file $tempFile [clock seconds]; file delete $tempFile
 } error] != 0} {
   error "Could not write file \"$tempFile\" in directory \"$tempPath\",\
-please set TEMP variable in environment, error: $error"
+please set TMPDIR or TEMP variable in environment, error: $error"
 }
 
 set tempHomePath [file join $tempPath home_[pid]]
