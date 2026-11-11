@@ -1,5 +1,5 @@
-C Read\sthe\sport\sof\sa\stest\sserver\sfrom\sits\slistening\sline,\smaking\sallowances\sfor\sdifferences\nin\sthe\stext\sline,\seg\s"localhost"\sappears\son\sUnix\sbut\snot\sWindows,\sand\sif\swe\sadd\sTLS\sto\sthe\ntest\ssuite\sthen\sthat\sis\sdifferent\sagain,\setc.
-D 2026-11-11T09:27:01.708
+C Add\sREADME\sfor\stest\ssuite
+D 2026-11-11T10:41:06.540
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -608,6 +608,7 @@ F src/xsystem.c c8c87776fa160083216bd35c69292a6c3b58870e4c9f6ff1859426b99ea1c106
 F src/zip.c 66a5c78dd2afbb2067b8283ccc8d62e367e761ff2e2b31f3713f7dde10db63bd
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
+F test/README.md 0d43e10b5145374ffaa68568f1abdac745b252112e5e5d7b86d37ec8627571b6
 F test/amend.test e6b4dc88a979be9f055d87427551e3120f9326d20f59e9f4131ea12cb6637e1b
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
 F test/cmdline.test 19bc9570d2d43264f80111d877fb20e8236dd7346777cc8b9b3b6d5c1d9a0ed2
@@ -985,8 +986,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ab45d34c9dd727cc609659cab15f8f50826c8efee958b0db121eb25288fe0575
-R ee519de18369354f46de593bf25df673
+P 049fe12082c807f8eae1ae3a0906c6e096fdfbc491cfa54569406833939ba96c
+R 91e70490063d3ebc67497bd14aec67cd
 U danshearer
-Z a69a0b04d7d28e523a023e9cbe231f3e
+Z 591228ed89828a5e89398429dd46e8fc
 # Remove this line to create a well-formed Fossil manifest.
