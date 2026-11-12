@@ -157,7 +157,14 @@ static void xfer_accept_file(
     return;
   }
   blob_zero(&content);
-  blob_extract(pXfer->pIn, n, &content);
+  if( blob_extract(pXfer->pIn, n, &content)!=n ){
+    /* The message ends before the content does.  What there is must not
+    ** be stored: if it is a delta whose source has not arrived, nothing
+    ** would ever check it. */
+    blob_appendf(&pXfer->err, "truncated file card");
+    blob_reset(&content);
+    return;
+  }
   pUuid = &pXfer->aToken[1];
   if( !cloneFlag && uuid_is_shunned(blob_str(pUuid)) ){
     /* Ignore files that have been shunned */
@@ -279,7 +286,11 @@ static void xfer_accept_compressed_file(
     return;
   }
   blob_zero(&content);
-  blob_extract(pXfer->pIn, szC, &content);
+  if( blob_extract(pXfer->pIn, szC, &content)!=szC ){
+    blob_appendf(&pXfer->err, "truncated cfile card");
+    blob_reset(&content);
+    return;
+  }
   if( uuid_is_shunned(blob_str(&pXfer->aToken[1])) ){
     /* Ignore files that have been shunned */
     blob_reset(&content);
