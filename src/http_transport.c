@@ -493,7 +493,7 @@ char *transport_receive_line(UrlData *pUrlData){
   i = iStart = transport.iCursor;
   while(1){
     if( i >= transport.nUsed ){
-      transport_load_buffer(pUrlData, pUrlData->isSsh ? 2 : 1000);
+      transport_load_buffer(pUrlData, pUrlData->isSsh ? 2 : 10000);
       i -= iStart;
       iStart = 0;
       if( i >= transport.nUsed ){
