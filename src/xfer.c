@@ -2021,6 +2021,8 @@ void cmd_test_xfer(void){
   g.zBaseURL = mprintf("http://%s", zHost);
   g.zHttpsURL = mprintf("https://%s", zHost);
   g.zTop = mprintf("");
+  g.zPath = "xfer";  /* So that robot_restrict() sees this as a sync request */
+  g.zContentType = "application/x-fossil-uncompressed";
   blob_zero(&g.cgiIn);
   blob_read_from_file(&g.cgiIn, g.argc==2 ? "-" : g.argv[2], ExtFILE);
   disableLogin = 1;
