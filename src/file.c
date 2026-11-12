@@ -2615,7 +2615,7 @@ int file_directory_list(
     closedir(d);
   }
   fossil_path_free(zNative);
-  if( pazList ) (*pazList)[n] = 0;
+  if( pazList && *pazList ) (*pazList)[n] = 0;
   return n;
 }
 void file_directory_list_free(char **azList){
