@@ -1,5 +1,5 @@
-C Fix\s"fossil\stest-xfer",\swhich\sprinted\sthe\srobot\scaptcha\sand\sthen\scrashed.\s\scmd_test_xfer()\snow\ssets\sg.zPath\sand\sg.zContentType\sbefore\scalling\spage_xfer().
-D 2026-11-12T04:04:28.566
+C Stop\sreading\spast\sthe\send\sof\sa\sshort\sstring\swhen\stesting\sfor\sa\sprefix\sor\scomparing:\suse\sstrncmp()\sin\splace\sof\smemcmp()\sin\sname.c,\smanifest.c,\sxfer.c\sand\stkt.c,\stest\sthe\slength\sfirst\sin\stkt.c,\sand\scheck\sthe\sremaining\slength\sin\smarkdown_dehtmlize_blob().
+D 2026-11-12T04:04:30.396
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -501,10 +501,10 @@ F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e7f
 F src/main.c b2bf927566c76682e9916ad2ef731d7e7b5688932de1f46b2879fa3acccebedc
 F src/main.mk 03d571fb153b44581aa754a56f77fb49e425b6c27e2da2162190b41dbfb6fef3
-F src/manifest.c dec1ebab98335d121fd3fdbc7dfd5f3ff8b04e895897eddceb4fd7742cbb5599
+F src/manifest.c f7a2cdad43972e087c06e51ec01fa522a821031abd22894143c6f553ad192535
 F src/markdown.c dac16a8e6ea045c48358ead0075e2cf5be235b7e3dedbd9512745c3b33a14398
 F src/markdown.md 0b83b90d943d2c5f4b1654a74753e684e5664a262f343a07901a7c4833e59473
-F src/markdown_html.c 56bba008f8374a2747fa0f55d11e9dd93a5c81886571b3e7fb39b327b46357b9
+F src/markdown_html.c db2f2b3a2453a9497b7f795bcc4f37e69a5fcfa1df69e15a55c4e8a6283b8882
 F src/match.c a8c5cf61c5af2dff3c82c53f5d846a27f3c8f63c99e9ffca692d2317f7540d02
 F src/md5.c 551bffce21b5e26210eb40c1df140affebe57401caa4777ba03ac4fcd012f401
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
@@ -512,7 +512,7 @@ F src/merge.c 5ac881ce1ccce509354a81694e8db5b1bcc66f717b9b9cb042e7981d0abfd74d
 F src/merge.tcl 04538897b62b7f9a8aefadb13094d50ba07afbfce0053697c86e819965bf782c
 F src/merge3.c d16fe90bc0cfcd2d08bafaaf6a858f5b635873e2f1b40e7c9e92a6d8cd6da162
 F src/moderate.c cb8b95d94457517aeaa92b5147de2a05e752167b69669c17cb9116a18c98ceb6
-F src/name.c 8e7ebe77a2970450de14cef075237a341e16880104a67a4c8bd2139c407bb2ec
+F src/name.c cfbb1212a1c66037adcbdb6dbb167b7f23655f43b093d273e1a161512130f470
 F src/patch.c 594e8456472bac98b93dbd7d943243c7a9ccce7218d72965d93eb540ccbe73f9
 F src/path.c c50d4b68876f83c628e0445a4576ede10024091e19eb88b67e5187aef13d31ec
 F src/piechart.c 9f764d8695b0fda40f4f9fbd1a10d9bbdae7973274de7f60d86794178d61eb15
@@ -583,7 +583,7 @@ F src/th_lang.c c59bbad1fefb0af72cadd3f32f7c8845b339bf8471640d737b0d4499b787589b
 F src/th_main.c 1c502e67cc252c5f57c0567df93fe5cc1b616d60671c8b94f7e02687c9306da4
 F src/th_tcl.c a3d1d8f2e5e645a54a2f70c60f01c3d04a706ecad60468b3949540ba0c78242c
 F src/timeline.c 55cc4356f8adf15af90230131089fc1590fe698ae48f44ab9c9d75c63470f474
-F src/tkt.c 8522ff2033430a2f75f18722b7ca4d3976164e1be9bf8c71dc04fb159b7d8a1a
+F src/tkt.c 1c0894ff2e26cd5314147c4e34daa27b00f5a91479b126b0768ed4953c089e49
 F src/tktsetup.c 22e7338e93a4e54d0e91acd0bf0e80dbdfe4c2958638e163a89239391d6cb8b9
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c 36128b298c386eb55f45c48d0af0fc49c1e9506e179f88a486c060fec6752a23
@@ -602,7 +602,7 @@ F src/wiki.wiki bd6ca20a0df1054d68bbd7683acc6f24225652276f0ed53ce6fa564faed4dd60
 F src/wikiformat.c 017ef5d1fd1491629287c992d2f3ee3e9b7d05fc44abb484b486afb05a5b5351
 F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c 093582715f8a7b142b04b651b28473c585fc1e07f4570e33f64b122cf3e9457d
-F src/xfer.c 0ae81fb0388d77df9cfef8a98c21b3b9c853525a3c25dfc5686555da86bd39a9
+F src/xfer.c 9c8f7ff1ed0b0588c8ad9196ff865333c7312c0c8a5f791c17fe0453f37a59db
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
 F src/xsystem.c c8c87776fa160083216bd35c69292a6c3b58870e4c9f6ff1859426b99ea1c106
 F src/zip.c 66a5c78dd2afbb2067b8283ccc8d62e367e761ff2e2b31f3713f7dde10db63bd
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0fd429ba8188c6a30ab4e88b07e9f94b5f47be48cfc03f25da57e7b8f7ec1c6d
-R 703d7b4e5f250c0702aaeef3ecf64455
+P a9ebd3c3dca8b8fe3a443d145c34594fa36f7863d1cc0406e0579876aa882bf5
+R 16c60b368fb9c8ac9fe14174aab002e8
 U dmestas
-Z 811947f23831023aba9c49d694e760d3
+Z 1c27b898dfdcb548190e441cdcab885e
 # Remove this line to create a well-formed Fossil manifest.

@@ -2781,19 +2781,19 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       }else if( strcmp(zName, "+date")==0 ){
         blob_appendf(&comment, " Timestamp %h.", zValue);
         continue;
-      }else if( memcmp(zName, "-sym-",5)==0 ){
+      }else if( strncmp(zName, "-sym-",5)==0 ){
         if( !branchMove ){
           blob_appendf(&comment, " Cancel tag \"%h\"", &zName[5]);
         }else{
           continue;
         }
-      }else if( memcmp(zName, "*sym-",5)==0 ){
+      }else if( strncmp(zName, "*sym-",5)==0 ){
         if( !branchMove ){
           blob_appendf(&comment, " Add propagating tag \"%h\"", &zName[5]);
         }else{
           continue;
         }
-      }else if( memcmp(zName, "+sym-",5)==0 ){
+      }else if( strncmp(zName, "+sym-",5)==0 ){
         blob_appendf(&comment, " Add tag \"%h\"", &zName[5]);
       }else if( strcmp(zName, "+closed")==0 ){
         blob_append(&comment, " Mark \"Closed\"", -1);

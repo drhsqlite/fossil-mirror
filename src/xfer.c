@@ -2498,7 +2498,7 @@ int client_sync(
     while( blob_line(&recv, &xfer.line) ){
       if( blob_buffer(&xfer.line)[0]=='#' ){
         const char *zLine = blob_buffer(&xfer.line);
-        if( memcmp(zLine, "# timestamp ", 12)==0 ){
+        if( strncmp(zLine, "# timestamp ", 12)==0 ){
           char zTime[20];
           double rDiff;
           sqlite3_snprintf(sizeof(zTime), zTime, "%.19s", &zLine[12]);
