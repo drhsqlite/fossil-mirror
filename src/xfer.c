@@ -701,15 +701,22 @@ static void send_compressed_file(Xfer *pXfer, int rid){
 **
 ** If the noContent flag is set, omit the CONTENT and set the 0x0004
 ** flag in FLAGS.
+**
+** A server that has already reached its send size limit sends a short
+** "uvigot" card in place of the file, and the client asks again.  A
+** client must not do that, because a server does not accept "uvigot".
+** So the client sets isClient and always gets a "uvfile" card.
 */
 static void send_unversioned_file(
   Xfer *pXfer,            /* Transfer context */
   const char *zName,      /* Name of unversioned file to be sent */
-  int noContent           /* True to omit the content */
+  int noContent,          /* True to omit the content */
+  int isClient            /* True if sending from client to server */
 ){
   Stmt q1;
+  int isFull = !isClient && (int)blob_size(pXfer->pOut)>=pXfer->mxSend;
 
-  if( (int)blob_size(pXfer->pOut)>=pXfer->mxSend ) noContent = 1;
+  if( isFull ) noContent = 1;
   if( noContent ){
     db_prepare(&q1,
       "SELECT mtime, hash, encoding, sz FROM unversioned WHERE name=%Q",
@@ -730,7 +737,7 @@ static void send_unversioned_file(
       db_reset(&q1);
       return;
     }
-    if( (int)blob_size(pXfer->pOut)>=pXfer->mxSend ){
+    if( isFull ){
       /* If we have already reached the send size limit, send a (short)
       ** uvigot card rather than a uvfile card.  This only happens on the
       ** server side.  The uvigot card will provoke the client to resend
@@ -1438,7 +1445,7 @@ void page_xfer(void){
      && blob_is_filename(&xfer.aToken[1])
     ){
       if( g.perm.Read ){
-        send_unversioned_file(&xfer, blob_str(&xfer.aToken[1]), 0);
+        send_unversioned_file(&xfer, blob_str(&xfer.aToken[1]), 0, 0);
       }
     }else
 
@@ -2371,7 +2378,7 @@ int client_sync(
         db_prepare(&uvq, "SELECT name, mtimeOnly FROM uv_tosend");
         while( (rc = db_step(&uvq))==SQLITE_ROW ){
           const char *zName = db_column_text(&uvq, 0);
-          send_unversioned_file(&xfer, zName, db_column_int(&uvq,1));
+          send_unversioned_file(&xfer, zName, db_column_int(&uvq,1), 1);
           nCardSent++;
           nArtifactSent++;
           db_multi_exec("DELETE FROM uv_tosend WHERE name=%Q", zName);
