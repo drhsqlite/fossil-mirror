@@ -1009,9 +1009,6 @@ static char *gitmirror_find_mark(const char *zUuid, int isFile, int bCreate){
 }
 
 /* This is the SHA3-256 hash of an empty file */
-static const char zEmptySha3[] =
-  "a7ffc6f8bf1ed76651c14756a061d662f580ff4de43b49fa82d80a4b80f8434a";
-
 /*
 ** Export a single file named by zUuid.
 **
@@ -1026,12 +1023,11 @@ static int gitmirror_send_file(FILE *xCmd, const char *zUuid, int bPhantomOk){
   char *zMark;
   int rid;
   int rc;
-  Blob data;
+  Blob data = BLOB_INITIALIZER;
   rid = fast_uuid_to_rid(zUuid);
-  if( rid<0 ){
+  if( rid<=0 ){
     if( bPhantomOk || uuid_is_shunned(zUuid) ){
       gitmirror_message(VERB_EXTRA, "missing file: %s\n", zUuid);
-      zUuid = zEmptySha3;
     }else{
       return 1;
     }
@@ -1041,7 +1037,6 @@ static int gitmirror_send_file(FILE *xCmd, const char *zUuid, int bPhantomOk){
       if( bPhantomOk ){
         blob_init(&data, 0, 0);
         gitmirror_message(VERB_EXTRA, "missing file: %s\n", zUuid);
-        zUuid = zEmptySha3;
       }else{
         return 1;
       }
