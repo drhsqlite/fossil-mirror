@@ -2434,6 +2434,18 @@ int client_sync(
       break;
     }
 
+    /* Every reply from a Fossil server holds at least one card: the
+    ** "# timestamp" line that ends a normal reply, or an "error" card.
+    ** A reply with no content at all means that the request never reached
+    ** a Fossil server, or that the reply was lost on the way back.  Either
+    ** way the round-trip failed. */
+    if( blob_size(&recv)==0 ){
+      fossil_warning("server sent an empty reply");
+      nErr++;
+      go = 2;
+      break;
+    }
+
     /* Remember the URL of the sync target in the config file on the
     ** first successful round-trip */
     if( nCycle==0 && db_is_writeable("repository") ){
