@@ -2193,7 +2193,7 @@ static void forum_render_debug_options(void){
 ** attachment support.
 */
 static void forum_render_attachment_notice(void){
-  if( g.perm.AttachForum ){
+  if( g.perm.AttachForum || g.perm.WrTForum ){
     @ <noscript><div>You will be able to attach files to this post
     @ after saving it.</div></noscript>
   }
@@ -2240,8 +2240,8 @@ void forumnew_page(void){
   login_insert_csrf_secret();
   @ </form>
   /* When JS is disabled the block above will work.  When it's
-     enabled, the above will be removed and JS will render the editor
-     form in the next element. */
+  ** enabled, the above will be removed and JS will render the editor
+  ** form in the next element. */
   @ <div hidden id='forumnew-placeholder'>
   @ <input type='hidden' name='title' value='%h(zTitle)'>
   login_insert_csrf_secret();
@@ -3046,10 +3046,10 @@ void forum_main_page(void){
 ** an error.
 **
 ** This function does some work to try to ensure that duplicate
-** entries are not save (this can happen as a side effect of the forum
-** post editor added in 2026-06). If the given post will not have been
-** materially edited by these changes, they are not applied and the
-** rid of the existing entry is used.
+** entries are not saved (this can happen as a side effect of the
+** forum post editor added in 2026-06). If the given post will not
+** have been materially edited by these changes, they are not applied
+** and the rid of the existing entry is used.
 **
 ** Maintenance reminders:
 **
@@ -3245,11 +3245,11 @@ post_ajax_end:
 /*
 ** WEBPAGE: forumajax_save hidden
 **
-** WIP
+** Used by the forum JS pages to save a post.
 **
 ** Response JSON:
 **
-** { uuid: hash, ...tbd }
+** { uuid: hash, ...TO DOCUMENT }
 */
 void forum_ajax_save_page(void){
   const char *zFpid;
@@ -3269,11 +3269,13 @@ void forum_ajax_save_page(void){
   int bRollback;       /* True = roll back. */
   int nAttach = 0;     /* Number of attachments added */
   int bStatusSet = 0;  /* True if status tag set. */
+  int bModPost   = 0;  /* Moderate post? */
+  int bModAttach;      /* Moderate attachment? */
 
   if( !ajax_route_bootstrap(0, 1) ){
     return;
-  }else if( !g.perm.WrForum
-            || (bHasAttachment && !g.perm.AttachForum) ){
+  }else if( !g.perm.WrForum ||
+            (bHasAttachment && !g.perm.WrTForum) ){
     ajax_route_error_forbidden();
     return;
   }else if( !ajax_check_csrf(2) ){
@@ -3324,13 +3326,14 @@ void forum_ajax_save_page(void){
     }
   }
 
-  if( 0 ){
-    rc = -ajax_route_error(400, "Save is TODO. "
-                           "iPostFlags=%d debug=%d",
-                           iPostFlags, g.perm.Debug);
-    goto ajax_save_end;
+  bModPost = forum_need_moderation();
+  if( bHasAttachment && !g.perm.AttachForum && g.perm.WrTForum ){
+    /* A user with WrTForum but not AttachForum may attach but
+    ** the attachments will be moderated. */
+    bModAttach = 1;
+  }else{
+    bModAttach = bModPost;
   }
-
   zTitle = firt ? 0 : P("title");
   nrid = forum_post_ajax(zTitle, firt, fpid, 0, zMimetype,
                          zContent, iPostFlags);
@@ -3347,20 +3350,19 @@ void forum_ajax_save_page(void){
     }
     goto ajax_save_end;
   }else{
-    const int bNeedsModeration = forum_need_moderation();
     const int fpHead = forumpost_head_rid(nrid);
     assert( nrid>0 );
     assert( fpHead>0 );
     zNewUuid = rid_to_uuid(nrid);
-    if( 0!=P("file1") ){
+    if( bHasAttachment ){
       /* Attachments */
-      if( !g.perm.Admin && !g.perm.AttachForum ){
-        rc = -ajax_route_error(403, "No permission no attach files.");
+      if( !g.perm.Admin && !(g.perm.AttachForum ||g.perm.WrTForum) ){
+        rc = -ajax_route_error(403, "No permission to attach files.");
         goto ajax_save_end;
       }else{
         char *zRoot = (nrid==fpHead) ? 0 : rid_to_uuid(fpHead);
         nAttach = attachments_ajax_from_POST(zRoot ? zRoot : zNewUuid,
-                                             bNeedsModeration);
+                                             bModAttach);
         fossil_free(zRoot);
         if( nAttach<0 ){
           rc = nAttach;
@@ -3387,7 +3389,7 @@ void forum_ajax_save_page(void){
         }
       }
     }
-    if( 0==bNeedsModeration
+    if( 0==bModPost
         /* ^^^ Do not allow a status tag on a pending-moderation post
         ** because it will introduce a reference to an artifact which
         ** will become a phantom if it is rejected by a moderator. */

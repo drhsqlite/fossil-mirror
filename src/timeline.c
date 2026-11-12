@@ -1241,6 +1241,42 @@ const char *timeline_query_for_www(void){
 }
 
 /*
+** SQL function: hidden_by_user(X)
+**
+** Return true if X matches one of the GLOB patterns in the "hide-by-user"
+** setting.
+*/
+static void timeline_hidden_by_user_func(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  static Glob *pGlob = 0;
+  static int isInit = 0;
+  const char *zUser;
+  if( !isInit ){
+    const char *zPat = db_get("hide-by-user", 0);
+    pGlob = zPat ? glob_create(zPat) : 0;
+    isInit = 1;
+  }
+  zUser = (const char*)sqlite3_value_text(argv[0]);
+  sqlite3_result_int(context,
+      pGlob!=0 && zUser!=0 && glob_match(pGlob, zUser)!=0);
+}
+
+/*
+** Register hidden_by_user() and return true if the "hide-by-user"
+** setting is non-empty.
+*/
+static int timeline_enable_hide_by_user(void){
+  const char *zPat = db_get("hide-by-user", 0);
+  if( zPat==0 || zPat[0]==0 ) return 0;
+  sqlite3_create_function(g.db, "hidden_by_user", 1, SQLITE_UTF8, 0,
+                          timeline_hidden_by_user_func, 0, 0);
+  return 1;
+}
+
+/*
 ** zDate is a localtime date.  Insert records into the
 ** "timeline" table to cause <hr> to be inserted on zDate.
 */
@@ -2263,6 +2299,11 @@ void page_timeline(void){
       " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)\n",
       TAG_HIDDEN
     );
+    if( timeline_enable_hide_by_user() ){
+      blob_append_sql(&sql,
+        " AND NOT (event.type='ci' AND hidden_by_user(coalesce(euser,user)))\n"
+      );
+    }
   }
   if( from_rid && !to_rid && (P("ft")!=0 || P("bt")!=0) ){
     const char *zTo = P("ft");
@@ -3051,6 +3092,16 @@ void page_timeline(void){
             "                  AND tagxref.rid=related_nodes.rid)",
             TAG_HIDDEN
           );
+          if( timeline_enable_hide_by_user() ){
+            db_multi_exec(
+              "DELETE FROM related_nodes\n"
+              " WHERE rid IN (SELECT related_nodes.rid\n"
+              "                 FROM related_nodes, event\n"
+              "                WHERE event.objid=related_nodes.rid\n"
+              "                  AND event.type='ci'\n"
+              "                  AND hidden_by_user(coalesce(euser,user)))"
+            );
+          }
         }
       }
     }
