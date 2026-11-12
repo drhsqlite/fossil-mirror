@@ -1,5 +1,5 @@
-C Revert\sto\supstream's\sMakefile.in\sand\sthus\sdisregard\s[368d9786]\ssince\s'-DPIC's\sare\sjust\sleftovers\sto\sbe\scleaned\supstream\sand\sdo\snot\sbreak\sthe\sbuild\s(anymore).
-D 2026-11-11T16:26:55.789
+C Revert\slocally\smodified\sMakefile\sto\sthe\supstream\sversion.
+D 2026-11-12T15:31:13.075
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -49,7 +49,7 @@ F compat/zlib/FAQ 27f47cac6f90bf631a79620d2f1c58215a928ca120533f84b8c6f0202b77ae
 F compat/zlib/INDEX d14e4659c47082af6c8ef78d3a65c3f0011728275958c528516ea2da47990dd1
 F compat/zlib/LICENSE b4663005c9cd91f86bf77b4d588b8ad822a43998741f33c0b5534ed84f20794c
 F compat/zlib/MODULE.bazel c063107a3b7c46c2d2dcef4a747da1989a2242ff239c6d561ce32991a327baaa
-F compat/zlib/Makefile 7fe4c8a3fe5b99d61e1c853db3b2130241f2deff2695fd95bb0b9905279d79ed
+F compat/zlib/Makefile b04f62dd1002b9ca07068c90651432dec60029f3
 F compat/zlib/Makefile.in d4c7a09805a713f5efcd83caa32e119c2e71c9f728db9a7a4fa68998552a7306
 F compat/zlib/README 00312928a8c49e52a839c3bf880affe866a13d405cfc08428974fdd09c55cef5
 F compat/zlib/README-cmake.md 104f7368f43e943eb870f7c8b3217d99b836d8b9bc12b239d8d4108a5ff1150a
@@ -982,8 +982,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P aa4256bebfe78bbad58c30148e0950d52de2be677e6cdb53cf89e7ef730b7c1b
-R 898917ebde74e0ffbc7dfce0be5306c2
+P c208e7a9c15b690c1e6c809f3d6351b2db07f9280838cb955292628355f5a867
+R 40bcaa1b824c82049e53cec346c0f58e
 U danield
-Z e4dbbe7d0263976daba3364d863a0629
+Z f6119f3c8f9f3fc76daaa3bf385194af
 # Remove this line to create a well-formed Fossil manifest.
