@@ -1,5 +1,5 @@
-C On\sthe\s/errorlog\spage,\sdo\snot\scall\sfclose()\son\sa\sNULL\spointer\swhen\sthe\serror\slog\scannot\sbe\sopened\sfor\struncation.
-D 2026-11-12T04:04:51.849
+C Remove\san\sunused\svariable\sfrom\stools/translate.c,\swhich\sgave\sthe\sonly\scompiler\swarning\sin\sthe\sbuild.
+D 2026-11-12T04:04:54.686
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -764,7 +764,7 @@ F tools/mkversion.c 50e3be4716625ffea38d0f8248051de7372b78282744f33dde201bed5dd9
 F tools/randomize-js-names.tcl f298b424ec278c1df2cd5333011b9cab77525ec21813e6160577810997f028b9
 F tools/skintxt2config.c b542d5e56db4aa69100e85061db820f6b1c9734cf292bda2d67445d364a5e154
 F tools/sqlcompattest.c e55aa8c8ab4d12e10db6941f5e4f6c518209305fa2fb8903c2ffa9d6c3a183dd
-F tools/translate.c cc2165984ea592f6bb345041bc27d56b9513f03a84dec1445f254691c7ede36b
+F tools/translate.c 44fadac84aa6f18f7df4ff6bbb2f60704cd3eec25fdef59b5964abefdddee156
 F win/Makefile.dmc 41b816e00c348eb38c647f9a613c71f68d587d4540bdb184ddac77ce085f2b4a
 F win/Makefile.mingw f1de7bff40ed891772b588010aa0d75f53fb030a8e764a1de24fdd6ef9b4b2ae
 F win/Makefile.mingw.mistachkin 781390cab203b926f21de517390b7323267513df67fe821ec789eebdc2ba733c
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c1b050255c1419aef2be6ccb825979f3f98ad4c0d9307d0c069094fc8fa14407
-R 20105f76eb016a84f4d99a823e443516
+P 43462be3a5135016ecec9a2842bbd20da57d64dc6b5acd5f36b42aebb01f46da
+R 4a88a3f03c795b166ac8e0d8d4b25dea
 U dmestas
-Z 5dd64a2fbc689bf5da57cb9faa74efa8
+Z e3a9b61af25fc7d7ee1dccbc5f966d95
 # Remove this line to create a well-formed Fossil manifest.
