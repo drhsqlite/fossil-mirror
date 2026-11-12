@@ -610,7 +610,13 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int nativeDelta){
     }
   }
   if( size==0 ){
-    content_get(rid, &content);
+    if( content_get(rid, &content)==0 ){
+      /* A delta whose source has not arrived yet.  The content cannot
+      ** be rebuilt, so there is nothing that can be sent. */
+      blob_reset(&content);
+      blob_reset(&uuid);
+      return;
+    }
 
     if( !nativeDelta && blob_size(&content)>100 ){
       size = send_delta_parent(pXfer, rid, isPriv, &content, pUuid);
