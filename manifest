@@ -1,5 +1,5 @@
-C Stop\swith\san\serror\swhen\sgetpass()\sreturns\sNULL.\s\sThe\sresult\swas\sused\swithout\sa\scheck.
-D 2026-11-12T04:04:49.344
+C On\sthe\s/errorlog\spage,\sdo\snot\scall\sfclose()\son\sa\sNULL\spointer\swhen\sthe\serror\slog\scannot\sbe\sopened\sfor\struncation.
+D 2026-11-12T04:04:51.849
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -532,7 +532,7 @@ F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c 602fca4d0af4cba3186a9bb01eb4ff160802f9ff501b2a018dce36f6692399e5
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c dacb9f1b2caba1acfe6b6b45fb753970668941c485cd090a4cb55fadb3e348fe
-F src/security_audit.c 657b0f1810ec264a29c17e0ec38c117982bdee94fb030e2fe186b43035001b37
+F src/security_audit.c 569043cb02871dfd38172a072229d0d308553201b3b65f95ed8892a25a84ff7a
 F src/setup.c 8f15afcdc357cc7a35c7555a38e07428c426a7158bab07fdd3c2cdfb2481724a
 F src/setupuser.c e2332600755153655c9c01a0f3073c0abd6091d7150e9321abdcf2f3c02c58c9
 F src/sha1.c 58fb2b11857bd03d2211797bcd5be5c8529600e599fb4c90af52fb00223bcdd0
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 98f68f69d28ba45090e3c5829f5f18d46e6ed8ccaa42b7349f8578c8f325701f
-R 1185967f050ff243fc67f0eb32840596
+P c1b050255c1419aef2be6ccb825979f3f98ad4c0d9307d0c069094fc8fa14407
+R 20105f76eb016a84f4d99a823e443516
 U dmestas
-Z dc9c5dfd5a6d45e4a8536195d74a6a22
+Z 5dd64a2fbc689bf5da57cb9faa74efa8
 # Remove this line to create a well-formed Fossil manifest.
