@@ -2658,6 +2658,5 @@ int wiki_render_associated(
   }
   @ </details>
   manifest_destroy(pWiki);
-  builtin_request_js("accordion.js");
   return 1;
 }
