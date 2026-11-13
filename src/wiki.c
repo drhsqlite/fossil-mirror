@@ -727,9 +727,9 @@ static const char *mimetype_common_name(const char *zMimetype){
  ** loaded wiki object, which the caller is responsible for passing to
  ** manifest_destroy().
  */
-static int wiki_fetch_by_name( const char *zPageName,
-                               unsigned int versionsBack,
-                               int * pRid, Manifest **ppWiki ){
+int wiki_fetch_by_name( const char *zPageName,
+                        unsigned int versionsBack,
+                        int * pRid, Manifest **ppWiki ){
   Manifest *pWiki = 0;
   char *zTag = mprintf("wiki-%s", zPageName);
   Stmt q = empty_Stmt;

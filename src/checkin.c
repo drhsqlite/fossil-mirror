@@ -2536,9 +2536,10 @@ int verify_comment(Blob *pComment, int mFlags){
 **    --trace                    Debug tracing
 **    --user-override USER       Record USER as the login that created the
 **                               new check-in, rather that the current user.
-**    --wiki-file FILE           Adds FILE's content as a wiki page associated
-**                               with this check-in.
-**    --wiki-mimetype TYPE       Mimetype for --wiki-file. Default is from the
+**    -w|--wiki FILE             Adds FILE's content as a wiki page associated
+**                               with this check-in or, if used with --branch,
+**                               the branch.
+**    --wm|--wiki-mimetype TYPE  Mimetype for --wiki-file. Default is from the
 **                               file extension: .md=markdown, .wiki=fossil,
 **                               otherwise plain text. Accepts "markdown",
 **                               "wiki", and "plain" as aliases.
@@ -2595,7 +2596,7 @@ void commit_cmd(void){
   char *zCurBranch = 0;  /* The current branch name of checkout */
   char *zNewBranch = 0;  /* The branch name after update */
   int ckComFlgs;         /* Flags passed to verify_comment() */
-  const char * zWikiFile; /* --wiki-file X */
+  const char * zWikiFile; /* --wiki X */
   const char * zWikiMime; /* --wiki-mimetype X */
 
   memset(&sCiInfo, 0, sizeof(sCiInfo));
@@ -2665,8 +2666,8 @@ void commit_cmd(void){
   bIgnoreSkew = find_option("ignore-clock-skew",0,0)!=0;
   mxSize = db_large_file_size();
   if( find_option("ignore-oversize",0,0)!=0 ) mxSize = 0;
-  zWikiFile = find_option("wiki-file",0,1);
-  zWikiMime = find_option("wiki-mimetype",0,1);
+  zWikiFile = find_option("wiki","w",1);
+  zWikiMime = find_option("wiki-mimetype","wm",1);
   (void)fossil_text_editor();
   verify_all_options();
 
@@ -3322,6 +3323,7 @@ void commit_cmd(void){
     /* Handle --wiki-file and --wiki-mimetype */
     Blob bWiki = BLOB_INITIALIZER;
     char * zPageName;
+    int parentRid = 0;
     blob_read_from_file(&bWiki, zWikiFile, ExtFILE);
     if( !zWikiMime ){
       if( 0==sqlite3_strglob("*.md", zWikiFile) ){
@@ -3332,9 +3334,14 @@ void commit_cmd(void){
         zWikiMime = "text/plain";
       }
     }
+    if( sCiInfo.zBranch ){
+      zPageName = mprintf("branch/%s", sCiInfo.zBranch);
+      wiki_fetch_by_name(zPageName, 0, &parentRid, 0);
+    }else{
+      zPageName = mprintf("checkin/%s", zUuid);
+    }
     zWikiMime = wiki_filter_mimetypes(zWikiMime);
-    zPageName = mprintf("checkin/%s", zUuid);
-    wiki_cmd_commit(zPageName, 0, &bWiki, zWikiMime, 0);
+    wiki_cmd_commit(zPageName, parentRid, &bWiki, zWikiMime, 1);
     fossil_print("Added %s (%s)\n", zPageName, zWikiMime);
     blob_reset(&bWiki);
     fossil_free(zPageName);
