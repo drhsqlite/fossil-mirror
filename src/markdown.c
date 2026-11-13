@@ -2209,7 +2209,8 @@ static size_t htmlblock_end(
   if( i<size && (w = is_empty(data + i, size - i))==0 ){
     return 0; /* non-blank line after tag line */
   }
-  return i+w;
+  /* is_empty() counts a newline even when the input ends without one */
+  return i+w>size ? size : i+w;
 }
 
 
@@ -2244,6 +2245,7 @@ static size_t parse_htmlblock(
         j = is_empty(data+i, size-i);
         if( j ){
           work_size = i+j;
+          if( work_size>size ) work_size = size;
           if( !rndr->make.blockhtml ) return work_size;
           blob_init(&work, data, work_size);
           rndr->make.blockhtml(ob, &work, rndr->make.opaque);
@@ -2264,6 +2266,7 @@ static size_t parse_htmlblock(
         j = is_empty(data+i, size-i);
         if( j ){
           work_size = i+j;
+          if( work_size>size ) work_size = size;
           if( !rndr->make.blockhtml ) return work_size;
           blob_init(&work, data, work_size);
           rndr->make.blockhtml(ob, &work, rndr->make.opaque);

@@ -1,5 +1,5 @@
-C Regenerate\sthe\smakefiles.\s[45889598287f2]\sstomped\son\sa\sMakefile.msc\schange\sfrom\s[497b7408c1].
-D 2026-11-13T20:58:36.977
+C In\sparse_htmlblock()\sand\shtmlblock_end(),\sdo\snot\scount\sa\sbyte\spast\sthe\send\sof\sthe\sinput\swhen\sthe\sinput\sends\sin\sspaces\safter\san\sHTML\scomment,\san\sHR\stag\sor\sa\sclosing\stag.\s\sThe\sbyte\safter\sthe\sinput\swas\scopied\sinto\sthe\soutput.
+D 2026-11-13T23:39:44.794
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -498,7 +498,7 @@ F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e
 F src/main.c b2bf927566c76682e9916ad2ef731d7e7b5688932de1f46b2879fa3acccebedc
 F src/main.mk e263f611892de7e398ababe620f9c7b07d71ef50d6e5b7436cac56feda92164d
 F src/manifest.c f7a2cdad43972e087c06e51ec01fa522a821031abd22894143c6f553ad192535
-F src/markdown.c 75e67367dc01ebaf3c7ed9e731059019358d3a080c19c18b11200a4ff4222111
+F src/markdown.c fd8d58effd93505570980681737cfb6418d855f059a7c7dc51f31db609af00c4
 F src/markdown.md 0b83b90d943d2c5f4b1654a74753e684e5664a262f343a07901a7c4833e59473
 F src/markdown_html.c db2f2b3a2453a9497b7f795bcc4f37e69a5fcfa1df69e15a55c4e8a6283b8882
 F src/match.c a8c5cf61c5af2dff3c82c53f5d846a27f3c8f63c99e9ffca692d2317f7540d02
@@ -981,8 +981,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0e1be49ef018af100323faf909618a8d0d76cc8ad87cc4219f1f5e72221c99d4
-R 87de9d9fd46f6440a197526d9e2875b2
-U stephan
-Z 0667deabbd82d02ab35a68fcf48ffff8
+P 2f5b53565d98f1bbb6dd83d24aaebac873ab4189da31307c289da9c580c911a6
+R 25b1feb3ab6badb662be2278d56100f9
+T *branch * small-fixes-2
+T *sym-small-fixes-2 *
+T -sym-trunk *
+U dmestas
+Z fb500c6ac422b88048de3810de39f48a
 # Remove this line to create a well-formed Fossil manifest.
