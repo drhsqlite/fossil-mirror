@@ -751,7 +751,7 @@ static void send_unversioned_file(
     const char *zHash = db_column_text(&q1, 1);
     if( pXfer->remoteVersion<20000 && db_column_bytes(&q1,1)>HNAME_LEN_SHA1 ){
       xfer_cannot_send_sha3_error(pXfer);
-      db_reset(&q1);
+      db_finalize(&q1);
       return;
     }
     if( isFull ){
