@@ -2444,7 +2444,7 @@ int verify_comment(Blob *pComment, int mFlags){
   blob_reset(&html);
   blob_reset(&in);
   return rc;
-} 
+}
 
 /*
 ** COMMAND: ci#
@@ -2536,6 +2536,12 @@ int verify_comment(Blob *pComment, int mFlags){
 **    --trace                    Debug tracing
 **    --user-override USER       Record USER as the login that created the
 **                               new check-in, rather that the current user.
+**    -w|--wiki FILE             Adds FILE's content as a wiki page associated
+**                               with this check-in.
+**    --wm|--wiki-mimetype TYPE  Mimetype for --wiki-file. Default is from the
+**                               file extension: .md=markdown, .wiki=fossil,
+**                               otherwise plain text. Accepts "markdown",
+**                               "wiki", and "plain" as aliases.
 **
 ** See also: [[branch]], [[changes]], [[update]], [[extras]], [[sync]]
 */
@@ -2589,6 +2595,8 @@ void commit_cmd(void){
   char *zCurBranch = 0;  /* The current branch name of checkout */
   char *zNewBranch = 0;  /* The branch name after update */
   int ckComFlgs;         /* Flags passed to verify_comment() */
+  const char * zWikiFile; /* --wiki X */
+  const char * zWikiMime; /* --wiki-mimetype X */
 
   memset(&sCiInfo, 0, sizeof(sCiInfo));
   url_proxy_options();
@@ -2657,6 +2665,8 @@ void commit_cmd(void){
   bIgnoreSkew = find_option("ignore-clock-skew",0,0)!=0;
   mxSize = db_large_file_size();
   if( find_option("ignore-oversize",0,0)!=0 ) mxSize = 0;
+  zWikiFile = find_option("wiki","w",1);
+  zWikiMime = find_option("wiki-mimetype","wm",1);
   (void)fossil_text_editor();
   verify_all_options();
 
@@ -3306,6 +3316,29 @@ void commit_cmd(void){
     if( blob_compare(&cksum1, &cksum2) ){
       fossil_fatal("working check-out before and after commit does not match");
     }
+  }
+
+  if( zWikiFile ){
+    /* Handle --wiki and --wiki-mimetype */
+    Blob bWiki = BLOB_INITIALIZER;
+    char * zPageName;
+    int parentRid = 0;
+    blob_read_from_file(&bWiki, zWikiFile, ExtFILE);
+    if( !zWikiMime ){
+      if( 0==sqlite3_strglob("*.md", zWikiFile) ){
+        zWikiMime = "text/x-markdown";
+      }else if( 0==sqlite3_strglob("*.wiki", zWikiFile) ){
+        zWikiMime = "text/x-fossil-wiki";
+      }else{
+        zWikiMime = "text/plain";
+      }
+    }
+    zPageName = mprintf("checkin/%s", zUuid);
+    zWikiMime = wiki_filter_mimetypes(zWikiMime);
+    wiki_cmd_commit(zPageName, parentRid, &bWiki, zWikiMime, 1);
+    fossil_print("Added %s (%s)\n", zPageName, zWikiMime);
+    blob_reset(&bWiki);
+    fossil_free(zPageName);
   }
 
   /* Clear the undo/redo stack */

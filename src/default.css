@@ -1246,9 +1246,12 @@ button.copy-button:disabled span {
 .accordion_closed > .accordion_btn_plus {
   display: inline-block;
 }
-.accordion_panel {
+.accordion_panel, details > div {
   overflow-y: clip;
   transition: max-height 0.25s ease-out;
+}
+details > summary.section {
+  cursor: pointer;
 }
 .error {
   color: darkred;

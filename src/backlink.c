@@ -28,6 +28,7 @@
 
 /*
 ** Show a graph of all wiki, tickets, and check-ins that refer to object zUuid.
+** If there are none, emit no output.
 **
 ** If zLabel is not NULL and the graph is not empty, then output zLabel as
 ** a prefix to the graph.
@@ -51,13 +52,13 @@ void render_backlink_graph(const char *zUuid, const char *zLabel){
      "    AND %Q GLOB (target || '*');",
      zGlob, zUuid
   );
+  fossil_free(zGlob);
   if( !db_exists("SELECT 1 FROM ok") ) return;
   if( zLabel ){
-    cgi_printf("%s", zLabel);
-    if( strstr(zLabel, "accordion")!=0 ){
-      cgi_printf("<div class=\"accordion_panel\">\n");
-      needEndPanel = 1;
-    }
+    cgi_printf("<details open>"
+               "<summary class='section'>%h</summary>"
+               "<div class=\"accordion_panel\">", zLabel);
+    needEndPanel = 1;
   }
   blob_zero(&sql);
   blob_append(&sql, timeline_query_for_www(), -1);
@@ -67,7 +68,7 @@ void render_backlink_graph(const char *zUuid, const char *zLabel){
       TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_NOSCROLL|TIMELINE_REFS, 0);
   db_finalize(&q);
   if( needEndPanel ){
-    cgi_printf("</div>\n");
+    cgi_printf("</div></details>\n");
   }
 }
 

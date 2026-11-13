@@ -231,7 +231,7 @@ RELOPTS = /O2
 !elseif $(OPTIMIZATIONS)>0
 RELOPTS = /O1
 !else
-RELOPTS = /Od
+RELOPTS =
 !endif
 
 !if $(DEBUG)!=0
@@ -567,7 +567,6 @@ EXTRA_FILES   = "$(SRCDIR)\..\extsrc\pikchr-worker.js" \
         "$(SRCDIR)\..\skins\xekri\details.txt" \
         "$(SRCDIR)\..\skins\xekri\footer.txt" \
         "$(SRCDIR)\..\skins\xekri\header.txt" \
-        "$(SRCDIR)\accordion.js" \
         "$(SRCDIR)\alerts\bflat2.wav" \
         "$(SRCDIR)\alerts\bflat3.wav" \
         "$(SRCDIR)\alerts\bloop.wav" \
@@ -1207,7 +1206,6 @@ realclean: clean
 	echo "$(SRCDIR)\../skins/xekri/details.txt" >> $@
 	echo "$(SRCDIR)\../skins/xekri/footer.txt" >> $@
 	echo "$(SRCDIR)\../skins/xekri/header.txt" >> $@
-	echo "$(SRCDIR)\accordion.js" >> $@
 	echo "$(SRCDIR)\alerts/bflat2.wav" >> $@
 	echo "$(SRCDIR)\alerts/bflat3.wav" >> $@
 	echo "$(SRCDIR)\alerts/bloop.wav" >> $@
