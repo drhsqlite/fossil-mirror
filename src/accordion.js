@@ -42,31 +42,23 @@
 **     }
 **   }
 */
-var acc_svgdata = ["data:image/svg+xml,"+
-  "%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E"+
-  "%3Cpath style='fill:black;opacity:0' d='M16,16H0V0h16v16z'/%3E"+
-  "%3Cpath style='fill:rgb(240,240,240)' d='M14,14H2V2h12v12z'/%3E"+
-  "%3Cpath style='fill:rgb(64,64,64)' d='M13,13H3V3h10v10z'/%3E"+
-  "%3Cpath style='fill:rgb(248,248,248)' d='M12,12H4V4h8v8z'/%3E"+
-  "%3Cpath style='fill:rgb(80,128,208)' d='", "'/%3E%3C/svg%3E",
-  "M5,7h2v-2h2v2h2v2h-2v2h-2v-2h-2z", "M11,9H5V7h6v6z"];
-var a = document.getElementsByClassName("accordion");
-for(var i=0; i<a.length; i++){
-  var img = document.createElement("img");
-  img.src = acc_svgdata[0]+acc_svgdata[2]+acc_svgdata[1];
-  img.className = "accordion_btn accordion_btn_plus";
-  a[i].insertBefore(img,a[i].firstChild);
-  img = document.createElement("img");
-  img.src = acc_svgdata[0]+acc_svgdata[3]+acc_svgdata[1];
-  img.className = "accordion_btn accordion_btn_minus";
-  a[i].insertBefore(img,a[i].firstChild);
-  a[i].addEventListener("click",function(evt){
+(function(){
+  const acc_svgdata = ["data:image/svg+xml,"+
+                       "%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E"+
+                       "%3Cpath style='fill:black;opacity:0' d='M16,16H0V0h16v16z'/%3E"+
+                       "%3Cpath style='fill:rgb(240,240,240)' d='M14,14H2V2h12v12z'/%3E"+
+                       "%3Cpath style='fill:rgb(64,64,64)' d='M13,13H3V3h10v10z'/%3E"+
+                       "%3Cpath style='fill:rgb(248,248,248)' d='M12,12H4V4h8v8z'/%3E"+
+                       "%3Cpath style='fill:rgb(80,128,208)' d='", "'/%3E%3C/svg%3E",
+                       "M5,7h2v-2h2v2h2v2h-2v2h-2v-2h-2z", "M11,9H5V7h6v6z"];
+  const a = document.getElementsByClassName("accordion");
+  const xClickyHTML = /^(?:A|AREA|BUTTON|INPUT|LABEL|SELECT|TEXTAREA|DETAILS)$/;
+  const onclick = function(evt){
     /* Ignore clicks to hyperlinks and other "click-responsive" HTML elements in
     ** ".accordion" headers (for which Fossil uses <DIV> elements that represent
     ** section headers). */
-    var xClickyHTML = /^(?:A|AREA|BUTTON|INPUT|LABEL|SELECT|TEXTAREA|DETAILS)$/;
     if( xClickyHTML.test(evt.target.tagName) ) return;
-    var x = this.nextElementSibling;
+    const x = this.nextElementSibling;
     if( this.classList.contains("accordion_closed") ){
       x.style.maxHeight = x.scrollHeight + "px";
       setTimeout(function(){
@@ -85,5 +77,23 @@ for(var i=0; i<a.length; i++){
       },1);
     }
     this.classList.toggle("accordion_closed");
-  });
-}
+  };
+  for(const e of a){
+   let img = document.createElement("img");
+   img.src = acc_svgdata[0]+acc_svgdata[2]+acc_svgdata[1];
+   img.className = "accordion_btn accordion_btn_plus";
+   e.insertBefore(img,e.firstChild);
+   img = document.createElement("img");
+   img.src = acc_svgdata[0]+acc_svgdata[3]+acc_svgdata[1];
+   img.className = "accordion_btn accordion_btn_minus";
+   e.insertBefore(img,e.firstChild);
+   e.addEventListener("click", onclick);
+   if( e.classList.contains('collapsed') ){
+     /* C code sets the 'collapsed' class for accordions which should
+        start that way. */
+     e.classList.remove('collapsed');
+     console.warn("WTH?", e);
+     e.click();
+   }
+ }
+})();

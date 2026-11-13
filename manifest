@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\szlib\sto\sversion\s1.4,\sreleased\son\s2026-11-04,\staking\sinto\saccount\scheck-ins\s[eea86cee3a],\s[511ad59ae3],\sand\s[0f8bae079e]\s([368d97869b]\sis\smoot).
-D 2026-11-12T15:37:14.013
+C Restructure\saccordion.js\sto\snot\spollute\sthe\sglobal\sNS\sand\snot\sduplicate\sthe\sonclick\shandler\sfor\seach\selement.
+D 2026-11-13T09:38:42.807
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -374,7 +374,7 @@ F skins/xekri/details.txt 5887db2373b6b7ccfd274e8f8a2388ca0491bd472e5fe607963dae
 F skins/xekri/footer.txt 00760bbee5f45decff089e54bc8a11600eeb4644d01f21d7b2a0af52a07312f8
 F skins/xekri/header.txt 8844006d55f16b4ea8f6388db44b5db74a91a366ac934fe081a107a53464dbb3
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/accordion.js 5a72ea78003627895026ded60b7515c0831a0be4566771be42c93c7331395888
+F src/accordion.js c138faabd119c9ee1127a81ea73ff243be2257bf51f7f46022714d467dca6f59
 F src/add.c dd32e5aef946c283f1ed5aa22b4e72b31c31e905735b17f3f290dbde60c297f2
 F src/ajax.c 67aec1fbc4c0204ecf57a27c06b222a4eceee1a906a49f63ebb693646d7fc2ff
 F src/alerts.c 0d668eeb30dcbd3271c1642960cd8617581fcdd3dd4bdc8c0cceb24115b067fd
@@ -982,8 +982,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 57f0f89f616066a2e8961d288b36ca8a9a49860647d295657e879f073333f216 177aed772a5e945f69ca9fa4f13f13b325481e530129ec3ec2f116e10fb788c3
-R 5b88b4a88aed6e5317490cd97de3c1c3
-U danield
-Z bf43d715d7c4eb2ba3083f0108f074cf
+P 20c836f944506942a424d1a03fe9b8b980969e3796ce78f083cfdca8d8a28cd8
+R 496c53aa84c666779ef81061ec9be401
+U stephan
+Z a2ee32f9beab1ef89250c5c3f6985c5e
 # Remove this line to create a well-formed Fossil manifest.
