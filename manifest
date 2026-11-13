@@ -1,5 +1,5 @@
-C Do\snot\sset\sthe\sRLIMIT_DATA\slimit\sin\sfossil_limit_memory()\swhen\sbuilt\swith\sAddressSanitizer.\s\sOn\sLinux\sthe\slimit\smade\severy\scommand\sof\sa\ssanitizer\sbuild\sstop\sat\sstartup\swith\san\sout\sof\smemory\sreport.
-D 2026-11-13T23:39:50.473
+C Give\ssqlcmd_autoinit()\sthe\ssignature\sthat\sSQLite\scalls\san\sautomatic\sextension\swith.\s\sThe\sundefined\sbehavior\ssanitizer\sof\sClang\sreports\sthe\scall\sthrough\sa\spointer\sto\sa\sdifferent\sfunction\stype.
+D 2026-11-13T23:39:52.076
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -557,7 +557,7 @@ F src/sounds/c.wav 1b1a761a678c265cec670b003b810c62485b6fb78686d8fbbe23871d37df3
 F src/sounds/d.wav f0a35dc901d536a8a4e1b4809e302614a4be9a04c8b41802fc10af382616eeaa
 F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca95061929d1
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
-F src/sqlcmd.c e7a68a3332fa8dfb8625a7b3a20e094d0129bb92c09061cf04c588a968d5b139
+F src/sqlcmd.c bfcf23886ec0e9268bed9d80b83cb68371d88efb1e8f7a3c41f6e5df869effb6
 F src/stash.c d48dc9e9ef33c17d828142cf19fa4c1ad3416393920d896edb8380b1d3baa50e
 F src/stat.c 6fac818b6d9ab070f60c11d30200fc3ebcbe826910ee7d7e0f674bdd56894b56
 F src/statrep.c 73c0555a69b0fdb92a2354346f5607b8c7393584bc7e91a4905830da9ff193eb
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e170dd83e5d053eafea3969c4f30ea98dd9bca80ec0fb2efc7368f8b68d1b343
-R 72f0467e980f86701399d6948cc21ff5
+P d2e8a7f16814b5e975d68b494e7578dcf8c4955ccb554b9bd8c820291332c641
+R 82d2804374ace4710d5f6fb9bda9fc9e
 U dmestas
-Z a9a9e6ce81db0f599ad426fecef45057
+Z 146675138e8e506e26db568cc2430548
 # Remove this line to create a well-formed Fossil manifest.
