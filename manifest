@@ -1,5 +1,5 @@
-C Revert\ssome\schanges\smade\sby\s./configure\son\sLinux\swhich\sprevented\szlib\sfrom\sbuilding\son\sWindows.
-D 2026-11-13T10:08:45.675
+C Make\smakemake.tcl\shonor\sthe\schange\sin\s[bfb11d30].
+D 2026-11-13T14:00:56.086
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -753,7 +753,7 @@ F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv b616e6dbbda6a621b023b159d24826292e77009a93553a31537159eed382e621 x
 F tools/makeheaders.c 2d4ffaf9812b93c894010ef9071b08af0d1df2e0d947d8d35a192d24ea16bf0b
 F tools/makeheaders.html 262696252dc50250c896c90cc240dcd946614b9c7727902aa7606640507e9231
-F tools/makemake.tcl 701babd8dee5f9fe58013ae6ff336aa9ec1dd8e90e5189a268c2588627cd2131 x
+F tools/makemake.tcl 409d69b16fb30f20cfea032a1ff4da3405b3e231d73249bb6a911765603461ac x
 F tools/man_page_command_list.tcl 8f7f2c0717cb7e2ddece0a92bd10809bb16a1d8c3aa8bf6f77f6143b9282a099 x
 F tools/mkbuiltin.c 8752297a4a10324fab61542fd6e0a3163ce1ac00b093acd66ca86e089317321c
 F tools/mkindex.c ab9760d4ab795e9e04e1e730866320f9f9def3493fb1b84379c39cbf6463aba2
@@ -982,8 +982,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3c95062e7489bead752947cdd7c68c21a80baa2da8831f1d70d394ff3e8f3d44
-R 3ca7391e09442f8cf3c21a396cc5cc6e
+P 219539c4707f84b93762829c171543f5fbe11289159241c5bf060e6ac360e1c4
+R 5ecac4f2733f7ba2ee398a469d363b0a
 U danield
-Z c2f8265c15df2bf2e112ac86388618d0
+Z 80772d0aef6d041b53a73a440980365a
 # Remove this line to create a well-formed Fossil manifest.

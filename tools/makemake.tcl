@@ -1773,7 +1773,7 @@ RELOPTS = /O2
 !elseif $(OPTIMIZATIONS)>0
 RELOPTS = /O1
 !else
-RELOPTS =
+RELOPTS = /Od
 !endif
 
 !if $(DEBUG)!=0
