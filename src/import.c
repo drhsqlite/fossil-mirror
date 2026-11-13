@@ -944,25 +944,33 @@ static void svn_read_props(FILE *pIn, SvnRecord *rec){
   zLen = svn_find_header(*rec, "Prop-content-length");
   if( zLen ){
     nRawProps = atoi(zLen);
+    if( nRawProps<0 ){
+      fossil_fatal("svn-dump data format broken");
+    }
   }
   if( nRawProps ){
     int got;
     char *zLine;
+    char *zEnd;    /* Start of the PROPS-END marker */
     rec->pRawProps = pRawProps = fossil_malloc( nRawProps );
     got = fread(rec->pRawProps, 1, nRawProps, pIn);
     if( got!=nRawProps ){
       fossil_fatal("short read: got %d of %d bytes", got, nRawProps);
     }
-    if( memcmp(&pRawProps[got-10], "PROPS-END\n", 10)!=0 ){
+    if( got<10 || memcmp(&pRawProps[got-10], "PROPS-END\n", 10)!=0 ){
       fossil_fatal("svn-dump data ended unexpectedly");
     }
     zLine = pRawProps;
-    while( zLine<(pRawProps+nRawProps-10) ){
+    zEnd = pRawProps+nRawProps-10;
+    while( zLine<zEnd ){
       char *eol;
       int propLen;
       if( zLine[0]=='D' ){
         propLen = atoi(&zLine[2]);
         eol = strchr(zLine, '\n');
+        if( eol==0 || eol>=zEnd || propLen<0 || propLen>zEnd-eol ){
+          fossil_fatal("svn-dump data format broken");
+        }
         zLine = eol+1+propLen+1;
       }else{
         if( zLine[0]!='K' ){
@@ -970,7 +978,13 @@ static void svn_read_props(FILE *pIn, SvnRecord *rec){
         }
         propLen = atoi(&zLine[2]);
         eol = strchr(zLine, '\n');
+        if( eol==0 || eol>=zEnd ){
+          fossil_fatal("svn-dump data format broken");
+        }
         zLine = eol+1;
+        if( propLen<0 || propLen>=zEnd-zLine ){
+          fossil_fatal("svn-dump data format broken");
+        }
         eol = zLine+propLen;
         if( *eol!='\n' ){
           fossil_fatal("svn-dump data format broken");
@@ -986,7 +1000,13 @@ static void svn_read_props(FILE *pIn, SvnRecord *rec){
         }
         propLen = atoi(&zLine[2]);
         eol = strchr(zLine, '\n');
+        if( eol==0 || eol>=zEnd ){
+          fossil_fatal("svn-dump data format broken");
+        }
         zLine = eol+1;
+        if( propLen<0 || propLen>=zEnd-zLine ){
+          fossil_fatal("svn-dump data format broken");
+        }
         eol = zLine+propLen;
         if( *eol!='\n' ){
           fossil_fatal("svn-dump data format broken");
