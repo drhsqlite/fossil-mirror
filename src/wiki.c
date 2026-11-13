@@ -2529,6 +2529,7 @@ wiki_cmd_usage:
 #define WIKIASSOC_MENU_READ   0x00002   /* Add submenu link to read wiki */
 #define WIKIASSOC_MENU_WRITE  0x00004   /* Add submenu link to add wiki */
 #define WIKIASSOC_ALL         0x00007   /* All of the above */
+#define WIKIASSOC_REVEAL      0x00008   /* Reveal content by default */
 #endif
 
 /*
@@ -2545,6 +2546,20 @@ static void wiki_section_label(
     @ <div class="section accordion">About check-in %.20h(zName)</div>
   }else{
     @ <div class="section accordion">About %s(zPrefix) %h(zName)</div>
+  }
+}
+/* Temporary refactoring crutch */
+static void wiki_section_label_v2(
+  const char *zPrefix,   /* "branch", "tag", or "checkin" */
+  const char *zName,     /* Name of the object */
+  unsigned int mFlags    /* Zero or more WIKIASSOC_* flags */
+){
+  if( (mFlags & WIKIASSOC_FULL_TITLE)==0 ){
+    @ <summary class="section">About</summary>
+  }else if( zPrefix[0]=='c' ){  /* checkin/... */
+    @ <summary class="section accordion">About check-in %.20h(zName)</summary>
+  }else{
+    @ <summary class="section accordion">About %s(zPrefix) %h(zName)</summary>
   }
 }
 
@@ -2606,6 +2621,7 @@ int wiki_render_associated(
     }
     return 0;
   }
+  @ <details %s((WIKIASSOC_REVEAL & mFlags) ? "open" : "")>
   if( fossil_strcmp(pWiki->zMimetype, "text/x-markdown")==0 ){
     Blob tail = BLOB_INITIALIZER;
     Blob title = BLOB_INITIALIZER;
@@ -2613,9 +2629,9 @@ int wiki_render_associated(
     blob_init(&markdown, pWiki->zWiki, -1);
     markdown_to_html(&markdown, &title, &tail);
     if( blob_size(&title) ){
-      @ <div class="section accordion">%h(blob_str(&title))</div>
+      @ <summary class="section">%h(blob_str(&title))</summary>
     }else{
-      wiki_section_label(zPrefix, zName, mFlags);
+      wiki_section_label_v2(zPrefix, zName, mFlags);
     }
     wiki_submenu_to_read_wiki(zPrefix, zName, mFlags);
     wiki_submenu_to_edit_wiki(zPrefix, zName, mFlags);
@@ -2640,10 +2656,10 @@ int wiki_render_associated(
     Blob *pBody;
     blob_init(&wiki, pWiki->zWiki, -1);
     if( wiki_find_title(&wiki, &title, &tail) ){
-      @ <div class="section accordion">%h(blob_str(&title))</div>
+      @ <summary class="section">%h(blob_str(&title))</summary>
       pBody = &tail;
     }else{
-      wiki_section_label(zPrefix, zName, mFlags);
+      wiki_section_label_v2(zPrefix, zName, mFlags);
       pBody = &wiki;
     }
     wiki_submenu_to_edit_wiki(zPrefix, zName, mFlags);
@@ -2654,6 +2670,7 @@ int wiki_render_associated(
     blob_reset(&title);
     blob_reset(&wiki);
   }
+  @ </details>
   manifest_destroy(pWiki);
   builtin_request_js("accordion.js");
   return 1;
