@@ -1,5 +1,5 @@
-C Always\sassociate\s-wiki\sFILE\swith\sthe\scheck-in,\snever\sthe\sbranch,\sper\s/chat\sdiscussion.
-D 2026-11-13T11:10:03.183
+C Start\sreplacing\saccordion\swidgets\swith\sdetails\stags.\sCurrently\sonly\s/vinfo's\stop-most\saccording\sis\saffected\sbut\sit\slooks\squite\snice,\sdoesn't\sneed\sJS,\sand\slets\sus\spick\sand\schoose\swhich\saccordions\sshould\sstart\sopened\sor\sclosed.
+D 2026-11-13T11:48:11.762
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -473,7 +473,7 @@ F src/http_socket.c 0c1acae4ddcd1d78d2863ee0c8906173c1bab975670fe5ba10a36c741efc
 F src/http_ssl.c 0ad02d8f225bc7ab5cc977ae511056297127b2d6f63c359c635b1a4b7eb5a90e
 F src/http_transport.c 8d16679da34651d988c305661e437b11740adc1e93f2e483e1ed4143ada1c99e
 F src/import.c 4cf7357bd6767f91e1252c4f5bc054685e3fc5bc036ac82dcc28be6d7dab55ad
-F src/info.c b0b503b2bdf8ebaf097e9fa01711acaa0c842edae246bf4c53488ebdfdc90397
+F src/info.c 9230243677265d92b6a3e9375d670c92d0729a4eda7d179c060c9859eecf6a3d
 F src/interwiki.c ad8719f0771c685fc7de0e79acb661a6ce59a0c4298300f1024ee9a22b1d5b67
 F src/json.c 226c093fa877714454de330b45ce76e447fe85b99f17d0347b8a5207f3c92b42
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -982,8 +982,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 033412b16346dba7ea66a38cbf6fab6b49ffd93c86126358264a0ef355ee071a
-R a0495dbf3fbdbd9a08081e00a5403801
+P e6ce6186172373a45dfd910b7af4409fbc3778bd7bc80b87721b8b6154d0b043
+R 4b4dfe8e8565c4873a2f3b9969de3623
+T *branch * accordion-rework
+T *sym-accordion-rework *
+T -sym-ci-wiki * Cancelled\sby\sbranch.
 U stephan
-Z cf33871b10372cfb94f4bfd99660217b
+Z 82c029d13574c980c6bf611346cb54f1
 # Remove this line to create a well-formed Fossil manifest.

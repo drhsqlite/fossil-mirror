@@ -1082,7 +1082,8 @@ void ci_page(void){
     zOrigDate = db_column_text(&q1, 4);
     if( zOrigDate==0 ) zOrigDate = zDate;
     zZulu = db_column_text(&q1, 6);
-    @ <div class="section accordion">Overview</div>
+    @ <details open>
+    @ <summary class="section">Overview</summary>
     @ <div class="accordion_panel">
     @ <table class="label-value">
     @ <tr><th>Comment:</th><td class="infoComment">\
@@ -1271,7 +1272,7 @@ void ci_page(void){
     login_anonymous_available();
   }
   db_finalize(&q1);
-  @ </div>
+  @ </details>
   builtin_request_js("accordion.js");
   if( !PB("nowiki") ){
     wiki_render_associated("checkin", zUuid, 0);
