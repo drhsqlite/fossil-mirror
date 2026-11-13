@@ -1007,6 +1007,7 @@ void test_integrity(void){
   int nErr = 0;
   int total;
   int nCA = 0;
+  int nParseErr = 0;  /* Number of --parse failures */
   int nPhantom = 0;
   int anCA[10];
   int bParse = find_option("parse",0,0)!=0;
@@ -1089,8 +1090,9 @@ void test_integrity(void){
       zFirstLine[i] = 0;
       p = manifest_parse(&content, 0, &err);
       if( p==0 ){
-        fossil_print("manifest_parse failed for %s:\n%s\n",
+        fossil_print("\nmanifest_parse failed for %s:\n%s\n",
                zUuid, blob_str(&err));
+        nParseErr++;
         if( strncmp(blob_str(&err), "line 1:", 7)==0 ){
           fossil_print("\"%s\"\n", zFirstLine);
         }
@@ -1116,6 +1118,7 @@ void test_integrity(void){
     static const char *const azType[] = { 0, "manifest", "cluster",
         "control", "wiki", "ticket", "attachment", "event" };
     int i;
+    fossil_print("%d control artifacts failed to parse\n", nParseErr);
     fossil_print("%d total control artifacts\n", nCA);
     for(i=1; i<count(azType); i++){
       if( anCA[i] ) fossil_print("  %d %ss\n", anCA[i], azType[i]);

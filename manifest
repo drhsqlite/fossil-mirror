@@ -1,5 +1,5 @@
-C Update\sjimsh0.c\sto\sversion\s0.84,\sreleased\son\s2026-07-16.
-D 2026-11-13T15:29:58.691
+C Split\sthe\sartifact-parse\sfailure\scount\sfrom\sthe\soverall\sfailure\scount\sin\stest-integrity.
+D 2026-11-13T15:41:51.259
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -408,7 +408,7 @@ F src/color.c dbea75182cd46c3ed261229766a710df6414aafd8de8e3505621c9109904cad0
 F src/comformat.c 7c13708fbafa03a92d63baee15178f00175fd7add64f918f7e406badae628e69
 F src/config.h 0ed672f15c096edbea44b24657bd91e3acb8bcd5827c62df9f8635abe1da7c21
 F src/configure.c 1c2908547bfebd55d1ed690d18a2f0f73c5a026ee27b89f53082ba3259f68b77
-F src/content.c ca641bec1bc636dd8c6e33b6d0248a8680cf485bde76ca847b7010b028a0fc28
+F src/content.c 17747be010c27335be7d73d84fe2f5ba77906fd979b670e0c2782901a8a68ab9
 F src/cookies.c 51b9ba6d945c8abd1b4dde2e8cfc2651bfadf219bc34951082e3c8de88667abc
 F src/copybtn.js b56a60f4d8b40667effb40839d88c406146a666f1c0ff62148fd6c847d9c8019
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
@@ -982,8 +982,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 030455006f3bb831fc0255670521c76f3e1a01a9fdef9177f393e4c0349efef2
-R fadae154ba95e6fa1d768178cd346657
-U danield
-Z ff3f7665cf1ee34f00ca7e1850a40392
+P ab59ac7f9f2fdaecd867ac0924bb71071e3a94bc643ca6a85e4225785af1f56a
+R ad255cc092a58b213413a54aca8022b6
+U stephan
+Z 91656ae236e3abc8e5edbede99cb32ac
 # Remove this line to create a well-formed Fossil manifest.
