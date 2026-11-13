@@ -1,5 +1,5 @@
-C Get\s/vinfo's\sAbout\sview\sported\sto\sa\sDETAILS\stag,\scollapsed\sby\sdefault.
-D 2026-11-13T12:09:15.946
+C Port\sthe\sremaining\s/vinfo\saccordions\sto\sDETAILS\stags.
+D 2026-11-13T12:14:12.736
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -473,7 +473,7 @@ F src/http_socket.c 0c1acae4ddcd1d78d2863ee0c8906173c1bab975670fe5ba10a36c741efc
 F src/http_ssl.c 0ad02d8f225bc7ab5cc977ae511056297127b2d6f63c359c635b1a4b7eb5a90e
 F src/http_transport.c 8d16679da34651d988c305661e437b11740adc1e93f2e483e1ed4143ada1c99e
 F src/import.c 4cf7357bd6767f91e1252c4f5bc054685e3fc5bc036ac82dcc28be6d7dab55ad
-F src/info.c 9230243677265d92b6a3e9375d670c92d0729a4eda7d179c060c9859eecf6a3d
+F src/info.c 8a522b53cd6ad90795d25961bf85fe2f1d75199b5cc12021da7f94a09a941e2c
 F src/interwiki.c ad8719f0771c685fc7de0e79acb661a6ce59a0c4298300f1024ee9a22b1d5b67
 F src/json.c 226c093fa877714454de330b45ce76e447fe85b99f17d0347b8a5207f3c92b42
 F src/json_artifact.c 239cfef38a1d17ed174670c6cd2f0bb8990de5eb4ce05ce52377fdabbbf56ae5
@@ -982,8 +982,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P eaf8ba3c80a7b77b99c19cc138786da2b900de50a1df6375b9aba6c1b0b0a09c
-R a141d3584e44c729530df6239068685a
+P 5628e2c9eddecfeb783b15d3a3de38950dcfae089999f18731c95e6ba0281f2b
+R 82f8679c4aa92e82fe223e095b608f92
 U stephan
-Z dfe1aefde4a8f9cb649e77e71e153024
+Z 1913398783d6b73c57cd9aaed0e39941
 # Remove this line to create a well-formed Fossil manifest.
