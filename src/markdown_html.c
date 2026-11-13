@@ -252,8 +252,10 @@ static void html_header(
         if( j>0 && z[j-1]!='-' ) z[j++] = '-';
       }else if( z[i]=='<' ){
         do{ i++; }while( z[i]!=0 && z[i]!='>' );
+        if( z[i]==0 ) break;
       }else if( z[i]=='&' ){
         do{ i++; }while( z[i]!=0 && z[i]!=';' );
+        if( z[i]==0 ) break;
       }else if( (z[i]&0x80)!=0 ){
         z[j++] = z[i];
       }
