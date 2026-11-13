@@ -2537,8 +2537,7 @@ int verify_comment(Blob *pComment, int mFlags){
 **    --user-override USER       Record USER as the login that created the
 **                               new check-in, rather that the current user.
 **    -w|--wiki FILE             Adds FILE's content as a wiki page associated
-**                               with this check-in or, if used with --branch,
-**                               the branch.
+**                               with this check-in.
 **    --wm|--wiki-mimetype TYPE  Mimetype for --wiki-file. Default is from the
 **                               file extension: .md=markdown, .wiki=fossil,
 **                               otherwise plain text. Accepts "markdown",
@@ -3320,7 +3319,7 @@ void commit_cmd(void){
   }
 
   if( zWikiFile ){
-    /* Handle --wiki-file and --wiki-mimetype */
+    /* Handle --wiki and --wiki-mimetype */
     Blob bWiki = BLOB_INITIALIZER;
     char * zPageName;
     int parentRid = 0;
@@ -3334,12 +3333,7 @@ void commit_cmd(void){
         zWikiMime = "text/plain";
       }
     }
-    if( sCiInfo.zBranch ){
-      zPageName = mprintf("branch/%s", sCiInfo.zBranch);
-      wiki_fetch_by_name(zPageName, 0, &parentRid, 0);
-    }else{
-      zPageName = mprintf("checkin/%s", zUuid);
-    }
+    zPageName = mprintf("checkin/%s", zUuid);
     zWikiMime = wiki_filter_mimetypes(zWikiMime);
     wiki_cmd_commit(zPageName, parentRid, &bWiki, zWikiMime, 1);
     fossil_print("Added %s (%s)\n", zPageName, zWikiMime);
