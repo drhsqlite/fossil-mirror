@@ -1,5 +1,5 @@
-C Restructure\saccordion.js\sto\snot\spollute\sthe\sglobal\sNS\sand\snot\sduplicate\sthe\sonclick\shandler\sfor\seach\selement.
-D 2026-11-13T09:38:42.807
+C Revert\ssome\schanges\smade\sby\s./configure\son\sLinux\swhich\sprevented\szlib\sfrom\sbuilding\son\sWindows.
+D 2026-11-13T10:08:45.675
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -253,7 +253,7 @@ F compat/zlib/win32/README-WIN32.txt f264730fe09a9f2dc27bec0eb262faa58f8cc0b7eca
 F compat/zlib/win32/VisualC.txt ba666fb015a257ab0182f10bc20409a2ec61169f
 F compat/zlib/win32/zlib.def 52d56f9350deaf46bd55a2e9c0e64ae83f041090e7fe5d2e562159a6f3bf6385
 F compat/zlib/win32/zlib1.rc d13e064ca272da630071d03ee243f19de76b761e28369d984ba3e3c36c611afa
-F compat/zlib/zconf.h 92f11ab62c91a57eeb394af9e5ea57a97ec40d96e60a8e23c8f54f30ffb02146
+F compat/zlib/zconf.h fd56f092a6417b2640b5140344d879a48beaed7dff0d9bb3bda9ecb9f507a9cb
 F compat/zlib/zconf.h.in fd56f092a6417b2640b5140344d879a48beaed7dff0d9bb3bda9ecb9f507a9cb
 F compat/zlib/zlib.3 215ac5009641561cec10cbcadb4e42b908529fb23bc69fabc5dbc9435e4866fd
 F compat/zlib/zlib.3.pdf 64f5de0a39a023391ae2c663fc6fd371acc6b5c3822451ce9aa6ebd1be529297
@@ -982,8 +982,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 20c836f944506942a424d1a03fe9b8b980969e3796ce78f083cfdca8d8a28cd8
-R 496c53aa84c666779ef81061ec9be401
-U stephan
-Z a2ee32f9beab1ef89250c5c3f6985c5e
+P 3c95062e7489bead752947cdd7c68c21a80baa2da8831f1d70d394ff3e8f3d44
+R 3ca7391e09442f8cf3c21a396cc5cc6e
+U danield
+Z c2f8265c15df2bf2e112ac86388618d0
 # Remove this line to create a well-formed Fossil manifest.
