@@ -551,7 +551,8 @@ table.captcha pre {
  * Sections
  */
 
-div.section, div.sectionmenu {
+div.section, div.sectionmenu,
+summary.section{
   color: #2ee;
   background-color: #22c;
   border-radius: 0 3rem;

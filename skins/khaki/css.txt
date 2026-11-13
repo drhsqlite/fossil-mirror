@@ -111,7 +111,7 @@ a, a:visited {
 
 
 /* Some pages have section dividers */
-div.section {
+div.section, summary.section {
   margin-bottom: 0px;
   margin-top: 1em;
   padding: 3px 3px 0 3px;
