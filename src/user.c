@@ -229,6 +229,7 @@ static void prompt_for_passphrase(const char *zPrompt, Blob *pPassphrase){
     fflush(stdout);
   }else{
     z = getpass(zPrompt);
+    if( z==0 ) fossil_fatal("unable to read a password");
   }
   strip_string(pPassphrase, z);
 }

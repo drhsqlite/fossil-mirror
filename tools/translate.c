@@ -112,13 +112,11 @@ static void trans(FILE *in, FILE *out){
   char c1, c2;          /* Characters used to start a comment */
   int lastWasEq = 0;    /* True if last non-whitespace character was "=" */
   int lastWasComma = 0; /* True if last non-whitespace character was "," */
-  int lineNo = 0;       /* Line number */
   char zLine[2000];     /* A single line of input */
   char zOut[4000];      /* The input line translated into appropriate output */
 
   c1 = c2 = '-';
   while( fgets(zLine, sizeof(zLine), in) ){
-    lineNo++;
     for(i=0; zLine[i] && fossil_isspace(zLine[i]); i++){}
     if( zLine[i]!='@' ){
       if( inPrint || inStr ) end_block(out);
@@ -154,7 +152,6 @@ static void trans(FILE *in, FILE *out){
                                  || zLine[i+1]=='\n') ){
           zLine[i] = 0;
           zNewline = "";
-          /* fprintf(stderr, "%s:%d: omit newline\n", zInFile, lineNo); */
           break;
         }
         if( zLine[i]=='\\' || zLine[i]=='"' ){ zOut[j++] = '\\'; }

@@ -157,7 +157,14 @@ static void xfer_accept_file(
     return;
   }
   blob_zero(&content);
-  blob_extract(pXfer->pIn, n, &content);
+  if( blob_extract(pXfer->pIn, n, &content)!=n ){
+    /* The message ends before the content does.  What there is must not
+    ** be stored: if it is a delta whose source has not arrived, nothing
+    ** would ever check it. */
+    blob_appendf(&pXfer->err, "truncated file card");
+    blob_reset(&content);
+    return;
+  }
   pUuid = &pXfer->aToken[1];
   if( !cloneFlag && uuid_is_shunned(blob_str(pUuid)) ){
     /* Ignore files that have been shunned */
@@ -279,7 +286,11 @@ static void xfer_accept_compressed_file(
     return;
   }
   blob_zero(&content);
-  blob_extract(pXfer->pIn, szC, &content);
+  if( blob_extract(pXfer->pIn, szC, &content)!=szC ){
+    blob_appendf(&pXfer->err, "truncated cfile card");
+    blob_reset(&content);
+    return;
+  }
   if( uuid_is_shunned(blob_str(&pXfer->aToken[1])) ){
     /* Ignore files that have been shunned */
     blob_reset(&content);
@@ -599,7 +610,13 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int nativeDelta){
     }
   }
   if( size==0 ){
-    content_get(rid, &content);
+    if( content_get(rid, &content)==0 ){
+      /* A delta whose source has not arrived yet.  The content cannot
+      ** be rebuilt, so there is nothing that can be sent. */
+      blob_reset(&content);
+      blob_reset(&uuid);
+      return;
+    }
 
     if( !nativeDelta && blob_size(&content)>100 ){
       size = send_delta_parent(pXfer, rid, isPriv, &content, pUuid);
@@ -701,15 +718,22 @@ static void send_compressed_file(Xfer *pXfer, int rid){
 **
 ** If the noContent flag is set, omit the CONTENT and set the 0x0004
 ** flag in FLAGS.
+**
+** A server that has already reached its send size limit sends a short
+** "uvigot" card in place of the file, and the client asks again.  A
+** client must not do that, because a server does not accept "uvigot".
+** So the client sets isClient and always gets a "uvfile" card.
 */
 static void send_unversioned_file(
   Xfer *pXfer,            /* Transfer context */
   const char *zName,      /* Name of unversioned file to be sent */
-  int noContent           /* True to omit the content */
+  int noContent,          /* True to omit the content */
+  int isClient            /* True if sending from client to server */
 ){
   Stmt q1;
+  int isFull = !isClient && (int)blob_size(pXfer->pOut)>=pXfer->mxSend;
 
-  if( (int)blob_size(pXfer->pOut)>=pXfer->mxSend ) noContent = 1;
+  if( isFull ) noContent = 1;
   if( noContent ){
     db_prepare(&q1,
       "SELECT mtime, hash, encoding, sz FROM unversioned WHERE name=%Q",
@@ -730,7 +754,7 @@ static void send_unversioned_file(
       db_reset(&q1);
       return;
     }
-    if( (int)blob_size(pXfer->pOut)>=pXfer->mxSend ){
+    if( isFull ){
       /* If we have already reached the send size limit, send a (short)
       ** uvigot card rather than a uvfile card.  This only happens on the
       ** server side.  The uvigot card will provoke the client to resend
@@ -1438,7 +1462,7 @@ void page_xfer(void){
      && blob_is_filename(&xfer.aToken[1])
     ){
       if( g.perm.Read ){
-        send_unversioned_file(&xfer, blob_str(&xfer.aToken[1]), 0);
+        send_unversioned_file(&xfer, blob_str(&xfer.aToken[1]), 0, 0);
       }
     }else
 
@@ -2021,6 +2045,8 @@ void cmd_test_xfer(void){
   g.zBaseURL = mprintf("http://%s", zHost);
   g.zHttpsURL = mprintf("https://%s", zHost);
   g.zTop = mprintf("");
+  g.zPath = "xfer";  /* So that robot_restrict() sees this as a sync request */
+  g.zContentType = "application/x-fossil-uncompressed";
   blob_zero(&g.cgiIn);
   blob_read_from_file(&g.cgiIn, g.argc==2 ? "-" : g.argv[2], ExtFILE);
   disableLogin = 1;
@@ -2369,7 +2395,7 @@ int client_sync(
         db_prepare(&uvq, "SELECT name, mtimeOnly FROM uv_tosend");
         while( (rc = db_step(&uvq))==SQLITE_ROW ){
           const char *zName = db_column_text(&uvq, 0);
-          send_unversioned_file(&xfer, zName, db_column_int(&uvq,1));
+          send_unversioned_file(&xfer, zName, db_column_int(&uvq,1), 1);
           nCardSent++;
           nArtifactSent++;
           db_multi_exec("DELETE FROM uv_tosend WHERE name=%Q", zName);
@@ -2427,6 +2453,18 @@ int client_sync(
 
     /* Do the round-trip to the server */
     if( http_exchange(&send, &recv, mHttpFlags, MAX_REDIRECTS, 0) ){
+      nErr++;
+      go = 2;
+      break;
+    }
+
+    /* Every reply from a Fossil server holds at least one card: the
+    ** "# timestamp" line that ends a normal reply, or an "error" card.
+    ** A reply with no content at all means that the request never reached
+    ** a Fossil server, or that the reply was lost on the way back.  Either
+    ** way the round-trip failed. */
+    if( blob_size(&recv)==0 ){
+      fossil_warning("server sent an empty reply");
       nErr++;
       go = 2;
       break;
@@ -2496,7 +2534,7 @@ int client_sync(
     while( blob_line(&recv, &xfer.line) ){
       if( blob_buffer(&xfer.line)[0]=='#' ){
         const char *zLine = blob_buffer(&xfer.line);
-        if( memcmp(zLine, "# timestamp ", 12)==0 ){
+        if( strncmp(zLine, "# timestamp ", 12)==0 ){
           char zTime[20];
           double rDiff;
           sqlite3_snprintf(sizeof(zTime), zTime, "%.19s", &zLine[12]);

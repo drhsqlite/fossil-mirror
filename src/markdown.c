@@ -1805,7 +1805,7 @@ static size_t parse_blockquote(
   */
   pre = prefix_quote(data,size);
   pre += is_empty(data+pre,size-pre);
-  nb = prefix_fencedcode(data+pre,size-pre);
+  nb = pre<size ? prefix_fencedcode(data+pre,size-pre) : 0;
   if( nb ){
     size_t i = 0;
     char delim = data[pre];

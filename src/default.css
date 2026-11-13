@@ -2021,6 +2021,9 @@ section.attachlist {}
 details.attachlist > summary {
   cursor: pointer;
 }
+div.forumpost > details.attachlist {
+  margin-bottom: 0.5em/*else too cramped with the buttons*/;
+}
 /* .Attacher is the top container element used by the JS Attacher
    class in fossil.attach.js. */
 .Attacher {

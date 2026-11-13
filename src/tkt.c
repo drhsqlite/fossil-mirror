@@ -89,11 +89,11 @@ static void getAllTicketFields(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFieldName = db_column_text(&q, 1);
     haveTicket = 1;
-    if( memcmp(zFieldName,"tkt_",4)==0 ){
+    if( strncmp(zFieldName,"tkt_",4)==0 ){
       if( strcmp(zFieldName, "tkt_ctime")==0 ) haveTicketCTime = 1;
       continue;
     }
-    if( memcmp(zFieldName,"baseline for ",13)==0 ){
+    if( strncmp(zFieldName,"baseline for ",13)==0 ){
       if( strcmp(db_column_text(&q,2),"INTEGER")==0 ){
         nBaselines++;
       }
@@ -130,7 +130,7 @@ static void getAllTicketFields(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFieldName = db_column_text(&q, 1);
     haveTicketChng = 1;
-    if( memcmp(zFieldName,"tkt_",4)==0 ){
+    if( strncmp(zFieldName,"tkt_",4)==0 ){
       if( strcmp(zFieldName+4,"rid")==0 ){
         haveTicketChngRid = 1;  /* tkt_rid */
       }else if( strcmp(zFieldName+4,"user")==0 ){
@@ -213,7 +213,7 @@ static void initializeVariablesFromDb(void){
       }
       if( (j = fieldId(zName))>=0 ){
         aField[j].zValue = fossil_strdup(zVal);
-      }else if( memcmp(zName, "tkt_", 4)==0 && Th_Fetch(zName, &size)==0 ){
+      }else if( strncmp(zName, "tkt_", 4)==0 && Th_Fetch(zName, &size)==0 ){
         /* TICKET table columns that begin with "tkt_" are always safe */
         Th_Store(zName, zVal);
       }
@@ -845,7 +845,7 @@ static int appendRemarkCmd(
               TH1_LEN(argl[1]), argv[1], TH1_LEN(argl[2]), argv[2]);
   }
   for(idx=0; idx<nField; idx++){
-    if( memcmp(aField[idx].zName, argv[1], TH1_LEN(argl[1]))==0
+    if( strncmp(aField[idx].zName, argv[1], TH1_LEN(argl[1]))==0
         && aField[idx].zName[TH1_LEN(argl[1])]==0 ){
       break;
     }
@@ -965,10 +965,10 @@ static int submitTicketCmd(
       nValue = TH1_LEN(nValue);
       while( nValue>0 && fossil_isspace(zValue[nValue-1]) ){ nValue--; }
       if( ((aField[i].mUsed & USEDBY_TICKETCHNG)!=0 && nValue>0)
-       || memcmp(zValue, aField[i].zValue, nValue)!=0
        ||(int)strlen(aField[i].zValue)!=nValue
+       || memcmp(zValue, aField[i].zValue, nValue)!=0
       ){
-        if( memcmp(aField[i].zName, "private_", 8)==0 ){
+        if( strncmp(aField[i].zName, "private_", 8)==0 ){
           zValue = db_conceal(zValue, nValue);
           blob_appendf(&tktchng, "J %s %s\n", aField[i].zName, zValue);
           aUsed[i] = JCARD_PRIVATE;
@@ -1859,7 +1859,7 @@ void ticket_cmd(void){
         }else{
           continue;
         }
-        if( memcmp(aField[iF].zName, "private_", 8)==0 ){
+        if( strncmp(aField[i].zName, "private_", 8)==0 ){
           zValue = db_conceal(zValue, strlen(zValue));
           blob_appendf(&tktchng, "J%s%s %s\n", zPfx, aField[iF].zName, zValue);
           aUsed[iF] = JCARD_PRIVATE;

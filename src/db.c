@@ -4678,7 +4678,7 @@ struct Setting {
 ** the recommended setting is ON.
 */
 /*
-** SETTING: auto-shun       boolean default=on
+** SETTING: auto-shun       boolean default=off
 ** If enabled, automatically pull the shunning list
 ** from a server to which the client autosyncs.
 */
@@ -4928,6 +4928,15 @@ struct Setting {
 ** SETTING: http-port        width=16 default=8080
 ** The default TCP/IP port number to use by the "server"
 ** and "ui" commands.
+*/
+/*
+** SETTING: hide-by-user     width=40 block-text
+** The VALUE of this setting is a list of GLOB patterns.  On the /timeline
+** page, any check-in whose user login name matches one of these patterns
+** is treated as if it carried the "hidden" tag, and is omitted unless the
+** "unhide=on" query parameter is used.  Example: bot-*,*-robot
+** The parsing rules are complex; see
+** https://fossil-scm.org/home/doc/trunk/www/globs.md#syntax
 */
 /*
 ** SETTING: https-login      boolean default=off

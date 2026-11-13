@@ -1029,16 +1029,16 @@ void markdown_dehtmlize_blob(Blob *p){
         }else{
           z[k++] = c;
         }
-      }else if( memcmp(&z[j],"&lt;",4)==0 ){
+      }else if( p->nUsed-j>=4 && memcmp(&z[j],"&lt;",4)==0 ){
         z[k++] = '<';
         j += 3;
-      }else if( memcmp(&z[j],"&gt;",4)==0 ){
+      }else if( p->nUsed-j>=4 && memcmp(&z[j],"&gt;",4)==0 ){
         z[k++] = '>';
         j += 3;
-      }else if( memcmp(&z[j],"&quot;",6)==0 ){
+      }else if( p->nUsed-j>=6 && memcmp(&z[j],"&quot;",6)==0 ){
         z[k++] = '"';
         j += 5;
-      }else if( memcmp(&z[j],"&amp;",5)==0 ){
+      }else if( p->nUsed-j>=5 && memcmp(&z[j],"&amp;",5)==0 ){
         z[k++] = '&';
         j += 4;
       }else{

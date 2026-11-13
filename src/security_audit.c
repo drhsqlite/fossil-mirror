@@ -899,7 +899,8 @@ void errorlog_page(void){
     return;
   }
   if( P("truncate1") && cgi_csrf_safe(2) ){
-    fclose(fopen(g.zErrlog,"w"));
+    FILE *pLog = fopen(g.zErrlog,"w");
+    if( pLog ) fclose(pLog);
   }
   if( P("download") ){
     Blob log;

@@ -991,6 +991,8 @@ static int looks_like_control_artifact(Blob *p){
 ** If the BLOB table is correct, then the repository can always be
 ** successfully reconstructed using "fossil rebuild".
 **
+** The exit status is 1 if any error is found.
+**
 ** Options:
 **    -d|--db-only       Run "PRAGMA integrity_check" on the database only.
 **                       No other validation is performed.
@@ -1013,10 +1015,10 @@ void test_integrity(void){
   int bParse = find_option("parse",0,0)!=0;
   int bDbOnly = find_option("db-only","d",0)!=0;
   int bQuick = find_option("quick",0,0)!=0;
+  char *zRes;
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 2);
   if( bDbOnly || bQuick ){
     const char *zType = bQuick ? "quick" : "integrity";
-    char *zRes;
     zRes = db_text(0,"PRAGMA repository.%s_check", zType/*safe-for-%s*/);
     if( fossil_strcmp(zRes,"ok")!=0 ){
       fossil_print("%s_check failed!\n", zType);
@@ -1093,6 +1095,15 @@ void test_integrity(void){
         fossil_print("\nmanifest_parse failed for %s:\n%s\n",
                zUuid, blob_str(&err));
         nParseErr++;
+        /* An ordinary file can look like a control artifact and fail to
+        ** parse.  That is an error only if the repository has it down
+        ** as a check-in, wiki page, ticket or the like, or as a cluster. */
+        if( db_exists("SELECT 1 FROM event WHERE objid=%d"
+                      " UNION ALL"
+                      " SELECT 1 FROM tagxref WHERE rid=%d AND tagid=%d",
+                      rid, rid, TAG_CLUSTER) ){
+          nErr++;
+        }
         if( strncmp(blob_str(&err), "line 1:", 7)==0 ){
           fossil_print("\"%s\"\n", zFirstLine);
         }
@@ -1125,7 +1136,11 @@ void test_integrity(void){
     }
   }
   fossil_print("low-level database integrity-check: ");
-  fossil_print("%s\n", db_text(0, "PRAGMA integrity_check(10)"));
+  zRes = db_text(0, "PRAGMA repository.integrity_check(10)");
+  fossil_print("%s\n", zRes);
+  if( fossil_strcmp(zRes,"ok")!=0 ) nErr++;
+  fossil_free(zRes);
+  if( nErr ) fossil_exit(1);
 }
 
 /*
@@ -1236,7 +1251,7 @@ static int check_exists(
 **
 ** Look at every artifact in the repository and verify that
 ** all references are satisfied.  Report any referenced artifacts
-** that are missing or shunned.
+** that are missing or shunned.  The exit status is 1 if any are found.
 **
 ** Options:
 **    --notshunned          Do not report shunned artifacts
@@ -1296,6 +1311,7 @@ void test_missing(void){
     fossil_print("%d missing or shunned references in %d control artifacts\n",
                  nErr, nArtifact);
   }
+  if( nErr ) fossil_exit(1);
 }
 
 /*
