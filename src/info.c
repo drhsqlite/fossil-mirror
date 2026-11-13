@@ -1276,8 +1276,7 @@ void ci_page(void){
   if( !PB("nowiki") ){
     wiki_render_associated("checkin", zUuid, 0);
   }
-  render_backlink_graph(zUuid,
-       "<div class=\"section accordion\">References</div>\n");
+  render_backlink_graph(zUuid, "References");
   @ <details open><summary class="section">Context</summary>
   @ <div class="accordion_panel">
   render_checkin_context(rid, 0, 2, 0);

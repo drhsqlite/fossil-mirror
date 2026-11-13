@@ -2541,20 +2541,6 @@ static void wiki_section_label(
   unsigned int mFlags    /* Zero or more WIKIASSOC_* flags */
 ){
   if( (mFlags & WIKIASSOC_FULL_TITLE)==0 ){
-    @ <div class="section accordion">About</div>
-  }else if( zPrefix[0]=='c' ){  /* checkin/... */
-    @ <div class="section accordion">About check-in %.20h(zName)</div>
-  }else{
-    @ <div class="section accordion">About %s(zPrefix) %h(zName)</div>
-  }
-}
-/* Temporary refactoring crutch */
-static void wiki_section_label_v2(
-  const char *zPrefix,   /* "branch", "tag", or "checkin" */
-  const char *zName,     /* Name of the object */
-  unsigned int mFlags    /* Zero or more WIKIASSOC_* flags */
-){
-  if( (mFlags & WIKIASSOC_FULL_TITLE)==0 ){
     @ <summary class="section">About</summary>
   }else if( zPrefix[0]=='c' ){  /* checkin/... */
     @ <summary class="section accordion">About check-in %.20h(zName)</summary>
@@ -2631,7 +2617,7 @@ int wiki_render_associated(
     if( blob_size(&title) ){
       @ <summary class="section">%h(blob_str(&title))</summary>
     }else{
-      wiki_section_label_v2(zPrefix, zName, mFlags);
+      wiki_section_label(zPrefix, zName, mFlags);
     }
     wiki_submenu_to_read_wiki(zPrefix, zName, mFlags);
     wiki_submenu_to_edit_wiki(zPrefix, zName, mFlags);
@@ -2659,7 +2645,7 @@ int wiki_render_associated(
       @ <summary class="section">%h(blob_str(&title))</summary>
       pBody = &tail;
     }else{
-      wiki_section_label_v2(zPrefix, zName, mFlags);
+      wiki_section_label(zPrefix, zName, mFlags);
       pBody = &wiki;
     }
     wiki_submenu_to_edit_wiki(zPrefix, zName, mFlags);
