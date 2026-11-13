@@ -1836,29 +1836,36 @@ void ticket_cmd(void){
       blob_zero(&tktchng);
       /* add the time to the ticket manifest */
       blob_appendf(&tktchng, "D %s\n", zDate);
-      /* append defined elements */
-      for(i=0; i<nField; i++){
+      /* append defined elements.  J-cards must be in strictly ascending
+      ** order by name, including any "+" prefix, so emit all "+name"
+      ** (append) cards in a first pass and all plain (assignment) cards
+      ** in a second pass, as is done in submitTicketCmd(). */
+      for(i=0; i<nField*2; i++){
+        const int iF = i % nField;
+        const int bAppendPass = i < nField;
         char *zValue = 0;
         char *zPfx;
 
-        if( aField[i].zAppend && aField[i].zAppend[0] ){
+        if( aField[iF].zAppend && aField[iF].zAppend[0] ){
+          if( !bAppendPass ) continue;
           zPfx = " +";
-          zValue = aField[i].zAppend;
-          aUsed[i] = JCARD_APPEND;
-        }else if( aField[i].zValue && aField[i].zValue[0] ){
+          zValue = aField[iF].zAppend;
+          aUsed[iF] = JCARD_APPEND;
+        }else if( aField[iF].zValue && aField[iF].zValue[0] ){
+          if( bAppendPass ) continue;
           zPfx = " ";
-          zValue = aField[i].zValue;
-          aUsed[i] = JCARD_ASSIGN;
+          zValue = aField[iF].zValue;
+          aUsed[iF] = JCARD_ASSIGN;
         }else{
           continue;
         }
-        if( memcmp(aField[i].zName, "private_", 8)==0 ){
+        if( memcmp(aField[iF].zName, "private_", 8)==0 ){
           zValue = db_conceal(zValue, strlen(zValue));
-          blob_appendf(&tktchng, "J%s%s %s\n", zPfx, aField[i].zName, zValue);
-          aUsed[i] = JCARD_PRIVATE;
+          blob_appendf(&tktchng, "J%s%s %s\n", zPfx, aField[iF].zName, zValue);
+          aUsed[iF] = JCARD_PRIVATE;
         }else{
           blob_appendf(&tktchng, "J%s%s %#F\n", zPfx,
-                       aField[i].zName, strlen(zValue), zValue);
+                       aField[iF].zName, strlen(zValue), zValue);
         }
       }
       blob_appendf(&tktchng, "K %s\n", zTktUuid);
