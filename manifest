@@ -1,5 +1,5 @@
-C Integrate\sthe\ssmall-fixes\sbranch.\sChange\sauto-shun\ssetting's\sdefault\sfrom\son\sto\soff\sto\smatch\swhat\sthe\scode\sdoes.
-D 2026-11-13T20:54:07.249
+C Regenerate\sthe\smakefiles.\s[45889598287f2]\sstomped\son\sa\sMakefile.msc\schange\sfrom\s[497b7408c1].
+D 2026-11-13T20:58:36.977
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -764,7 +764,7 @@ F tools/translate.c 44fadac84aa6f18f7df4ff6bbb2f60704cd3eec25fdef59b5964abefddde
 F win/Makefile.dmc 41b816e00c348eb38c647f9a613c71f68d587d4540bdb184ddac77ce085f2b4a
 F win/Makefile.mingw ca0050afa9d0f6f632c190a527cea57a7786589a4032bd10b8b32fa953288331
 F win/Makefile.mingw.mistachkin 781390cab203b926f21de517390b7323267513df67fe821ec789eebdc2ba733c
-F win/Makefile.msc 65b366503e8db58a20cd91b8861f19b81e3233ffb35627ddb743fbb612101bb6
+F win/Makefile.msc 58083498ed68db6ee82cee5581077bf109384bb73a46ebae4cfa29940d551763
 F win/build32.bat 59238cd3017799705054a2ec0fdc38ccc4f50edd41b7d05f06b94de1f7d7de6d
 F win/build64-debug.bat 0452d403404ef3457dedf1edc237832710c1fd6cc321ef3cbd72932e11d707aa
 F win/build64.bat 0eea4906007fc31d141c40918be368cda50d1f4bb7273c01672803af19328fad
@@ -981,9 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 45889598287f2dbac3a272e30bef13df171a53fc7186d1ba77e87e77f9f0a9c0 23b9245617761ab1812111eac1aaf68788c68555d1ceba3f8313f5f976b0926c
-R bf29e3eb282a762ad3b650fc12b33b5c
-T +closed 23b9245617761ab1812111eac1aaf68788c68555d1ceba3f8313f5f976b0926c
+P 0e1be49ef018af100323faf909618a8d0d76cc8ad87cc4219f1f5e72221c99d4
+R 87de9d9fd46f6440a197526d9e2875b2
 U stephan
-Z c5db96560119e977a1c21da19fbf71b6
+Z 0667deabbd82d02ab35a68fcf48ffff8
 # Remove this line to create a well-formed Fossil manifest.
