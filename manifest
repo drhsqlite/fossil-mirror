@@ -1,5 +1,5 @@
-C In\s"fossil\simport\s--svn",\srefuse\sa\snegative\sproperty\sblock\slength\sand\scheck\severy\slength\sinside\sthe\sblock\sagainst\sits\ssize.\s\sA\sblock\stoo\sshort\sfor\sthe\sPROPS-END\smarker\swas\sread\sbefore\sits\sstart,\sand\sa\snegative\sor\soversized\slength\smade\sthe\simport\sloop\sfor\sever\sor\sread\sand\swrite\soutside\sthe\sbuffer.
-D 2026-11-13T23:39:46.435
+C Use\sstrncmp()\sin\splace\sof\smemcmp()\sin\ssix\smore\splaces\swhere\sone\sof\sthe\sstrings\scan\sbe\sshorter\sthan\sthe\slength\scompared:\svfile.c,\sdispatch.c,\sth_main.c\sand\stimeline.c.
+D 2026-11-13T23:39:48.198
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -421,7 +421,7 @@ F src/diff.c 3e46c56274896ac8ebc3035a32060bf5898f6cd2b6540816d62d6649125eb3bd
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl e3a2ec40d2652bb5048fa490d3ddb50d44a2e12bac8c55e93f0112a5b3207184
 F src/diffcmd.c de89310489017122ede51ebdd46800498f9e56afab55d0626d36ef6a9f3aa3ac
-F src/dispatch.c 668bb146c946b55cdebd7dc3275f7b321240490ae82873b8e893268435ea8673
+F src/dispatch.c bb93112b56b2614381e6cd098e2c733b3986db7f44be1762f0307971d85b470d
 F src/doc.c f938d93ea40675e563863b06631a4b266a9f343965ee31c9b1ea999b753a8d0a
 F src/encode.c 016efece00d0d4436f87c61cfc3f6a41ef014ee3bb52e234dce38bc9711791ee
 F src/etag.c f5ae12e6858162847c26183858f6ed58520af6b91fb3a6d786a69770c74de1c4
@@ -576,9 +576,9 @@ F src/terminal.c 1f497ac2f122d3fc856aac9386c064c10e10bf148467986ef73c7562f937987
 F src/th.c b09f277fb687cb594f69215e91ee4a3fd86a245eec45985da4b824e969bfbeb5
 F src/th.h 549dd1af2f4b241ede68fadbf426a7707ae9657292b7914a20a3c401513b25a0
 F src/th_lang.c c59bbad1fefb0af72cadd3f32f7c8845b339bf8471640d737b0d4499b787589b
-F src/th_main.c 1c502e67cc252c5f57c0567df93fe5cc1b616d60671c8b94f7e02687c9306da4
+F src/th_main.c 3152939e026601c2785c8d9ebde5d06e6b4fa6f1a577f11f566c13734275b4da
 F src/th_tcl.c a3d1d8f2e5e645a54a2f70c60f01c3d04a706ecad60468b3949540ba0c78242c
-F src/timeline.c e988e72cab7f1019114120111bc4a4f839f9ef659d5f088245bde9a5bcace8ad
+F src/timeline.c 5ac3f348c90d48ac1076990461d914e9b9f2c9291b0ad182ac8870018177fb15
 F src/tkt.c d39f07ddaaa124cae54dcda4b5d704f7b6c7c8c988858eaa367537eb4f6140fc
 F src/tktsetup.c 22e7338e93a4e54d0e91acd0bf0e80dbdfe4c2958638e163a89239391d6cb8b9
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -592,7 +592,7 @@ F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a
 F src/utf8.c e752372e0c4c5c4a1fe5f6f60a0ceff42c7c9d498c6b0e202ad4d83a8650dcb6
 F src/util.c 9133330e4937c2fe6a583ad5943933c85204581c7685b15e3bc741ff6b6e7d85
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
-F src/vfile.c cbd71205d9062cb5c30428841cf41d96d6afdd9e70cf1cd4abd8effe51f93ca9
+F src/vfile.c 7f97bd95c1ac84dd53a8271e3db16b45159bd600b1ed1a7b5470e10efd24579d
 F src/wiki.c 0db4aff1ce4aa3dfda7f4813cf9c60ba068e5a225ffea921582b9c87378d0f48
 F src/wiki.wiki bd6ca20a0df1054d68bbd7683acc6f24225652276f0ed53ce6fa564faed4dd60
 F src/wikiformat.c 017ef5d1fd1491629287c992d2f3ee3e9b7d05fc44abb484b486afb05a5b5351
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5c2919cfc608d85e7487dbcdd284f510f22543a7087300db5919d73952233eff
-R 00351ea7c6b4d339aff68b3ec61545a2
+P 78511fc47c39a36a918cda0268c990dccdd877e3fb816ac63e5624279b22fca4
+R b311261e54511cf21b72241735ece19a
 U dmestas
-Z e390a0cfa828ee347a974b4308e5ee35
+Z 490341a0aaa77dcd193172c799a562f7
 # Remove this line to create a well-formed Fossil manifest.

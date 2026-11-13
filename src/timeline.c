@@ -271,7 +271,7 @@ void timeline_extra(
       blob_zero(&links);
       while( z && z[0] ){
         for(i=0; z[i] && (z[i]!=',' || z[i+1]!=' '); i++){}
-        if( zThisTag==0 || memcmp(z, zThisTag, i)!=0 || zThisTag[i]!=0 ){
+        if( zThisTag==0 || strncmp(z, zThisTag, i)!=0 || zThisTag[i]!=0 ){
           blob_appendf(&links,
                 "%z%#h</a>%.2s",
                 href("%R/timeline?r=%#t&c=%t",i,z,zDate), i,z, &z[i]

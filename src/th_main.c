@@ -1607,7 +1607,7 @@ static int submenuCmd(
   const char **argv,
   int *argl
 ){
-  if( argc!=4 || memcmp(argv[1],"link",5)!=0 ){
+  if( argc!=4 || strncmp(argv[1],"link",5)!=0 ){
     return Th_WrongNumArgs(interp, "submenu link LABEL URL");
   }
   if( argl[2]==0 ){
@@ -2727,7 +2727,7 @@ int Th_CommandHook(
     ** command hook handler as that is not actually an error condition.
     */
     nResult = TH1_LEN(nResult);
-    if( memcmp(zResult, NO_COMMAND_HOOK_ERROR, nResult)!=0 ){
+    if( strncmp(zResult, NO_COMMAND_HOOK_ERROR, nResult)!=0 ){
       sendError(0,zResult, nResult, 0);
     }else{
       /*
@@ -2815,7 +2815,7 @@ int Th_WebpageHook(
     ** webpage hook handler as that is not actually an error condition.
     */
     nResult = TH1_LEN(nResult);
-    if( memcmp(zResult, NO_WEBPAGE_HOOK_ERROR, nResult)!=0 ){
+    if( strncmp(zResult, NO_WEBPAGE_HOOK_ERROR, nResult)!=0 ){
       sendError(0,zResult, nResult, 1);
     }else{
       /*

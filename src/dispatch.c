@@ -1122,7 +1122,7 @@ void test_all_help_page(void){
       blob_appendf(&buf,"setting");
       zDesc = blob_str(&buf);
     }
-    if( memcmp(aCommand[i].zName, "test", 4)==0 ) continue;
+    if( strncmp(aCommand[i].zName, "test", 4)==0 ) continue;
     if( occHelp[aCommand[i].iHelp] > 0 ){
       int j;
       for(j=0; j<occHelp[aCommand[i].iHelp]; j++){
