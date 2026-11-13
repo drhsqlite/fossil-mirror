@@ -1273,7 +1273,6 @@ void ci_page(void){
   }
   db_finalize(&q1);
   @ </details>
-  builtin_request_js("accordion.js");
   if( !PB("nowiki") ){
     wiki_render_associated("checkin", zUuid, 0);
   }

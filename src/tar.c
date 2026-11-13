@@ -1353,8 +1353,9 @@ void rchvdwnld_page(void){
   );
   style_header("Downloads For Check-in %!S", zUuid);
   zBase = archive_base_name(rid);
-  @ <div class="section accordion">Downloads for check-in \
-  @ %z(href("%R/info/%!S",zUuid))%S(zUuid)</a>%h(zTags)</div>
+  @ <details open>
+  @ <summary class="section">Downloads for check-in \
+  @ %z(href("%R/info/%!S",zUuid))%S(zUuid)</a>%h(zTags)</summary>
   @ <div class="accordion_panel">
   @ <table class="label-value">
   @ <tr>
@@ -1375,10 +1376,13 @@ void rchvdwnld_page(void){
   @ %s(g.zBaseURL)/sqlar/%s(zBase).sqlar</a></td>
   @ </tr>
   @ </table></div>
+  @ </details>
   fossil_free(zBase);
-  @ <div class="section accordion">Context</div><div class="accordion_panel">
+  @ <details open>
+  @ <summary class="section">Context</summary>
+  @ <div class="accordion_panel">
   render_checkin_context(rid, 0, 0, 0);
   @ </div>
-  builtin_request_js("accordion.js");
+  @ </details>
   style_finish_page();
 }
