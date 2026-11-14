@@ -1040,7 +1040,9 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         }
         if( p->zWiki!=0 ) SYNTAX("more than one W-card");
         blob_zero(&wiki);
-        if( (&x.z[size+1])>=x.zEnd )SYNTAX("not enough content after W-card");
+        if( (i64)size+1>=(i64)(x.zEnd-x.z) ){
+          SYNTAX("not enough content after W-card");
+        }
         p->zWiki = x.z;
         x.z += size;
         if( x.z[0]!='\n' ) SYNTAX("W-card content no \\n terminated");
