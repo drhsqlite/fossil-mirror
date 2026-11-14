@@ -3565,6 +3565,10 @@ void cmd_webserver(void){
     const char *zUrl = g.argv[2];
     char zLine[1000];
 
+    if( !ssh_remote_arg_is_safe(zUrl) ){
+      fossil_fatal("the repository name \"%s\" contains a character that "
+                   "is special to the shell on the remote system", zUrl);
+    }
     blob_init(&ssh, 0, 0);
     for(isRetry=0; isRetry<2 && !bRunning; isRetry++){
       blob_reset(&ssh);
