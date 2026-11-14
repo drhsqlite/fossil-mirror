@@ -383,7 +383,10 @@ struct ManifestText {
 static char *next_token(ManifestText *p, int *pLen){
   char *zStart;
   int n;
-  if( p->atEol ) return 0;
+  if( p->atEol ){
+    if( pLen ) *pLen = 0;
+    return 0;
+  }
   zStart = p->z;
   n = strcspn(p->z, " \n");
   p->atEol = p->z[n]=='\n';
