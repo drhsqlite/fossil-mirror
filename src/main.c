@@ -3574,7 +3574,7 @@ void cmd_webserver(void){
       blob_reset(&ssh);
       transport_ssh_command(&ssh);
       blob_appendf(&ssh,
-         " -t -L 127.0.0.1:%d:127.0.0.1:%d %!$",
+         " -t -L 127.0.0.1:%d:127.0.0.1:%d -- %!$",
          iPort, iPort, zRemote
       );
       if( zFossilCmd==0 ){
