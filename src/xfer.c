@@ -2584,7 +2584,9 @@ int client_sync(
       **
       ** Client accepts an unversioned file from the server.
       */
-      if( blob_eq(&xfer.aToken[0], "uvfile") ){
+      if( blob_eq(&xfer.aToken[0], "uvfile")
+       && (syncFlags & (SYNC_UNVERSIONED|SYNC_CLONE))!=0
+      ){
         xfer_accept_unversioned_file(&xfer, 1);
         nArtifactRcvd++;
         nUvFileRcvd++;
@@ -2664,6 +2666,7 @@ int client_sync(
       */
       if( xfer.nToken==5
        && blob_eq(&xfer.aToken[0], "uvigot")
+       && (syncFlags & (SYNC_UNVERSIONED|SYNC_CLONE))!=0
        && blob_is_filename(&xfer.aToken[1])
        && blob_is_int64(&xfer.aToken[2], &mtime)
        && blob_is_int(&xfer.aToken[4], &size)
