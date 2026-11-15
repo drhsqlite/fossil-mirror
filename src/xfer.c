@@ -2637,10 +2637,14 @@ int client_sync(
         int isPriv = xfer.nToken>=3 && blob_eq(&xfer.aToken[2],"1");
         rid = rid_from_uuid(&xfer.aToken[1], 0, 0);
         if( rid>0 ){
-          if( isPriv ){
-            content_make_private(rid);
-          }else{
+          if( !isPriv ){
             content_make_public(rid);
+          }else if( g.perm.Private
+                 || db_exists("SELECT 1 FROM phantom WHERE rid=%d", rid) ){
+            /* Outside a sync of private content, only an artifact that is
+            ** still a phantom here is marked, so that it is not asked for
+            ** again.  Content that this repository holds stays public. */
+            content_make_private(rid);
           }
         }else if( isPriv && !g.perm.Private ){
           /* ignore private files */
