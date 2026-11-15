@@ -2565,7 +2565,9 @@ int client_sync(
       **
       ** Client receives a file transmitted from the server.
       */
-      if( blob_eq(&xfer.aToken[0],"file") ){
+      if( blob_eq(&xfer.aToken[0],"file")
+       && (syncFlags & (SYNC_PULL|SYNC_CLONE))!=0
+      ){
         xfer_accept_file(&xfer, (syncFlags & SYNC_CLONE)!=0, 0, 0);
         nArtifactRcvd++;
       }else
@@ -2575,7 +2577,9 @@ int client_sync(
       **
       ** Client receives a compressed file transmitted from the server.
       */
-      if( blob_eq(&xfer.aToken[0],"cfile") ){
+      if( blob_eq(&xfer.aToken[0],"cfile")
+       && (syncFlags & (SYNC_PULL|SYNC_CLONE))!=0
+      ){
         xfer_accept_compressed_file(&xfer, 0, 0);
         nArtifactRcvd++;
       }else
