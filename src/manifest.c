@@ -2869,7 +2869,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       ** If this edit is the most recent, then make it the title for
       ** all other entries for the same thread
       */
-      if( !db_exists("SELECT 1 FROM forumpost WHERE froot=%d AND firt=0"
+      if( !db_exists("SELECT 1 FROM forumpost WHERE froot=%d AND firt IS NULL"
                      "   AND fpid!=%d AND fmtime>%.17g", froot, rid, p->rDate)
       ){
         /* This entry establishes a new title for all entries on the thread */
