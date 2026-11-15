@@ -758,7 +758,7 @@ static FILE *patch_remote_command(
     Blob remote;
     *(char*)(zDir-1) = 0;
     transport_ssh_command(&cmd);
-    blob_appendf(&cmd, " -T");
+    blob_appendf(&cmd, " -T --");  /* End of switches */
     blob_append_escaped_arg(&cmd, zRemote, 0);
     blob_init(&remote, 0, 0);
     if( zFossilCmd==0 ){
