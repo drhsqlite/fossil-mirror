@@ -459,6 +459,7 @@ void ssl_disable_cert_verification(void){
 ** permit an IP address as the TLS server name.
 */
 static int ssl_host_is_ip_address(const char *zHost){
+#if OPENSSL_VERSION_NUMBER >= 0x010002000
   ASN1_OCTET_STRING *pIp = a2i_IPADDRESS(zHost);
   if( pIp==0 ){
     ERR_clear_error();
@@ -466,6 +467,10 @@ static int ssl_host_is_ip_address(const char *zHost){
   }
   ASN1_OCTET_STRING_free(pIp);
   return 1;
+#else
+  (void)zHost;
+  return 0;   /* old OpenSSL: IP-vs-name distinction is never used */
+#endif
 }
 
 /*
