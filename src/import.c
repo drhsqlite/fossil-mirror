@@ -107,7 +107,7 @@ static void import_reset(int freeAll){
     fossil_free(gg.aFile[i].zUuid);
     fossil_free(gg.aFile[i].zPrior);
   }
-  memset(gg.aFile, 0, gg.nFile*sizeof(gg.aFile[0]));
+  if( gg.nFile ) memset(gg.aFile, 0, gg.nFile*sizeof(gg.aFile[0]));
   gg.nFile = 0;
   if( freeAll ){
     fossil_free(gg.zPrevBranch);
@@ -267,7 +267,7 @@ static void finish_commit(void){
   Blob record, cksum;
 
   import_prior_files();
-  qsort(gg.aFile, gg.nFile, sizeof(gg.aFile[0]), mfile_cmp);
+  if( gg.nFile ) qsort(gg.aFile, gg.nFile, sizeof(gg.aFile[0]), mfile_cmp);
   blob_zero(&record);
   blob_appendf(&record, "C %F\n", gg.zComment);
   blob_appendf(&record, "D %s\n", gg.zDate);
