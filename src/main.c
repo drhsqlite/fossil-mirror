@@ -3062,7 +3062,11 @@ void cmd_http(void){
       zChRoot ? zChRoot : g.zRepositoryName, noJail);
   if( useSCGI ){
     cgi_handle_scgi_request();
+    process_one_web_page(zNotFound, glob_create(zFileGlob), allowRepoList);
   }else if( g.fSshClient & CGI_SSH_CLIENT ){
+    /* ssh_request_loop() processes every request itself, so do not
+    ** call process_one_web_page() again afterwards: that would answer
+    ** the last request a second time. */
     ssh_request_loop(zIpAddr, glob_create(zFileGlob));
   }else{
 #if FOSSIL_ENABLE_SSL
@@ -3071,8 +3075,8 @@ void cmd_http(void){
     }
 #endif
     cgi_handle_http_request(zIpAddr);
+    process_one_web_page(zNotFound, glob_create(zFileGlob), allowRepoList);
   }
-  process_one_web_page(zNotFound, glob_create(zFileGlob), allowRepoList);
 #if FOSSIL_ENABLE_SSL
   if( g.httpUseSSL && g.httpSSLConn ){
     ssl_close_server(g.httpSSLConn);
