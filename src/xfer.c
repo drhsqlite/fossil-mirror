@@ -296,6 +296,15 @@ static void xfer_accept_compressed_file(
     blob_reset(&content);
     return;
   }
+  if( szU==0
+   && (blob_size(&content)<=4 || blob_uncompress(&content, &content))
+  ){
+    /* content_put_ex() takes a size of zero to mean that the content is
+    ** not compressed, so content of no bytes is handed over uncompressed. */
+    blob_appendf(&pXfer->err, "malformed cfile content");
+    blob_reset(&content);
+    return;
+  }
   if( pXfer->nToken==5 ){
     srcid = rid_from_uuid(&pXfer->aToken[2], 1, isPriv);
     pXfer->nDeltaRcvd++;
@@ -304,7 +313,7 @@ static void xfer_accept_compressed_file(
     pXfer->nFileRcvd++;
   }
   rid = content_put_ex(&content, blob_str(&pXfer->aToken[1]), srcid,
-                       szC, isPriv);
+                       szU, isPriv);
   Th_AppendToList(pzUuidList, pnUuidList, blob_str(&pXfer->aToken[1]),
                   blob_size(&pXfer->aToken[1]));
   remote_has(rid);
