@@ -260,6 +260,12 @@ void update_cmd(void){
   if( load_vfile_from_rid(tid) && !forceMissingFlag ){
     fossil_fatal("missing content, unable to update");
   };
+  /* Names after the update: the target version filename, and files added
+  ** to the check-out but not yet committed. */
+  vfile_check_case_collisions(
+    "SELECT pathname FROM vfile WHERE vid=%d"
+    " UNION SELECT pathname FROM vfile"
+    "  WHERE vid=%d AND rid=0 AND NOT deleted", tid, vid);
 
   /*
   ** The record.fn field is used to match files against each other.  The

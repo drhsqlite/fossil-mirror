@@ -352,6 +352,8 @@ void checkout_cmd(void){
     db_end_transaction(0);
     return;
   }
+  vfile_check_case_collisions(
+    "SELECT pathname FROM vfile WHERE vid=%d AND NOT deleted", vid);
   if( !keepFlag ){
     uncheckout(prior);
   }

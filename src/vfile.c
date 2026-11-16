@@ -284,6 +284,43 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
 }
 
 /*
+** For a case-insenstive checkout, abort if two pathnames we are about
+** to write differ only letter case. These would be just one file on
+** disk so one will otherwise get overwritten.
+*/
+void vfile_check_case_collisions(const char *zFormat, ...){
+  Stmt q;
+  Blob bad;
+  char *zSql;
+  va_list ap;
+  if( filenames_are_case_sensitive() ) return;
+  va_start(ap, zFormat);
+  zSql = vmprintf(zFormat, ap);
+  va_end(ap);
+  blob_init(&bad, 0, 0);
+  db_prepare(&q,
+    "SELECT group_concat(DISTINCT pathname) FROM (%s)"
+    " GROUP BY pathname %s HAVING count(DISTINCT pathname)>1"
+    " ORDER BY 1",
+    zSql /*safe-for-%s*/, filename_collation()
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    blob_appendf(&bad, "\n  %s", db_column_text(&q, 0));
+  }
+  db_finalize(&q);
+  fossil_free(zSql);
+  if( blob_size(&bad) ){
+    fossil_fatal("these filenames differ only in case, so this"
+                 " check-out can hold only one file of each group:%s\n"
+                 "No files were changed.  Rename the files in the"
+                 " repository to be distinc, or, if this file system has"
+                 " the ability, turn the case-sensitive setting on.",
+                 blob_str(&bad));
+  }
+  blob_reset(&bad);
+}
+
+/*
 ** Write all files from vid to the disk.  Or if vid==0 and id!=0
 ** write just the specific file where VFILE.ID=id.
 */
