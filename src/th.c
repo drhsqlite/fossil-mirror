@@ -2168,16 +2168,22 @@ static int exprEval(Th_Interp *interp, Expr *pExpr){
     }
 
     if( rc==TH_OK && eArgType==ARG_INTEGER ){
+      /* Integer arithmetic wraps around.  It is done on unsigned ints, for
+      ** which that is defined.  Dividing by -1 is negation, written out
+      ** because the machine instruction traps on some processors when
+      ** the result does not fit. */
+      unsigned int uLeft = (unsigned int)iLeft;
+      unsigned int uRight = (unsigned int)iRight;
       int iRes = 0;
       switch( pExpr->pOp->eOp ) {
-        case OP_MULTIPLY:     iRes = iLeft*iRight;  break;
+        case OP_MULTIPLY:     iRes = (int)(uLeft*uRight);  break;
         case OP_DIVIDE:
           if( !iRight ){
             Th_ErrorMessage(interp, "Divide by 0:", zLeft, nLeft);
             rc = TH_ERROR;
             goto finish;
           }
-          iRes = iLeft/iRight;
+          iRes = iRight==(-1) ? (int)(0u-uLeft) : iLeft/iRight;
           break;
         case OP_MODULUS:
           if( !iRight ){
@@ -2185,10 +2191,10 @@ static int exprEval(Th_Interp *interp, Expr *pExpr){
             rc = TH_ERROR;
             goto finish;
           }
-          iRes = iLeft%iRight;
+          iRes = iRight==(-1) ? 0 : iLeft%iRight;
           break;
-        case OP_ADD:          iRes = iLeft+iRight;  break;
-        case OP_SUBTRACT:     iRes = iLeft-iRight;  break;
+        case OP_ADD:          iRes = (int)(uLeft+uRight);  break;
+        case OP_SUBTRACT:     iRes = (int)(uLeft-uRight);  break;
         case OP_LEFTSHIFT: {
           iRes = (int)(((unsigned int)iLeft)<<(iRight&0x1f));
           break;
@@ -2205,7 +2211,7 @@ static int exprEval(Th_Interp *interp, Expr *pExpr){
         case OP_BITWISE_OR:   iRes = iLeft|iRight;  break;
         case OP_LOGICAL_AND:  iRes = iLeft&&iRight; break;
         case OP_LOGICAL_OR:   iRes = iLeft||iRight; break;
-        case OP_UNARY_MINUS:  iRes = -iLeft;        break;
+        case OP_UNARY_MINUS:  iRes = (int)(0u-uLeft); break;
         case OP_UNARY_PLUS:   iRes = +iLeft;        break;
         case OP_BITWISE_NOT:  iRes = ~iLeft;        break;
         case OP_LOGICAL_NOT:  iRes = !iLeft;        break;
@@ -2824,10 +2830,13 @@ static int sqlite3AtoF(const char *z, double *pResult){
 ** If the string cannot be converted to an integer, return TH_ERROR.
 ** If the interp argument is not NULL, leave an error message in the
 ** interpreter result too.
+**
+** A value too large for an int wraps around.  The arithmetic is done on
+** an unsigned int, for which that is defined.
 */
 int Th_ToInt(Th_Interp *interp, const char *z, int n, int *piOut){
   int i = 0;
-  int iOut = 0;
+  unsigned int iOut = 0;
   int base = 10;
   int (*isdigit)(char) = th_isdigit;
 
@@ -2868,14 +2877,14 @@ int Th_ToInt(Th_Interp *interp, const char *z, int n, int *piOut){
     }else{
       c -= '0';
     }
-    iOut = iOut * base + c;
+    iOut = iOut * (unsigned int)base + (unsigned int)c;
   }
 
   if( n>0 && z[0]=='-' ){
-    iOut *= -1;
+    iOut = 0u - iOut;
   }
 
-  *piOut = iOut;
+  *piOut = (int)iOut;
   return TH_OK;
 }
 
