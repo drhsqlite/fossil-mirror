@@ -343,6 +343,74 @@ void vfile_check_case_collisions(const char *zFormat, ...){
 }
 
 /*
+** After files of check-out vid have been written to disk, warn about
+** if the filesystem has changed any names. Some case-insensitive
+** filesystems do this when they notice that they would treats
+** two names as one file. Fossil will then report a missing file,
+** which this warning explains.
+*/
+void vfile_check_names_on_disk(int vid){
+  Stmt q, ins;
+  db_multi_exec(
+    "CREATE TEMP TABLE IF NOT EXISTS ondisk(dir TEXT, name TEXT);"
+    "DELETE FROM ondisk;"
+    "CREATE TEMP TABLE IF NOT EXISTS namecheck(pathname TEXT, dir TEXT,"
+    " tail TEXT);"
+    "DELETE FROM namecheck;"
+    "INSERT INTO namecheck(pathname,dir,tail)"
+    " SELECT pathname,"
+    "   rtrim(pathname, replace(pathname,'/','')),"
+    "   replace(pathname, rtrim(pathname, replace(pathname,'/','')), '')"
+    "  FROM vfile"
+    " WHERE vid=%d AND NOT deleted"
+    "   AND (pathname GLOB '*[^ -~]*'"
+    "     OR unicode_casefold(pathname) IN"
+    "        (SELECT unicode_casefold(pathname) FROM vfile"
+    "          WHERE vid=%d AND NOT deleted"
+    "          GROUP BY 1 HAVING count(*)>1));",
+    vid, vid
+  );
+  db_prepare(&ins, "INSERT INTO ondisk(dir,name) VALUES(:dir,:name)");
+  db_prepare(&q, "SELECT DISTINCT dir FROM namecheck ORDER BY dir");
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zDir = db_column_text(&q, 0);
+    char *zFull = mprintf("%s%s", g.zLocalRoot, zDir);
+    void *zNative = fossil_utf8_to_path(zFull, 1);
+    DIR *d = opendir(zNative);
+    if( d ){
+      struct dirent *pEntry;
+      while( (pEntry=readdir(d))!=0 ){
+        char *zUtf8 = fossil_path_to_utf8(pEntry->d_name);
+        db_bind_text(&ins, ":dir", zDir);
+        db_bind_text(&ins, ":name", zUtf8);
+        db_step(&ins);
+        db_reset(&ins);
+        fossil_path_free(zUtf8);
+      }
+      closedir(d);
+    }
+    fossil_path_free(zNative);
+    fossil_free(zFull);
+  }
+  db_finalize(&q);
+  db_finalize(&ins);
+  db_prepare(&q,
+    "SELECT pathname FROM namecheck"
+    " WHERE NOT EXISTS(SELECT 1 FROM ondisk"
+    "                   WHERE ondisk.dir=namecheck.dir"
+    "                     AND ondisk.name=namecheck.tail)"
+    " ORDER BY pathname");
+  while( db_step(&q)==SQLITE_ROW ){
+    fossil_warning("WARNING: the file system did not keep the name \"%s\""
+                   " as written.  It may treat the name as the same file as"
+                   " another name that differs only in letter case or"
+                   " Unicode normalization.",
+                   db_column_text(&q, 0));
+  }
+  db_finalize(&q);
+}
+
+/*
 ** Write all files from vid to the disk.  Or if vid==0 and id!=0
 ** write just the specific file where VFILE.ID=id.
 */

@@ -360,6 +360,7 @@ void checkout_cmd(void){
   db_multi_exec("DELETE FROM vfile WHERE vid!=%d", vid);
   if( !keepFlag ){
     vfile_to_disk(vid, 0, !g.fQuiet, promptFlag);
+    vfile_check_names_on_disk(vid);
   }
   checkout_set_all_exe(vid);
   ensure_empty_dirs_created(0);

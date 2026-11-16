@@ -1759,6 +1759,7 @@ merge_next_child:
     nMerge++;
     goto merge_next_child;
   }
+  if( !dryRunFlag ) vfile_check_names_on_disk(vid);
   if( useUndo ) undo_finish();
 
   db_end_transaction(dryRunFlag);
