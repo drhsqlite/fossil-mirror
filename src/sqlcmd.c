@@ -212,8 +212,8 @@ static void sqlcmd_db_protect_pop(
 */
 static int sqlcmd_autoinit(
   sqlite3 *db,
-  const char **pzErrMsg,
-  const void *notUsed
+  char **pzErrMsg,
+  const sqlite3_api_routines *notUsed
 ){
   int mTrace = SQLITE_TRACE_CLOSE;
   add_content_sql_commands(db);

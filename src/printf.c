@@ -730,8 +730,8 @@ int vxprintf(
         }else if( xtype==etSTRINGID ){
           precision = hash_digits(flag_altform2);
         }
+        if( limit<0 || (precision>=0 && precision<limit) ) limit = precision;
         length = StrNLen32(bufpt, limit);
-        if( precision>=0 && precision<length ) length = precision;
         break;
       }
       case etBLOB: {

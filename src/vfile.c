@@ -419,7 +419,7 @@ static int is_temporary_file(const char *zName){
     if( zName[0]!='-' ) continue;
     for(i=0; i<count(azTemp); i++){
       n = (int)strlen(azTemp[i]);
-      if( memcmp(azTemp[i], zName+1, n) ) continue;
+      if( strncmp(azTemp[i], zName+1, n) ) continue;
       if( zName[n+1]==0 ) return 1;
       if( zName[n+1]=='-' ){
         for(j=n+2; zName[j] && fossil_isdigit(zName[j]); j++){}

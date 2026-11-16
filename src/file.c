@@ -1829,9 +1829,10 @@ void file_relative_name(const char *zOrigName, Blob *pOut, int slash){
           }
         }
         while( i>0 && (zPwd[i]!='/')) --i;
-        blob_append(pOut, zPath+i, j-i);
+        blob_append(pOut, zPath+i, -1);
       }
-      if( slash && i>0 && zPath[strlen(zPath)-1]=='/'){
+      if( slash && i>0 && zPath[strlen(zPath)-1]=='/'
+       && blob_buffer(pOut)[blob_size(pOut)-1]!='/' ){
         blob_append(pOut, "/", 1);
       }
       blob_reset(&tmp);

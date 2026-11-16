@@ -467,8 +467,12 @@ int rebuild_db(int doOut, int doClustering){
     if( size>=0 ){
       if( !bag_find(&bagDone, rid) ){
         Blob content;
-        content_get(rid, &content);
-        rebuild_step(rid, size, &content);
+        if( content_get(rid, &content) ){
+          rebuild_step(rid, size, &content);
+        }else{
+          /* The content cannot be rebuilt.  Leave the artifact as it is. */
+          rebuild_step_done(rid);
+        }
       }
     }else{
       db_multi_exec("INSERT OR IGNORE INTO phantom VALUES(%d)", rid);
@@ -1529,8 +1533,12 @@ void deconstruct_cmd(void){
     if( size>=0 ){
       if( !bag_find(&bagDone, rid) ){
         Blob content;
-        content_get(rid, &content);
-        rebuild_step(rid, size, &content);
+        if( content_get(rid, &content) ){
+          rebuild_step(rid, size, &content);
+        }else{
+          /* The content cannot be rebuilt.  Leave the artifact as it is. */
+          rebuild_step_done(rid);
+        }
       }
     }
   }

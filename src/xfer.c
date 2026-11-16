@@ -751,7 +751,7 @@ static void send_unversioned_file(
     const char *zHash = db_column_text(&q1, 1);
     if( pXfer->remoteVersion<20000 && db_column_bytes(&q1,1)>HNAME_LEN_SHA1 ){
       xfer_cannot_send_sha3_error(pXfer);
-      db_reset(&q1);
+      db_finalize(&q1);
       return;
     }
     if( isFull ){
@@ -2565,7 +2565,9 @@ int client_sync(
       **
       ** Client receives a file transmitted from the server.
       */
-      if( blob_eq(&xfer.aToken[0],"file") ){
+      if( blob_eq(&xfer.aToken[0],"file")
+       && (syncFlags & (SYNC_PULL|SYNC_CLONE))!=0
+      ){
         xfer_accept_file(&xfer, (syncFlags & SYNC_CLONE)!=0, 0, 0);
         nArtifactRcvd++;
       }else
@@ -2575,7 +2577,9 @@ int client_sync(
       **
       ** Client receives a compressed file transmitted from the server.
       */
-      if( blob_eq(&xfer.aToken[0],"cfile") ){
+      if( blob_eq(&xfer.aToken[0],"cfile")
+       && (syncFlags & (SYNC_PULL|SYNC_CLONE))!=0
+      ){
         xfer_accept_compressed_file(&xfer, 0, 0);
         nArtifactRcvd++;
       }else
@@ -2584,7 +2588,9 @@ int client_sync(
       **
       ** Client accepts an unversioned file from the server.
       */
-      if( blob_eq(&xfer.aToken[0], "uvfile") ){
+      if( blob_eq(&xfer.aToken[0], "uvfile")
+       && (syncFlags & (SYNC_UNVERSIONED|SYNC_CLONE))!=0
+      ){
         xfer_accept_unversioned_file(&xfer, 1);
         nArtifactRcvd++;
         nUvFileRcvd++;
@@ -2635,10 +2641,14 @@ int client_sync(
         int isPriv = xfer.nToken>=3 && blob_eq(&xfer.aToken[2],"1");
         rid = rid_from_uuid(&xfer.aToken[1], 0, 0);
         if( rid>0 ){
-          if( isPriv ){
-            content_make_private(rid);
-          }else{
+          if( !isPriv ){
             content_make_public(rid);
+          }else if( g.perm.Private
+                 || db_exists("SELECT 1 FROM phantom WHERE rid=%d", rid) ){
+            /* Outside a sync of private content, only an artifact that is
+            ** still a phantom here is marked, so that it is not asked for
+            ** again.  Content that this repository holds stays public. */
+            content_make_private(rid);
           }
         }else if( isPriv && !g.perm.Private ){
           /* ignore private files */
@@ -2664,6 +2674,7 @@ int client_sync(
       */
       if( xfer.nToken==5
        && blob_eq(&xfer.aToken[0], "uvigot")
+       && (syncFlags & (SYNC_UNVERSIONED|SYNC_CLONE))!=0
        && blob_is_filename(&xfer.aToken[1])
        && blob_is_int64(&xfer.aToken[2], &mtime)
        && blob_is_int(&xfer.aToken[4], &size)
