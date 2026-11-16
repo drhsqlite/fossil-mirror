@@ -243,6 +243,7 @@ static int add_files_in_sfile(int vid){
   }
   db_finalize(&loop);
   blob_reset(&repoName);
+  if( nAdd ) vfile_warn_case_collisions(vid);
   return nAdd;
 }
 
@@ -917,7 +918,10 @@ static void mv_one_file(
     }
   }
   if( moveFiles ){
-    if( file_size(zNew, ExtFILE) != -1 ){
+    if( file_size(zNew, ExtFILE) != -1
+     && (filenames_are_case_sensitive()
+         || fossil_unicode_stricmp(zOrig, zNew)!=0)
+    ){
       fossil_fatal("cannot rename '%s' to '%s' on disk since another file"
         " named '%s' already exists", zOrig, zNew, zNew);      
     }

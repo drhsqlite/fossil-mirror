@@ -284,6 +284,28 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
 }
 
 /*
+** Warn about files in check-out vid whose names differ only in letter
+** case, using Unicode case folding.  On Windows, macOS and other
+** systems with case-insensitive filenames, a check-out can hold only
+** one file of each group.
+*/
+void vfile_warn_case_collisions(int vid){
+  Stmt q;
+  db_prepare(&q,
+    "SELECT group_concat(pathname, ', ') FROM ("
+    "  SELECT pathname, unicode_casefold(pathname) AS k FROM vfile"
+    "   WHERE vid=%d AND NOT deleted ORDER BY pathname)"
+    " GROUP BY k HAVING count(*)>1", vid);
+  while( db_step(&q)==SQLITE_ROW ){
+    fossil_warning("WARNING: these filenames differ only in letter case,"
+                   " so a check-out on a case-insensitive file system"
+                   " can hold only one of them: %s",
+                   db_column_text(&q, 0));
+  }
+  db_finalize(&q);
+}
+
+/*
 ** For a case-insenstive checkout, abort if two pathnames we are about
 ** to write differ only letter case. These would be just one file on
 ** disk so one will otherwise get overwritten.

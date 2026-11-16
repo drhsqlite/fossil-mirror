@@ -1165,6 +1165,55 @@ int file_is_simple_pathname_nonstrict(const char *z){
 }
 
 /*
+** Compare two filenames, ignoring case with Unicode case folding.
+** Return 0 if they are equal.
+**
+** Fossil's case-insensitive filename handling (filename_collation())
+** folds only the ASCII letters A to Z.  NTFS and APFS fold letters in
+** all cased scripts, so names such as "Ärger.txt" and "ärger.txt"
+** are different to Fossil but the same file on those systems. 
+** Folding tables differ from each other and also from Unicode, so
+** so this comparison is more of a guide than conforming to any single
+** standard.
+*/
+int fossil_unicode_stricmp(const char *zA, const char *zB){
+  const unsigned char *a = (const unsigned char*)zA;
+  const unsigned char *b = (const unsigned char*)zB;
+  while( *a && *b ){
+    u32 ca = fossil_utf8_read(&a);
+    u32 cb = fossil_utf8_read(&b);
+    if( ca!=cb ){
+      int fa = unicode_fold((int)ca, 0);
+      int fb = unicode_fold((int)cb, 0);
+      if( fa!=fb ) return fa<fb ? -1 : 1;
+    }
+  }
+  return (*a!=0) - (*b!=0);
+}
+
+/*
+** Implementation of the SQL function unicode_casefold(TEXT).  It returns
+** a BLOB of the code points of TEXT after Unicode case folding, so two
+** filenames that differ only in letter case give equal results.  The
+** result is for comparison purpose only.
+*/
+void unicode_casefold_sqlfunc(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const unsigned char *z = sqlite3_value_text(argv[0]);
+  u32 *a;
+  int n = 0;
+  if( z==0 ) return;
+  a = fossil_malloc( (sqlite3_value_bytes(argv[0])+1)*sizeof(u32) );
+  while( *z ){
+    a[n++] = (u32)unicode_fold((int)fossil_utf8_read(&z), 0);
+  }
+  sqlite3_result_blob(context, a, n*(int)sizeof(u32), fossil_free);
+}
+
+/*
 ** If the last component of the pathname in z[0]..z[j-1] is something
 ** other than ".." then back it out and return true.  If the last
 ** component is empty or if it is ".." then return false.
