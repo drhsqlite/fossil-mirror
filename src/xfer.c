@@ -253,11 +253,17 @@ static void xfer_accept_file(
 ** If any error occurs, write a message into pErr which has already
 ** be initialized to an empty string.
 **
+** Unless cloneFlag is set, the content must have the size USIZE and
+** give the HASH, or it is refused.  The hash of a delta is checked only
+** if DELTASRC is at hand.  A clone is not checked here, as it is not in
+** xfer_accept_file().
+**
 ** Any artifact successfully received by this routine is considered to
 ** be public and is therefore removed from the "private" table.
 */
 static void xfer_accept_compressed_file(
   Xfer *pXfer,
+  int cloneFlag,
   char **pzUuidList,
   int *pnUuidList
 ){
@@ -311,6 +317,39 @@ static void xfer_accept_compressed_file(
   }else{
     srcid = 0;
     pXfer->nFileRcvd++;
+  }
+  if( !cloneFlag ){
+    Blob *pUuid = &pXfer->aToken[1];
+    Blob x;          /* The content, uncompressed */
+    Blob src, next;  /* Source of a delta, and the delta applied to it */
+    int ok = 1;
+    blob_zero(&x);
+    if( szU==0 ){
+      blob_copy(&x, &content);
+    }else if( blob_size(&content)<=4 || blob_uncompress(&content, &x) ){
+      blob_appendf(&pXfer->err, "malformed cfile content");
+      blob_reset(&content);
+      return;
+    }
+    if( srcid==0 ){
+      ok = (int)blob_size(&x)==szU
+        && hname_verify_hash(&x, blob_buffer(pUuid), blob_size(pUuid));
+    }else if( delta_output_size(blob_buffer(&x), blob_size(&x))!=szU ){
+      ok = 0;
+    }else if( content_get(srcid, &src) ){
+      blob_zero(&next);
+      ok = blob_delta_apply(&src, &x, &next)>=0
+        && hname_verify_hash(&next, blob_buffer(pUuid), blob_size(pUuid));
+      blob_reset(&next);
+      blob_reset(&src);
+    }
+    blob_reset(&x);
+    if( !ok ){
+      blob_appendf(&pXfer->err,
+                   "wrong size or hash on received artifact: %b", pUuid);
+      blob_reset(&content);
+      return;
+    }
   }
   rid = content_put_ex(&content, blob_str(&pXfer->aToken[1]), srcid,
                        szU, isPriv);
@@ -1420,7 +1459,7 @@ void page_xfer(void){
         nErr++;
         break;
       }
-      xfer_accept_compressed_file(&xfer, pzUuidList, pnUuidList);
+      xfer_accept_compressed_file(&xfer, 0, pzUuidList, pnUuidList);
       if( blob_size(&xfer.err) ){
         cgi_reset_content();
         @ error %T(blob_str(&xfer.err))
@@ -2589,7 +2628,7 @@ int client_sync(
       if( blob_eq(&xfer.aToken[0],"cfile")
        && (syncFlags & (SYNC_PULL|SYNC_CLONE))!=0
       ){
-        xfer_accept_compressed_file(&xfer, 0, 0);
+        xfer_accept_compressed_file(&xfer, (syncFlags & SYNC_CLONE)!=0, 0, 0);
         nArtifactRcvd++;
       }else
 

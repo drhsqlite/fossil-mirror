@@ -1,5 +1,5 @@
-C In\sxfer_accept_compressed_file(),\srecord\sthe\ssize\sof\sthe\scontent\sas\sthe\ssize\sof\san\sartifact\sreceived\sin\sa\scfile\scard.\sThe\ssize\sof\sits\scompressed\sform\swas\srecorded,\sso\stest-integrity\sreported\sa\ssize\smismatch\sfor\ssuch\san\sartifact\suntil\sthe\snext\srebuild.
-D 2026-11-16T08:40:35.232
+C In\sxfer_accept_compressed_file(),\srefuse\sa\scfile\scard\swhose\scontent\sdoes\snot\shave\sthe\ssize\sand\sthe\shash\sthat\sthe\scard\sgives,\sas\sxfer_accept_file()\sdoes\sfor\sa\sfile\scard.\sThe\scontent\swas\sstored\sunchecked,\sand\sthe\smismatch\swas\sfound\sonly\sby\sthe\scheck\sbefore\scommit,\swhich\sends\sthe\sprocess\swith\sabort().\sA\sdelta\sis\schecked\sagainst\sits\shash\sonly\sif\sits\ssource\sis\sat\shand,\sand\sa\sclone\sis\snot\schecked,\sas\sbefore.
+D 2026-11-16T08:47:35.898
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -598,7 +598,7 @@ F src/wiki.wiki bd6ca20a0df1054d68bbd7683acc6f24225652276f0ed53ce6fa564faed4dd60
 F src/wikiformat.c 2674a0ff557fc634966f1aa1affaaf492ab6ec3b513082d47ec40c5ed8c6ba13
 F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c 093582715f8a7b142b04b651b28473c585fc1e07f4570e33f64b122cf3e9457d
-F src/xfer.c 3091a290283765d842dab3d7c8f79e75db6261c3057b93e6e0ae4a4b14aed535
+F src/xfer.c 1943ea5ece171cc5d21e3b3e0a3af032d18a14a5086e9e21fbd638b90e6ab6fd
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
 F src/xsystem.c c8c87776fa160083216bd35c69292a6c3b58870e4c9f6ff1859426b99ea1c106
 F src/zip.c 66a5c78dd2afbb2067b8283ccc8d62e367e761ff2e2b31f3713f7dde10db63bd
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ad5033a1aa4c81813827331df44e4c5f27d6bdc94f1fb2a890f1ea7ceea4b1ca
-R 803cc13a652205e3bdd6a52831b244c3
+P d80d75c679780374b2efd0e9fab15b3971f66fd254fd75d5ae08bf09e2835831
+R 7cb91e85101222cb5270eb55f0dcd4af
 U dmestas
-Z d1341ef73bb074c2073fab744e05d823
+Z cab2ac170858ebf6f04f3c2bb54289f5
 # Remove this line to create a well-formed Fossil manifest.
