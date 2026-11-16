@@ -949,7 +949,7 @@ static int thEvalLocal(Th_Interp *interp, const char *zProgram, int nProgram){
     zFirst = zInput;
 
     /* Check for a comment. If found, skip to the end of the line. */
-    if( zInput[0]=='#' ){
+    if( nInput>0 && zInput[0]=='#' ){
       while( !thEndOfLine(zInput, nInput) ){
         zInput++;
         nInput--;
@@ -960,7 +960,7 @@ static int thEvalLocal(Th_Interp *interp, const char *zProgram, int nProgram){
     /* Gobble up input a word at a time until the end of the command
     ** (a semi-colon or end of line).
     */
-    while( rc==TH_OK && *zInput!=';' && !thEndOfLine(zInput, nInput) ){
+    while( rc==TH_OK && !thEndOfLine(zInput, nInput) && *zInput!=';' ){
       int nWord=0;
       thNextSpace(interp, zInput, nInput, &nSpace);
       rc = thNextWord(interp, &zInput[nSpace], nInput-nSpace, &nWord, 1);

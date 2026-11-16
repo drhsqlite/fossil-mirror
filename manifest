@@ -1,5 +1,5 @@
-C Make\ssure\sthe\stable\sof\sunversioned\sfiles\sexists\sbefore\sa\suvfile\sor\suvgimme\scard\sis\sacted\son.\sA\srepository\sthat\shad\snever\sheld\san\sunversioned\sfile\sanswered\ssuch\sa\scard\swith\sa\sdatabase\serror\swhen\sthe\sother\sside\shad\ssent\sno\suv-hash\spragma\sfirst.
-D 2026-11-16T11:05:16.493
+C In\sthEvalLocal(),\sdo\snot\sread\sthe\sbyte\safter\sthe\send\sof\sa\sscript.\sWhen\sthe\slast\scommand\sof\sa\sscript\sran\sto\sits\send,\sor\sthe\sscript\sended\swith\sa\ssemicolon,\sone\smore\sbyte\swas\sexamined;\sfor\sthe\sbody\sof\sa\sTH1\sprocedure\swithout\sparameters\sthat\sbyte\sis\spast\sthe\send\sof\sits\sallocation.
+D 2026-11-16T18:02:42.573
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -573,7 +573,7 @@ F src/sync.c 5057e2f69c479d4570b8b96e2bf0e69a56bf9d13ebdf6f8060419880d85178b3
 F src/tag.c 7eda0624887a9ee2136818e65e0f78e7e3556f3add3c5df75bdfc903d487a689
 F src/tar.c a1f81e912f81bc4148c6662712996e951b144f4a0d5f5ca19d42db74bfaa14fe
 F src/terminal.c 1f497ac2f122d3fc856aac9386c064c10e10bf148467986ef73c7562f9379872
-F src/th.c b09f277fb687cb594f69215e91ee4a3fd86a245eec45985da4b824e969bfbeb5
+F src/th.c 39132903eafe4d74082eaf0a93219a30789d313eef75c8551c026888f848dc6c
 F src/th.h 549dd1af2f4b241ede68fadbf426a7707ae9657292b7914a20a3c401513b25a0
 F src/th_lang.c c59bbad1fefb0af72cadd3f32f7c8845b339bf8471640d737b0d4499b787589b
 F src/th_main.c 3152939e026601c2785c8d9ebde5d06e6b4fa6f1a577f11f566c13734275b4da
@@ -981,8 +981,10 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ab28f6ca06d951acdae1deffbe3b5e3e64d7dc242b7e9eca80c6167254657e99
-R 0b82bff52b96032e62fdb5f4529d3aa7
+P 4377c765a9c135e4ab8128c8328f01a4a462e101c7086195b2b21d39279a623d
+R 10c98053db6307791f15ad9e0bdcef20
+T *branch * small-fixes-2
+T *sym-small-fixes-2 *
 U dmestas
-Z 179dbfcd188f258bb4611f4a6490fe30
+Z e6c8d8ece55293937b32596aee8cb323
 # Remove this line to create a well-formed Fossil manifest.
