@@ -426,6 +426,9 @@ static void xfer_accept_unversioned_file(Xfer *pXfer, int isWriter){
   /* Make sure we have a valid g.rcvid marker */
   content_rcvid_init(0);
 
+  /* The table might not exist yet if the other side sent no uv-hash pragma */
+  unversioned_schema();
+
   /* Check to see if current content really should be overwritten.  Ideally,
   ** a uvfile card should never have been sent unless the overwrite should
   ** occur.  But do not trust the sender.  Double-check.
@@ -781,6 +784,7 @@ static void send_unversioned_file(
   Stmt q1;
   int isFull = !isClient && (int)blob_size(pXfer->pOut)>=pXfer->mxSend;
 
+  unversioned_schema();
   if( isFull ) noContent = 1;
   if( noContent ){
     db_prepare(&q1,
