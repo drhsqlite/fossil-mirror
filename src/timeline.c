@@ -3204,14 +3204,15 @@ void page_timeline(void){
         sqlite3_create_function(g.db, "forum_post_content", 1, SQLITE_UTF8,
                  0, forum_post_content_function, 0, 0);
         blob_append_sql(&cond,
-          " AND (event.comment LIKE '%%%q%%'"
-               " OR event.brief LIKE '%%%q%%'"
+          " AND (unicode_contains(event.comment,%Q)"
+               " OR unicode_contains(event.brief,%Q)"
                " OR (event.type=='f' AND"
-                     " forum_post_content(event.objid) LIKE '%%%q%%'))",
+                  " unicode_contains(forum_post_content(event.objid),%Q)))",
           zSearch, zSearch, zSearch);
       }else{
         blob_append_sql(&cond,
-          " AND (event.comment LIKE '%%%q%%' OR event.brief LIKE '%%%q%%')",
+          " AND (unicode_contains(event.comment,%Q)"
+          " OR unicode_contains(event.brief,%Q))",
           zSearch, zSearch);
       }
     }

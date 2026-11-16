@@ -95,6 +95,170 @@ static const char isBoundary[] = {
 };
 #define ISALNUM(x)  (!isBoundary[(x)&0xff])
 
+/*
+** Classes of non-ASCII characters returned by search_char_class()
+*/
+#define SCHAR_WORD      0  /* Part of a word, or not a character start */
+#define SCHAR_UNSPACED  1  /* Letter of a script written without spaces */
+#define SCHAR_SEPARATOR 2  /* Punctuation or space that separates words */
+
+/*
+** Return the number of bytes in the UTF-8 character that starts at z.
+*/
+static int search_utf8_len(const char *z){
+  int n = 1;
+  if( (z[0]&0xc0)==0xc0 ){
+    while( n<4 && (z[n]&0xc0)==0x80 ) n++;
+  }
+  return n;
+}
+
+/*
+** Classify the character that starts at z.
+**
+** Chinese, Japanese, Thai, Lao, Khmer and Burmese text has no spaces
+** between words, and finding word boundaries in it needs a dictionary
+** (Unicode UAX #29).  The full-scan search instead lets a match begin
+** and end at any character of those scripts.  The spaces and
+** punctuation listed below separate words: Latin-1 punctuation, the
+** General Punctuation, CJK and fullwidth punctuation blocks, the
+** Vertical Forms and CJK Compatibility Forms blocks (punctuation for
+** vertical text), and Arabic and Devanagari punctuation.  Other
+** characters outside ASCII, including punctuation of other scripts such
+** as Armenian and Ethiopic, are treated as part of a word.
+*/
+static int search_char_class(const char *z){
+  const unsigned char *u = (const unsigned char*)z;
+  u32 c;
+  if( u[0]<0xc0 ) return SCHAR_WORD;
+  c = fossil_utf8_read(&u);
+  if( c>=0xa0 && c<=0xbf ){
+    /* Latin-1 punctuation and symbols, but not ª ² ³ µ ¹ º ¼ ½ ¾ */
+    if( c==0xaa || c==0xb2 || c==0xb3 || c==0xb5 || c==0xb9
+     || c==0xba || (c>=0xbc && c<=0xbe) ){
+      return SCHAR_WORD;
+    }
+    return SCHAR_SEPARATOR;
+  }
+  if( c==0xd7 || c==0xf7 ) return SCHAR_SEPARATOR;    /* × ÷ */
+  if( c==0x60c || c==0x61b || c==0x61f || c==0x6d4 ){
+    return SCHAR_SEPARATOR;                           /* Arabic */
+  }
+  if( c==0x964 || c==0x965 ) return SCHAR_SEPARATOR;  /* Danda */
+  if( c>=0x2000 && c<=0x206f ) return SCHAR_SEPARATOR;
+  if( c>=0x3000 && c<=0x303f ) return SCHAR_SEPARATOR;
+  if( (c>=0xfe10 && c<=0xfe19) || (c>=0xfe30 && c<=0xfe4f) ){
+    return SCHAR_SEPARATOR;                           /* Vertical forms */
+  }
+  if( (c>=0xff00 && c<=0xff0f) || (c>=0xff1a && c<=0xff20)
+   || (c>=0xff3b && c<=0xff40) || (c>=0xff5b && c<=0xff65) ){
+    return SCHAR_SEPARATOR;                           /* Fullwidth */
+  }
+  if( (c>=0x0e00 && c<=0x0eff)      /* Thai, Lao */
+   || (c>=0x1000 && c<=0x109f)      /* Myanmar */
+   || (c>=0x1780 && c<=0x17ff)      /* Khmer */
+   || (c>=0x3040 && c<=0x30ff)      /* Hiragana, Katakana */
+   || (c>=0x3400 && c<=0x4dbf)      /* CJK Extension A */
+   || (c>=0x4e00 && c<=0x9fff)      /* CJK Unified Ideographs */
+   || (c>=0xf900 && c<=0xfaff)      /* CJK Compatibility Ideographs */
+   || (c>=0x20000 && c<=0x3ffff)    /* CJK Extensions B and later */
+  ){
+    return SCHAR_UNSPACED;
+  }
+  return SCHAR_WORD;
+}
+
+/*
+** True if the byte at z can begin or continue a word
+*/
+#define ISWORD(z)  (ISALNUM(*(z)) && search_char_class(z)!=SCHAR_SEPARATOR)
+
+/*
+** True if a match that ends just before z ends on a word boundary
+*/
+#define ISWORDEND(z)  (!ISWORD(z) || search_char_class(z)==SCHAR_UNSPACED)
+
+/*
+** Compare the nTerm-byte search term zTerm against the text at zDoc,
+** ignoring case.  Return the number of bytes of zDoc that match, which
+** can differ from nTerm when case folding changes the length of a
+** character, or -1 if the text does not match.  A match must end on a
+** word boundary, unless its last character belongs to a script written
+** without spaces or the term ends with "*".
+*/
+static int search_term_match(const char *zTerm, int nTerm, const char *zDoc){
+  const unsigned char *t = (const unsigned char*)zTerm;
+  const unsigned char *tEnd = t + nTerm;
+  const unsigned char *d = (const unsigned char*)zDoc;
+  int bUnspaced = 0;
+  while( t<tEnd ){
+    if( t[0]<0x80 && d[0]<0x80 ){
+      if( fossil_tolower(t[0])!=fossil_tolower(d[0]) ) return -1;
+      t++;
+      d++;
+      bUnspaced = 0;
+    }else{
+      u32 ct, cd;
+      if( d[0]==0 ) return -1;
+      bUnspaced = search_char_class((const char*)t)==SCHAR_UNSPACED;
+      ct = fossil_utf8_read(&t);
+      cd = fossil_utf8_read(&d);
+      if( ct!=cd && unicode_fold((int)ct,0)!=unicode_fold((int)cd,0) ){
+        return -1;
+      }
+    }
+  }
+  if( !bUnspaced && !ISWORDEND((const char*)d) && *tEnd!='*' ){
+    return -1;
+  }
+  return (int)(d - (const unsigned char*)zDoc);
+}
+
+
+/*
+** Return true if zPat matches the start of zText, ignoring case with
+** Unicode case folding.
+*/
+static int unicode_prefix_nocase(
+  const unsigned char *zText,
+  const unsigned char *zPat
+){
+  while( *zPat ){
+    u32 a, b;
+    if( *zText==0 ) return 0;
+    a = fossil_utf8_read(&zText);
+    b = fossil_utf8_read(&zPat);
+    if( a!=b && unicode_fold((int)a,0)!=unicode_fold((int)b,0) ) return 0;
+  }
+  return 1;
+}
+
+/*
+** Implementation of the SQL function unicode_contains(TEXT,PATTERN),
+** which is true if PATTERN occurs in TEXT, ignoring case with Unicode
+** case folding.  Use it in place of LIKE '%PATTERN%', which folds only
+** the ASCII letters A to Z.
+*/
+void unicode_contains_sqlfunc(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const unsigned char *zText = sqlite3_value_text(argv[0]);
+  const unsigned char *zPat = sqlite3_value_text(argv[1]);
+  int bFound = 0;
+  if( zText && zPat ){
+    while( 1 ){
+      if( unicode_prefix_nocase(zText, zPat) ){
+        bFound = 1;
+        break;
+      }
+      if( *zText==0 ) break;
+      zText += search_utf8_len((const char*)zText);
+    }
+  }
+  sqlite3_result_int(context, bFound);
+}
 
 /*
 ** Destroy a full-scan search context.
@@ -139,10 +303,10 @@ static Search *search_init(
   p->fSrchFlg = fSrchFlg;
   blob_init(&p->snip, 0, 0);
   while( *z && p->nTerm<SEARCH_MAX_TERM ){
-    while( *z && !ISALNUM(*z) ){ z++; }
+    while( *z && !ISWORD(z) ){ z += search_utf8_len(z); }
     if( *z==0 ) break;
     p->a[p->nTerm].z = z;
-    for(i=1; ISALNUM(z[i]); i++){}
+    for(i=1; ISWORD(&z[i]); i++){}
     p->a[p->nTerm].n = i;
     z += i;
     p->nTerm++;
@@ -213,13 +377,15 @@ static int search_match(
     if( zDoc==0 ) continue;
     iWord++;
     for(i=0; zDoc[i]; i++){
-      if( !ISALNUM(zDoc[i]) ) continue;
+      int bUnspaced;
+      if( !ISWORD(&zDoc[i]) ){
+        i += search_utf8_len(&zDoc[i]) - 1;
+        continue;
+      }
+      bUnspaced = search_char_class(&zDoc[i])==SCHAR_UNSPACED;
       iWord++;
       for(j=0; j<p->nTerm; j++){
-        int n = p->a[j].n;
-        if( sqlite3_strnicmp(p->a[j].z, &zDoc[i], n)==0
-         && (!ISALNUM(zDoc[i+n]) || p->a[j].z[n]=='*')
-        ){
+        if( search_term_match(p->a[j].z, p->a[j].n, &zDoc[i])>=0 ){
           aiWordIdx[j] = iWord;
           aiLastDoc[j] = iDoc;
           aiLastOfst[j] = i;
@@ -234,8 +400,16 @@ static int search_match(
           break;
         }
       }
-      while( ISALNUM(zDoc[i]) ){ i++; }
+      if( bUnspaced ){
+        /* The next character can begin a match */
+        i += search_utf8_len(&zDoc[i]) - 1;
+        continue;
+      }
+      while( ISWORD(&zDoc[i]) && search_char_class(&zDoc[i])==SCHAR_WORD ){
+        i++;
+      }
       if( zDoc[i]==0 ) break;
+      if( ISALNUM(zDoc[i]) ) i--;  /* Revisit a character outside ASCII */
     }
   }
 
@@ -285,10 +459,18 @@ static int search_match(
     zDoc = azDoc[iDoc];
     iOfst -= CTX;
     if( iOfst<0 ) iOfst = 0;
-    while( iOfst>0 && ISALNUM(zDoc[iOfst-1]) ) iOfst--;
-    while( zDoc[iOfst] && !ISALNUM(zDoc[iOfst]) ) iOfst++;
+    while( iOfst>0 && ISALNUM(zDoc[iOfst-1])
+        && search_char_class(&zDoc[iOfst])==SCHAR_WORD ){
+      iOfst--;
+    }
+    while( zDoc[iOfst] && !ISWORD(&zDoc[iOfst]) ){
+      iOfst += search_utf8_len(&zDoc[iOfst]);
+    }
     for(ii=0; ii<CTX && zDoc[iTail]; ii++, iTail++){}
-    while( ISALNUM(zDoc[iTail]) ) iTail++;
+    while( ISALNUM(zDoc[iTail])
+        && search_char_class(&zDoc[iTail])==SCHAR_WORD ){
+      iTail++;
+    }
     if( iOfst>0 || wantGap ) blob_append(&p->snip, p->zMarkGap, -1);
     wantGap = zDoc[iTail]!=0;
     zDoc += iOfst;
@@ -296,18 +478,22 @@ static int search_match(
 
     /* Add a snippet segment using characters iOfst..iOfst+iTail from zDoc */
     for(i=0; i<iTail; i++){
-      if( !ISALNUM(zDoc[i]) ) continue;
+      if( !ISWORD(&zDoc[i]) ){
+        i += search_utf8_len(&zDoc[i]) - 1;
+        continue;
+      }
       for(j=0; j<p->nTerm; j++){
-        int n = p->a[j].n;
-        if( sqlite3_strnicmp(p->a[j].z, &zDoc[i], n)==0
-         && (!ISALNUM(zDoc[i+n]) || p->a[j].z[n]=='*')
-        ){
+        int n = search_term_match(p->a[j].z, p->a[j].n, &zDoc[i]);
+        if( n>=0 ){
           snippet_text_append(p, &p->snip, zDoc, i);
           zDoc += i;
           iTail -= i;
           blob_append(&p->snip, p->zMarkBegin, -1);
-          if( p->a[j].z[n]=='*' ){
-            while( ISALNUM(zDoc[n]) ) n++;
+          if( p->a[j].z[p->a[j].n]=='*' ){
+            while( ISALNUM(zDoc[n])
+                && search_char_class(&zDoc[n])==SCHAR_WORD ){
+              n++;
+            }
           }
           snippet_text_append(p, &p->snip, zDoc, n);
           zDoc += n;
@@ -318,7 +504,13 @@ static int search_match(
         } /* end-if */
       } /* end for(j) */
       if( j<p->nTerm ){
-        while( ISALNUM(zDoc[i]) && i<iTail ){ i++; }
+        while( i<iTail && ISALNUM(zDoc[i])
+            && (i<0 || search_char_class(&zDoc[i])==SCHAR_WORD) ){
+          i++;
+        }
+        if( i>=0 && i<iTail && ISALNUM(zDoc[i]) ) i--;
+      }else if( search_char_class(&zDoc[i])==SCHAR_UNSPACED ){
+        i += search_utf8_len(&zDoc[i]) - 1;
       }
     } /* end for(i) */
     snippet_text_append(p, &p->snip, zDoc, iTail);
@@ -2275,6 +2467,13 @@ void search_rebuild_index(void){
 **                       may be one of (porter, on, off, trigram, unicode61),
 **                       and "on" is equivalent to "porter". Unindexed
 **                       search never uses tokenization or stemming.
+**                       The porter and unicode61 tokenizers treat an
+**                       unbroken run of Chinese, Japanese, Thai, Lao,
+**                       Khmer or Burmese text as a single word.  The
+**                       trigram tokenizer finds words in such text but
+**                       does not match a query shorter than three
+**                       characters.  Unindexed search matches at any
+**                       character of those scripts.
 **
 ** The current search settings are displayed after any changes are applied.
 ** Run this command with no arguments to simply see the settings.

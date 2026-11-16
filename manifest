@@ -1,5 +1,5 @@
-C When\ssync\striggers\san\sOOM,\sreformulate\sthe\serror\smessage\sinto\sa\ssync\smessage\srather\sthan\semitting\sHTML.\sThis\sis\sintended\sto\saddress\s[forum:c15ec806c36935b5|bug\sreport\s2026-11-13T14:45:54Z]\sbut\sit\smay\sturn\sout\sthat\sthis\swas\sa\sseparate\sissue.
-D 2026-11-16T10:27:29.107
+C Make\sthe\sfull-scan\ssearch\sand\sthe\stimeline\stext\sfilter\swork\swith\snon-ASCII\stext.\sMake\scase\nfolding\suse\sUnicode,\sand\ssearch\srecognise\sword\sbreaks\sin\sscripts\sand\spunctuation\sbeyond\nASCII.\sPicked\sup\swhen\sdoing\slibfossil\sUnicode\sfixes.
+D 2026-11-16T11:36:02.932
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -411,7 +411,7 @@ F src/content.c e2532b83cb198b66a4ccb22d3f1afe6c81de6d6383b7b9d20e8de61525a27dee
 F src/cookies.c 51b9ba6d945c8abd1b4dde2e8cfc2651bfadf219bc34951082e3c8de88667abc
 F src/copybtn.js b56a60f4d8b40667effb40839d88c406146a666f1c0ff62148fd6c847d9c8019
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 87ac5f48eacba1962a613202c0baa4f82e1e6c630db650bf47018dbe75eb737c
+F src/db.c 138d0510745b51a1c601c088080ca818246a4a915bd30d8a387fec9444a3d244
 F src/default.css 368914629b6b092fbe46db6d73c8221f0fc96541d241d1c31f5d3103e658e1c3
 F src/delta.c c8151283afea2bf05967ad370e89f2077cacce8b8744a68e186c57eeaf0b30b5
 F src/deltacmd.c 6948124b7e0960fd1a5b04079523b7940f3e130303e3668668fc36a741627871
@@ -527,9 +527,9 @@ F src/robot.c 5f307a8fec2912c570fef69f275b9d8bb877200e254a039830135317be57ed59
 F src/rss.c d9bde03daca2d12cbd45b44f56172de68a141fc4f141f69de08d407656f75d4a
 F src/schema.c 602fca4d0af4cba3186a9bb01eb4ff160802f9ff501b2a018dce36f6692399e5
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
-F src/search.c dacb9f1b2caba1acfe6b6b45fb753970668941c485cd090a4cb55fadb3e348fe
+F src/search.c f80ef5b21ee0477fae83f54715219fd586859014abf717ea47efb5592fc89930
 F src/security_audit.c 569043cb02871dfd38172a072229d0d308553201b3b65f95ed8892a25a84ff7a
-F src/setup.c 8f15afcdc357cc7a35c7555a38e07428c426a7158bab07fdd3c2cdfb2481724a
+F src/setup.c 053f9edf92967be42306213a5361607796f7316c2b072ae30a885cf4df9c5661
 F src/setupuser.c e2332600755153655c9c01a0f3073c0abd6091d7150e9321abdcf2f3c02c58c9
 F src/sha1.c 58fb2b11857bd03d2211797bcd5be5c8529600e599fb4c90af52fb00223bcdd0
 F src/sha1hard.c 5d02539150f6d37783978e5078d6dd73462a07b3974ec5de51bc7e5aa5fe6ea4
@@ -578,7 +578,7 @@ F src/th.h 549dd1af2f4b241ede68fadbf426a7707ae9657292b7914a20a3c401513b25a0
 F src/th_lang.c c59bbad1fefb0af72cadd3f32f7c8845b339bf8471640d737b0d4499b787589b
 F src/th_main.c 1c502e67cc252c5f57c0567df93fe5cc1b616d60671c8b94f7e02687c9306da4
 F src/th_tcl.c a3d1d8f2e5e645a54a2f70c60f01c3d04a706ecad60468b3949540ba0c78242c
-F src/timeline.c e988e72cab7f1019114120111bc4a4f839f9ef659d5f088245bde9a5bcace8ad
+F src/timeline.c d9cd66d450a220dc781e5fc604d76bea5f43e5736e0811f1189a12bd9dd93175
 F src/tkt.c d39f07ddaaa124cae54dcda4b5d704f7b6c7c8c988858eaa367537eb4f6140fc
 F src/tktsetup.c 22e7338e93a4e54d0e91acd0bf0e80dbdfe4c2958638e163a89239391d6cb8b9
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -981,8 +981,11 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 25193762094ef4603a96a1357c89cf22718cc1c22669e5d984f1225c0c88bf95
-R 18050ee6736b0cb45ae9c2e8a17bd78d
-U stephan
-Z 01fe6f60aec238c8e144b5367ff66ccd
+P 4455100420ac18b13fc05db1097b055d73b4de091f52e986f5527976ea21abeb
+R b2e1848f90a1b77b6b60416cd5c735cc
+T *branch * unicode-fixes
+T *sym-unicode-fixes *
+T -sym-trunk *
+U danshearer
+Z 0b3da71e970857d3bf6df8e568e8729e
 # Remove this line to create a well-formed Fossil manifest.

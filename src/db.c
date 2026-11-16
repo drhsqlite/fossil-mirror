@@ -1648,6 +1648,9 @@ void db_add_aux_functions(sqlite3 *db){
                           file_inode_sql_func,0,0);
   sqlite3_create_function(db, "artifact_to_json", 1, SQLITE_UTF8, 0,
                           artifact_to_json_sql_func,0,0);
+  sqlite3_create_function(db, "unicode_contains", 2,
+                          SQLITE_UTF8|SQLITE_DETERMINISTIC, 0,
+                          unicode_contains_sqlfunc,0,0);
 
 }
 

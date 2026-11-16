@@ -2307,6 +2307,11 @@ static void select_fts_tokenizer(void){
   };
   multiple_choice_attribute("FTS Tokenizer", "search-tokenizer",
                             "ftstok", "off", 4, aTokenizer);
+  @ <p>The Porter and Unicode tokenizers treat an unbroken run of Chinese,
+  @ Japanese, Thai, Lao, Khmer or Burmese text as a single word.  The
+  @ Trigram tokenizer finds words in such text, but does not match a
+  @ query shorter than three characters.  Search without an index
+  @ matches at any character of those scripts.</p>
 }
 
 /*
