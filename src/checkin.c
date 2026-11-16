@@ -2871,6 +2871,17 @@ void commit_cmd(void){
     db_finalize(&q);
   }
 
+  /* With case-sensitive set to off, two filenames that differ
+  ** only in case are the same file on disk. Committing either
+  ** file would record the content content under both filenames.
+  */
+  vfile_check_case_collisions(
+    "SELECT pathname FROM vfile WHERE vid=%d AND NOT deleted"
+    "   AND pathname %s IN (SELECT pathname FROM vfile"
+    "                        WHERE vid=%d AND NOT deleted"
+    "                          AND is_selected(id))",
+    vid, filename_collation(), vid);
+
   db_begin_transaction();
   db_record_repository_filename(0);
   if( hasChanges==0 && !isAMerge && !allowEmpty && !forceFlag ){

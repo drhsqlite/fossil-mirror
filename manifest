@@ -1,5 +1,5 @@
-C Some\scase\sinsensitive\sfilesystems\snotice\swhen\sthey\sare\sabout\sto\soverwrite\sa\sfile\ndue\sto\scase\sfolding,\sand\schange\sthe\sname.\sFossil\sthen\sthinks\sa\sfile\sis\smissing,\nso\sthis\swarning\shelps\swhen\swriting\sfiles\sfor\scheckout,\supdate\sand\smerge.\sFrom\s\nlibfossil\sUnicode\swork.
-D 2026-11-16T12:05:19.322
+C When\scase-sensitive\sis\soff,\srefuse\sa\scommit\sthat\sincludes\sa\spathname\sthat\sdiffers\sonly\sin\ncase\sfrom\sanother\spathname,\ssince\sboth\snames\sare\sone\sfile\son\sdisk\sand\sthe\scommit\swould\s\nrecord\sits\scontent\sunder\sboth.
+D 2026-11-16T12:09:21.737
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -398,7 +398,7 @@ F src/capabilities.c 7b611448e775a4b7cf6600b188b4ffeb94f720e7cc437fe6f3b5efedc5c
 F src/captcha.c f07d93b8bd0c2b5948725700000a6d8b5ecc8cf7614013ae0467f5106b60b349
 F src/cgi.c c12fdf3436eb3f3c13d7352ccd84cc5c7279f9d864f165f7e992f001be5ba3e2
 F src/chat.c 1336f81882986f1613066f9ce171882f836a8a334531f937d3d8624441d9e822
-F src/checkin.c 1570757aaac413e3dc5b21403f111a96ba1fa505400636c5a0079e2dc28f9ed0
+F src/checkin.c 81e3a6bdf720c46a66f38528ff0096ff5a92727b384646b144fac033b7c398b8
 F src/checkout.c c52e91f8d97ce2f360a2d949e0995a072abffdc757ffde4c2b5ce4877ccf6c84
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 80c05a678f508479fd70dea31706e7263b0c14b4238bacbaec14660ab7859697
@@ -981,8 +981,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3155374b8969527880e5ca3a0e2a2b9b6f28ce1ea9a945b8fb783c4025090fa2
-R 44ab7e189d55c155433f373979af76b7
+P 53228924e443e7373f9bfc0fda99c6df29ec7c075a0e734618becb6b11a21405
+R 1811d08428abe2001348bc8b80e8b2be
 U danshearer
-Z 52a57613448eae079cf27cd3c5cafccd
+Z da5c31e89c34f83fa6a0778b3938f722
 # Remove this line to create a well-formed Fossil manifest.
