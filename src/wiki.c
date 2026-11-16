@@ -2069,12 +2069,15 @@ void wfind_page(void){
 ** zMimeType specifies the N-card for the wiki page. If it is 0,
 ** empty, or "text/x-fossil-wiki" (the default format) then it is
 ** ignored.
+**
+** Returns the new page's RID.
 */
 int wiki_cmd_commit(const char *zPageName, int rid, Blob *pContent,
                     const char *zMimeType, int localUser){
   Blob wiki;              /* Wiki page content */
   Blob cksum;             /* wiki checksum */
   char *zDate;            /* timestamp */
+  int nrid;
 
   blob_zero(&wiki);
   zDate = date_in_standard_format("now");
@@ -2099,9 +2102,9 @@ int wiki_cmd_commit(const char *zPageName, int rid, Blob *pContent,
   blob_appendf(&wiki, "Z %b\n", &cksum);
   blob_reset(&cksum);
   db_begin_transaction();
-  wiki_put(&wiki, 0, wiki_need_moderation(localUser));
+  nrid = wiki_put(&wiki, 0, wiki_need_moderation(localUser));
   db_end_transaction(0);
-  return 1;
+  return nrid;
 }
 
 /*
