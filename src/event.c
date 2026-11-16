@@ -151,6 +151,8 @@ void event_page(void){
     }
   }else if( fossil_strcmp(zMimetype, "text/x-markdown")==0 ){
     markdown_to_html(&fullbody, &title, &tail);
+    safe_html_context(DOCSRC_WIKI);
+    safe_html(&tail);
     if( blob_size(&title)==0 ){
       blob_appendf(&title, "Tech-note %S", zId);
     }
