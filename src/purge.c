@@ -612,12 +612,11 @@ void purge_cmd(void){
     vid = 0;
     if( g.localOpen ){
       vid = db_lget_int("checkout",0);
-    }else if( db_open_local(0) ){
-      char *zRepo = file_canonical_name_dup(g.zRepositoryName);
-      if( fossil_strcmp(zRepo, db_repository_filename())==0 ){
-        vid = db_lget_int("checkout",0);
-      }
-      fossil_free(zRepo);
+    }else if( db_open_local(0)
+           && db_exists("SELECT 1 WHERE inode(%Q)=inode(%Q)",
+                        g.zRepositoryName, db_repository_filename())
+    ){
+      vid = db_lget_int("checkout",0);
     }
     db_begin_transaction();
     if( g.argc<=3 ) usage("checkins TAGS... [OPTIONS]");
