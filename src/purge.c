@@ -560,7 +560,7 @@ void purge_cmd(void){
       int r = name_to_typed_rid(g.argv[i], "br");
       compute_descendants(r, 1000000000);
     }
-    vid = db_lget_int("checkout",0);
+    vid = g.localOpen ? db_lget_int("checkout",0) : 0;
     if( db_exists("SELECT 1 FROM ok WHERE rid=%d",vid) ){
       fossil_fatal("cannot purge the current check-out");
     }
