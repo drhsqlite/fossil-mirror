@@ -1,5 +1,5 @@
-C In\sfossil\spatch,\suse\sgethostname()\sinstead\sof\sshelling\sout\sto\sthe\shostname\sexecutable.
-D 2026-11-17T22:20:20.062
+C Update\sroundtrip.test\snow\sthat\s"fossil\spatch"\sno\slonger\sdepends\son\sa\s\na\s"hostname"\sexecutable.
+D 2026-11-17T22:38:39.664
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -604,7 +604,7 @@ F src/xsystem.c c8c87776fa160083216bd35c69292a6c3b58870e4c9f6ff1859426b99ea1c106
 F src/zip.c 66a5c78dd2afbb2067b8283ccc8d62e367e761ff2e2b31f3713f7dde10db63bd
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
-F test/README.md 8f9b5f9fb145e0a2b3101ec6d86279d6a88038c67dffb9392b608d95e0a825a3
+F test/README.md 848ba6b6161e86e1d7c2da5ab69cb2a222ae86f4a761eb484385110f3b1fc386
 F test/amend.test e6b4dc88a979be9f055d87427551e3120f9326d20f59e9f4131ea12cb6637e1b
 F test/branch-tag.test 4fd89f42683280e0f639bb456328b75d8ee8de52e17fb284d9487e31e409672b
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
@@ -647,7 +647,7 @@ F test/release-checklist.wiki e2c611eee0ce2899d72f389e7518e7b8a71284f8b7992def42
 F test/reserved-names.test df65768408b881eed35fe276dce13a49b637ed0d11fd46a63c1a9bdb9faaabd2
 F test/revert.test abbddaa272ec0ed5e5d9ffbee5636eefc242e45e383abac8e27e45ddd84ac75a
 F test/rewrite-test-output.tcl fc2affc10d2ce6911836db498990d72ce5ba6e911cc5036d5f78391c022843ef
-F test/roundtrip.test 9f2ece0005b7da689084674fc876e3110a9c0026150f22f16e987e02b1538857
+F test/roundtrip.test 769f2188f12c565a7cbb13ac391348df6f2f288e2295f2ce1302fcda532dfcb8
 F test/set-manifest.test bfd26ecdba2949e008521ba45fc558977654440a18a1aa0a2e55ad2ab792c952
 F test/settings-repo.test df9e415ea0c9dd22af4086486e02e1102d54b8ea76ba8937f56e81e6ccb78725
 F test/settings.test e500c410d0def6a8c9bcecddb6ed75a095906ddae8739723a718b500e4a563a1
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f46d4135396943c4205be97859fa96d6a1d1c6846b34bcc49ed55059d6076f9f
-R cacc0e75e071b5636fbc0f86edd1d0d0
+P 0b3f9b31aa328d46e3cd07bce00a9dab9820decf59400908a8005f6a9f6d114a
+R 6a948ae95f134873af15afd5dc9291e7
 U danshearer
-Z 9a989a99a6e4f7958c1a98ec4a1c5fd5
+Z ade784119c36fea534ae1d9b9af3879f
 # Remove this line to create a well-formed Fossil manifest.

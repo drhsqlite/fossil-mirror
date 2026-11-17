@@ -81,6 +81,8 @@ If you suspect an output-change bug, use `-verbose` to print the output of every
 
 When a test finds a fault that is not yet fixed, add `knownBug` as the test's last argument, so that the suite still exits with status 0. A known bug that passes is reported as `OK (knownBug)?`. Don't forget to remove `knownBug` when you're sure the fault is fixed.
 
+A known bug should fail on every system. If the fault only shows up in some environments, have the test set up that environment itself. If a test needs something the system might not have, that's a requirement, so use `test_skip`.
+
 Stray files in `test/` can be confusing because `delta1.test` and `merge2.test` run their tests on every file and the counts may differ from what is expected. A different total is not a failure.
 
 Beware of global variables! If you must create a new global variable, be sure there isn't a collision with other files. Some future design should avoid this
