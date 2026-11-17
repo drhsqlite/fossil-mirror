@@ -1319,6 +1319,9 @@ static void svn_apply_svndiff(Blob *pDiff, Blob *pSrc, Blob *pOut){
         *zOut++ = *zCpy++;
       }
     }
+    if( lenLeft!=0 ){
+      fossil_fatal("Invalid svndiff0 format");
+    }
     zDiff = zDataEnd;
   }
 }
