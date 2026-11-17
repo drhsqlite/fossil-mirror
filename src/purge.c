@@ -80,8 +80,8 @@ static const char zPurgeInit[] =
 **    (6) Remove references to purged artifacts in the following tables:
 **         (a) EVENT
 **         (b) PRIVATE
-**         (c) MLINK, the file links that purged check-ins hold
-**         (d) PLINK, the parent links that purged check-ins hold
+**         (c) MLINK
+**         (d) PLINK
 **         (e) LEAF
 **         (f) UNCLUSTERED
 **         (g) UNSENT
@@ -183,6 +183,7 @@ int purge_artifact_list(
   db_multi_exec("DELETE FROM event WHERE objid IN \"%w\"", zTab);
   db_multi_exec("DELETE FROM private WHERE rid IN \"%w\"", zTab);
   db_multi_exec("DELETE FROM mlink WHERE mid IN \"%w\"", zTab);
+  db_multi_exec("DELETE FROM plink WHERE pid IN \"%w\"", zTab);
   db_multi_exec("DELETE FROM plink WHERE cid IN \"%w\"", zTab);
   db_multi_exec("DELETE FROM leaf WHERE rid IN \"%w\"", zTab);
   db_multi_exec("DELETE FROM phantom WHERE rid IN \"%w\"", zTab);
@@ -716,6 +717,35 @@ void purge_cmd(void){
       );
       manifest_crosslink_begin();
       purge_item_resurrect(0, 0);
+      /* The purge removed the links that kept check-ins held to a purged
+      ** parent.  Link those check-ins again from their manifests, now that
+      ** the parent is back under its original record number. */
+      db_multi_exec(
+        "CREATE TEMP TABLE prelink AS"
+        " SELECT DISTINCT mid FROM mlink"
+        "  WHERE pmid IN (SELECT blob.rid FROM blob, purgeitem"
+        "                  WHERE purgeitem.peid=%d"
+        "                    AND blob.uuid=purgeitem.uuid"
+        "                    AND blob.rid=purgeitem.orid)"
+        "    AND NOT EXISTS(SELECT 1 FROM plink"
+        "                    WHERE cid=mlink.mid AND pid=mlink.pmid)",
+        peid
+      );
+      db_prepare(&q, "SELECT mid FROM prelink");
+      while( db_step(&q)==SQLITE_ROW ){
+        int mid = db_column_int(&q, 0);
+        Blob c;
+        if( content_get(mid, &c) ){
+          db_multi_exec(
+            "DELETE FROM plink WHERE cid=%d;"
+            "DELETE FROM mlink WHERE mid=%d;",
+            mid, mid
+          );
+          manifest_crosslink(mid, &c, MC_NO_ERRORS);
+        }
+      }
+      db_finalize(&q);
+      db_multi_exec("DROP TABLE prelink");
       manifest_crosslink_end(0);
       db_multi_exec("DELETE FROM purgeevent WHERE peid=%d", peid);
       db_multi_exec("DELETE FROM purgeitem WHERE peid=%d", peid);
