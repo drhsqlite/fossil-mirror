@@ -460,6 +460,43 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
 }
 
 /*
+** Remove from the graveyard every artifact that was private when it was
+** purged, and any purge event left empty, so that "fossil scrub" leaves
+** no private content behind.  An item that stays, but is stored as a
+** delta from one that goes, is stored whole first.
+*/
+void purge_drop_private_items(void){
+  Stmt q;
+  if( !db_table_exists("repository","purgeitem") ) return;
+  db_multi_exec(
+    "CREATE TEMP TABLE pwhole AS"
+    " SELECT piid FROM purgeitem WHERE NOT isPrivate"
+    "    AND srcid IN (SELECT piid FROM purgeitem WHERE isPrivate)"
+  );
+  db_prepare(&q, "SELECT piid FROM pwhole");
+  while( db_step(&q)==SQLITE_ROW ){
+    int piid = db_column_int(&q, 0);
+    Blob content, cmpr;
+    Stmt u;
+    purge_extract_item(piid, &content);
+    blob_compress(&content, &cmpr);
+    db_prepare(&u, "UPDATE purgeitem SET srcid=NULL, data=:data"
+                   " WHERE piid=%d", piid);
+    db_bind_blob(&u, ":data", &cmpr);
+    db_exec(&u);
+    db_finalize(&u);
+    blob_reset(&content);
+    blob_reset(&cmpr);
+  }
+  db_finalize(&q);
+  db_multi_exec(
+    "DROP TABLE pwhole;"
+    "DELETE FROM purgeitem WHERE isPrivate;"
+    "DELETE FROM purgeevent WHERE peid NOT IN (SELECT peid FROM purgeitem);"
+  );
+}
+
+/*
 ** COMMAND: purge*
 **
 ** The purge command removes content from a repository and stores that content
