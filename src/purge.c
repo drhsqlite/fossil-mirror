@@ -542,7 +542,7 @@ void purge_cmd(void){
     for(i=3; i<g.argc; i++){
       piid = db_int(0, "SELECT piid FROM purgeitem WHERE uuid LIKE '%q%%'",
                        g.argv[i]);
-      if( piid==0 ) fossil_fatal("no such item: %s", g.argv[3]);
+      if( piid==0 ) fossil_fatal("no such item: %s", g.argv[i]);
       purge_extract_item(piid, &content);
       blob_write_to_file(&content, "-");
       blob_reset(&content);
