@@ -1245,6 +1245,6 @@ if {$nSkipped>0} {
     protOut "*****   [lindex $s 0]: [lindex $s 1]" 1
   }
 }
-if {$bad_test>0} {
+if {[llength $bad_test]>0} {
   exit 1
 }
