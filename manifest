@@ -1,5 +1,5 @@
-C Update\stest/fake-editor.tcl\sto\srun\son\sTcl\s9,\swhich\sis\swhat\sFedora\shas\samong\sothers.
-D 2026-11-17T22:42:07.240
+C Update\samend.test\sto\suse\sfake-editor.tcl\ssame\sas\sunversioned.test\sdoes.
+D 2026-11-17T22:44:33.677
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -605,7 +605,7 @@ F src/zip.c 66a5c78dd2afbb2067b8283ccc8d62e367e761ff2e2b31f3713f7dde10db63bd
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/README.md 848ba6b6161e86e1d7c2da5ab69cb2a222ae86f4a761eb484385110f3b1fc386
-F test/amend.test e6b4dc88a979be9f055d87427551e3120f9326d20f59e9f4131ea12cb6637e1b
+F test/amend.test fc6cde850ba87ba17d88cdd366fcde66a12108d1bf3166403e452c5e6dd69ac7
 F test/branch-tag.test 4fd89f42683280e0f639bb456328b75d8ee8de52e17fb284d9487e31e409672b
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
 F test/cmdline.test 19bc9570d2d43264f80111d877fb20e8236dd7346777cc8b9b3b6d5c1d9a0ed2
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3ed251ad36013415fd6925616c0db05eb3979bea590fb28069c3c45ed70bb3cb
-R 7114d6f3c312c837bce5196b9d6c3cf7
+P c73f906ec0aaa1560256bd9cf28469c261534f76de9c4df263be4d35d62d67d2
+R e9a0adc7143fa304a2d8dd7cc3768e35
 U danshearer
-Z 1200d22cf56ea64ce827f2d56838f9c8
+Z 4633a7269c4a9e796f7d4b88b644ffcb
 # Remove this line to create a well-formed Fossil manifest.

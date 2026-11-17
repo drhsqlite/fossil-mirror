@@ -385,12 +385,13 @@ fossil amend $HASH -M commitmsg
 test-comment 4 $HASH "revision 4 revised with -M"
 
 prep-test "final comment" "final content"
-if {[catch {exec which ed} result] == 0} {
-  fossil settings editor "ed -s"
-  set comment "interactive edited comment"
-  fossil_maybe_answer "a\n$comment\n.\nw\nq\n" amend $HASH --edit-comment
-  test-comment 5 $HASH $comment
-}
+fossil settings editor [appendArgs \
+    [info nameofexecutable] " " [file join $testfiledir fake-editor.tcl]]
+set comment "interactive edited comment"
+set env(FAKE_EDITOR_SCRIPT) [list set data $comment]
+fossil amend $HASH --edit-comment
+unset env(FAKE_EDITOR_SCRIPT)
+test-comment 5 $HASH $comment
 
 ########################################
 # Test: NULL hash                      #
