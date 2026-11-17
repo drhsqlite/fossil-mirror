@@ -239,10 +239,9 @@ fossil add f1
 stash-test 2-1 {save -m "f1b"} {
   REVERT   f1
   DELETE   f1n
-} -exists {f1} -notexists {f1n} -knownbugs {-code -result}
+} -exists {f1} -notexists {f1n}
 # TODO: add tests that verify the saved stash is sensible. Possibly
-# by applying it and checking results. But until the MISSING file
-# error is fixed, there is nothing stashed to test.
+# by applying it and checking results.
 
 
 # Test stashing a newly added (but never committed) file. As with
@@ -356,7 +355,7 @@ stash-test 4-2 {snapshot -m "snap 2"} {
 } -addremove {
 } -exists {f0 f2 f3} -notexists {f1}
 fossil stash diff
-test stash-4-2-diff-CODE {!$::CODE} knownBug
+test stash-4-2-diff-CODE {!$::CODE}
 fossil stash show
 test stash-4-2-show-1 {[regexp {DELETE f1} $RESULT]}
 test stash-4-2-show-2 {[regexp {CHANGED f2} $RESULT]}
@@ -375,7 +374,7 @@ stash-test 4-3 {snapshot -m "snap 3"} {
 } -addremove {
 } -exists {f0 f2 f3n} -notexists {f1 f3}
 fossil stash diff
-test stash-4-3-diff-CODE {!$::CODE} knownBug
+test stash-4-3-diff-CODE {!$::CODE}
 fossil stash show -v
 test stash-4-3-show-1 {[regexp {DELETE f1} $RESULT]}
 test stash-4-3-show-2 {[regexp {CHANGED f2} $RESULT]}

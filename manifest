@@ -1,5 +1,5 @@
-C Update\samend.test\sto\suse\sfake-editor.tcl\ssame\sas\sunversioned.test\sdoes.
-D 2026-11-17T22:44:33.677
+C Update\sstash.test\sto\sremove\s"known\sbug"\sflags\sdue\sto\sfixes\smade\swhile\sthe\stest\ssuite\swas\sturned\soff.
+D 2026-11-17T23:09:33.535
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -651,7 +651,7 @@ F test/roundtrip.test 769f2188f12c565a7cbb13ac391348df6f2f288e2295f2ce1302fcda53
 F test/set-manifest.test bfd26ecdba2949e008521ba45fc558977654440a18a1aa0a2e55ad2ab792c952
 F test/settings-repo.test df9e415ea0c9dd22af4086486e02e1102d54b8ea76ba8937f56e81e6ccb78725
 F test/settings.test e500c410d0def6a8c9bcecddb6ed75a095906ddae8739723a718b500e4a563a1
-F test/stash.test 5bb17a4de7a9a60ab433db14b71cbf447c78d8986efb7b21f504b612b4ef1d15
+F test/stash.test 6d9a3f1477b6d2dad999c3b4210f1eb0e1fda3ed00fcc5336382955cdca313cb
 F test/subdir\swith\sspaces/filename\swith\sspaces.txt 4c1f053a9aa422cde7f33113511a70ca3a9f77ddebff4458fbf776752fc3a006
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/README.html b73b2bbc042aa2d246733582ac74e96ae57f38360e1f9bf96121eca09ab71b55
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c73f906ec0aaa1560256bd9cf28469c261534f76de9c4df263be4d35d62d67d2
-R e9a0adc7143fa304a2d8dd7cc3768e35
+P 3cb48d20d8400115519ded8d70b8f5a74e717fb23b9cf1a2bfe21888d27d439d
+R 0134a870bffdb15262978b8dd1bbbaf2
 U danshearer
-Z 4633a7269c4a9e796f7d4b88b644ffcb
+Z 8dce74198af406f70e1447223737c5b2
 # Remove this line to create a well-formed Fossil manifest.
