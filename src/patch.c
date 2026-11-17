@@ -19,6 +19,9 @@
 */
 #include "config.h"
 #include "patch.h"
+#if defined(_WIN32)
+#  include <winsock2.h>
+#endif
 #include <assert.h>
 
 /*
@@ -26,18 +29,11 @@
 ** is running.
 */
 char *fossil_hostname(void){
-  FILE *in;
-  char zBuf[200];
-  in = popen("hostname","r");
-  if( in ){
-    int n = fread(zBuf, 1, sizeof(zBuf)-1, in);
-    while( n>0 && fossil_isspace(zBuf[n-1]) ){ n--; }
-    if( n<0 ) n = 0;
-    zBuf[n] = 0;
-    pclose(in);
-    return fossil_strdup(zBuf);
-  }
-  return 0;
+  char zBuf[256];
+  socket_global_init();
+  if( gethostname(zBuf, sizeof(zBuf))!=0 ) return 0;
+  zBuf[sizeof(zBuf)-1] = 0;
+  return fossil_strdup(zBuf);
 }
 
 /*
