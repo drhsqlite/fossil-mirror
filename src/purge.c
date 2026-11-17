@@ -606,6 +606,18 @@ void purge_cmd(void){
       purgeFlags |= PURGE_EXPLAIN_ONLY;
     }
     verify_all_options();
+    /* Find the current check-out, if there is one in this directory for
+    ** this repository, even when the repository was named with -R. */
+    vid = 0;
+    if( g.localOpen ){
+      vid = db_lget_int("checkout",0);
+    }else if( db_open_local(0) ){
+      char *zRepo = file_canonical_name_dup(g.zRepositoryName);
+      if( fossil_strcmp(zRepo, db_repository_filename())==0 ){
+        vid = db_lget_int("checkout",0);
+      }
+      fossil_free(zRepo);
+    }
     db_begin_transaction();
     if( g.argc<=3 ) usage("checkins TAGS... [OPTIONS]");
     db_multi_exec("CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY)");
@@ -613,7 +625,6 @@ void purge_cmd(void){
       int r = name_to_typed_rid(g.argv[i], "br");
       compute_descendants(r, 1000000000);
     }
-    vid = g.localOpen ? db_lget_int("checkout",0) : 0;
     if( db_exists("SELECT 1 FROM ok WHERE rid=%d",vid) ){
       fossil_fatal("cannot purge the current check-out");
     }
