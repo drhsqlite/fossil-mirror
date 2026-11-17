@@ -1004,13 +1004,15 @@ proc test_start_server { repository {varName ""} } {
     set stopArg $pid
   }
   # The server prints its port in a line such as "Listening for HTTP
-  # requests on TCP port localhost:8081, IPv4 and IPv6".
+  # requests on TCP port localhost:8081, IPv4 and IPv6".  The port is
+  # followed by a comma or the end of the line.
+  set listening {Listening for [^\n]+ requests on }
+  append listening {(?:TCP port )?(?:\S*:)?(\d+)[,\r\n]}
   set port ""
   for {set i 0} {$i < 100 && $port eq ""} {incr i} {
     after 100
     set output [read_file $outFileName]
-    regexp -line {Listening for .+ requests on (?:TCP port )?(?:\S*:)?(\d+)} \
-        $output -> port
+    regexp $listening $output -> port
   }
   if {$port eq ""} {
     test_stop_server $stopArg $pid $outFileName

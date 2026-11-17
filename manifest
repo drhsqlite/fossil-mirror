@@ -1,5 +1,5 @@
-C Use\s"fossil\ssha1sum"\sinstead\sof\stcllib\ssha1\spackage
-D 2026-11-17T13:10:08.158
+C Minor\sbug\sin\stest_start_server:\sonly\sread\sa\swhole\sport\snumber
+D 2026-11-17T13:12:39.223
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -659,7 +659,7 @@ F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 38517706363b152452eaa75b141417b29547e46e76490b9ccd2000cc6a59b780
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 1903fe18d051511356033e3c26f4c248c3253a42511dc515a0d82c9051405a6a
+F test/tester.tcl 17e9930b931dc27fccd4323078328bbe3b9289971d5a24f59c5b681b007713f0
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 8e01b27354ec3f95d3af1b855c32364acd8cd5fde3a44733dc17a9c7020fe14c
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6795d4300693ef3b25cc3283691103c708a4db9acc7ccb3ff349dc2cd88a5a75
-R 4a6ba30c605dabdd0aae48b8cfcafe90
+P 69903cd865e33e4cc54fe5bd6d7ac27fedd191eff378f306054363916b73279a
+R f8f6ebc3ee3d037bdd670ddc1f42d88d
 U danshearer
-Z 47409357db3990d03e5269d11621955f
+Z a0344415bbb73f2235860c90e9c5e182
 # Remove this line to create a well-formed Fossil manifest.
