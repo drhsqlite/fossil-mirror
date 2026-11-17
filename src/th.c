@@ -2168,10 +2168,6 @@ static int exprEval(Th_Interp *interp, Expr *pExpr){
     }
 
     if( rc==TH_OK && eArgType==ARG_INTEGER ){
-      /* Integer arithmetic wraps around.  It is done on unsigned ints, for
-      ** which that is defined.  Dividing by -1 is negation, written out
-      ** because the machine instruction traps on some processors when
-      ** the result does not fit. */
       unsigned int uLeft = (unsigned int)iLeft;
       unsigned int uRight = (unsigned int)iRight;
       int iRes = 0;
