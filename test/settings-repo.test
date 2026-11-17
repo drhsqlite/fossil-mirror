@@ -66,61 +66,49 @@ foreach name $all_settings {
 
 fossil settings bad-setting some_value -expectError
 
-test settings-set-bad-local {
-  [normalize_result] eq "no such setting: bad-setting"
-}
+test_eq settings-set-bad-local [normalize_result] \
+    "no such setting: bad-setting"
 
 fossil settings bad-setting some_value --global -expectError
 
-test settings-set-bad-global {
-  [normalize_result] eq "no such setting: bad-setting"
-}
+test_eq settings-set-bad-global [normalize_result] \
+    "no such setting: bad-setting"
 
 ###############################################################################
 
 fossil unset bad-setting -expectError
 
-test settings-unset-bad-local {
-  [normalize_result] eq "no such setting: bad-setting"
-}
+test_eq settings-unset-bad-local [normalize_result] \
+    "no such setting: bad-setting"
 
 fossil unset bad-setting --global -expectError
 
-test settings-unset-bad-global {
-  [normalize_result] eq "no such setting: bad-setting"
-}
+test_eq settings-unset-bad-global [normalize_result] \
+    "no such setting: bad-setting"
 
 ###############################################################################
 
 fossil settings ssl some_value -expectError
 
-test settings-set-ambiguous-local {
-  [normalize_result] eq
-  "ambiguous setting \"ssl\" - might be: ssl-ca-location ssl-identity"
-}
+test_eq settings-set-ambiguous-local [normalize_result] \
+    "ambiguous setting \"ssl\" - might be: ssl-ca-location ssl-identity"
 
 fossil settings ssl some_value --global -expectError
 
-test settings-set-ambiguous-global {
-  [normalize_result] eq
-  "ambiguous setting \"ssl\" - might be: ssl-ca-location ssl-identity"
-}
+test_eq settings-set-ambiguous-global [normalize_result] \
+    "ambiguous setting \"ssl\" - might be: ssl-ca-location ssl-identity"
 
 ###############################################################################
 
 fossil unset ssl -expectError
 
-test settings-unset-ambiguous-local {
-  [normalize_result] eq
-  "ambiguous setting \"ssl\" - might be: ssl-ca-location ssl-identity"
-}
+test_eq settings-unset-ambiguous-local [normalize_result] \
+    "ambiguous setting \"ssl\" - might be: ssl-ca-location ssl-identity"
 
 fossil unset ssl --global -expectError
 
-test settings-unset-ambiguous-global {
-  [normalize_result] eq
-  "ambiguous setting \"ssl\" - might be: ssl-ca-location ssl-identity"
-}
+test_eq settings-unset-ambiguous-global [normalize_result] \
+    "ambiguous setting \"ssl\" - might be: ssl-ca-location ssl-identity"
 
 ###############################################################################
 
@@ -134,92 +122,68 @@ foreach name $all_settings {
     fossil settings $name $value --exact --global
     set data [normalize_result]
 
-    test settings-set-$name-global {
-      $data eq ""
-    }
+    test_eq settings-set-$name-global $data ""
 
     fossil settings $name --exact --global
     set data [normalize_result]
 
-    test settings-set-check1-$name-global {
-      [regexp -- [string map \
-          [list %name% $name %value% $value] $pattern(3)] $data]
-    }
+    test_match settings-set-check1-$name-global $data \
+        [string map [list %name% $name %value% $value] $pattern(3)]
 
     fossil test-th-eval --open-config "setting $name"
     set data [normalize_result]
 
-    test settings-set-check2-$name-global {
-      $data eq $value
-    }
+    test_eq settings-set-check2-$name-global $data $value
 
     fossil unset $name --exact --global
     set data [normalize_result]
 
-    test settings-unset-$name-global {
-      $data eq ""
-    }
+    test_eq settings-unset-$name-global $data ""
 
     fossil settings $name --exact --global
     set data [normalize_result]
 
-    test settings-unset-check1-$name-global {
-      [regexp -- [string map \
-          [list %name% $name %value% $value] $pattern(1)] $data]
-    }
+    test_match settings-unset-check1-$name-global $data \
+        [string map [list %name% $name %value% $value] $pattern(1)]
 
     fossil test-th-eval --open-config "setting $name"
     set data [normalize_result]
 
-    test settings-unset-check2-$name-global {
-      $data eq $defaults($name)
-    }
+    test_eq settings-unset-check2-$name-global $data $defaults($name)
   }
 
   set value #local_for_$name
   fossil settings $name $value --exact
   set data [normalize_result]
 
-  test settings-set-$name-local {
-    $data eq ""
-  }
+  test_eq settings-set-$name-local $data ""
 
   fossil settings $name --exact
   set data [normalize_result]
 
-  test settings-set-check1-$name-local {
-    [regexp -- [string map \
-        [list %name% $name %value% $value] $pattern(4)] $data]
-  }
+  test_match settings-set-check1-$name-local $data \
+      [string map [list %name% $name %value% $value] $pattern(4)]
 
   fossil test-th-eval --open-config "setting $name"
   set data [normalize_result]
 
-  test settings-set-check2-$name-local {
-    $data eq $value
-  }
+  test_eq settings-set-check2-$name-local $data $value
 
   fossil unset $name --exact
   set data [normalize_result]
 
-  test settings-unset-$name-local {
-    $data eq ""
-  }
+  test_eq settings-unset-$name-local $data ""
 
   fossil settings $name --exact
   set data [normalize_result]
 
-  test settings-unset-check1-$name-local {
-    [regexp -- [string map \
-        [list %name% $name %value% $value] $pattern(1)] $data]
-  }
+  test_match settings-unset-check1-$name-local $data \
+      [string map [list %name% $name %value% $value] $pattern(1)]
 
   fossil test-th-eval --open-config "setting $name"
   set data [normalize_result]
 
-  test settings-unset-check2-$name-local {
-    $data eq $defaults($name)
-  }
+  test_eq settings-unset-check2-$name-local $data $defaults($name)
 }
 
 ###############################################################################
@@ -234,9 +198,8 @@ foreach name $versionable_settings {
   fossil settings $name --exact
   set data [normalize_result]
 
-  test settings-before-versionable-$name {
-    [regexp -- [string map [list %name% $name] $pattern(1)] $data]
-  }
+  test_match settings-before-versionable-$name $data \
+      [string map [list %name% $name] $pattern(1)]
 
   set value #versionable_for_$name
   set fileName [file join .fossil-settings $name]
@@ -245,25 +208,21 @@ foreach name $versionable_settings {
   fossil settings $name --exact
   set data [normalize_result]
 
-  test settings-set-check1-versionable-$name {
-    [regexp -- [string map [list %name% $name] $pattern(5)] $data]
-  }
+  test_match settings-set-check1-versionable-$name $data \
+      [string map [list %name% $name] $pattern(5)]
 
   fossil test-th-eval --open-config "setting $name"
   set data [normalize_result]
 
-  test settings-set-check2-versionable-$name {
-    $data eq ""
-  }
+  test_eq settings-set-check2-versionable-$name $data ""
 
   file delete $fileName
 
   fossil settings $name --exact
   set data [normalize_result]
 
-  test settings-after-versionable-$name {
-    [regexp -- [string map [list %name% $name] $pattern(1)] $data]
-  }
+  test_match settings-after-versionable-$name $data \
+      [string map [list %name% $name] $pattern(1)]
 }
 
 ###############################################################################

@@ -1,5 +1,5 @@
-C Add\slicense\sheaders\smissing\sfrom\s3\stests
-D 2026-11-17T13:16:35.506
+C In\ssettings-repo.test\suse\sthe\scorrect\shelpers\sso\stest\ssummary\sreport\sis\scorrect
+D 2026-11-17T13:18:07.979
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -649,7 +649,7 @@ F test/revert.test abbddaa272ec0ed5e5d9ffbee5636eefc242e45e383abac8e27e45ddd84ac
 F test/rewrite-test-output.tcl fc2affc10d2ce6911836db498990d72ce5ba6e911cc5036d5f78391c022843ef
 F test/roundtrip.test 9f2ece0005b7da689084674fc876e3110a9c0026150f22f16e987e02b1538857
 F test/set-manifest.test bfd26ecdba2949e008521ba45fc558977654440a18a1aa0a2e55ad2ab792c952
-F test/settings-repo.test 6303e59097b3b9ae650f7b4b1287436a1c33518955a3de26cbcc6796a73fd6a5
+F test/settings-repo.test df9e415ea0c9dd22af4086486e02e1102d54b8ea76ba8937f56e81e6ccb78725
 F test/settings.test e500c410d0def6a8c9bcecddb6ed75a095906ddae8739723a718b500e4a563a1
 F test/stash.test 5bb17a4de7a9a60ab433db14b71cbf447c78d8986efb7b21f504b612b4ef1d15
 F test/subdir\swith\sspaces/filename\swith\sspaces.txt 4c1f053a9aa422cde7f33113511a70ca3a9f77ddebff4458fbf776752fc3a006
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 56969e1eacd94c552a24ceb00a570bdf826bd2011d1868cae4f73f00c1d58a7c
-R 6119d623842dd350c518c435c76511e6
+P ee3b41124dae94dbda8bf1b173f0003d0bbc8fc48338d1c2f095d3970caf6c69
+R ff5106603ebd534aba01f8bcaab0808c
 U danshearer
-Z 5a0b244befc5edb73bb1c5ebf20fee9e
+Z b4dd3192db6e6c8e193f65026ce7ad91
 # Remove this line to create a well-formed Fossil manifest.
