@@ -1,5 +1,5 @@
-C Remove\ssome\ssuperfluous\scomments.
-D 2026-11-17T12:30:19.328
+C Merge\sthe\sblob_write_to_file()\sfix\sinto\ssmall-fixes-2\safter\sthe\smerge\sof\strunk,\sso\sthat\sthe\sbranch\shas\sone\sleaf.
+D 2026-11-17T13:10:14.741
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -388,7 +388,7 @@ F src/backlink.c df29056b3234d39ad47051ba8da1ecf3cc155adbc20cf9218dd3ef20fe20c17
 F src/backoffice.c b7b9c26549593245206fceaac5f044a21da623271886230cf0c912202c65f22f
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
 F src/bisect.c 8a3df0598feb500028ab44923cffb29c8cfad6d85f96a10f0585fa7552e629bc
-F src/blob.c 5bb1581fd9bb6c3482c0be79c3203558a3bba0281e01dbe7fbf7bcfdcabb7269
+F src/blob.c 6a70c37f7d3e473b91ff6bb22ac258aae26f7bb06e26895a1bd26cb953d1bf1f
 F src/branch.c 9ac51ee492d81d79be857084c9207949c293c846d6d2204ca84d99fbeb8e401c
 F src/browse.c a0ff8e6a87321663e4ebb223373aa7c9d9b4007c2e930327f48c94f4d0753234
 F src/builtin.c 68b12985d041ce1be6dd2dc6b2fe339def120b08d949f7a96e945eefc5a30ba3
@@ -981,8 +981,10 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bdd181d8cfe38cac97071a31aa848ef2af97abeca5d4f42ebb7d8105a15b1b09
-R b63fafe6232566b6fbe71955ee4fbbbc
-U stephan
-Z 5e4fe5dbdac883eb5c5dbbf97ae3ec11
+P d635300eac4eaf76b5e1b112d825e7066f8c971fadffb641a97b0386ffd1cef6 675921b4381f81cfe7a8d1480d37a5e28f1b9c4a82d564e62c1bb3c99df946c4
+R 782e08a11fa56f4c6c4f0192a036ef01
+T *branch * small-fixes-2
+T *sym-small-fixes-2 *
+U dmestas
+Z 7131b2044ba51f9525ccd423be1dc20c
 # Remove this line to create a well-formed Fossil manifest.
