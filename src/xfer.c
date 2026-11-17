@@ -157,7 +157,14 @@ static void xfer_accept_file(
     return;
   }
   blob_zero(&content);
-  blob_extract(pXfer->pIn, n, &content);
+  if( blob_extract(pXfer->pIn, n, &content)!=n ){
+    /* The message ends before the content does.  What there is must not
+    ** be stored: if it is a delta whose source has not arrived, nothing
+    ** would ever check it. */
+    blob_appendf(&pXfer->err, "truncated file card");
+    blob_reset(&content);
+    return;
+  }
   pUuid = &pXfer->aToken[1];
   if( !cloneFlag && uuid_is_shunned(blob_str(pUuid)) ){
     /* Ignore files that have been shunned */
@@ -279,7 +286,11 @@ static void xfer_accept_compressed_file(
     return;
   }
   blob_zero(&content);
-  blob_extract(pXfer->pIn, szC, &content);
+  if( blob_extract(pXfer->pIn, szC, &content)!=szC ){
+    blob_appendf(&pXfer->err, "truncated cfile card");
+    blob_reset(&content);
+    return;
+  }
   if( uuid_is_shunned(blob_str(&pXfer->aToken[1])) ){
     /* Ignore files that have been shunned */
     blob_reset(&content);
@@ -599,7 +610,13 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int nativeDelta){
     }
   }
   if( size==0 ){
-    content_get(rid, &content);
+    if( content_get(rid, &content)==0 ){
+      /* A delta whose source has not arrived yet.  The content cannot
+      ** be rebuilt, so there is nothing that can be sent. */
+      blob_reset(&content);
+      blob_reset(&uuid);
+      return;
+    }
 
     if( !nativeDelta && blob_size(&content)>100 ){
       size = send_delta_parent(pXfer, rid, isPriv, &content, pUuid);
@@ -701,15 +718,22 @@ static void send_compressed_file(Xfer *pXfer, int rid){
 **
 ** If the noContent flag is set, omit the CONTENT and set the 0x0004
 ** flag in FLAGS.
+**
+** A server that has already reached its send size limit sends a short
+** "uvigot" card in place of the file, and the client asks again.  A
+** client must not do that, because a server does not accept "uvigot".
+** So the client sets isClient and always gets a "uvfile" card.
 */
 static void send_unversioned_file(
   Xfer *pXfer,            /* Transfer context */
   const char *zName,      /* Name of unversioned file to be sent */
-  int noContent           /* True to omit the content */
+  int noContent,          /* True to omit the content */
+  int isClient            /* True if sending from client to server */
 ){
   Stmt q1;
+  int isFull = !isClient && (int)blob_size(pXfer->pOut)>=pXfer->mxSend;
 
-  if( (int)blob_size(pXfer->pOut)>=pXfer->mxSend ) noContent = 1;
+  if( isFull ) noContent = 1;
   if( noContent ){
     db_prepare(&q1,
       "SELECT mtime, hash, encoding, sz FROM unversioned WHERE name=%Q",
@@ -727,10 +751,10 @@ static void send_unversioned_file(
     const char *zHash = db_column_text(&q1, 1);
     if( pXfer->remoteVersion<20000 && db_column_bytes(&q1,1)>HNAME_LEN_SHA1 ){
       xfer_cannot_send_sha3_error(pXfer);
-      db_reset(&q1);
+      db_finalize(&q1);
       return;
     }
-    if( (int)blob_size(pXfer->pOut)>=pXfer->mxSend ){
+    if( isFull ){
       /* If we have already reached the send size limit, send a (short)
       ** uvigot card rather than a uvfile card.  This only happens on the
       ** server side.  The uvigot card will provoke the client to resend
@@ -1438,7 +1462,7 @@ void page_xfer(void){
      && blob_is_filename(&xfer.aToken[1])
     ){
       if( g.perm.Read ){
-        send_unversioned_file(&xfer, blob_str(&xfer.aToken[1]), 0);
+        send_unversioned_file(&xfer, blob_str(&xfer.aToken[1]), 0, 0);
       }
     }else
 
@@ -2021,6 +2045,8 @@ void cmd_test_xfer(void){
   g.zBaseURL = mprintf("http://%s", zHost);
   g.zHttpsURL = mprintf("https://%s", zHost);
   g.zTop = mprintf("");
+  g.zPath = "xfer";  /* So that robot_restrict() sees this as a sync request */
+  g.zContentType = "application/x-fossil-uncompressed";
   blob_zero(&g.cgiIn);
   blob_read_from_file(&g.cgiIn, g.argc==2 ? "-" : g.argv[2], ExtFILE);
   disableLogin = 1;
@@ -2369,7 +2395,7 @@ int client_sync(
         db_prepare(&uvq, "SELECT name, mtimeOnly FROM uv_tosend");
         while( (rc = db_step(&uvq))==SQLITE_ROW ){
           const char *zName = db_column_text(&uvq, 0);
-          send_unversioned_file(&xfer, zName, db_column_int(&uvq,1));
+          send_unversioned_file(&xfer, zName, db_column_int(&uvq,1), 1);
           nCardSent++;
           nArtifactSent++;
           db_multi_exec("DELETE FROM uv_tosend WHERE name=%Q", zName);
@@ -2427,6 +2453,18 @@ int client_sync(
 
     /* Do the round-trip to the server */
     if( http_exchange(&send, &recv, mHttpFlags, MAX_REDIRECTS, 0) ){
+      nErr++;
+      go = 2;
+      break;
+    }
+
+    /* Every reply from a Fossil server holds at least one card: the
+    ** "# timestamp" line that ends a normal reply, or an "error" card.
+    ** A reply with no content at all means that the request never reached
+    ** a Fossil server, or that the reply was lost on the way back.  Either
+    ** way the round-trip failed. */
+    if( blob_size(&recv)==0 ){
+      fossil_warning("server sent an empty reply");
       nErr++;
       go = 2;
       break;
@@ -2496,7 +2534,7 @@ int client_sync(
     while( blob_line(&recv, &xfer.line) ){
       if( blob_buffer(&xfer.line)[0]=='#' ){
         const char *zLine = blob_buffer(&xfer.line);
-        if( memcmp(zLine, "# timestamp ", 12)==0 ){
+        if( strncmp(zLine, "# timestamp ", 12)==0 ){
           char zTime[20];
           double rDiff;
           sqlite3_snprintf(sizeof(zTime), zTime, "%.19s", &zLine[12]);
@@ -2527,7 +2565,9 @@ int client_sync(
       **
       ** Client receives a file transmitted from the server.
       */
-      if( blob_eq(&xfer.aToken[0],"file") ){
+      if( blob_eq(&xfer.aToken[0],"file")
+       && (syncFlags & (SYNC_PULL|SYNC_CLONE))!=0
+      ){
         xfer_accept_file(&xfer, (syncFlags & SYNC_CLONE)!=0, 0, 0);
         nArtifactRcvd++;
       }else
@@ -2537,7 +2577,9 @@ int client_sync(
       **
       ** Client receives a compressed file transmitted from the server.
       */
-      if( blob_eq(&xfer.aToken[0],"cfile") ){
+      if( blob_eq(&xfer.aToken[0],"cfile")
+       && (syncFlags & (SYNC_PULL|SYNC_CLONE))!=0
+      ){
         xfer_accept_compressed_file(&xfer, 0, 0);
         nArtifactRcvd++;
       }else
@@ -2546,7 +2588,9 @@ int client_sync(
       **
       ** Client accepts an unversioned file from the server.
       */
-      if( blob_eq(&xfer.aToken[0], "uvfile") ){
+      if( blob_eq(&xfer.aToken[0], "uvfile")
+       && (syncFlags & (SYNC_UNVERSIONED|SYNC_CLONE))!=0
+      ){
         xfer_accept_unversioned_file(&xfer, 1);
         nArtifactRcvd++;
         nUvFileRcvd++;
@@ -2597,10 +2641,14 @@ int client_sync(
         int isPriv = xfer.nToken>=3 && blob_eq(&xfer.aToken[2],"1");
         rid = rid_from_uuid(&xfer.aToken[1], 0, 0);
         if( rid>0 ){
-          if( isPriv ){
-            content_make_private(rid);
-          }else{
+          if( !isPriv ){
             content_make_public(rid);
+          }else if( g.perm.Private
+                 || db_exists("SELECT 1 FROM phantom WHERE rid=%d", rid) ){
+            /* Outside a sync of private content, only an artifact that is
+            ** still a phantom here is marked, so that it is not asked for
+            ** again.  Content that this repository holds stays public. */
+            content_make_private(rid);
           }
         }else if( isPriv && !g.perm.Private ){
           /* ignore private files */
@@ -2626,6 +2674,7 @@ int client_sync(
       */
       if( xfer.nToken==5
        && blob_eq(&xfer.aToken[0], "uvigot")
+       && (syncFlags & (SYNC_UNVERSIONED|SYNC_CLONE))!=0
        && blob_is_filename(&xfer.aToken[1])
        && blob_is_int64(&xfer.aToken[2], &mtime)
        && blob_is_int(&xfer.aToken[4], &size)
@@ -2922,7 +2971,10 @@ int client_sync(
       ** and so the login card on the request was invalid.  The project-code
       ** is returned in the reply before the error card, so second and
       ** subsequent messages should be OK.  Nevertheless, we need to ignore
-      ** the error card on the first message of a clone.
+      ** login and authorization errors on the first message of a clone.
+      ** Any other error on that first message (for example, the server
+      ** running out of memory) is reported, as otherwise the clone would
+      ** carry on and silently produce an empty repository.
       **
       ** Also ignore "not authorized to write" errors if this is an
       ** autopush following a commit.
@@ -2934,7 +2986,9 @@ int client_sync(
          && sqlite3_strlike("%not authorized to write%",zMsg,0)==0 ){
           autopushFailed = 1;
           nErr++;
-        }else if( (syncFlags & SYNC_CLONE)==0 || nCycle>0 ){
+        }else if( (syncFlags & SYNC_CLONE)==0 || nCycle>0
+               || (sqlite3_strlike("not authorized%",zMsg,0)!=0
+                   && sqlite3_strlike("login failed%",zMsg,0)!=0) ){
           fossil_force_newline();
           fossil_print("Error: %s\n", zMsg);
           blob_appendf(&xfer.err, "server says: %s\n", zMsg);

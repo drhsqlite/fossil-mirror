@@ -961,21 +961,22 @@ static amsk_t parseMarkup(ParsedMarkup *p, char *z){
         while( z[i] && z[i]!='\'' ){ i++; }
       }else{
         zValue = &z[i];
-        while( !fossil_isspace(z[i]) && z[i]!='>' ){
+        while( z[i] && !fossil_isspace(z[i]) && z[i]!='>' ){
           if( z[i]=='\'' || z[i]=='"' ) attrOk = 0;
           i++;
         }
       }
+      /* c is the character that ended the value.  It has to be noted
+      ** even for an attribute that is ignored, or the ">" that ends the
+      ** markup is stepped over and the text after it is parsed as more
+      ** attributes. */
+      c = z[i];
       if( attrOk ){
         p->aAttr[p->nAttr].zValue = zValue;
-        p->aAttr[p->nAttr].cTerm = c = z[i];
-        if( z[i]==0 ){
-          i--;
-        }else{
-          z[i] = 0;
-        }
+        p->aAttr[p->nAttr].cTerm = c;
+        if( c ) z[i] = 0;
       }
-      i++;
+      if( c ) i++;
     }
     if( attrOk ){
       if( aAttribute[iACode].iMask ) seen |= aAttribute[iACode].iMask;

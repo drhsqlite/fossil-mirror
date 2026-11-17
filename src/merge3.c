@@ -1197,6 +1197,18 @@ int merge_3way(
     zOther = file_newname(zV1, "merge", 1);
     blob_write_to_file(s.pV2, zOther);
     if( rc>0 ){
+#if !defined(_WIN32)
+      if( zGMerge && zGMerge[0] && strpbrk(zPivot, "\"$`")!=0 ){
+        /* The file names are put into the gmerge-command as they are,
+        ** and the examples for that setting put double quotes around
+        ** them.  A name that holds one of these characters would not
+        ** reach the command as one argument.  zPivot stands for all
+        ** four names, which differ only in their suffix. */
+        fossil_warning("not running the gmerge-command on \"%s\" because "
+                       "the name holds a character that is special to "
+                       "the shell", zV1);
+      }else
+#endif
       if( zGMerge && zGMerge[0] ){
         char *zOut;     /* Temporary output file */
         char *zCmd;     /* Command to invoke */

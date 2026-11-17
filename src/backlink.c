@@ -28,6 +28,7 @@
 
 /*
 ** Show a graph of all wiki, tickets, and check-ins that refer to object zUuid.
+** If there are none, emit no output.
 **
 ** If zLabel is not NULL and the graph is not empty, then output zLabel as
 ** a prefix to the graph.
@@ -51,13 +52,13 @@ void render_backlink_graph(const char *zUuid, const char *zLabel){
      "    AND %Q GLOB (target || '*');",
      zGlob, zUuid
   );
+  fossil_free(zGlob);
   if( !db_exists("SELECT 1 FROM ok") ) return;
   if( zLabel ){
-    cgi_printf("%s", zLabel);
-    if( strstr(zLabel, "accordion")!=0 ){
-      cgi_printf("<div class=\"accordion_panel\">\n");
-      needEndPanel = 1;
-    }
+    cgi_printf("<details open>"
+               "<summary class='section'>%h</summary>"
+               "<div class=\"accordion_panel\">", zLabel);
+    needEndPanel = 1;
   }
   blob_zero(&sql);
   blob_append(&sql, timeline_query_for_www(), -1);
@@ -67,7 +68,7 @@ void render_backlink_graph(const char *zUuid, const char *zLabel){
       TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_NOSCROLL|TIMELINE_REFS, 0);
   db_finalize(&q);
   if( needEndPanel ){
-    cgi_printf("</div>\n");
+    cgi_printf("</div></details>\n");
   }
 }
 
@@ -285,10 +286,6 @@ static int (*mkdn_noop_tri_emphas)(Blob*, Blob*, char,
                                    void*) = mkdn_noop_emphasis;
 static int mkdn_noop_footnoteref(Blob *b1, const Blob *b2, const Blob *b3,
                                  int i1, int i2, void *v){ return 1; }
-#if defined(MARKDOWN_ENABLE_TAGSPAN)
-static int mkdn_noop_tagref(Blob *b1,Blob *b2, enum mkd_tagspan t,
-                            void *p){ return 1; }
-#endif
 
 /*
 ** Scan markdown text and add self-hyperlinks to the BACKLINK table.
@@ -323,9 +320,6 @@ void markdown_extract_links(
     /* linebreak  */ mkdn_noop_linebreak,
     /* link       */ backlink_md_link,
     /* r_html_tag */ mkdn_noop_r_html_tag,
-#if defined(MARKDOWN_ENABLE_TAGSPAN)
-    /* #tags    */ mkdn_noop_tagref,
-#endif
     /* tri_emphas */ mkdn_noop_tri_emphas,
     /* footnoteref*/ mkdn_noop_footnoteref,
 

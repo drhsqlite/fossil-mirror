@@ -1082,7 +1082,8 @@ void ci_page(void){
     zOrigDate = db_column_text(&q1, 4);
     if( zOrigDate==0 ) zOrigDate = zDate;
     zZulu = db_column_text(&q1, 6);
-    @ <div class="section accordion">Overview</div>
+    @ <details open>
+    @ <summary class="section">Overview</summary>
     @ <div class="accordion_panel">
     @ <table class="label-value">
     @ <tr><th>Comment:</th><td class="infoComment">\
@@ -1271,16 +1272,17 @@ void ci_page(void){
     login_anonymous_available();
   }
   db_finalize(&q1);
-  @ </div>
-  builtin_request_js("accordion.js");
+  @ </details>
   if( !PB("nowiki") ){
     wiki_render_associated("checkin", zUuid, 0);
   }
-  render_backlink_graph(zUuid,
-       "<div class=\"section accordion\">References</div>\n");
-  @ <div class="section accordion">Context</div><div class="accordion_panel">
+  render_backlink_graph(zUuid, "References");
+  @ <details open><summary class="section">Context</summary>
+  @ <div class="accordion_panel">
   render_checkin_context(rid, 0, 2, 0);
-  @ </div><div class="section accordion" id="changes_section">Changes</div>
+  @ </div></details>
+  @ <details open>
+  @ <summary class="section" id="changes_section">Changes</summary>
   @ <div class="accordion_panel">
   @ <div class="sectionmenu info-changes-menu">
   /* ^^^ .info-changes-menu is used by diff scroll sync */
@@ -1340,7 +1342,7 @@ void ci_page(void){
                             pCfg,mperm,aChng);
   }
   db_finalize(&q3);
-  @ </div>
+  @ </div></details>
   if( diffType!=0 ){
     adjust_changes_section_title(__LINE__, aChng);
   }

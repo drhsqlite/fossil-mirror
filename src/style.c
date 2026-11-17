@@ -507,7 +507,7 @@ static void image_url_var(const char *zImageName){
 ** If zTargetId is NULL (the usual case) then IDs are selected automatically.
 **
 ** The bOutputCGI parameter is usually true, meaning that the output
-** is appended to the CGI result under construction.  However, if 
+** is appended to the CGI result under construction.  However, if
 ** bOutputCGI is false, the generated HTML is written into memory
 ** obtained from fossil_malloc() and returned.
 **

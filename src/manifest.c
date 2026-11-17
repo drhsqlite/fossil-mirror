@@ -383,7 +383,10 @@ struct ManifestText {
 static char *next_token(ManifestText *p, int *pLen){
   char *zStart;
   int n;
-  if( p->atEol ) return 0;
+  if( p->atEol ){
+    if( pLen ) *pLen = 0;
+    return 0;
+  }
   zStart = p->z;
   n = strcspn(p->z, " \n");
   p->atEol = p->z[n]=='\n';
@@ -1037,7 +1040,9 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         }
         if( p->zWiki!=0 ) SYNTAX("more than one W-card");
         blob_zero(&wiki);
-        if( (&x.z[size+1])>=x.zEnd )SYNTAX("not enough content after W-card");
+        if( (i64)size+1>=(i64)(x.zEnd-x.z) ){
+          SYNTAX("not enough content after W-card");
+        }
         p->zWiki = x.z;
         x.z += size;
         if( x.z[0]!='\n' ) SYNTAX("W-card content no \\n terminated");
@@ -2781,19 +2786,19 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       }else if( strcmp(zName, "+date")==0 ){
         blob_appendf(&comment, " Timestamp %h.", zValue);
         continue;
-      }else if( memcmp(zName, "-sym-",5)==0 ){
+      }else if( strncmp(zName, "-sym-",5)==0 ){
         if( !branchMove ){
           blob_appendf(&comment, " Cancel tag \"%h\"", &zName[5]);
         }else{
           continue;
         }
-      }else if( memcmp(zName, "*sym-",5)==0 ){
+      }else if( strncmp(zName, "*sym-",5)==0 ){
         if( !branchMove ){
           blob_appendf(&comment, " Add propagating tag \"%h\"", &zName[5]);
         }else{
           continue;
         }
-      }else if( memcmp(zName, "+sym-",5)==0 ){
+      }else if( strncmp(zName, "+sym-",5)==0 ){
         blob_appendf(&comment, " Add tag \"%h\"", &zName[5]);
       }else if( strcmp(zName, "+closed")==0 ){
         blob_append(&comment, " Mark \"Closed\"", -1);

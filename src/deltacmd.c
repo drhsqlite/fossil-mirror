@@ -35,7 +35,7 @@ int blob_delta_create(Blob *pOriginal, Blob *pTarget, Blob *pDelta){
   lenOrig = blob_size(pOriginal);
   zTarg = blob_materialize(pTarget);
   lenTarg = blob_size(pTarget);
-  blob_resize(pDelta, lenTarg+16);
+  blob_resize(pDelta, lenTarg+60);
   zRes = blob_materialize(pDelta);
   len = delta_create(zOrig, lenOrig, zTarg, lenTarg, zRes);
   blob_resize(pDelta, len);

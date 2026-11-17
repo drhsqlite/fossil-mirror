@@ -535,7 +535,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   }
 
   /* Date and times */
-  if( memcmp(zTag, "date:", 5)==0 ){
+  if( strncmp(zTag, "date:", 5)==0 ){
     zDate = fossil_expand_datetime(&zTag[5],0,1);
     if( zDate==0 ) zDate = &zTag[5];
     rid = db_int(0,
@@ -556,7 +556,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
 
   /* Deprecated date & time formats:   "local:" + date-time and
   ** "utc:" + date-time */
-  if( memcmp(zTag, "local:", 6)==0 ){
+  if( strncmp(zTag, "local:", 6)==0 ){
     rid = db_int(0,
       "SELECT objid FROM event"
       " WHERE mtime<=julianday(%Q) AND type GLOB '%q'"
@@ -564,7 +564,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
       &zTag[6], zType);
     return rid;
   }
-  if( memcmp(zTag, "utc:", 4)==0 ){
+  if( strncmp(zTag, "utc:", 4)==0 ){
     rid = db_int(0,
       "SELECT objid FROM event"
       " WHERE mtime<=julianday('%qz') AND type GLOB '%q'"
@@ -574,7 +574,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   }
 
   /* "tag:" + symbolic-name */
-  if( memcmp(zTag, "tag:", 4)==0 ){
+  if( strncmp(zTag, "tag:", 4)==0 ){
     rid = most_recent_event_with_tag(&zTag[4], zType);
     if( startOfBranch ) rid = start_of_branch(rid,1);
     return rid;
@@ -700,7 +700,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
 
 
   /* Undocumented:  numeric tags get translated directly into the RID */
-  if( memcmp(zTag, "rid:", 4)==0 ){
+  if( strncmp(zTag, "rid:", 4)==0 ){
     zTag += 4;
     for(i=0; fossil_isdigit(zTag[i]); i++){}
     if( zTag[i]==0 ){

@@ -339,7 +339,7 @@
         }
       }/*e.status*/
 
-      if( F.user.mayAttachForum ){
+      if( 0!==F.user.mayAttachForum ){
         //e.buttons.append( e.button.addAttach = this.#att.takeAddButton() );
         e.tabAttach = D.div();
         e.tabAttach.setAttribute('id', idPrefix+'-attach');
@@ -600,9 +600,19 @@
             'target',
             '_new'
           ),
-          ".",
+          "."
         );
         this.#e.tabAttach.append(eNote);
+      }
+      if( F.user.mayAttachForum < 0 ){
+        /* Users with permission '4' (forum unmoderated) but not 'B'
+        ** (forum-attach) may attach files but they will undergo
+        ** moderation. */
+        const w = D.div();
+        w.append("Your attachments will be held "+
+                 "for moderation.");
+        w.classList.add('warning');
+        this.#e.tabAttach.append(w);
       }
       this.#e.tabAttach.append(this.#att.widget);
     }

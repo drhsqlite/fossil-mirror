@@ -109,7 +109,7 @@ pre.verbatim {
 }
 
 /* Some pages have section dividers */
-div.section {
+div.section, summary.section {
   margin-bottom: 0px;
   margin-top: 1em;
   padding: 1px 1px 1px 1px;

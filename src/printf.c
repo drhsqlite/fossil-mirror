@@ -730,8 +730,8 @@ int vxprintf(
         }else if( xtype==etSTRINGID ){
           precision = hash_digits(flag_altform2);
         }
+        if( limit<0 || (precision>=0 && precision<limit) ) limit = precision;
         length = StrNLen32(bufpt, limit);
-        if( precision>=0 && precision<length ) length = precision;
         break;
       }
       case etBLOB: {
@@ -1156,7 +1156,18 @@ static int fossil_print_error(int rc, const char *z){
   }
   else
 #endif
-  if( g.cgiOutput==1 && g.db ){
+  if( g.xferPanic && g.cgiOutput==1 ){
+    /* An error while serving /xfer.  Report it as a sync-protocol
+    ** "error" card rather than an HTML page so that the client can
+    ** show the actual message.  The client does not parse the body
+    ** of a non-200 reply, so the status code is left alone.  The
+    ** content type is likewise left as /xfer set it, so that the
+    ** reply is compressed (or not) the way the client expects. */
+    g.cgiOutput = 2;
+    cgi_reset_content();
+    @ error %F(z)
+    cgi_reply();
+  }else if( g.cgiOutput==1 && g.db ){
     g.cgiOutput = 2;
     cgi_reset_content();
     cgi_set_content_type("text/html");

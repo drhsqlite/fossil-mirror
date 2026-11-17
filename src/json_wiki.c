@@ -125,6 +125,8 @@ cson_value * json_get_wiki_page_by_rid(int rid, int contentFormat){
             wiki_convert(&raw,&content,0);
           }else if( fossil_strcmp(zMimetype, "text/x-markdown")==0 ){
             markdown_to_html(&raw,0,&content);
+            safe_html_context(DOCSRC_WIKI);
+            safe_html(&content);
           }else if( fossil_strcmp(zMimetype, "text/plain")==0 ){
             htmlize_to_blob(&content,blob_str(&raw),blob_size(&raw));
           }else{
@@ -310,6 +312,8 @@ static cson_value * json_wiki_preview(void){
   zMime = wiki_filter_mimetypes(zMime);
   if( 0==fossil_strcmp(zMime, "text/x-markdown") ){
     markdown_to_html(&contentOrig, 0, &contentHtml);
+    safe_html_context(DOCSRC_WIKI);
+    safe_html(&contentHtml);
   }else if( 0==fossil_strcmp(zMime, "text/plain") ){
     blob_append(&contentHtml, "<pre class='textPlain'>", -1);
     blob_append(&contentHtml, blob_str(&contentOrig), blob_size(&contentOrig));

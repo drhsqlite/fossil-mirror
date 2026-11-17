@@ -811,6 +811,8 @@ void document_render(
   }else if( fossil_strcmp(zMime, "text/x-markdown")==0 ){
     Blob tail = BLOB_INITIALIZER;
     markdown_to_html(pBody, &title, &tail);
+    safe_html_context(DOCSRC_FILE);
+    safe_html(&tail);
     if( !isPopup ){
       if( blob_size(&title)>0 ){
         markdown_dehtmlize_blob(&title);

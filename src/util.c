@@ -772,6 +772,18 @@ char *fossil_temp_filename(void){
 }
 
 /*
+** FOSSIL_ASAN is defined if this is a build with AddressSanitizer, which
+** needs more address space for its own use than the heap limit allows.
+*/
+#if defined(__SANITIZE_ADDRESS__)
+# define FOSSIL_ASAN 1
+#elif defined(__has_feature)
+# if __has_feature(address_sanitizer)
+#  define FOSSIL_ASAN 1
+# endif
+#endif
+
+/*
 ** Turn memory limits for stack and heap on and off.  The argument
 ** is true to turn memory limits on and false to turn them off.
 **
@@ -780,11 +792,13 @@ char *fossil_temp_filename(void){
 */
 void fossil_limit_memory(int onOff){
 #if defined(__unix__)
+#if defined(RLIMIT_DATA) && !defined(FOSSIL_ASAN)
   static sqlite3_int64 origHeap = 10000000000LL;  /* 10GB */
+#endif
   static sqlite3_int64 origStack =    8000000  ;  /*  8MB */
   struct rlimit x;
 
-#if defined(RLIMIT_DATA)
+#if defined(RLIMIT_DATA) && !defined(FOSSIL_ASAN)
   getrlimit(RLIMIT_DATA, &x);
   if( onOff ){
     origHeap = x.rlim_cur;
@@ -797,7 +811,7 @@ void fossil_limit_memory(int onOff){
     x.rlim_cur = origHeap;
   }
   setrlimit(RLIMIT_DATA, &x);
-#endif /* defined(RLIMIT_DATA) */
+#endif /* defined(RLIMIT_DATA) && !defined(FOSSIL_ASAN) */
 #if defined(RLIMIT_STACK)
   getrlimit(RLIMIT_STACK, &x);
   if( onOff ){
