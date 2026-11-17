@@ -333,6 +333,22 @@ proc get_all_settings {} {
   return [get_source_settings_in_binary 0]
 }
 
+# Returns the SHA1 hash of the file FILENAME, from "fossil sha1sum".
+#
+proc sha1_file {filename} {
+  return [string range [exec $::fossilexe sha1sum $filename] 0 39]
+}
+
+# Returns the SHA1 hash of the string TXT.
+#
+proc sha1_text {txt} {
+  set filename [file join $::tempPath sha1_text_[pid]]
+  write_file $filename $txt
+  set hash [sha1_file $filename]
+  file delete $filename
+  return $hash
+}
+
 # Return true if two files are the same
 #
 proc same_file {a b} {

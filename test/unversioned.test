@@ -20,10 +20,6 @@
 
 set path [file dirname [info script]]
 
-if {[catch {package require sha1}] != 0} {
-  test_skip "The \"sha1\" package for Tcl is not available."
-}
-
 require_no_open_checkout
 
 test_setup; set rootDir [file normalize [pwd]]
@@ -184,13 +180,13 @@ test unversioned-22 {[normalize_result] eq {}}
 ###############################################################################
 
 fossil unversioned cat unversioned2.txt
-test unversioned-23 {[::sha1::sha1 $RESULT] eq \
+test unversioned-23 {[sha1_text $RESULT] eq \
 {962f96ebd613e4fdd9aa2d20bd9fe21a64e925f2}}
 
 ###############################################################################
 
 fossil unversioned cat unversioned3.txt -keepNewline
-test unversioned-24 {[::sha1::sha1 $RESULT] eq \
+test unversioned-24 {[sha1_text $RESULT] eq \
 {c6b95509120d9703cc4fbe5cdfcb435b5912b3e4}}
 
 ###############################################################################
@@ -206,7 +202,7 @@ test unversioned-26 {[normalize_result] eq {}}
 ###############################################################################
 
 fossil unversioned cat unversioned4.txt
-set hash(before) [::sha1::sha1 $RESULT]
+set hash(before) [sha1_text $RESULT]
 test unversioned-27 {$hash(before) eq \
 {b48ba8e2d0b498321dfd13de84867effda399af5}}
 
@@ -218,7 +214,7 @@ test unversioned-28 {[normalize_result] eq {}}
 ###############################################################################
 
 fossil unversioned cat unversioned4.txt
-set hash(after) [::sha1::sha1 $RESULT]
+set hash(after) [sha1_text $RESULT]
 test unversioned-29 {$hash(after) ne $hash(before)}
 test unversioned-30 {[regexp { \d+ (?:-)?\d+$} $RESULT]}
 
@@ -245,7 +241,7 @@ unversioned4\.txt$} [normalize_result]]}
 
 fossil unversioned export unversioned2.txt unversioned2-ex.txt
 test unversioned-34 {[normalize_result] eq {}}
-test unversioned-35 {[::sha1::sha1 -hex -filename unversioned2-ex.txt] eq \
+test unversioned-35 {[sha1_file unversioned2-ex.txt] eq \
 {962f96ebd613e4fdd9aa2d20bd9fe21a64e925f2}}
 
 ###############################################################################
@@ -381,7 +377,7 @@ unset env(FAKE_EDITOR_SCRIPT)
 ###############################################################################
 
 fossil unversioned cat unversioned2.txt
-test unversioned-49 {[::sha1::sha1 $RESULT] eq \
+test unversioned-49 {[sha1_text $RESULT] eq \
 {e15d4b576fc04e3bb5e44a33d44d104dd5b19428}}
 
 ###############################################################################
@@ -465,7 +461,7 @@ unversioned5\.txt$} [normalize_result]]}
 ###############################################################################
 
 fossil unversioned cat unversioned-client1.txt
-test unversioned-58 {[::sha1::sha1 $RESULT] eq \
+test unversioned-58 {[sha1_text $RESULT] eq \
 {a34606f714afe309bb531fba6051eaf25201e8a2}}
 
 ###############################################################################

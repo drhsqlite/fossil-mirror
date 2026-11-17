@@ -42,7 +42,6 @@ The following tests are skipped when their requirements are missing:
 | Needs | Test files |
 | --- | --- |
 | a TCP connection over the loopback interface | `unversioned` |
-| the `sha1` package from tcllib | `unversioned` |
 | `configure --json` | `json` |
 | `configure --with-th1-docs` | `th1-docs` |
 | `configure --with-th1-hooks` | `th1-hooks` |
