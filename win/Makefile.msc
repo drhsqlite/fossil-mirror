@@ -563,6 +563,16 @@ EXTRA_FILES   = "$(SRCDIR)\..\extsrc\pikchr-worker.js" \
         "$(SRCDIR)\..\skins\plain_gray\details.txt" \
         "$(SRCDIR)\..\skins\plain_gray\footer.txt" \
         "$(SRCDIR)\..\skins\plain_gray\header.txt" \
+        "$(SRCDIR)\..\skins\refined-dark\css.txt" \
+        "$(SRCDIR)\..\skins\refined-dark\details.txt" \
+        "$(SRCDIR)\..\skins\refined-dark\footer.txt" \
+        "$(SRCDIR)\..\skins\refined-dark\header.txt" \
+        "$(SRCDIR)\..\skins\refined-dark\js.txt" \
+        "$(SRCDIR)\..\skins\refined-light\css.txt" \
+        "$(SRCDIR)\..\skins\refined-light\details.txt" \
+        "$(SRCDIR)\..\skins\refined-light\footer.txt" \
+        "$(SRCDIR)\..\skins\refined-light\header.txt" \
+        "$(SRCDIR)\..\skins\refined-light\js.txt" \
         "$(SRCDIR)\..\skins\xekri\css.txt" \
         "$(SRCDIR)\..\skins\xekri\details.txt" \
         "$(SRCDIR)\..\skins\xekri\footer.txt" \
@@ -1202,6 +1212,16 @@ realclean: clean
 	echo "$(SRCDIR)\../skins/plain_gray/details.txt" >> $@
 	echo "$(SRCDIR)\../skins/plain_gray/footer.txt" >> $@
 	echo "$(SRCDIR)\../skins/plain_gray/header.txt" >> $@
+	echo "$(SRCDIR)\../skins/refined-dark/css.txt" >> $@
+	echo "$(SRCDIR)\../skins/refined-dark/details.txt" >> $@
+	echo "$(SRCDIR)\../skins/refined-dark/footer.txt" >> $@
+	echo "$(SRCDIR)\../skins/refined-dark/header.txt" >> $@
+	echo "$(SRCDIR)\../skins/refined-dark/js.txt" >> $@
+	echo "$(SRCDIR)\../skins/refined-light/css.txt" >> $@
+	echo "$(SRCDIR)\../skins/refined-light/details.txt" >> $@
+	echo "$(SRCDIR)\../skins/refined-light/footer.txt" >> $@
+	echo "$(SRCDIR)\../skins/refined-light/header.txt" >> $@
+	echo "$(SRCDIR)\../skins/refined-light/js.txt" >> $@
 	echo "$(SRCDIR)\../skins/xekri/css.txt" >> $@
 	echo "$(SRCDIR)\../skins/xekri/details.txt" >> $@
 	echo "$(SRCDIR)\../skins/xekri/footer.txt" >> $@

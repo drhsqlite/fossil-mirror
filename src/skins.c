@@ -58,6 +58,8 @@ static struct BuiltinSkin {
   { "Khaki",                             "khaki",             0 },
   { "Original",                          "original",          0 },
   { "Plain Gray",                        "plain_gray",        0 },
+  { "Refined Dark",                      "refined-dark",      0 },
+  { "Refined Light",                     "refined-light",     0 },
   { "Xekri",                             "xekri",             0 },
 };
 
