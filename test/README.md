@@ -69,7 +69,8 @@ suite accounts for that.)
 
 Each `NAME.test` file is a Tcl script sourced by `tester.tcl`. `test_setup` creates and opens a repository in a temporary directory. `fossil ARGS` runs the
 executable being tested and sets `RESULT` to its output and `CODE` to its exit status. `test_eq NAME ACTUAL EXPECTED` and `test_match NAME ACTUAL PATTERN`
-report both values when they fail, and `test NAME EXPRESSION` gives the report. `test_skip REASON` skips the rest of the file, and `test_fail_then_return NAME
+report both values when they fail, and `test NAME EXPRESSION` gives the report. `test_skip REASON` skips the rest of the file, `test_skip_part REASON`
+reports a few skipped tests while the file continues, and `test_fail_then_return NAME
 REASON` records a failed setup step and stops the file. A last argument of `knownBug` to any of the `test` procedures marks a known bug as described above.
 
 ## Maintaining the tests

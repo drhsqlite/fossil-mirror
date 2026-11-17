@@ -70,7 +70,7 @@ if {[catch {package require sqlite3}] == 0} {
 
   test th1-tcl-2 {[regexp -- {^\d+$} [normalize_result]]}
 } else {
-  puts stderr "Skipping 'th1-tcl-2', SQLite package for Tcl not available"
+  test_skip_part "th1-tcl-2: SQLite package for Tcl not available"
 }
 
 ###############################################################################

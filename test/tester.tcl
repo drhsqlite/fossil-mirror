@@ -438,11 +438,19 @@ proc robust_delete { path {force ""} } {
 # level of a test file.
 #
 proc test_skip {reason} {
+  test_skip_part $reason
+  uplevel 1 [list test_cleanup]
+  return -code return
+}
+
+# Record that some tests of the current test file are skipped because
+# of REASON, which says which tests.  The final summary reports REASON
+# beside the file name, and the test file continues.
+#
+proc test_skip_part {reason} {
   global skipped_tests testfile
   lappend skipped_tests [list $testfile $reason]
   protOut "SKIPPED $testfile: $reason" 1
-  uplevel 1 [list test_cleanup]
-  return -code return
 }
 
 # Record test NAME as failed because of REASON, then stop the current
