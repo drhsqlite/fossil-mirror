@@ -29,7 +29,7 @@ if {![info exists argv] || [llength $argv] != 1} {
 ###############################################################################
 
 proc makeBinaryChannel { channel } {
-  fconfigure $channel -encoding binary -translation binary
+  fconfigure $channel -translation binary
 }
 
 proc readFile { fileName } {
