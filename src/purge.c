@@ -612,7 +612,8 @@ void purge_cmd(void){
     db_begin_transaction();
     for(i=3; i<g.argc; i++){
       int peid = atoi(g.argv[i]);
-      if( !db_exists("SELECT 1 FROM purgeevent WHERE peid=%d",peid) ){
+      if( !db_table_exists("repository","purgeevent")
+       || !db_exists("SELECT 1 FROM purgeevent WHERE peid=%d",peid) ){
         fossil_fatal("no such purge event: %s", g.argv[i]);
       }
       db_multi_exec(
@@ -628,6 +629,10 @@ void purge_cmd(void){
     int peid;
     if( g.argc!=4 ) usage("undo ID");
     peid = atoi(g.argv[3]);
+    if( !db_table_exists("repository","purgeevent")
+     || !db_exists("SELECT 1 FROM purgeevent WHERE peid=%d",peid) ){
+      fossil_fatal("no such purge event: %s", g.argv[3]);
+    }
     if( (purgeFlags & PURGE_EXPLAIN_ONLY)==0 ){
       db_begin_transaction();
       db_multi_exec(
