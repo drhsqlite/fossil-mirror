@@ -1,5 +1,5 @@
-C Minor\sbug\sin\stest_start_server:\sonly\sread\sa\swhole\sport\snumber
-D 2026-11-17T13:12:39.223
+C Make\sroundtrip.test\suse\ssame\shostname\scomparison\sas\s"fossil\spatch\screate"
+D 2026-11-17T13:13:56.045
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -647,7 +647,7 @@ F test/release-checklist.wiki e2c611eee0ce2899d72f389e7518e7b8a71284f8b7992def42
 F test/reserved-names.test df65768408b881eed35fe276dce13a49b637ed0d11fd46a63c1a9bdb9faaabd2
 F test/revert.test abbddaa272ec0ed5e5d9ffbee5636eefc242e45e383abac8e27e45ddd84ac75a
 F test/rewrite-test-output.tcl fc2affc10d2ce6911836db498990d72ce5ba6e911cc5036d5f78391c022843ef
-F test/roundtrip.test 6fe1af3c181bd7f4f23a48207c508aa16b7f1f197085153924d69f80076d43ee
+F test/roundtrip.test bc0421256d2e89330308aa88a831203147c607e0f7253cd63d457fd7c96073ff
 F test/set-manifest.test bfd26ecdba2949e008521ba45fc558977654440a18a1aa0a2e55ad2ab792c952
 F test/settings-repo.test 6303e59097b3b9ae650f7b4b1287436a1c33518955a3de26cbcc6796a73fd6a5
 F test/settings.test e500c410d0def6a8c9bcecddb6ed75a095906ddae8739723a718b500e4a563a1
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 69903cd865e33e4cc54fe5bd6d7ac27fedd191eff378f306054363916b73279a
-R f8f6ebc3ee3d037bdd670ddc1f42d88d
+P e83517252d38d40183ce8f989855c43399d7bcf3fd62f65edacc9698ca7516d6
+R 0126fadbfda99efa86caebcc8e91f925
 U danshearer
-Z a0344415bbb73f2235860c90e9c5e182
+Z 11a68d1fbf6dcec4379f5634d7762040
 # Remove this line to create a well-formed Fossil manifest.

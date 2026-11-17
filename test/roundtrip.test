@@ -257,16 +257,19 @@ fossil patch create rt.patch
 # The patch records the name of the computer it was made on.  fossil
 # reads the name from the "hostname" program, so where that program is
 # missing, the name is empty and the shell's error appears on standard
-# error.
+# error.  The name that the program prints can differ from Tcl's
+# "info hostname", for example in letter case or in its domain.
 #
 fossil sqlite3 --no-repository rt.patch \
     "SELECT value FROM cfg WHERE key='hostname'"
 if {[auto_execok hostname] eq ""} {
+  set hostname [info hostname]
   set hostnameConstraint knownBug
 } else {
+  set hostname [string trim [exec hostname]]
   set hostnameConstraint ""
 }
-test_eq roundtrip-patch-hostname [normalize_result] [info hostname] \
+test_eq roundtrip-patch-hostname [normalize_result] $hostname \
     $hostnameConstraint
 
 fossil revert
