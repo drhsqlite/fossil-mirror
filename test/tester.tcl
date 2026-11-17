@@ -53,52 +53,12 @@ set dirty_ckout [string length $res]
 
 set argv [lrange $argv 1 end]
 
-set i [lsearch $argv -keep]
-if {$i>=0} {
-  set KEEP 1
-  set argv [lreplace $argv $i $i]
-} else {
-  set KEEP 0
-}
-
-set i [lsearch $argv -halt]
-if {$i>=0} {
-  set HALT 1
-  set argv [lreplace $argv $i $i]
-} else {
-  set HALT 0
-}
-
-set i [lsearch $argv -prot]
-if {$i>=0} {
-  set PROT 1
-  set argv [lreplace $argv $i $i]
-} else {
-  set PROT 0
-}
-
-set i [lsearch $argv -verbose]
-if {$i>=0} {
-  set VERBOSE 1
-  set argv [lreplace $argv $i $i]
-} else {
-  set VERBOSE 0
-}
-
-set i [lsearch $argv -quiet]
-if {$i>=0} {
-  set QUIET 1
-  set argv [lreplace $argv $i $i]
-} else {
-  set QUIET 0
-}
-
-set i [lsearch $argv -strict]
-if {$i>=0} {
-  set STRICT 1
-  set argv [lreplace $argv $i $i]
-} else {
-  set STRICT 0
+foreach option {keep halt prot verbose quiet strict} {
+  set i [lsearch -exact $argv -$option]
+  set [string toupper $option] [expr {$i >= 0}]
+  if {$i >= 0} {
+    set argv [lreplace $argv $i $i]
+  }
 }
 
 if {[llength $argv]==0} {
@@ -162,7 +122,13 @@ proc fossil {args} {
 # diagnostics should be emitted when no error is seen.
 # Sets the CODE and RESULT global variables for use in
 # test expressions, and the LASTCMD global variable to the
-# command, for the report of a failed test.
+# command, for the report of a failed test.  CODE is 0 if the
+# command succeeded and did not write anything to standard error,
+# and 1 otherwise.
+#
+# A command that exits with the wrong status gets an ERROR line.
+# Where that status is a known bug, -knownBug among the arguments
+# limits the ERROR line to -strict runs.
 #
 proc fossil_maybe_answer {answer args} {
   global fossilexe
@@ -179,38 +145,29 @@ proc fossil_maybe_answer {answer args} {
     set keepNewline 1
     set args [lreplace $args $index $index]
   }
-  set whatIf 0
-  set index [lsearch -exact $args -whatIf]
+  set knownBug 0
+  set index [lsearch -exact $args -knownBug]
   if {$index != -1} {
-    set whatIf 1
+    set knownBug 1
     set args [lreplace $args $index $index]
   }
   foreach a $args {
     lappend cmd $a
   }
-  protOut $cmd
+  protOut [list fossil {*}$args]
 
   flush stdout
-  if {$whatIf} {
-    protOut [pwd]; protOut $answer
-    set result WHAT-IF-MODE; set rc 42
-  } else {
-    if {[string length $answer] > 0} {
-      protOut $answer
-      set prompt_file [file join $::tempPath fossil_prompt_answer]
-      write_file $prompt_file $answer\n
-      set execCmd [list eval exec]
-      if {$keepNewline} {lappend execCmd -keepnewline}
-      lappend execCmd $cmd <$prompt_file
-      set rc [catch $execCmd result]
-      file delete $prompt_file
-    } else {
-      set execCmd [list eval exec]
-      if {$keepNewline} {lappend execCmd -keepnewline}
-      lappend execCmd $cmd
-      set rc [catch $execCmd result]
-    }
+  set execCmd [list eval exec]
+  if {$keepNewline} {lappend execCmd -keepnewline}
+  lappend execCmd $cmd
+  set prompt_file [file join $::tempPath fossil_prompt_answer]
+  if {[string length $answer] > 0} {
+    protOut $answer
+    write_file $prompt_file $answer\n
+    lappend execCmd <$prompt_file
   }
+  set rc [catch $execCmd result]
+  file delete $prompt_file
   set ab(str) {child process exited abnormally}
   set ab(len) [string length $ab(str)]
   set ab(off) [expr {$ab(len) - 1}]
@@ -219,14 +176,13 @@ proc fossil_maybe_answer {answer args} {
     set result [string range $result 0 end-$ab(len)]
   }
   global RESULT CODE LASTCMD
-  set LASTCMD $cmd
+  set LASTCMD [list fossil {*}$args]
   set CODE $rc
-  if {!$whatIf} {
-    if {($rc && !$expectError) || (!$rc && $expectError)} {
-      protOut "ERROR ($rc): $result" 1
-    } elseif {$::VERBOSE} {
-      protOut "RESULT ($rc): $result"
-    }
+  set wrongStatus [expr {($rc != 0) != $expectError}]
+  if {$wrongStatus && (!$knownBug || $::STRICT)} {
+    protOut "ERROR ($rc): $result" 1
+  } elseif {$::VERBOSE} {
+    protOut "RESULT ($rc): $result"
   }
   set RESULT $result
 }
@@ -609,8 +565,8 @@ proc run_in_checkout { script {dir ""} } {
 # Be sure to adhere to the requirements of run_in_checkout!
 proc test_block_in_checkout { name rscript {tscript ""} } {
   if {$::outside_fossil_repo || $::dirty_ckout} {
-    set $::CODE 0
-    set $::RESULT ""
+    set ::CODE 0
+    set ::RESULT ""
   } else {
     uplevel 1 [list run_in_checkout $rscript]
     if {[string length $tscript] == 0} {
@@ -626,9 +582,8 @@ proc test_block_in_checkout { name rscript {tscript ""} } {
 
 # Single-test wrapper for the above.
 proc test_in_checkout { name rscript tscript } {
-  return test_block_in_checkout name rscript {
-    test $name $tscript
-  }
+  uplevel 1 [list test_block_in_checkout $name $rscript \
+      [list test $name $tscript]]
 }
 
 # Normalize file status lists (like those returned by 'fossil changes')
@@ -693,24 +648,13 @@ proc getEnvironmentVariable { name } {
 # Returns a usable temporary directory -OR- fails the testing process.
 #
 proc getTemporaryPath {} {
-  #
-  # NOTE: Build the list of "temporary directory" environment variables
-  #       to check, including all reasonable "cases" of the environment
-  #       variable names.
-  #
   set names [list]
 
-  #
-  # TODO: Add more here, if necessary.
-  #
   foreach name [list FOSSIL_TEST_TEMP FOSSIL_TEMP TMPDIR TEMP TMP] {
     lappend names [string toupper $name] [string tolower $name] \
         [string totitle $name]
   }
 
-  #
-  # NOTE: Check if we can use any of the environment variables.
-  #
   foreach name $names {
     set value [getEnvironmentVariable $name]
 
@@ -723,9 +667,6 @@ proc getTemporaryPath {} {
     }
   }
 
-  #
-  # NOTE: On non-Windows systems, fallback to /tmp if it is usable.
-  #
   if {!$::is_windows} {
     set value /tmp
 
@@ -734,70 +675,7 @@ proc getTemporaryPath {} {
     }
   }
 
-  #
-  # NOTE: There must be a usable temporary directory to continue testing.
-  #
   error "Cannot find a usable temporary directory, testing halted."
-}
-
-# Return the name of the versioned settings file containing the TH1
-# setup script.
-#
-proc getTh1SetupFileName {} {
-  #
-  # NOTE: This uses the "testdir" global variable provided by the
-  #       test suite; alternatively, the root of the source tree
-  #       could be obtained directly from Fossil.
-  #
-  return [file normalize [file join .fossil-settings th1-setup]]
-}
-
-# Return the saved name of the versioned settings file containing
-# the TH1 setup script.
-#
-proc getSavedTh1SetupFileName {} {
-  return [appendArgs [getTh1SetupFileName] . [pid]]
-}
-
-# Sets the TH1 setup script to the one provided.  Prior to calling
-# this, the [saveTh1SetupFile] procedure should be called in order to
-# preserve the existing TH1 setup script.  Prior to completing the test,
-# the [restoreTh1SetupFile] procedure should be called to restore the
-# original TH1 setup script.
-#
-proc writeTh1SetupFile { data } {
-  set fileName [getTh1SetupFileName]
-  file mkdir [file dirname $fileName]
-  return [write_file $fileName $data]
-}
-
-# Saves the TH1 setup script file by renaming it, based on the current
-# process ID.
-#
-proc saveTh1SetupFile {} {
-  set oldFileName [getTh1SetupFileName]
-  if {[file exists $oldFileName]} {
-    set newFileName [getSavedTh1SetupFileName]
-    catch {file delete $newFileName}
-    file rename $oldFileName $newFileName
-  }
-}
-
-# Restores the original TH1 setup script file by renaming it back, based
-# on the current process ID.
-#
-proc restoreTh1SetupFile {} {
-  set oldFileName [getSavedTh1SetupFileName]
-  set newFileName [getTh1SetupFileName]
-  if {[file exists $oldFileName]} {
-    catch {file delete $newFileName}
-    file rename $oldFileName $newFileName
-  } else {
-    #
-    # NOTE: There was no TH1 setup script file, delete the test one.
-    #
-    file delete $newFileName
-  }
 }
 
 # Return VALUE as lines for the report of a failed test, after LABEL.
@@ -1029,25 +907,17 @@ proc test_start_server { repository {varName ""} } {
   return [list $pid $port $outFileName]
 }
 
-# This procedure stops a Fossil server instance that was previously started
-# by the [test_start_server] procedure.  The value of the "stop argument"
-# will vary by platform as will the exact method used to stop the server.
-# The fileName argument is the name of a temporary output file to delete.
+# Stops a Fossil server that test_start_server started.  On Windows the
+# stop argument is the name of a file that must not exist yet; creating
+# it makes the server exit.  Elsewhere it is the server's process ID.
+# FILENAME is a temporary output file to delete.
 proc test_stop_server { stopArg pid fileName } {
   if {$::is_windows} {
-    #
-    # NOTE: On Windows, the "stop argument" must be the name of a file
-    #       that does NOT already exist.
-    #
     if {[string length $stopArg] > 0 && \
         ![file exists $stopArg] && \
         [catch {write_file $stopArg [clock seconds]}] == 0} {
       while {1} {
         if {[catch {
-          #
-          # NOTE: Using the TaskList utility requires Windows XP or
-          #       later.
-          #
           exec tasklist.exe /FI "PID eq $pid"
         } result] != 0 || ![regexp -- " $pid " $result]} {
           break
@@ -1061,18 +931,10 @@ proc test_stop_server { stopArg pid fileName } {
       return true
     }
   } else {
-    #
-    # NOTE: On Unix, the "stop argument" must be an integer identifier
-    #       that refers to an existing process.
-    #
     if {[regexp {^(?:-)?\d+$} $stopArg] && \
         [catch {exec kill -TERM $stopArg}] == 0} {
       while {1} {
         if {[catch {
-          #
-          # TODO: Is this portable to all the supported variants of
-          #       Unix?  It should be, it's POSIX.
-          #
           exec ps -p $pid
         } result] != 0 || ![regexp -- "(?:^$pid| $pid) " $result]} {
           break
@@ -1105,10 +967,8 @@ proc test_fossil_http { repository dataFileName url } {
 
   set result [expr {[file exists $outFileName] ? [read_file $outFileName] : ""}]
 
-  if {1} {
-    catch {file delete $inFileName}
-    catch {file delete $outFileName}
-  }
+  catch {file delete $inFileName}
+  catch {file delete $outFileName}
 
   return $result
 }
@@ -1196,6 +1056,7 @@ please set TEMP variable in environment, error: $error"
 
 
 protInit $fossilexe
+protOut "***** Testing $fossilexe"
 set ::tempKeepHome 1
 
 # Start in tempHomePath to help avoid errors with require_no_open_checkout
@@ -1231,11 +1092,12 @@ if {$nErr>0 || !$::QUIET} {
 if {$nErr>0} {
   protOut "***** Considered failures: $bad_test" 1
 }
-set nErr [llength $ignored_test]
-if {$nErr>0 || !$::QUIET} {
-  protOut "***** Ignored results: $nErr ignored errors out of $test_count tests" 1
+set nIgnored [llength $ignored_test]
+if {$nIgnored>0 || !$::QUIET} {
+  protOut "***** Ignored results: $nIgnored ignored errors out of\
+      $test_count tests" 1
 }
-if {$nErr>0} {
+if {$nIgnored>0} {
   protOut "***** Ignored failures: $ignored_test" 1
 }
 set nSkipped [llength $skipped_tests]
