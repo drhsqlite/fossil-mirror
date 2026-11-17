@@ -80,8 +80,8 @@ static const char zPurgeInit[] =
 **    (6) Remove references to purged artifacts in the following tables:
 **         (a) EVENT
 **         (b) PRIVATE
-**         (c) MLINK
-**         (d) PLINK
+**         (c) MLINK, the file links that purged check-ins hold
+**         (d) PLINK, the parent links that purged check-ins hold
 **         (e) LEAF
 **         (f) UNCLUSTERED
 **         (g) UNSENT
@@ -183,7 +183,6 @@ int purge_artifact_list(
   db_multi_exec("DELETE FROM event WHERE objid IN \"%w\"", zTab);
   db_multi_exec("DELETE FROM private WHERE rid IN \"%w\"", zTab);
   db_multi_exec("DELETE FROM mlink WHERE mid IN \"%w\"", zTab);
-  db_multi_exec("DELETE FROM plink WHERE pid IN \"%w\"", zTab);
   db_multi_exec("DELETE FROM plink WHERE cid IN \"%w\"", zTab);
   db_multi_exec("DELETE FROM leaf WHERE rid IN \"%w\"", zTab);
   db_multi_exec("DELETE FROM phantom WHERE rid IN \"%w\"", zTab);
@@ -403,7 +402,7 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
     bag_insert(&busy, iSrc);
   }
   db_prepare(&q,
-     "SELECT uuid, data, isPrivate, ix.piid"
+     "SELECT uuid, data, isPrivate, ix.piid, orid"
      "  FROM ix, purgeitem"
      " WHERE ix.srcid=%d"
      "   AND ix.piid=purgeitem.piid;",
@@ -411,7 +410,7 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
   );
   while( db_step(&q)==SQLITE_ROW ){
     Blob h1, c1, c2;
-    int isPriv, rid;
+    int isPriv, rid, orid;
     blob_zero(&h1);
     db_column_blob(&q, 0, &h1);
     blob_zero(&c1);
@@ -428,6 +427,23 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
       fossil_fatal("incorrect hash on %b", &h1);
     }
     isPriv = db_column_int(&q, 2);
+    orid = db_column_int(&q, 4);
+    if( orid>0
+     && !db_exists("SELECT 1 FROM blob WHERE rid=%d OR uuid=%Q",
+                   orid, blob_str(&h1))
+    ){
+      /* Store the artifact under its original record number, so that the
+      ** links that other artifacts still hold to it are whole again. */
+      db_multi_exec(
+        "INSERT INTO blob(rid,rcvid,size,uuid,content)"
+        " VALUES(%d,0,-1,%Q,NULL);"
+        "INSERT INTO phantom VALUES(%d);",
+        orid, blob_str(&h1), orid
+      );
+      if( !isPriv ){
+        db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d)", orid);
+      }
+    }
     rid = content_put_ex(&c2, blob_str(&h1), 0, 0, isPriv);
     if( rid==0 ){
       fossil_fatal("%s", g.zErrMsg);
