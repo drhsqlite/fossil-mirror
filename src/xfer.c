@@ -2224,10 +2224,9 @@ int client_sync(
     configSendMask = 0;
     syncFlags &= ~(SYNC_PUSH);
     zPX = db_get("parent-project-code", 0);
-    if( zPX==0 || db_get("parent-project-name",0)==0 ){
+    if( zPX==0 ){
       fossil_fatal("there is no parent project: set the 'parent-project-code'"
-                   " and 'parent-project-name' config parameters in order"
-                   " to pull from a parent project");
+                   " config parameter in order to pull from a parent project");
     }
     if( zPX ){
       zAltPCode = zPX;
