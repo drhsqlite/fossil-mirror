@@ -1,5 +1,5 @@
-C Merge\strunk\sinto\sbranch
-D 2026-11-17T13:05:59.748
+C Remove\sdependency\son\ssha1\spackage\sfrom\sset-manifest.test
+D 2026-11-17T13:08:41.886
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -604,7 +604,7 @@ F src/xsystem.c c8c87776fa160083216bd35c69292a6c3b58870e4c9f6ff1859426b99ea1c106
 F src/zip.c 66a5c78dd2afbb2067b8283ccc8d62e367e761ff2e2b31f3713f7dde10db63bd
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
-F test/README.md 34e8a6170226784661a1064a64a5f980a5d83c4812193fe71318361195789688
+F test/README.md 54793a71c315cdf0e232985bd79004fd3e44b1b637148847c423ace857c08a79
 F test/amend.test e6b4dc88a979be9f055d87427551e3120f9326d20f59e9f4131ea12cb6637e1b
 F test/branch-tag.test 2865db5e09af4cda41ad36f4d816dbba973a62192a20563b881141223331ceee
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
@@ -648,7 +648,7 @@ F test/reserved-names.test df65768408b881eed35fe276dce13a49b637ed0d11fd46a63c1a9
 F test/revert.test abbddaa272ec0ed5e5d9ffbee5636eefc242e45e383abac8e27e45ddd84ac75a
 F test/rewrite-test-output.tcl fc2affc10d2ce6911836db498990d72ce5ba6e911cc5036d5f78391c022843ef
 F test/roundtrip.test 6fe1af3c181bd7f4f23a48207c508aa16b7f1f197085153924d69f80076d43ee
-F test/set-manifest.test de6f92e82fdb672dc20f586944e9fd98423e0e28b1a5142e0b1680506545e906
+F test/set-manifest.test bfd26ecdba2949e008521ba45fc558977654440a18a1aa0a2e55ad2ab792c952
 F test/settings-repo.test 6303e59097b3b9ae650f7b4b1287436a1c33518955a3de26cbcc6796a73fd6a5
 F test/settings.test e500c410d0def6a8c9bcecddb6ed75a095906ddae8739723a718b500e4a563a1
 F test/stash.test 5bb17a4de7a9a60ab433db14b71cbf447c78d8986efb7b21f504b612b4ef1d15
@@ -985,8 +985,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 82a55f2dd1a91bd7e92b2cbabd313c84af754e54dc6ce484f2a8ab825cb12152 d7c8ce5267582d02eb1cc14c9d67313bb4642659997c29e77d706d05e880547f
-R 053d63f23d639489da216525ef2f68fc
+P 49707ffe4c2617ed15f5d3c5a3b81634a2ffb8f78e10b457a54abb3a0fc68e76
+R be794eeb189beed13f2938f9971e34d6
 U danshearer
-Z e9d2e2d382041cc424a9deb34b03e7e8
+Z b97c024dc393f83c46095f2fe686aee8
 # Remove this line to create a well-formed Fossil manifest.
