@@ -2984,6 +2984,10 @@ time_t cgi_rfc822_parsedate(const char *zDate){
   if( 7==sscanf(zDate, "%3[A-Za-z], %d %3[A-Za-z] %d %d:%d:%d", zIgnore,
                        &mday, zMonth, &year, &hour, &min, &sec)){
     if( year > 1900 ) year -= 1900;
+    if( year<70 || year>8099 || mday<1 || mday>31
+     || hour<0 || hour>23 || min<0 || min>59 || sec<0 || sec>60 ){
+      return 0;
+    }
     for(mon=0; azMonths[mon]; mon++){
       if( !fossil_strncmp( azMonths[mon], zMonth, 3 )){
         int nDay;
