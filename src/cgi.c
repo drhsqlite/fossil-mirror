@@ -2542,6 +2542,7 @@ void cgi_handle_scgi_request(void){
 
   assert( !g.httpUseSSL );
   while( (c = fgetc(g.httpIn))!=EOF && fossil_isdigit((char)c) ){
+    if( nHdr>=100000000 ) malformed_request("SCGI header too long");
     nHdr = nHdr*10 + (char)c - '0';
   }
   if( nHdr<16 ) malformed_request("SCGI header too short");
