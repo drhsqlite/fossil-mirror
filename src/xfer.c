@@ -2147,6 +2147,18 @@ static double fossil_fabs(double x){
 }
 
 /*
+** Tell the user that unversioned content cannot be pushed because the
+** server has sent the "uv-pull-only" pragma.
+*/
+static void uv_pull_only_warning(void){
+  fossil_warning(
+    "Warning: uv-pull-only                                       \n"
+    "         Unable to push unversioned content because you lack\n"
+    "         sufficient permission on the server\n"
+  );
+}
+
+/*
 ** Sync to the host identified in g.url.name and g.url.path.  This
 ** routine is called by the client.
 **
@@ -2778,11 +2790,7 @@ int client_sync(
           db_unset("uv-hash", 0);
         }
         if( iStatus>=4 && uvPullOnly==1 ){
-          fossil_warning(
-            "Warning: uv-pull-only                                       \n"
-            "         Unable to push unversioned content because you lack\n"
-            "         sufficient permission on the server\n"
-          );
+          uv_pull_only_warning();
           uvPullOnly = 2;
         }
         if( iStatus<=3 || uvPullOnly ){
@@ -3086,6 +3094,17 @@ int client_sync(
     nUncRcvd += blob_size(&recv);
     blob_reset(&recv);
     nCycle++;
+
+    /* A file that the server has never held is in no uvigot card, so the
+    ** warning above is not given for it.  Give it if anything is still
+    ** queued to send to a server that takes no unversioned content. */
+    if( uvPullOnly==1 && (syncFlags & SYNC_UV_REVERT)==0
+     && db_exists("SELECT 1 FROM uv_tosend")
+    ){
+      uv_pull_only_warning();
+      uvPullOnly = 2;
+      db_multi_exec("DELETE FROM uv_tosend");
+    }
 
     /* Set go to 1 if we need to continue the sync/push/pull/clone for
     ** another round.  Set go to 0 if it is time to quit. */
