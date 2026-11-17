@@ -1,5 +1,5 @@
-C Fix\smany\soutdated\scomments;\srefactor\sduplicated\scode;\sadd\snew\sswitch\s-knownBug\sfor\sthe\ncase\swhere\sthe\sknown\sbug\sis\sthe\sfossil\sreturn\scode;\sRemove\sdead\scode\sand\sthe\sunused\n-whatIf\sparameter
-D 2026-11-17T23:54:37.486
+C Add\spathname\sunicode\stests,\sincluding\sNFD/NFC\sfor\shandling\scase\scollisions\son\smany\ndifferent\sfilesystems.
+D 2026-11-17T23:56:08.844
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -677,6 +677,7 @@ F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
 F test/th1.test 5935980c27550fbb02c412c6e4107fe932589d8dfd90626c9b98a124d2c23e9c
+F test/unicode-pathnames.test 2f3ebc3804f6e7884eb3f8faf067d5a0afb9abc051f7194cb27e51772f5f54b5
 F test/unversioned.test b4d04f9d31a217c0aa14302c2a94f5372e8b1e06d86a052c3f4540c57a8ba429
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
@@ -985,8 +986,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 097ee074f36a0002422853f9d3c91fb86f9ef1b5b032538cefa049ef1dc0dc3f
-R 631c1157628587702eb67d193e3beef7
+P 970df5d58b756cbafdbf1f311c45bd2be4f01f265fbe7308d9fb78005969fc04
+R 20f645f9535c382352a6b1c7721d7cd6
 U danshearer
-Z 8f2c67d14cae170a902b23330533479f
+Z 5dee8db2706fed8da3ee1ccf2736b506
 # Remove this line to create a well-formed Fossil manifest.
