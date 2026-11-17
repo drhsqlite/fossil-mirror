@@ -3323,6 +3323,8 @@ void commit_cmd(void){
     Blob bWiki = BLOB_INITIALIZER;
     char * zPageName;
     int parentRid = 0;
+    int nrid;
+
     blob_read_from_file(&bWiki, zWikiFile, ExtFILE);
     if( !zWikiMime ){
       if( 0==sqlite3_strglob("*.md", zWikiFile) ){
@@ -3335,10 +3337,12 @@ void commit_cmd(void){
     }
     zPageName = mprintf("checkin/%s", zUuid);
     zWikiMime = wiki_filter_mimetypes(zWikiMime);
-    wiki_cmd_commit(zPageName, parentRid, &bWiki, zWikiMime, 1);
+    nrid = wiki_cmd_commit(zPageName, parentRid, &bWiki, zWikiMime, 1);
     fossil_print("Added %s (%s)\n", zPageName, zWikiMime);
     blob_reset(&bWiki);
     fossil_free(zPageName);
+    assert( nrid > 0 );
+    alert_unqueue('w', nrid);
   }
 
   /* Clear the undo/redo stack */

@@ -3023,7 +3023,10 @@ int client_sync(
       ** and so the login card on the request was invalid.  The project-code
       ** is returned in the reply before the error card, so second and
       ** subsequent messages should be OK.  Nevertheless, we need to ignore
-      ** the error card on the first message of a clone.
+      ** login and authorization errors on the first message of a clone.
+      ** Any other error on that first message (for example, the server
+      ** running out of memory) is reported, as otherwise the clone would
+      ** carry on and silently produce an empty repository.
       **
       ** Also ignore "not authorized to write" errors if this is an
       ** autopush following a commit.
@@ -3035,7 +3038,9 @@ int client_sync(
          && sqlite3_strlike("%not authorized to write%",zMsg,0)==0 ){
           autopushFailed = 1;
           nErr++;
-        }else if( (syncFlags & SYNC_CLONE)==0 || nCycle>0 ){
+        }else if( (syncFlags & SYNC_CLONE)==0 || nCycle>0
+               || (sqlite3_strlike("not authorized%",zMsg,0)!=0
+                   && sqlite3_strlike("login failed%",zMsg,0)!=0) ){
           fossil_force_newline();
           fossil_print("Error: %s\n", zMsg);
           blob_appendf(&xfer.err, "server says: %s\n", zMsg);

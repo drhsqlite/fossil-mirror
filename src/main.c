@@ -3062,7 +3062,11 @@ void cmd_http(void){
       zChRoot ? zChRoot : g.zRepositoryName, noJail);
   if( useSCGI ){
     cgi_handle_scgi_request();
+    process_one_web_page(zNotFound, glob_create(zFileGlob), allowRepoList);
   }else if( g.fSshClient & CGI_SSH_CLIENT ){
+    /* ssh_request_loop() processes every request itself, so do not
+    ** call process_one_web_page() again afterwards: that would answer
+    ** the last request a second time. */
     ssh_request_loop(zIpAddr, glob_create(zFileGlob));
   }else{
 #if FOSSIL_ENABLE_SSL
@@ -3071,8 +3075,8 @@ void cmd_http(void){
     }
 #endif
     cgi_handle_http_request(zIpAddr);
+    process_one_web_page(zNotFound, glob_create(zFileGlob), allowRepoList);
   }
-  process_one_web_page(zNotFound, glob_create(zFileGlob), allowRepoList);
 #if FOSSIL_ENABLE_SSL
   if( g.httpUseSSL && g.httpSSLConn ){
     ssl_close_server(g.httpSSLConn);
@@ -3565,12 +3569,16 @@ void cmd_webserver(void){
     const char *zUrl = g.argv[2];
     char zLine[1000];
 
+    if( !ssh_remote_arg_is_safe(zUrl) ){
+      fossil_fatal("the repository name \"%s\" contains a character that "
+                   "is special to the shell on the remote system", zUrl);
+    }
     blob_init(&ssh, 0, 0);
     for(isRetry=0; isRetry<2 && !bRunning; isRetry++){
       blob_reset(&ssh);
       transport_ssh_command(&ssh);
       blob_appendf(&ssh,
-         " -t -L 127.0.0.1:%d:127.0.0.1:%d %!$",
+         " -t -L 127.0.0.1:%d:127.0.0.1:%d -- %!$",
          iPort, iPort, zRemote
       );
       if( zFossilCmd==0 ){

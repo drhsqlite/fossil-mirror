@@ -78,13 +78,26 @@ void transport_stats(i64 *pnSent, i64 *pnRcvd, int resetFlag){
 }
 
 /*
+** Whatever follows the host name on an ssh command line is joined into
+** one string by ssh and parsed again by the login shell on the remote
+** system.  Quoting for the local shell does not protect an argument
+** from that second parse.  Return true if zArg holds none of the
+** characters that a shell treats specially, so that the remote shell
+** takes it as a single word, unchanged.
+*/
+int ssh_remote_arg_is_safe(const char *zArg){
+  return strpbrk(zArg, " !\"#$&'()*;<>?[]^`{|}")==0;
+}
+
+/*
 ** Check zFossil to see if it is a reasonable "fossil" command to
 ** run on the server.  Do not allow an attacker to substitute something
-** like "/bin/rm".
+** like "/bin/rm", or to add to the command.
 */
 static int is_safe_fossil_command(const char *zFossil){
   static const char *const azSafe[] = { "*/fossil", "*/fossil.exe", "*/echo" };
   int i;
+  if( !ssh_remote_arg_is_safe(zFossil) ) return 0;
   for(i=0; i<(int)(sizeof(azSafe)/sizeof(azSafe[0])); i++){
     if( sqlite3_strglob(azSafe[i], zFossil)==0 ) return 1;
     if( strcmp(azSafe[i]+2, zFossil)==0 ) return 1;
@@ -140,8 +153,10 @@ int transport_ssh_open(UrlData *pUrlData){
   if( (pUrlData->flags & URL_SSH_EXE)!=0
    && !is_safe_fossil_command(pUrlData->fossil)
   ){
-    fossil_fatal("the ssh:// URL is asking to run an unsafe command [%s] on "
-                 "the server.", pUrlData->fossil);
+    socket_set_errmsg("the ssh:// URL is asking to run an unsafe command "
+                      "[%s] on the server.", pUrlData->fossil);
+    blob_reset(&zCmd);
+    return 1;
   }
   if( (pUrlData->flags & URL_SSH_EXE)==0
    && (pUrlData->flags & URL_SSH_PATH)!=0
@@ -151,6 +166,13 @@ int transport_ssh_open(UrlData *pUrlData){
   blob_append_escaped_arg(&zCmd, pUrlData->fossil, 1);
   blob_append(&zCmd, " test-http", 10);
   if( pUrlData->path && pUrlData->path[0] ){
+    if( !ssh_remote_arg_is_safe(pUrlData->path) ){
+      socket_set_errmsg("the repository path \"%s\" in the ssh:// URL "
+                        "contains a character that is special to the shell "
+                        "on the remote system", pUrlData->path);
+      blob_reset(&zCmd);
+      return 1;
+    }
     blob_append_escaped_arg(&zCmd, pUrlData->path, 1);
   }else{
     fossil_fatal("ssh:// URI does not specify a path to the repository");

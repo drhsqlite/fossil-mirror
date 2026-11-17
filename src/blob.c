@@ -1692,7 +1692,7 @@ static const char aSafeChar[256] = {
 #else
 /* Unix
 ** Prohibit:  all control characters, including tab, \r and \n
-** Escape:    (space) ! " # $ % & ' ( ) * ; < > ? [ \ ] ^ ` { | }
+** Escape:    (space) ! " # $ % & ' ( ) * ; < > ? [ \ ] ^ ` { | } ~
 */
 /*  x0  x1  x2  x3  x4  x5  x6  x7  x8  x9  xa  xb  xc  xd  xe  xf  */
      2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2, /* 0x */
@@ -1702,7 +1702,7 @@ static const char aSafeChar[256] = {
      1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, /* 4x */
      0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  1,  0, /* 5x */
      1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, /* 6x */
-     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  0,  1, /* 7x */
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  1,  1, /* 7x */
 #endif
     /* all bytes 0x80 through 0xbf are unescaped, being secondary
     ** bytes to UTF8 characters.  Bytes 0xc0 through 0xff are the

@@ -124,9 +124,13 @@ static void db_err(const char *zFormat, ...){
   else
 #endif /* FOSSIL_ENABLE_JSON */
   if( g.xferPanic && g.cgiOutput==1 ){
+    /* Report the error to the sync client here, before the additions
+    ** below which may reveal server filesystem paths.  Mark the output
+    ** as done so that fossil_fatal() does not send a second reply. */
     cgi_reset_content();
     @ error Database\serror:\s%F(z)
     cgi_reply();
+    g.cgiOutput = 2;
   }
   if( strstr(z,"attempt to write a readonly database") ){
     static const char *azDbNames[] = { "repository", "localdb", "configdb" };

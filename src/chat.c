@@ -507,6 +507,8 @@ static char *chat_format_to_html(const char *zMsg, int isWiki){
     Blob bIn;
     blob_init(&bIn, zMsg, (int)strlen(zMsg));
     markdown_to_html(&bIn, NULL, &out);
+    safe_html_context(DOCSRC_UNTRUSTED);
+    safe_html(&out);
   }
   return blob_str(&out);
 }
