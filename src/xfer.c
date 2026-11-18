@@ -1306,7 +1306,11 @@ int xfer_run_common_script(void){
 static void xfer_syncwith(const char *zUrl, int bSyncFrom){
   UrlData x;
   memset(&x, 0, sizeof(x));
-  url_parse_local(zUrl, URL_OMIT_USER, &x);
+  if( fossil_strnicmp(zUrl, "http://", 7)==0
+   || fossil_strnicmp(zUrl, "https://", 8)==0
+  ){
+    url_parse_local(zUrl, URL_OMIT_USER, &x);
+  }
   if( x.protocol && strncmp(x.protocol,"http",4)==0
    && x.name && sqlite3_strlike("%localhost%", x.name, 0)!=0
   ){
