@@ -37,6 +37,11 @@
 
 /* Base, matching the default skin's sizing */
 body {
+  box-sizing: border-box;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
   margin: 0 auto;
   background-color: var(--bg);
   color: var(--text);
@@ -351,6 +356,10 @@ input[type=submit]:disabled, input[type=button]:disabled, button:disabled { opac
 :focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
 .mainmenu a:focus-visible { outline-offset: -3px; }
 
+/* Let short pages fill the viewport without overlaying long content. */
+body > .content { flex: 1 0 auto; min-width: 0; }
+body > header, body > nav, body > footer { flex-shrink: 0; }
+
 /* Footer */
 footer {
   border-top: 1px solid var(--border);
@@ -636,8 +645,13 @@ body.chat #chat-button-submit { --icon: url("data:image/svg+xml,%3Csvg xmlns=%22
   .mainmenu a { padding: 12px 20px; }
   .mainmenu { padding: 0; }
   .content dd, .content dt, .content div, .content li, .content p, .content table { line-height: 1.45em; }
-  /* Keep running text a comfortable width on wide screens */
-  .doc > .content, .wiki > .content, .forum > .content, .artifact > .content { max-width: 70em; }
+  /* Fossil renders a document's title outside .content. Match its h1 inset. */
+  body.doc > h1.page-title {
+    box-sizing: border-box;
+    width: 100%;
+    margin-inline: 0;
+    padding-inline: 10pt;
+  }
   .doc > .content > p, .doc > .content > .markdown > p, .doc > .content > .fossil-doc > p,
   .doc > .content > ol, .doc > .content > ul, .doc > .content > .markdown > ol, .doc > .content > .markdown > ul,
   .wiki > .content > p, .wiki > .content > .markdown > p, .wiki > .content > .fossil-doc > p,
@@ -775,6 +789,11 @@ input[type=file]::file-selector-button {
   margin-right: 0.6em; cursor: pointer;
 }
 input[type=file]::file-selector-button:hover { background: var(--btn-hover); border-color: var(--muted); }
+
+/* Forum subjects may shrink below a long word on narrow screens. */
+@media screen and (max-width: 600px) {
+  body.forum td.subject { overflow-wrap: anywhere; }
+}
 
 /* Long hashes in titles and headings wrap instead of widening the page */
 .title, span.page-title, .content h1, .content h2, .content h3 { overflow-wrap: anywhere; }

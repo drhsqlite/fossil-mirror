@@ -1,5 +1,5 @@
-C Add\sRefined\sDark\sand\sRefined\sLight\sskins.
-D 2026-11-17T22:39:04.996
+C Let\sRefined\sskins\suse\sthe\sfull\spage\swidth,\salign\sdocument\stitles,\skeep\sfooters\sat\sthe\spage\sbottom,\sand\swrap\sforum\ssubjects\son\sphones.
+D 2026-11-18T01:51:20.652
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -368,12 +368,12 @@ F skins/plain_gray/css.txt 5985a73a63815b826014c58dd607bbb5668d38cfbfaddf01139e8
 F skins/plain_gray/details.txt cb5c331f05a6a2f242eb14ea2bc6c48d6a32cf197f12d6aed0b4031f45aa745e
 F skins/plain_gray/footer.txt 0c32f13f6ad5fa409b38e0093a897d71f407ede5fb3a99f62d152ce127c5fb19
 F skins/plain_gray/header.txt e3b31ade9f580a571d708dfe5976ac849dbbb73263a124c3b7409102f1425664
-F skins/refined-dark/css.txt 1816ea787876b2f75c3fcaf1297027abdddddcfbe2720394e63d2cbe13ca9fa8
+F skins/refined-dark/css.txt 2a6a197228dd480e2646e3e3be1fdbd7cbc25ad8702472c2cf29ee3793068374
 F skins/refined-dark/details.txt a371336b53b9957cb3275d670c256895907c78f4cb12e5ecf0d27ba08f67a911
 F skins/refined-dark/footer.txt 018d2dd6f42e303d65995025a4066bf9e6d34fa589637e99e43f5e3b49a536e6
 F skins/refined-dark/header.txt 8f2e6604b1e7ea4ba4ce5a3dd799e7a2a5922d86d535c1cec1e01115f0d9369f
 F skins/refined-dark/js.txt 0c46b672f96a66f8407ae8807d68dbbc585b722678030290b1e24061ecd8d0df
-F skins/refined-light/css.txt 4bf14de5604ab8ad898c10a0603c0af3b3ba5831ab18531c88dabc2e685e4e32
+F skins/refined-light/css.txt 7dff73dcdbc156142b8600b4f6a6aa25b35dca256e0837c469d28fa523ce305c
 F skins/refined-light/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/refined-light/footer.txt 018d2dd6f42e303d65995025a4066bf9e6d34fa589637e99e43f5e3b49a536e6
 F skins/refined-light/header.txt 8f2e6604b1e7ea4ba4ce5a3dd799e7a2a5922d86d535c1cec1e01115f0d9369f
@@ -991,11 +991,10 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d7c8ce5267582d02eb1cc14c9d67313bb4642659997c29e77d706d05e880547f
-R 87c2baef1e91d0161bb58a0d768d8727
+P 64db2ffb995f3fb7aff1a2b38b71beaf4645e9708b91c57e38eba6ee6a661a37
+R a17e8c1a1ca356e619dcb38aa0750625
 T *branch * refined-skins
 T *sym-refined-skins *
-T -sym-trunk *
 U dmestas
-Z 1d8129b3f5a01b886f495f5155eb93f4
+Z de7efc1edd62717eaab9d2e33387c4c0
 # Remove this line to create a well-formed Fossil manifest.
