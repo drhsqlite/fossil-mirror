@@ -301,7 +301,7 @@ void configure_rebuild(void){
 }
 
 /*
-** Return true if z[] is not a "safe" SQL token.  A safe token is one of:
+** Return true if z[] is a "safe" SQL token.  A safe token is one of:
 **
 **   *   A string literal
 **   *   A blob literal
@@ -321,13 +321,9 @@ static int safeSql(const char *z){
       }
     }
     return 0;
-  }else{
-    char c;
-    for(i=0; (c = z[i])!=0; i++){
-      if( !fossil_isalnum(c) ) return 0;
-    }
   }
-  return 1;
+  for(i=0; fossil_isdigit(z[i]); i++){}
+  return z[i]==0 || fossil_stricmp(z,"NULL")==0;
 }
 
 /*
@@ -413,7 +409,6 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
 
     while( blob_token(pContent, &name) && blob_sqltoken(pContent, &value) ){
       char *z = blob_terminate(&name);
-      if( !safeSql(z) ) return;
       if( nToken>0 ){
         for(jj=0; jj<aType[ii].nField; jj++){
           if( fossil_strcmp(aType[ii].azField[jj], z)==0 ) break;
