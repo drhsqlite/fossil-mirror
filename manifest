@@ -1,5 +1,5 @@
-C Cherrypick\s[71d1127e0a]:\sIn\sthe\sparser\sfor\smultipart\sform\sdata,\stake\sthe\scontent\sof\seach\spart\soff\sthe\slength\sthat\sremains,\sso\sthat\sa\slater\spart\swith\sno\sclosing\sboundary\sis\snot\sscanned\spast\sthe\send\sof\sthe\srequest\sbody.
-D 2026-11-18T17:45:44.264
+C In\s/json/login,\suse\ssqlite3-compatible\sprintf\sformatting\srather\sthat\scsons,\sas\sthat\sdiffers\son\ssome\splatforms.\sReported\sby\sDan\sShearer.
+D 2026-11-18T18:17:05.402
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -492,7 +492,7 @@ F src/json_detail.h d48c61ce1de7b5dc696384aaaa7b4761ae7e39b4b3d65602e122590d2184
 F src/json_diff.c fc9d84cc28fcba644c6edb7203d200fa64de54369ef1fd4de449864670536b67
 F src/json_dir.c 89cc2a9475618fa93baae9eca3b56d28e156d78e9959fc47a955bf62aed521ad
 F src/json_finfo.c 6a2acfb47c4414d186ae6e9be53b8f6225934fca8c00d8e5189df1b5d6ed533d
-F src/json_login.c d0f3a1ca82e14cb9f396204670198b0d5a3c736cc8f714db5bed683b014f6906
+F src/json_login.c 9500106677fb96e8205ba33487b818c573470f856ae171299c4f8f2114946c09
 F src/json_query.c 8389173e1d2cf5429e39ecbeed2742e3907d84842961e2843805a62ba7aaae4b
 F src/json_report.c ad0d36d9f2e316ea3b3efbd2b32c87d978fa3706452abd1cb4738b7fd76bc72a
 F src/json_status.c 3416de0ceaff80e07e24bd8a34e4e9807c3c99d446532d5ad2c4869f9c3b7094
@@ -991,9 +991,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e9ca081365036193612d4f977a985493611c2c2b43417f72502f7d6e5ac84de2
-Q +71d1127e0ab718ba694858cb22381bc322f103a587350923eea05f7613a83dce
-R 941522673207fe2b83cc737a6f69c0aa
+P 940a4fd15c55042be18e8c3a9154844e56f4a7f9b344fae05fb25f95d84ddaf6
+R 06f12ad9adadfe4d0b3a743ff6996c80
 U stephan
-Z 22246a5c1b5be7bfcee3a2d7349bbff3
+Z 7a45dfb8eba5f395a33dc86e72649a28
 # Remove this line to create a well-formed Fossil manifest.
