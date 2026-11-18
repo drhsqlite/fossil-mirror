@@ -15,21 +15,19 @@
 #
 ############################################################################
 #
-# This is the main test script.  To run a regression test, do this:
+# This is the main test script.  "make test" runs it from a build
+# directory, or run it by hand:
 #
-#     tclsh ../test/tester.tcl ../bld/fossil
+#     tclsh ../test/tester.tcl ./fossil
+#     tclsh ../test/tester.tcl ./fossil -quiet merge1 update
 #
-# Where ../test/tester.tcl is the name of this file and ../bld/fossil
-# is the name of the executable to be tested.
-#
-# To run a subset of tests (i.e. only one or more of the test/*.test
-# scripts), append the script base names as arguments:
-#
-#     tclsh ../test/tester.tcl ../bld/fossil <script-basename>...
+# The first argument is the fossil executable to test, followed by
+# the test files, so "update" runs test/update.test.  See test/README.md
+# for details of options such as -strict, -halt, -prot etc.
 #
 
-# We use some things introduced in 8.6 such as lmap.  auto.def should
-# have found us a suitable Tcl installation.
+# Minimum Tcl is 8.6. auto.def should have found us a suitable Tcl
+# installation. Care is needed to keep compatible with both 8.6 and 9.0.
 package require Tcl 8.6-
 
 set testfiledir [file normalize [file dirname [info script]]]
@@ -46,6 +44,10 @@ if {$::is_windows} {
   set outside_fossil_repo [expr ![file exists "$::testfiledir\\..\\_FOSSIL_"]]
 } else {
   set outside_fossil_repo [expr ![file exists "$::testfiledir/../.fslckout"]]
+}
+if {![file isfile $fossilexe]} {
+  puts stderr "usage: tclsh [info script] FOSSIL ?OPTIONS? ?TESTFILE ...?"
+  exit 1
 }
 
 catch {exec $::fossilexe changes --changed} res
@@ -638,43 +640,29 @@ proc appendArgs {args} {
   eval append result $args
 }
 
-# Returns the value of the specified environment variable -OR- any empty
-# string if it does not exist.
-#
-proc getEnvironmentVariable { name } {
-  return [expr {[info exists ::env($name)] ? $::env($name) : ""}]
-}
-
-# Returns a usable temporary directory -OR- fails the testing process.
+# Returns the first directory given by the environment variables
+# FOSSIL_TEST_TEMP, FOSSIL_TEMP, TMPDIR, TEMP and TMP, each read in
+# upper, lower and title case, or /tmp except on Windows.  Raises an
+# error if none of those are directories.
 #
 proc getTemporaryPath {} {
-  set names [list]
-
-  foreach name [list FOSSIL_TEST_TEMP FOSSIL_TEMP TMPDIR TEMP TMP] {
-    lappend names [string toupper $name] [string tolower $name] \
-        [string totitle $name]
-  }
-
-  foreach name $names {
-    set value [getEnvironmentVariable $name]
-
-    if {[string length $value] > 0} {
-      set value [file normalize $value]
-
-      if {[file exists $value] && [file isdirectory $value]} {
-        return $value
+  set values [list]
+  foreach name {FOSSIL_TEST_TEMP FOSSIL_TEMP TMPDIR TEMP TMP} {
+    foreach spelling \
+        [list $name [string tolower $name] [string totitle $name]] {
+      if {[info exists ::env($spelling)] && $::env($spelling) ne ""} {
+        lappend values [file normalize $::env($spelling)]
       }
     }
   }
-
   if {!$::is_windows} {
-    set value /tmp
-
-    if {[file exists $value] && [file isdirectory $value]} {
+    lappend values /tmp
+  }
+  foreach value $values {
+    if {[file isdirectory $value]} {
       return $value
     }
   }
-
   error "Cannot find a usable temporary directory, testing halted."
 }
 
