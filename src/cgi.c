@@ -1094,6 +1094,7 @@ static char *get_bounded_content(
     }
   }
   *pz = &z[i];
+  *pLen -= i;
   get_line_from_string(pz, pLen);
   return z;
 }
