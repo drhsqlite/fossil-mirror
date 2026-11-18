@@ -403,7 +403,7 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
     bag_insert(&busy, iSrc);
   }
   db_prepare(&q,
-     "SELECT uuid, data, isPrivate, ix.piid"
+     "SELECT uuid, data, isPrivate, ix.piid, orid"
      "  FROM ix, purgeitem"
      " WHERE ix.srcid=%d"
      "   AND ix.piid=purgeitem.piid;",
@@ -411,7 +411,7 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
   );
   while( db_step(&q)==SQLITE_ROW ){
     Blob h1, c1, c2;
-    int isPriv, rid;
+    int isPriv, rid, orid;
     blob_zero(&h1);
     db_column_blob(&q, 0, &h1);
     blob_zero(&c1);
@@ -428,6 +428,22 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
       fossil_fatal("incorrect hash on %b", &h1);
     }
     isPriv = db_column_int(&q, 2);
+    orid = db_column_int(&q, 4);
+    if( orid>0
+     && !db_exists("SELECT 1 FROM blob WHERE rid=%d OR uuid=%Q",
+                   orid, blob_str(&h1))
+    ){
+      /* Restore it under its old record number, which links still name */
+      db_multi_exec(
+        "INSERT INTO blob(rid,rcvid,size,uuid,content)"
+        " VALUES(%d,0,-1,%Q,NULL);"
+        "INSERT INTO phantom VALUES(%d);",
+        orid, blob_str(&h1), orid
+      );
+      if( !isPriv ){
+        db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d)", orid);
+      }
+    }
     rid = content_put_ex(&c2, blob_str(&h1), 0, 0, isPriv);
     if( rid==0 ){
       fossil_fatal("%s", g.zErrMsg);
@@ -441,6 +457,43 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
   }
   db_finalize(&q);
   if( iSrc>0 ) bag_remove(&busy, iSrc);
+}
+
+/*
+** Remove from the graveyard every artifact that was private when it was
+** purged, and any purge event left empty, so that "fossil scrub" leaves
+** no private content behind.  An item that stays, but is stored as a
+** delta from one that goes, is stored whole first.
+*/
+void purge_drop_private_items(void){
+  Stmt q;
+  if( !db_table_exists("repository","purgeitem") ) return;
+  db_multi_exec(
+    "CREATE TEMP TABLE pwhole AS"
+    " SELECT piid FROM purgeitem WHERE NOT isPrivate"
+    "    AND srcid IN (SELECT piid FROM purgeitem WHERE isPrivate)"
+  );
+  db_prepare(&q, "SELECT piid FROM pwhole");
+  while( db_step(&q)==SQLITE_ROW ){
+    int piid = db_column_int(&q, 0);
+    Blob content, cmpr;
+    Stmt u;
+    purge_extract_item(piid, &content);
+    blob_compress(&content, &cmpr);
+    db_prepare(&u, "UPDATE purgeitem SET srcid=NULL, data=:data"
+                   " WHERE piid=%d", piid);
+    db_bind_blob(&u, ":data", &cmpr);
+    db_exec(&u);
+    db_finalize(&u);
+    blob_reset(&content);
+    blob_reset(&cmpr);
+  }
+  db_finalize(&q);
+  db_multi_exec(
+    "DROP TABLE pwhole;"
+    "DELETE FROM purgeitem WHERE isPrivate;"
+    "DELETE FROM purgeevent WHERE peid NOT IN (SELECT peid FROM purgeitem);"
+  );
 }
 
 /*
@@ -542,7 +595,7 @@ void purge_cmd(void){
     for(i=3; i<g.argc; i++){
       piid = db_int(0, "SELECT piid FROM purgeitem WHERE uuid LIKE '%q%%'",
                        g.argv[i]);
-      if( piid==0 ) fossil_fatal("no such item: %s", g.argv[3]);
+      if( piid==0 ) fossil_fatal("no such item: %s", g.argv[i]);
       purge_extract_item(piid, &content);
       blob_write_to_file(&content, "-");
       blob_reset(&content);
@@ -553,6 +606,15 @@ void purge_cmd(void){
       purgeFlags |= PURGE_EXPLAIN_ONLY;
     }
     verify_all_options();
+    vid = 0;
+    if( g.localOpen ){
+      vid = db_lget_int("checkout",0);
+    }else if( db_open_local(0)
+           && db_exists("SELECT 1 WHERE inode(%Q)=inode(%Q)",
+                        g.zRepositoryName, db_repository_filename())
+    ){
+      vid = db_lget_int("checkout",0);
+    }
     db_begin_transaction();
     if( g.argc<=3 ) usage("checkins TAGS... [OPTIONS]");
     db_multi_exec("CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY)");
@@ -560,7 +622,6 @@ void purge_cmd(void){
       int r = name_to_typed_rid(g.argv[i], "br");
       compute_descendants(r, 1000000000);
     }
-    vid = db_lget_int("checkout",0);
     if( db_exists("SELECT 1 FROM ok WHERE rid=%d",vid) ){
       fossil_fatal("cannot purge the current check-out");
     }
@@ -612,7 +673,8 @@ void purge_cmd(void){
     db_begin_transaction();
     for(i=3; i<g.argc; i++){
       int peid = atoi(g.argv[i]);
-      if( !db_exists("SELECT 1 FROM purgeevent WHERE peid=%d",peid) ){
+      if( !db_table_exists("repository","purgeevent")
+       || !db_exists("SELECT 1 FROM purgeevent WHERE peid=%d",peid) ){
         fossil_fatal("no such purge event: %s", g.argv[i]);
       }
       db_multi_exec(
@@ -628,6 +690,10 @@ void purge_cmd(void){
     int peid;
     if( g.argc!=4 ) usage("undo ID");
     peid = atoi(g.argv[3]);
+    if( !db_table_exists("repository","purgeevent")
+     || !db_exists("SELECT 1 FROM purgeevent WHERE peid=%d",peid) ){
+      fossil_fatal("no such purge event: %s", g.argv[3]);
+    }
     if( (purgeFlags & PURGE_EXPLAIN_ONLY)==0 ){
       db_begin_transaction();
       db_multi_exec(
@@ -647,6 +713,33 @@ void purge_cmd(void){
       );
       manifest_crosslink_begin();
       purge_item_resurrect(0, 0);
+      /* Relink check-ins whose purged parent is now restored */
+      db_multi_exec(
+        "CREATE TEMP TABLE prelink AS"
+        " SELECT DISTINCT mid FROM mlink"
+        "  WHERE pmid IN (SELECT blob.rid FROM blob, purgeitem"
+        "                  WHERE purgeitem.peid=%d"
+        "                    AND blob.uuid=purgeitem.uuid"
+        "                    AND blob.rid=purgeitem.orid)"
+        "    AND NOT EXISTS(SELECT 1 FROM plink"
+        "                    WHERE cid=mlink.mid AND pid=mlink.pmid)",
+        peid
+      );
+      db_prepare(&q, "SELECT mid FROM prelink");
+      while( db_step(&q)==SQLITE_ROW ){
+        int mid = db_column_int(&q, 0);
+        Blob c;
+        if( content_get(mid, &c) ){
+          db_multi_exec(
+            "DELETE FROM plink WHERE cid=%d;"
+            "DELETE FROM mlink WHERE mid=%d;",
+            mid, mid
+          );
+          manifest_crosslink(mid, &c, MC_NO_ERRORS);
+        }
+      }
+      db_finalize(&q);
+      db_multi_exec("DROP TABLE prelink");
       manifest_crosslink_end(0);
       db_multi_exec("DELETE FROM purgeevent WHERE peid=%d", peid);
       db_multi_exec("DELETE FROM purgeitem WHERE peid=%d", peid);

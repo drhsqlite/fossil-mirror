@@ -1337,7 +1337,8 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
     fflush(stdout);
     _setmode(_fileno(stdout), _O_BINARY);
 #endif
-    nWrote = fwrite(blob_buffer(pBlob), 1, blob_size(pBlob), stdout);
+    nWrote = blob_size(pBlob)>0
+           ? fwrite(blob_buffer(pBlob), 1, blob_size(pBlob), stdout) : 0;
 #if defined(_WIN32)
     fflush(stdout);
     _setmode(_fileno(stdout), _O_TEXT);
@@ -1358,7 +1359,8 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
       return 0;
     }
     blob_is_init(pBlob);
-    nWrote = fwrite(blob_buffer(pBlob), 1, blob_size(pBlob), out);
+    nWrote = blob_size(pBlob)>0
+           ? fwrite(blob_buffer(pBlob), 1, blob_size(pBlob), out) : 0;
     fclose(out);
     if( nWrote!=(int)blob_size(pBlob) ){
       fossil_fatal_recursive("short write: %d of %d bytes to %s", nWrote,

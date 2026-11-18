@@ -2542,6 +2542,7 @@ void cgi_handle_scgi_request(void){
 
   assert( !g.httpUseSSL );
   while( (c = fgetc(g.httpIn))!=EOF && fossil_isdigit((char)c) ){
+    if( nHdr>=100000000 ) malformed_request("SCGI header too long");
     nHdr = nHdr*10 + (char)c - '0';
   }
   if( nHdr<16 ) malformed_request("SCGI header too short");
@@ -2984,6 +2985,10 @@ time_t cgi_rfc822_parsedate(const char *zDate){
   if( 7==sscanf(zDate, "%3[A-Za-z], %d %3[A-Za-z] %d %d:%d:%d", zIgnore,
                        &mday, zMonth, &year, &hour, &min, &sec)){
     if( year > 1900 ) year -= 1900;
+    if( year<70 || year>8099 || mday<1 || mday>31
+     || hour<0 || hour>23 || min<0 || min>59 || sec<0 || sec>60 ){
+      return 0;
+    }
     for(mon=0; azMonths[mon]; mon++){
       if( !fossil_strncmp( azMonths[mon], zMonth, 3 )){
         int nDay;

@@ -259,11 +259,16 @@ static void xfer_accept_file(
 ** If any error occurs, write a message into pErr which has already
 ** be initialized to an empty string.
 **
+** Unless cloneFlag is set, the content must have the size USIZE and
+** give the HASH, or it is refused.  The hash of a delta is checked only
+** if DELTASRC is at hand.  A clone is not checked here.
+**
 ** Any artifact successfully received by this routine is considered to
 ** be public and is therefore removed from the "private" table.
 */
 static void xfer_accept_compressed_file(
   Xfer *pXfer,
+  int cloneFlag,
   char **pzUuidList,
   int *pnUuidList
 ){
@@ -302,6 +307,13 @@ static void xfer_accept_compressed_file(
     blob_reset(&content);
     return;
   }
+  if( szU==0
+   && (blob_size(&content)<=4 || blob_uncompress(&content, &content))
+  ){
+    blob_appendf(&pXfer->err, "malformed cfile content");
+    blob_reset(&content);
+    return;
+  }
   if( pXfer->nToken==5 ){
     srcid = rid_from_uuid(&pXfer->aToken[2], 1, isPriv);
     pXfer->nDeltaRcvd++;
@@ -309,8 +321,41 @@ static void xfer_accept_compressed_file(
     srcid = 0;
     pXfer->nFileRcvd++;
   }
+  if( !cloneFlag ){
+    Blob *pUuid = &pXfer->aToken[1];
+    Blob x;          /* The content, uncompressed */
+    Blob src, next;  /* Source of a delta, and the delta applied to it */
+    int ok = 1;
+    blob_zero(&x);
+    if( szU==0 ){
+      blob_copy(&x, &content);
+    }else if( blob_size(&content)<=4 || blob_uncompress(&content, &x) ){
+      blob_appendf(&pXfer->err, "malformed cfile content");
+      blob_reset(&content);
+      return;
+    }
+    if( srcid==0 ){
+      ok = (int)blob_size(&x)==szU
+        && hname_verify_hash(&x, blob_buffer(pUuid), blob_size(pUuid));
+    }else if( delta_output_size(blob_buffer(&x), blob_size(&x))!=szU ){
+      ok = 0;
+    }else if( content_get(srcid, &src) ){
+      blob_zero(&next);
+      ok = blob_delta_apply(&src, &x, &next)>=0
+        && hname_verify_hash(&next, blob_buffer(pUuid), blob_size(pUuid));
+      blob_reset(&next);
+      blob_reset(&src);
+    }
+    blob_reset(&x);
+    if( !ok ){
+      blob_appendf(&pXfer->err,
+                   "wrong size or hash on received artifact: %b", pUuid);
+      blob_reset(&content);
+      return;
+    }
+  }
   rid = content_put_ex(&content, blob_str(&pXfer->aToken[1]), srcid,
-                       szC, isPriv);
+                       szU, isPriv);
   Th_AppendToList(pzUuidList, pnUuidList, blob_str(&pXfer->aToken[1]),
                   blob_size(&pXfer->aToken[1]));
   remote_has(rid);
@@ -383,6 +428,9 @@ static void xfer_accept_unversioned_file(Xfer *pXfer, int isWriter){
 
   /* Make sure we have a valid g.rcvid marker */
   content_rcvid_init(0);
+
+  /* The table might not exist yet if the other side sent no uv-hash pragma */
+  unversioned_schema();
 
   /* Check to see if current content really should be overwritten.  Ideally,
   ** a uvfile card should never have been sent unless the overwrite should
@@ -739,6 +787,7 @@ static void send_unversioned_file(
   Stmt q1;
   int isFull = !isClient && (int)blob_size(pXfer->pOut)>=pXfer->mxSend;
 
+  unversioned_schema();
   if( isFull ) noContent = 1;
   if( noContent ){
     db_prepare(&q1,
@@ -1417,7 +1466,7 @@ void page_xfer(void){
         nErr++;
         break;
       }
-      xfer_accept_compressed_file(&xfer, pzUuidList, pnUuidList);
+      xfer_accept_compressed_file(&xfer, 0, pzUuidList, pnUuidList);
       if( blob_size(&xfer.err) ){
         cgi_reset_content();
         @ error %T(blob_str(&xfer.err))
@@ -2101,6 +2150,18 @@ static double fossil_fabs(double x){
 }
 
 /*
+** Tell the user that unversioned content cannot be pushed because the
+** server has sent the "uv-pull-only" pragma.
+*/
+static void uv_pull_only_warning(void){
+  fossil_warning(
+    "Warning: uv-pull-only                                       \n"
+    "         Unable to push unversioned content because you lack\n"
+    "         sufficient permission on the server\n"
+  );
+}
+
+/*
 ** Sync to the host identified in g.url.name and g.url.path.  This
 ** routine is called by the client.
 **
@@ -2178,10 +2239,9 @@ int client_sync(
     configSendMask = 0;
     syncFlags &= ~(SYNC_PUSH);
     zPX = db_get("parent-project-code", 0);
-    if( zPX==0 || db_get("parent-project-name",0)==0 ){
+    if( zPX==0 ){
       fossil_fatal("there is no parent project: set the 'parent-project-code'"
-                   " and 'parent-project-name' config parameters in order"
-                   " to pull from a parent project");
+                   " config parameter in order to pull from a parent project");
     }
     if( zPX ){
       zAltPCode = zPX;
@@ -2586,7 +2646,7 @@ int client_sync(
       if( blob_eq(&xfer.aToken[0],"cfile")
        && (syncFlags & (SYNC_PULL|SYNC_CLONE))!=0
       ){
-        xfer_accept_compressed_file(&xfer, 0, 0);
+        xfer_accept_compressed_file(&xfer, (syncFlags & SYNC_CLONE)!=0, 0, 0);
         nArtifactRcvd++;
       }else
 
@@ -2733,11 +2793,7 @@ int client_sync(
           db_unset("uv-hash", 0);
         }
         if( iStatus>=4 && uvPullOnly==1 ){
-          fossil_warning(
-            "Warning: uv-pull-only                                       \n"
-            "         Unable to push unversioned content because you lack\n"
-            "         sufficient permission on the server\n"
-          );
+          uv_pull_only_warning();
           uvPullOnly = 2;
         }
         if( iStatus<=3 || uvPullOnly ){
@@ -3041,6 +3097,15 @@ int client_sync(
     nUncRcvd += blob_size(&recv);
     blob_reset(&recv);
     nCycle++;
+
+    /* Also warn for files that no uvigot card named */
+    if( uvPullOnly==1 && (syncFlags & SYNC_UV_REVERT)==0
+     && db_exists("SELECT 1 FROM uv_tosend")
+    ){
+      uv_pull_only_warning();
+      uvPullOnly = 2;
+      db_multi_exec("DELETE FROM uv_tosend");
+    }
 
     /* Set go to 1 if we need to continue the sync/push/pull/clone for
     ** another round.  Set go to 0 if it is time to quit. */

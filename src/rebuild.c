@@ -1060,6 +1060,7 @@ void scrub_cmd(void){
   if( privateOnly || bVerily ){
     bNeedRebuild = db_exists("SELECT 1 FROM private");
     delete_private_content();
+    purge_drop_private_items();
   }
   if( !privateOnly ){
     db_unprotect(PROTECT_ALL);
