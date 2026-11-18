@@ -255,8 +255,7 @@ static void xfer_accept_file(
 **
 ** Unless cloneFlag is set, the content must have the size USIZE and
 ** give the HASH, or it is refused.  The hash of a delta is checked only
-** if DELTASRC is at hand.  A clone is not checked here, as it is not in
-** xfer_accept_file().
+** if DELTASRC is at hand.  A clone is not checked here.
 **
 ** Any artifact successfully received by this routine is considered to
 ** be public and is therefore removed from the "private" table.
@@ -305,8 +304,6 @@ static void xfer_accept_compressed_file(
   if( szU==0
    && (blob_size(&content)<=4 || blob_uncompress(&content, &content))
   ){
-    /* content_put_ex() takes a size of zero to mean that the content is
-    ** not compressed, so content of no bytes is handed over uncompressed. */
     blob_appendf(&pXfer->err, "malformed cfile content");
     blob_reset(&content);
     return;
@@ -3095,9 +3092,7 @@ int client_sync(
     blob_reset(&recv);
     nCycle++;
 
-    /* A file that the server has never held is in no uvigot card, so the
-    ** warning above is not given for it.  Give it if anything is still
-    ** queued to send to a server that takes no unversioned content. */
+    /* Also warn for files that no uvigot card named */
     if( uvPullOnly==1 && (syncFlags & SYNC_UV_REVERT)==0
      && db_exists("SELECT 1 FROM uv_tosend")
     ){

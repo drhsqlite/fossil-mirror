@@ -1337,8 +1337,6 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
     fflush(stdout);
     _setmode(_fileno(stdout), _O_BINARY);
 #endif
-    /* A blob of no bytes can have no buffer, and fwrite() is not to be
-    ** given a null pointer. */
     nWrote = blob_size(pBlob)>0
            ? fwrite(blob_buffer(pBlob), 1, blob_size(pBlob), stdout) : 0;
 #if defined(_WIN32)

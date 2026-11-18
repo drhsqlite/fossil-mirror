@@ -433,8 +433,7 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
      && !db_exists("SELECT 1 FROM blob WHERE rid=%d OR uuid=%Q",
                    orid, blob_str(&h1))
     ){
-      /* Store the artifact under its original record number, so that the
-      ** links that other artifacts still hold to it are whole again. */
+      /* Restore it under its old record number, which links still name */
       db_multi_exec(
         "INSERT INTO blob(rid,rcvid,size,uuid,content)"
         " VALUES(%d,0,-1,%Q,NULL);"
@@ -607,8 +606,6 @@ void purge_cmd(void){
       purgeFlags |= PURGE_EXPLAIN_ONLY;
     }
     verify_all_options();
-    /* Find the current check-out, if there is one in this directory for
-    ** this repository, even when the repository was named with -R. */
     vid = 0;
     if( g.localOpen ){
       vid = db_lget_int("checkout",0);
@@ -716,9 +713,7 @@ void purge_cmd(void){
       );
       manifest_crosslink_begin();
       purge_item_resurrect(0, 0);
-      /* The purge removed the links that kept check-ins held to a purged
-      ** parent.  Link those check-ins again from their manifests, now that
-      ** the parent is back under its original record number. */
+      /* Relink check-ins whose purged parent is now restored */
       db_multi_exec(
         "CREATE TEMP TABLE prelink AS"
         " SELECT DISTINCT mid FROM mlink"
