@@ -208,7 +208,13 @@ static void xfer_accept_file(
       return;
     }
     pXfer->nDeltaRcvd++;
-    blob_delta_apply(&src, &content, &next);
+    if( blob_delta_apply(&src, &content, &next)<0 ){
+      blob_appendf(&pXfer->err, "invalid delta on received artifact: %b",
+                   pUuid);
+      blob_reset(&src);
+      blob_reset(&content);
+      return;
+    }
     blob_reset(&src);
     blob_reset(&content);
     content = next;
