@@ -1,0 +1,992 @@
+/* Refined Dark skin
+   A dark rendering of Fossil's default skin: same layout, same sizes, same
+   menu band and submenu row. Colors are chosen for WCAG AA contrast on a
+   near-black page: body text 13:1, muted text 7:1, links 7:1.
+   Functional dark-theme overrides for Fossil's hardcoded light colors
+   (timeline graph, diffs, chat, forum, tickets) are kept at the end.
+   Uses system fonts; no external font resources are needed. */
+
+
+:root {
+  --bg:       #1c1e22;   /* page */
+  --surface:  #272a30;   /* menu band, cards, code blocks */
+  --surface2: #31353d;   /* hover states, selected rows */
+  --border:   #41454e;
+  --text:     #e8e9eb;   /* 13:1 on --bg */
+  --muted:    #b3b8c0;   /* 7.3:1 on --bg */
+  --link:     #7fb6ef;   /* 7.2:1 on --bg; Fossil default's #3779BF, lightened */
+  --link-hover: #a3cbf5;
+  --link-on-tint: var(--link);   /* links on Fossil's colored rows */
+  --title:    #8cbdf0;   /* project title, like the default's #4183C4 */
+  --active:   #f08a3c;   /* active menu underline; default's #D26911, lightened */
+  --green:    #6fd48f;
+  --red:      #f08a7e;
+  --yellow:   #f2c94c;
+  --font:     system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono:     ui-monospace, Menlo, Consolas, "Liberation Mono", monospace;
+  color-scheme: dark;
+  --input-bg: #15171a; --on-accent: #0b0d10; --visited: #a6b8e8;
+  --sel-bg: #4a3a2a; --sec-bg: #2a3a4a; --stripe: #2b2e34; --rule: #2c2f35;
+  --btn-hover: #3b4049; --band-top: #2d3037; --warn-bg: #3a2f12; --err-bg: #3a2220;
+  --green-rgb: 111 212 143; --red-rgb: 240 138 126; --yellow-rgb: 242 201 76;
+  --link-rgb: 127 182 239; --teal-rgb: 79 209 197; --violet-rgb: 140 150 240;
+  --muted-rgb: 179 184 192; --veil-rgb: 28 30 34; --lift-rgb: 255 255 255; --shadow-rgb: 0 0 0;
+  --tint-rgb: 39 42 48; --tint-mute: 0.4; --chat-mute: 0.3; --bubble-shadow: 0.35; --popup-shadow: 0.5;
+}
+
+/* Base, matching the default skin's sizing */
+body {
+  box-sizing: border-box;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.45;
+}
+a { color: var(--link); text-decoration: none; }
+a:hover { color: var(--link-hover); text-decoration: underline; }
+a:visited { color: var(--visited); }
+code, pre, tt, kbd, samp, var { font-family: var(--mono); }
+code, tt, kbd, samp { font-size: 0.94em; }
+pre { font-size: 0.92em; line-height: 1.35; overflow-x: auto; }
+hr { border: none; border-top: 1px solid var(--border); }
+blockquote { border-left: 3px solid var(--border); margin: 0.5em 0; padding: 0.1em 1em; }
+img { max-width: 100%; }
+
+/* Title area above the menu bar */
+header { display: flex; align-items: center; gap: 14px; padding: 14px 0 12px; }
+.skip-nav {
+  position: absolute; top: -100%; left: 0;
+  background: var(--link); color: var(--on-accent);
+  padding: 0.5rem 1.25rem; font-weight: 600; z-index: 9999;
+  border-radius: 0 0 6px 0;
+}
+.skip-nav:focus { top: 0; outline: 2px solid #fff; outline-offset: -4px; }
+
+div.logo { display: flex; flex-shrink: 0; }
+div.logo img, img.logo-mark { width: 48px; height: 48px; object-fit: cover; display: block; border-radius: 6px; }
+.hub-link:hover img { opacity: 0.85; }
+
+.title { min-width: 0; color: var(--title); line-height: 1.2; }
+.title h1, .title .project-name {
+  display: inline;
+  font-size: 2.2em;
+  font-weight: bold;
+  color: var(--title);
+  text-decoration: none;
+}
+.title .project-name:hover { color: var(--link-hover); text-decoration: none; }
+.title h1:after, .title .project-name:after {
+  content: " / "; color: var(--muted); font-weight: normal;
+}
+span.page-title { font-size: 18px; color: var(--text); }
+/* Hidden from view but not display:none: Fossil's forum script sizes its
+   expand control from the height of the first h1 on the page, and loops
+   forever if that height is 0. This also keeps the heading for screen readers. */
+h1.page-title {
+  font-size: 1.6em; color: var(--text);
+  display: block; position: absolute; width: 1px; margin: 0; padding: 0;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+/* Home pages carry their own heading; Fossil's "index" / "Home" title is noise */
+h1.page-title.home-title { display: none !important; }
+/* Long document titles go in the body instead of the title bar */
+.artifact h1.page-title, .dir h1.page-title, .doc h1.page-title, .wiki h1.page-title {
+  position: static; width: auto; overflow: visible; clip-path: none; white-space: normal;
+  margin: revert; margin-bottom: 0;
+}
+.artifact .title > .page-title, .dir .title > .page-title,
+.doc .title > .page-title, .wiki .title > .page-title { display: none; }
+/* ...unless the page opens with a heading of its own (a wiki page's first
+   heading, "History of ...", "Files in ..."): the title would say it twice */
+body:has(div.content > :is(h1, h2):first-child, div.content > span:first-child + :is(h1, h2),
+         div.content > :is(.markdown, .fossil-doc) > :is(h1, h2):first-child,
+         div.content > span:first-child + :is(.markdown, .fossil-doc) > :is(h1, h2):first-child) h1.page-title {
+  position: absolute; width: 1px; margin: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+.artifact .title h1:after, .dir .title h1:after, .doc .title h1:after, .wiki .title h1:after,
+.artifact .title .project-name:after, .dir .title .project-name:after,
+.doc .title .project-name:after, .wiki .title .project-name:after { content: ""; }
+
+.status { margin-left: auto; font-size: 0.9em; }
+.status a { color: var(--muted); }
+.status a:hover { color: var(--text); }
+
+/* Main menu band */
+.mainmenu {
+  clear: both;
+  background: var(--surface) linear-gradient(var(--band-top), var(--surface)) repeat-x;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  z-index: 21;
+}
+.mainmenu a {
+  display: inline-block;
+  line-height: 1.4;
+  color: var(--muted);
+  text-decoration: none;
+  border-right: 1px solid var(--border);
+  font-weight: 500;
+}
+.mainmenu a.active, .mainmenu a:hover {
+  color: var(--text);
+  border-bottom: 2px solid var(--active);
+  text-decoration: none;
+}
+#hbbtn { font-size: 1.15em; min-width: 44px; text-align: center; }
+#hbbtn[aria-expanded="true"] { color: var(--text); background: var(--surface2); }
+
+/* Hamburger dropdown (hbmenu.js toggles display; a11y.js sets --nav-bottom) */
+nav#hbdrop {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 0.5em 0.5em;
+  display: none;
+  font-size: 0.95em;
+  position: fixed;
+  top: var(--nav-bottom, 88px);
+  left: 0; right: 0;
+  z-index: 200;
+  box-shadow: 0 8px 24px rgb(var(--shadow-rgb) / 0.5);
+  overflow-x: hidden;
+  max-height: 75vh;
+  overflow-y: auto;
+}
+ul#sitemap {
+  padding: 1.25rem 1.5rem 1.5rem;
+  margin: 0;
+  list-style: none;
+  column-width: 14em;
+  column-gap: 2.5rem;
+}
+ul#sitemap > li {
+  list-style: none;
+  margin: 0 0 1.1rem;
+  break-inside: avoid;
+}
+ul#sitemap > li > a {
+  display: inline-block;
+  font-size: 0.78em;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0.3rem 0;
+}
+ul#sitemap > li > a:hover { color: var(--text); text-decoration: none; }
+ul#sitemap ul { margin: 0.15rem 0 0; padding: 0; list-style: none; }
+ul#sitemap ul li { list-style: none; }
+ul#sitemap ul li a {
+  display: flex; align-items: center; box-sizing: border-box;   /* text stays centered at any row height */
+  color: var(--text);
+  padding: 0.3rem 0.6rem;
+  margin-left: -0.6rem;
+  border-radius: 4px;
+  min-height: 36px;
+}
+ul#sitemap ul li a:hover { background: var(--surface2); color: var(--link-hover); text-decoration: none; }
+nav#hbdrop ul#sitemap { column-width: 14em; }
+ul#sitemap.columns { overflow-x: hidden; }
+
+/* Submenu row, like the default: a horizontal strip under the menu band */
+.submenu, .sectionmenu {
+  font-size: 0.9em;
+  padding: 8px 0;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.5rem;
+}
+.submenu a, .submenu label, .sectionmenu a {
+  padding: 6px 10px;
+  text-decoration: none;
+  color: var(--link);
+  border: 1px solid transparent;
+  border-radius: 5px;
+  white-space: nowrap;
+}
+.submenu > a:first-child { margin-left: -10px; }
+.submenu a:hover, .submenu label:hover, .sectionmenu a:hover {
+  border-color: var(--border);
+  background: var(--surface);
+  color: var(--text);
+  text-decoration: none;
+}
+span.submenuctrl, span.submenuctrl input, select.submenuctrl { color: var(--muted); }
+span.submenuctrl { white-space: nowrap; display: inline-flex; align-items: center; gap: 0.35rem; }
+.submenuckbox { display: inline-flex; align-items: center; gap: 0.35rem; color: var(--text); cursor: pointer; }
+.submenu select, .submenu input[type=text], .sectionmenu select, .sectionmenu input[type=text] {
+  width: auto;
+  font-size: 0.95em;
+  padding: 0.3em 0.5em;
+}
+.submenu select, .sectionmenu select { padding-right: 1.9em; }
+.section {
+  font-size: 1em; font-weight: bold;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 3px 3px 0 0;
+  padding: 9px 10px 10px;
+  margin: 10px 0;
+}
+.sectionmenu {
+  border: 1px solid var(--border);
+  border-radius: 0 0 3px 3px;
+  border-top: 0;
+  margin-top: -10px;
+  margin-bottom: 10px;
+}
+
+/* Content */
+.content { padding: 12px 0; color: var(--text); }
+.content h1 { font-size: 1.60em; color: var(--text); }
+.content h2 { font-size: 1.45em; color: var(--text); }
+.content h3 { font-size: 1.15em; color: var(--text); }
+.content h4 { font-size: 1.05em; color: var(--text); }
+.content h5 { font-size: 1.00em; color: var(--text); }
+.content pre, table.numbered-lines > tbody > tr { hyphens: none; line-height: 1.3; }
+.content ul:not(.browser) > li { list-style-type: disc; }
+div.filetree ul li.dir, div.filetree ul li.subdir, div.filetree ul li.file { list-style-type: none; }
+th { text-align: left; }
+
+/* User content: wiki, embedded docs, forum posts */
+.markdown blockquote, p.blockquote, .sidebar {
+  background-color: var(--surface);
+  border-left: 4px solid var(--link);
+}
+div.sidebar { outline: 1em solid var(--bg); }
+.artifact > .content > p > code, .artifact > .content > .markdown > p > code, .artifact > .content > .fossil-doc > p > code,
+.dir > .content > p > code, .dir > .content > .markdown > p > code,
+.doc > .content > p > code, .doc > .content > .markdown > p > code, .doc > .content > .fossil-doc > p > code,
+.forum > .content .markdown > p > code,
+.wiki > .content > p > code, .wiki > .content > .markdown > p > code, .wiki > .content > .fossil-doc > p > code,
+.content li > code, .content td > code {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 0 4px;
+}
+.artifact > .content > pre, .artifact > .content > .markdown > pre, .artifact > .content > .fossil-doc > pre,
+.dir > .content > pre, .dir > .content > .markdown > pre,
+.doc > .content > pre, .doc > .content > .markdown > pre, .doc > .content > .fossil-doc > pre,
+.forum > .content .markdown > pre,
+.wiki > .content > pre, .wiki > .content > .markdown > pre, .wiki > .content > .fossil-doc > pre,
+pre.verbatim, pre.textPlain {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px 10px;
+}
+pre.verbatim { white-space: pre-wrap; }
+.artifact > .content table, .dir > .content table, .doc > .content table, .wiki > .content table,
+.forum > .content .markdown table {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.5em;
+  border-spacing: 0;
+  padding: 6px;
+}
+.artifact > .content th, .dir > .content th, .doc > .content th, .wiki > .content th,
+.forum > .content .markdown th {
+  border-bottom: 1px solid var(--border);
+  background-color: var(--surface2);
+  padding: 4px 6px;
+}
+.artifact > .content tr:nth-child(odd) td, .dir > .content tr:nth-child(odd) td,
+.doc > .content tr:nth-child(odd) td, .wiki > .content tr:nth-child(odd) td {
+  background-color: var(--stripe);
+}
+.artifact > .content td, .dir > .content td, .doc > .content td, .wiki > .content td,
+.forum > .content .markdown td { padding: 4px 6px; }
+textarea.wikiedit { font-size: 1.1em; }
+
+/* Forms */
+input[type=text], input[type=password], input[type=email], input[type=search],
+input[type=number], textarea, select {
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 1em;
+  padding: 0.35em 0.6em;
+}
+textarea { font-family: var(--mono); }
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 2em;
+  line-height: 1.3;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23b3b8c0' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.6em center;
+  background-size: 12px;
+  cursor: pointer;
+}
+select:hover { border-color: var(--muted); }
+select option { background: var(--input-bg); color: var(--text); }
+input:focus, textarea:focus, select:focus { border-color: var(--link); outline: none; }
+input[type=submit], input[type=button], button {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 1em;
+  padding: 0.35em 1em;
+}
+input[type=submit]:hover, input[type=button]:hover, button:hover {
+  border-color: var(--muted);
+  background: var(--btn-hover);
+}
+input[type=submit]:disabled, input[type=button]:disabled, button:disabled { opacity: 0.5; cursor: not-allowed; }
+:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.mainmenu a:focus-visible { outline-offset: -3px; }
+
+/* Let short pages fill the viewport without overlaying long content. */
+body > .content { flex: 1 0 auto; min-width: 0; }
+body > header, body > nav, body > footer { flex-shrink: 0; }
+
+/* Footer */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 10px;
+  font-size: 0.85em;
+  margin-top: 10px;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Forum */
+.forum a:visited { color: var(--visited); }
+div.forumSel {
+  animation: 1s linear 0s sel-fade;
+  background-color: var(--bg);
+  border-left: 4px solid var(--link);
+}
+@keyframes sel-fade { from { background-color: var(--surface2); } to { background-color: var(--bg); } }
+.forum form input { margin: 0.5em 0; }
+div.forumTime, div.forumHier, div.forumHierRoot {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 4px;
+  color: var(--text) !important;
+}
+div.forumTime.forumSel, div.forumHier.forumSel { border-color: var(--link) !important; }
+div.forumObs { opacity: 0.75; }
+div.forumPostBody, div.forumPostBody h1, div.forumPostBody h2, div.forumPostBody h3 { color: var(--text) !important; }
+.forum-post-collapser {
+  border-color: var(--border) !important;
+  background: var(--surface) !important;
+  color: var(--muted) !important;
+}
+.forum-post-collapser:hover { background: var(--surface2) !important; color: var(--text) !important; }
+div.searchForm { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 1em 0; }
+
+/* Tickets and reports */
+table.report { cursor: auto; border: 1px solid var(--border); border-radius: 0.5em; margin: 1em 0; }
+.report td, .report th { border: 0; font-size: 0.9em; padding: 8px 10px; }
+.report th { cursor: pointer; background: var(--surface); }
+.report thead + tbody tr:hover { background-color: var(--surface2) !important; }
+body.report table.report tr td { color: var(--text) !important; }
+body.report table.report a { color: var(--link) !important; }
+td.tktDspLabel { width: 70px; text-align: right; overflow: hidden; color: var(--muted) !important; }
+td.tktDspValue {
+  text-align: left; vertical-align: top;
+  background-color: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
+}
+td.tktDspValue pre { white-space: pre-wrap; }
+
+/* Timeline */
+span.timelineDetail { font-size: 90%; }
+div.timelineDate { font-weight: bold; white-space: nowrap; color: var(--muted); }
+table.timelineTable { padding: 0 3px; }
+table.timelineTable tr { border-radius: 1em; }
+.timelineModernCell, .timelineColumnarCell, .timelineDetailCell { border-radius: 0.5em; }
+.timelineModernCell[id], .timelineColumnarCell[id], .timelineDetailCell[id] { background-color: var(--surface); }
+.timelineModernDetail { opacity: 1; color: var(--muted); font-size: 0.9em; }
+.timelineModernComment { color: var(--text); }
+td.timelineTime { color: var(--muted); font-family: var(--mono); font-size: 0.9em; white-space: nowrap; }
+span.timelineHash { font-family: var(--mono); }
+tr.timelineSelected, tr.timelineSecondary { background-color: unset; }
+tr.timelineSelected td, span.timelineSelected { background-color: var(--sel-bg) !important; }
+tr.timelineSecondary td, span.timelineSecondary { background-color: var(--sec-bg) !important; }
+tr.timelineCurrent td:first-child, tr.timelineSecondary td:first-child, tr.timelineSelected td:first-child {
+  border-top-left-radius: 1em; border-bottom-left-radius: 1em;
+}
+tr.timelineCurrent td:last-child, tr.timelineSecondary td:last-child, tr.timelineSelected td:last-child {
+  border-top-right-radius: 1em; border-bottom-right-radius: 1em;
+}
+tr.timelineCurrent td { border-top: 1px dashed var(--muted); border-bottom: 1px dashed var(--muted); }
+tr.timelineCurrent td:first-child { border-left: 1px dashed var(--muted); }
+tr.timelineCurrent td:last-child { border-right: 1px dashed var(--muted); }
+
+/* Timeline graph: Fossil hardcodes black lines and white nodes */
+.tl-node { background: var(--link) !important; border-color: var(--text) !important; }
+.tl-node.leaf:after { background: var(--bg) !important; }
+.tl-node.closed-leaf svg { color: var(--bg) !important; }
+.tl-line { background-color: var(--muted); }
+.tl-line.warp { background: var(--yellow) !important; }
+.tl-line.cherrypick.h { border-top-color: var(--muted) !important; background: transparent !important; }
+.tl-line.cherrypick.v, .tl-line.dotted.v { border-left-color: var(--muted) !important; background: transparent !important; }
+.tl-arrow.u, .tl-arrow.u.sm { border-bottom-color: var(--muted) !important; }
+.tl-arrow.merge.l, .tl-arrow.cherrypick.l { border-right-color: var(--muted) !important; }
+.tl-arrow.merge.r, .tl-arrow.cherrypick.r { border-left-color: var(--muted) !important; }
+.tl-arrow.warp { border-left-color: var(--yellow) !important; }
+/* Branch colors are pastel inline backgrounds; darken them so text stays readable */
+/* Branch and user tints come from Fossil, already sized for this foreground */
+.tl-tooltip {
+  background: var(--surface2) !important; color: var(--text) !important;
+  border-color: var(--border) !important; box-shadow: 0 4px 16px rgb(var(--shadow-rgb) / 0.5) !important;
+}
+
+/* Lists and tables Fossil generates */
+table.sortable th, table.filelistTable th, .fileage th {
+  text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); cursor: pointer;
+}
+table.sortable td, table.filelistTable td, .fileage td { padding: 5px 8px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+table.sortable tr:hover td, .fileage tr:hover, div.filetreeline:hover { background: var(--surface) !important; }
+body.branch .brlist > table > tbody > tr:hover:not(.selected) { background: var(--surface) !important; }
+body.branch .brlist > table > tbody > tr.selected { background: var(--surface2) !important; }
+.branch-name, span.tagDsp {
+  display: inline-block; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 3px; color: var(--link); font-family: var(--mono); font-size: 0.85em; padding: 0 0.3em;
+}
+
+/* Diffs: Fossil's built-in colors are pale pastels */
+table.diff { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.9em; }
+td.difflnc, td.difflna, td.difflnb { color: var(--muted); padding: 0 0.5em; text-align: right; user-select: none; border-right: 1px solid var(--border); }
+td.difftext { padding: 0 0.5em; white-space: pre; }
+tr.diffskip, tr.diffskip.jchunk { background: var(--surface) !important; }
+tr.diffskip > td.chunkctrl .jcbutton { background: var(--surface2) !important; color: var(--muted) !important; border-radius: 3px; }
+tr.diffskip > td.chunkctrl .jcbutton:hover { color: var(--text) !important; }
+td.diffmkrl, td.diffmkrr, td.diffmkru { color: var(--muted); }
+tr.diffadd td { background: rgb(var(--green-rgb) / 0.10); }
+tr.diffrm  td { background: rgb(var(--red-rgb) / 0.10); }
+tr.diffchng td { background: rgb(var(--yellow-rgb) / 0.07); }
+span.diffadd { color: var(--green); }
+span.diffrm  { color: var(--red); }
+span.diffchng { color: var(--yellow); }
+td.diffln ins, td.difftxt ins, table.diff pre > ins { background-color: rgb(var(--green-rgb) / 0.16) !important; }
+td.diffln del, td.difftxt del, table.diff pre > del { background-color: rgb(var(--red-rgb) / 0.16) !important; }
+td.difftxt del > del, table.diff pre > del > del { background-color: rgb(var(--red-rgb) / 0.32) !important; }
+td.difftxt ins > ins, table.diff pre > ins > ins { background-color: rgb(var(--green-rgb) / 0.32) !important; }
+td.difftxt del > del.edit, td.difftxt ins > ins.edit,
+table.diff pre > del > del.edit, table.diff pre > ins > ins.edit { background-color: rgb(var(--link-rgb) / 0.25) !important; }
+
+/* Annotate / blame: inline pastel backgrounds from Fossil JS */
+td.annotateDate, td.annotateUser { color: var(--muted); font-family: var(--mono); font-size: 0.85em; padding: 0 0.5em; white-space: nowrap; border-right: 1px solid var(--border); }
+pre span[style*="background"], li span[style*="background"] {
+  background-image: linear-gradient(rgb(var(--veil-rgb) / 0.7), rgb(var(--veil-rgb) / 0.7)) !important;
+  border-radius: 3px; padding: 0.1em 0.25em;
+}
+
+/* Any inline pastel background Fossil emits (ticket reports and their key,
+   ticket pages, annotate legends, branch lists): darken it, keep the hue */
+tr[style*="background-color"], td[style*="background-color"], th[style*="background-color"],
+span[style*="background-color"], div[style*="background-color"], p[style*="background-color"] {
+  background-image: linear-gradient(rgb(var(--veil-rgb) / var(--veil, 0.35)), rgb(var(--veil-rgb) / var(--veil, 0.35))) !important;
+  color: var(--text);
+}
+tr[style*="background-color"] a, td[style*="background-color"] a, p[style*="background-color"] a { color: var(--link); }
+/* @dark-only: the light skin keeps Fossil's own ticket colors */
+/* Fossil's standard ticket status colors, mapped to tints instead of the generic overlay:
+   active / review / fixed / tested / deferred / closed / key label */
+tr[style*="#f2dcdc" i], td[style*="#f2dcdc" i], th[style*="#f2dcdc" i] { background-image: none !important; background-color: rgb(var(--red-rgb) / 0.22) !important; }
+tr[style*="#e8e8bd" i], td[style*="#e8e8bd" i], th[style*="#e8e8bd" i] { background-image: none !important; background-color: rgb(var(--yellow-rgb) / 0.20) !important; }
+tr[style*="#e8e8e8" i], td[style*="#e8e8e8" i], th[style*="#e8e8e8" i] { background-image: none !important; background-color: rgb(var(--yellow-rgb) / 0.14) !important; }
+tr[style*="#cfe8bd" i], td[style*="#cfe8bd" i], th[style*="#cfe8bd" i] { background-image: none !important; background-color: rgb(var(--green-rgb) / 0.20) !important; }
+tr[style*="#bde5d6" i], td[style*="#bde5d6" i], th[style*="#bde5d6" i] { background-image: none !important; background-color: rgb(var(--teal-rgb) / 0.20) !important; }
+tr[style*="#cacae5" i], td[style*="#cacae5" i], th[style*="#cacae5" i] { background-image: none !important; background-color: rgb(var(--violet-rgb) / 0.24) !important; }
+tr[style*="#c8c8c8" i], td[style*="#c8c8c8" i], th[style*="#c8c8c8" i] { background-image: none !important; background-color: rgb(var(--lift-rgb) / 0.05) !important; }
+tr[style*="#ffffff" i], td[style*="#ffffff" i], th[style*="#ffffff" i] { background-image: none !important; background-color: transparent !important; }
+table.report tr[style*="background-color"]:hover td { background-image: linear-gradient(rgb(var(--lift-rgb) / 0.05), rgb(var(--lift-rgb) / 0.05)) !important; }
+table.report td[style*="#ffffff" i], table.report tr[style*="#ffffff" i] td { color: var(--muted); }
+/* @end-dark-only */
+p[style*="border:1px solid"] { border-color: var(--border) !important; border-radius: 4px; padding: 0.6em 0.8em; }
+/* Pikchr: Fossil already draws white defaults because skin-detail is white-foreground; leave diagrams alone */
+
+/* Fossil's user and branch colors, muted toward the surface so they sit with the skin */
+table.timelineTable td[style*="background"] {
+  background-image: linear-gradient(rgb(var(--tint-rgb) / var(--tint-mute)), rgb(var(--tint-rgb) / var(--tint-mute))) !important;
+}
+body.chat .message-widget-content[style*="background"] {
+  background-image: linear-gradient(rgb(var(--tint-rgb) / var(--chat-mute)), rgb(var(--tint-rgb) / var(--chat-mute))) !important;
+}
+body.chat .message-widget-tab[style*="background"] { background-image: none !important; }
+body.chat .message-widget-content { box-shadow: 0 1px 2px rgb(var(--shadow-rgb) / var(--bubble-shadow)) !important; }
+
+/* Misc Fossil UI elements with hardcoded light colors */
+div.debug { background: var(--surface) !important; border: 1px solid var(--border) !important; color: var(--muted) !important; padding: 0.75rem; }
+/* Inline debug markers, e.g. "(artifact-NNN)" on forum posts for admins: just quieter text */
+span.debug { background: none !important; border: none !important; padding: 0 !important; color: var(--muted) !important; font-size: 0.85em; }
+span.debug a { color: var(--muted); }
+span.debug a:hover { color: var(--link); }
+span.error { background: rgb(var(--yellow-rgb) / 0.18) !important; color: var(--yellow) !important; padding: 0.1em 0.25em; border-radius: 3px; }
+mark { background: rgb(var(--yellow-rgb) / 0.25); color: var(--text); padding: 0.1em 0.25em; border-radius: 3px; }
+div.sideboxTitle { color: var(--title); font-weight: 600; }
+div.sidebox { background: var(--surface); border: 1px solid var(--border) !important; border-radius: 4px; margin: 0 0 1em 1.5em; padding: 0.75em; }
+.disabled { color: var(--red); }
+.modpending { color: var(--yellow); }
+.fossil-tooltip.help-buttonlet-content { background-color: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+.fossil-tooltip { background: var(--surface2) !important; color: var(--text) !important; border-color: var(--border) !important; }
+td.capsumRead { background: rgb(var(--green-rgb) / 0.15) !important; color: var(--green); }
+td.capsumWrite { background: rgb(var(--yellow-rgb) / 0.15) !important; color: var(--yellow); }
+td.capsumOff { background: rgb(var(--muted-rgb) / 0.1) !important; color: var(--muted); }
+table.login_out { margin: 1em 0; }
+td.login_out_label { color: var(--muted); padding: 0.4em 0.75em 0.4em 0; }
+.help-buttonlet { color: var(--link); cursor: pointer; }
+
+/* Status text Fossil colors pure red / blue / black */
+span.disabled, span.wikiError, span.loginError, span.tktError, span.brokenlink, span.thTrace,
+p.generalError, p.tktsetupError, p.xfersetupError, p.thmainError, p.reportError, blockquote.reportError,
+pre.th1error, span.ueditInheritDeveloper, td.tktTlOpen,
+div.markdown ol.footnotes > li.fn-misreference > span, div.markdown ol.footnotes > li.fn-unreferenced > code,
+div.markdown sup.noteref.misref, div.markdown sup.noteref.misref > a { color: var(--red) !important; }
+span.ueditInheritAnonymous, p.missingPriv, p.noMoreShun, p.shunned { color: var(--link) !important; }
+span.ueditInheritReader { color: var(--text) !important; }
+blockquote.reportError, p.generalError { background: rgb(var(--red-rgb) / 0.1); border: 1px solid rgb(var(--red-rgb) / 0.4); border-radius: 4px; padding: 0.6em 0.8em; }
+/* Fossil also puts class="error" on <body> and colors it yellow; keep the page as it is */
+body.error, body.warning { background: var(--bg) !important; color: var(--text) !important; }
+.error:not(body), .warning:not(body) { background: rgb(var(--yellow-rgb) / 0.18) !important; color: var(--yellow) !important; border-radius: 3px; padding: 0.1em 0.3em; }
+table.numbered-lines td.line-numbers span.selected-line { color: var(--text) !important; background-color: rgb(var(--link-rgb) / 0.22) !important; }
+.fossil-toast-message { background: var(--surface2) !important; color: var(--text) !important; border: 1px solid var(--border) !important; border-radius: 6px !important; box-shadow: 0 8px 24px rgb(var(--shadow-rgb) / 0.5) !important; }
+.fossil-toast-message.error, .fossil-toast-message.warning { background: var(--warn-bg) !important; color: var(--yellow) !important; border-color: var(--yellow) !important; }
+.fossil-toast-message.error { color: var(--red) !important; border-color: var(--red) !important; background: var(--err-bg) !important; }
+
+/* Wiki / file editor tabs */
+.tab-container .tab-bar { display: flex; flex-wrap: wrap; gap: 0.25rem; border-bottom: 1px solid var(--border); }
+.tab-container .tab-button {
+  padding: 0.4em 0.9em; border: 1px solid transparent; border-bottom: none; border-radius: 5px 5px 0 0;
+  background: transparent; color: var(--muted); font-family: var(--font); font-size: 0.95em; cursor: pointer; margin-bottom: -1px;
+}
+.tab-container .tab-button:hover { color: var(--text); background: var(--surface); }
+.tab-container .tab-button.selected { color: var(--text); background: var(--surface); border-color: var(--border); border-bottom-color: var(--surface); }
+#fossil-status-bar { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--muted); font-family: var(--mono); font-size: 0.85em; padding: 0.4em 0.75em; margin: 0.5em 0; }
+.wikiedit-options, .fileedit-options { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; padding: 0.5em; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5em; }
+.wikiedit-options .input-with-label, .fileedit-options .input-with-label { display: flex; align-items: center; gap: 0.4rem; white-space: nowrap; }
+#wikiedit-tab-content textarea, #fileedit-tab-content textarea { min-height: 300px; width: 100%; }
+.tab-container fieldset { border: 1px solid var(--border); border-radius: 4px; }
+.tab-container fieldset legend { color: var(--muted); }
+button.wikiedit-content-reload, button.fileedit-content-reload { min-width: unset !important; max-width: unset !important; }
+
+/* Chat: Fossil sets inline pastel backgrounds per user */
+/* Each message keeps the user's color, which Fossil already picks for this
+   skin's foreground (white-foreground); only messages without one get --surface. */
+body.chat .message-widget-content {
+  background-color: var(--surface); border: 1px solid var(--border) !important;
+  border-radius: 6px !important; color: var(--text) !important; padding: 0.5em 0.75em !important;
+}
+body.chat .message-widget-tab { background: transparent !important; color: var(--muted) !important; border: none !important; font-size: 0.9em !important; }
+body.chat .message-widget-tab[style*="background"] { background-image: none !important; }
+body.chat .message-widget-tab .xfrom { color: var(--link) !important; font-weight: 600 !important; }
+body.chat #chat-input-line-wrapper { border: 1px solid var(--border) !important; border-radius: 6px !important; background: var(--input-bg) !important; }
+body.chat #chat-input-line-wrapper:focus-within { border-color: var(--link) !important; }
+body.chat .chat-input-field { border: none !important; background: transparent !important; color: var(--text) !important; font-family: var(--font) !important; font-size: 1em !important; }
+body.chat .cbutton { border: 1px solid var(--border) !important; background: var(--surface) !important; border-radius: 4px !important; }
+body.chat .cbutton:hover { background: var(--surface2) !important; }
+body.chat fieldset { border: 1px solid var(--border) !important; border-radius: 4px !important; background: var(--surface) !important; }
+body.chat .menu-entry { background: var(--surface) !important; border: 1px solid var(--border) !important; color: var(--text) !important; }
+body.chat .menu-entry:hover, body.chat .menu-entry.parent { background: var(--surface2) !important; }
+body.chat .message-widget .match { background: rgb(var(--yellow-rgb) / 0.25) !important; color: var(--text) !important; }
+body.chat .chat-message-popup { background: var(--surface2) !important; border: 1px solid var(--border) !important; color: var(--text) !important; }
+body.chat .message-widget-content img { max-width: 100% !important; border-radius: 4px !important; }
+
+/* Chat toolbar: Fossil renders the buttons as emoji; mask them with icons, keep the spans intact */
+body.chat #chat-buttons-wrapper > .cbutton {
+  position: relative !important;
+  font-size: 0 !important;
+  color: transparent !important;
+  min-width: 44px !important; max-width: 44px !important;
+  min-height: 36px !important; height: 36px !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 6px !important;
+}
+body.chat #chat-buttons-wrapper > .cbutton::after {
+  content: ""; position: absolute; inset: 0; margin: auto;
+  width: 22px; height: 22px;
+  background-color: var(--muted);
+  -webkit-mask: var(--icon) center / contain no-repeat; mask: var(--icon) center / contain no-repeat;
+}
+body.chat #chat-buttons-wrapper > .cbutton:hover { background: var(--surface2) !important; border-color: var(--muted) !important; }
+body.chat #chat-buttons-wrapper > .cbutton:hover::after { background-color: var(--text); }
+body.chat #chat-buttons-wrapper > #chat-button-submit { background: var(--link) !important; border-color: var(--link) !important; min-width: 64px !important; max-width: 64px !important; }
+body.chat #chat-buttons-wrapper > #chat-button-submit::after { background-color: var(--on-accent); }
+body.chat #chat-buttons-wrapper > #chat-button-submit:hover { background: var(--link-hover) !important; }
+body.chat #chat-button-preview { --icon: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 256 256%22 fill=%22black%22%3E%3Cpath d=%22M247.31,124.76c-.35-.79-8.82-19.58-27.65-38.41C194.57,61.26,162.88,48,128,48S61.43,61.26,36.34,86.35C17.51,105.18,9,124,8.69,124.76a8,8,0,0,0,0,6.5c.35.79,8.82,19.57,27.65,38.4C61.43,194.74,93.12,208,128,208s66.57-13.26,91.66-38.34c18.83-18.83,27.3-37.61,27.65-38.4A8,8,0,0,0,247.31,124.76ZM128,192c-30.78,0-57.67-11.19-79.93-33.25A133.47,133.47,0,0,1,25,128,133.33,133.33,0,0,1,48.07,97.25C70.33,75.19,97.22,64,128,64s57.67,11.19,79.93,33.25A133.46,133.46,0,0,1,231.05,128C223.84,141.46,192.43,192,128,192Zm0-112a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Z%22/%3E%3C/svg%3E"); }
+body.chat #chat-button-search { --icon: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 256 256%22 fill=%22black%22%3E%3Cpath d=%22M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z%22/%3E%3C/svg%3E"); }
+body.chat #chat-button-attach { --icon: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 256 256%22 fill=%22black%22%3E%3Cpath d=%22M209.66,122.34a8,8,0,0,1,0,11.32l-82.05,82a56,56,0,0,1-79.2-79.21L147.67,35.73a40,40,0,1,1,56.61,56.55L105,193A24,24,0,1,1,71,159L154.3,74.38A8,8,0,1,1,165.7,85.6L82.39,170.31a8,8,0,1,0,11.27,11.36L192.93,81A24,24,0,1,0,159,47L59.76,147.68a40,40,0,1,0,56.53,56.62l82.06-82A8,8,0,0,1,209.66,122.34Z%22/%3E%3C/svg%3E"); }
+body.chat #chat-button-settings { --icon: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 256 256%22 fill=%22black%22%3E%3Cpath d=%22M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm88-29.84q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.21,107.21,0,0,0-10.88-26.25,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.71,107.71,0,0,0-26.25-10.87,8,8,0,0,0-7.06,1.49L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,73.89,34.51a8,8,0,0,0-3.93,6L67.32,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.25,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.21,107.21,0,0,0,10.88,26.25,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.25,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.25-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.25,8,8,0,0,0-1.49-7.06Zm-16.1-6.5a73.93,73.93,0,0,1,0,8.68,8,8,0,0,0,1.74,5.48l14.19,17.73a91.57,91.57,0,0,1-6.23,15L187,173.11a8,8,0,0,0-5.1,2.64,74.11,74.11,0,0,1-6.14,6.14,8,8,0,0,0-2.64,5.1l-2.51,22.58a91.32,91.32,0,0,1-15,6.23l-17.74-14.19a8,8,0,0,0-5-1.75h-.48a73.93,73.93,0,0,1-8.68,0,8,8,0,0,0-5.48,1.74L100.45,215.8a91.57,91.57,0,0,1-15-6.23L82.89,187a8,8,0,0,0-2.64-5.1,74.11,74.11,0,0,1-6.14-6.14,8,8,0,0,0-5.1-2.64L46.43,170.6a91.32,91.32,0,0,1-6.23-15l14.19-17.74a8,8,0,0,0,1.74-5.48,73.93,73.93,0,0,1,0-8.68,8,8,0,0,0-1.74-5.48L40.2,100.45a91.57,91.57,0,0,1,6.23-15L69,82.89a8,8,0,0,0,5.1-2.64,74.11,74.11,0,0,1,6.14-6.14A8,8,0,0,0,82.89,69L85.4,46.43a91.32,91.32,0,0,1,15-6.23l17.74,14.19a8,8,0,0,0,5.48,1.74,73.93,73.93,0,0,1,8.68,0,8,8,0,0,0,5.48-1.74L155.55,40.2a91.57,91.57,0,0,1,15,6.23L173.11,69a8,8,0,0,0,2.64,5.1,74.11,74.11,0,0,1,6.14,6.14,8,8,0,0,0,5.1,2.64l22.58,2.51a91.32,91.32,0,0,1,6.23,15l-14.19,17.74A8,8,0,0,0,199.87,123.66Z%22/%3E%3C/svg%3E"); }
+body.chat #chat-button-submit { --icon: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 256 256%22 fill=%22black%22%3E%3Cpath d=%22M227.32,28.68a16,16,0,0,0-15.66-4.08l-.15,0L19.57,82.84a16,16,0,0,0-2.49,29.8L102,154l41.3,84.87A15.86,15.86,0,0,0,157.74,248q.69,0,1.38-.06a15.88,15.88,0,0,0,14-11.51l58.2-191.94c0-.05,0-.1,0-.15A16,16,0,0,0,227.32,28.68ZM157.83,231.85l-.05.14,0-.07-40.06-82.3,48-48a8,8,0,0,0-11.31-11.31l-48,48L24.08,98.25l-.07,0,.14,0L216,40Z%22/%3E%3C/svg%3E"); }
+
+/* Screen sizes, as in the default skin */
+@media screen and (max-width: 600px) {
+  body { padding-left: 12px; padding-right: 12px; }
+  .content { font-size: 0.95em; }
+  header { gap: 10px; padding: 10px 0 8px; }
+  div.logo img, img.logo-mark { width: 36px; height: 36px; }
+  .title h1, .title .project-name { font-size: 1.5em; }
+  .title > .page-title { display: inline; }
+  .artifact .title > .page-title, .dir .title > .page-title,
+  .doc .title > .page-title, .wiki .title > .page-title { display: none; }
+  .mainmenu a { padding: 10px 12px; }
+  .mainmenu { padding: 0; }
+  nav#hbdrop ul#sitemap, ul#sitemap.columns { columns: 1 !important; column-width: auto !important; }
+  .submenu { padding: 6px 0; }
+  td.timelineTime { font-size: 0.8em; }
+}
+@media screen and (min-width: 600px) {
+  body { padding-left: 20px; padding-right: 20px; }
+  .mainmenu a { padding: 12px 20px; }
+  .mainmenu { padding: 0; }
+  .content dd, .content dt, .content div, .content li, .content p, .content table { line-height: 1.45em; }
+  /* Fossil renders a document's title outside .content. Match its h1 inset. */
+  body.doc > h1.page-title {
+    box-sizing: border-box;
+    width: 100%;
+    margin-inline: 0;
+    padding-inline: 10pt;
+  }
+  .doc > .content > p, .doc > .content > .markdown > p, .doc > .content > .fossil-doc > p,
+  .doc > .content > ol, .doc > .content > ul, .doc > .content > .markdown > ol, .doc > .content > .markdown > ul,
+  .wiki > .content > p, .wiki > .content > .markdown > p, .wiki > .content > .fossil-doc > p,
+  .wiki > .content > ol, .wiki > .content > ul, .wiki > .content > .markdown > ol, .wiki > .content > .markdown > ul,
+  .artifact > .content > .markdown > p, .artifact > .content > .markdown > ol, .artifact > .content > .markdown > ul,
+  .doc > .content > .markdown > table, .wiki > .content > .markdown > table, .artifact > .content > .markdown > table {
+    margin-left: 30pt; margin-right: 30pt;
+  }
+  .doc > .content > pre, .doc > .content > .markdown > pre, .doc > .content > .fossil-doc > pre,
+  .wiki > .content > pre, .wiki > .content > .markdown > pre,
+  .artifact > .content > .markdown > pre { margin-left: 40pt; margin-right: 30pt; }
+  .forum > .content .markdown > pre { margin-left: 20pt; }
+  .doc > .content h1, .wiki .content h1, .artifact .content h1 { margin-left: 10pt; }
+  .doc > .content h2, .wiki .content h2, .artifact .content h2 { margin-left: 15pt; }
+  .doc > .content h3, .wiki .content h3, .artifact .content h3 { margin-left: 20pt; }
+  .doc > .content > blockquote, .wiki > .content > blockquote { margin-left: 50pt; }
+  .doc > .content > .markdown > blockquote, .wiki > .content > .markdown > blockquote { margin-left: 40pt; }
+  .content .pikchr-wrapper, div.pikchr-wrapper.indent:not(.source) { margin-left: 40pt; }
+  div.pikchr-wrapper.center:not(.source), div.pikchr-wrapper.float-right:not(.source) { margin-left: 0; }
+}
+
+/* Chat bubbles: messaging-app corners; your own messages, when Fossil puts
+   them on the right (its my-messages-right layout, the default in tall
+   windows), point the other way */
+body.chat .message-widget:not(.notification) .message-widget-content { border-radius: 12px 12px 12px 4px !important; }
+body.chat.my-messages-right .message-widget.mine .message-widget-content { border-radius: 12px 12px 4px 12px !important; }
+body.chat.my-messages-right .message-widget.mine .message-widget-tab { text-align: right; }
+
+/* Message options popup (click a message's header): one card, quiet
+   timestamps, buttons sized for touch */
+body.chat .chat-message-popup {
+  font-family: var(--font) !important; font-size: 0.9em !important;
+  background: var(--surface2) !important; border: 1px solid var(--border) !important;
+  border-radius: 10px !important; padding: 0.65em !important; gap: 0.45em;
+  box-shadow: 0 8px 24px rgb(var(--shadow-rgb) / var(--popup-shadow)) !important;
+  max-width: min(26rem, calc(100vw - 2rem));
+}
+body.chat .chat-message-popup > span { font-family: var(--mono); font-size: 0.85em; color: var(--muted); white-space: normal; }
+body.chat .chat-message-popup > .toolbar { border: none !important; gap: 0.4em; margin: 0 !important; flex-wrap: wrap; }
+body.chat .chat-message-popup > .toolbar > * { margin: 0 !important; }
+body.chat .chat-message-popup > .toolbar > button,
+body.chat .chat-message-popup > .toolbar > a {
+  flex: 1 1 auto; min-height: 36px; display: inline-flex; align-items: center; justify-content: center;
+  padding: 0.35em 0.8em; border: 1px solid var(--border); border-radius: 6px;
+  background: var(--surface); color: var(--text); font-family: var(--font); font-size: 1em; text-decoration: none;
+}
+body.chat .chat-message-popup > .toolbar > a { color: var(--link); }
+body.chat .chat-message-popup > .toolbar > button:hover,
+body.chat .chat-message-popup > .toolbar > a:hover { background: var(--btn-hover); border-color: var(--muted); text-decoration: none; }
+/* "Delete globally" removes the message for everyone */
+body.chat .chat-message-popup > div.toolbar:nth-of-type(1) > button:nth-child(2) { color: var(--red); }
+@media (pointer: coarse), (max-width: 600px) {
+  body.chat .chat-message-popup > .toolbar > button,
+  body.chat .chat-message-popup > .toolbar > a { min-height: 44px; }
+}
+
+/* Phones: the page itself never scrolls sideways */
+body.chat .chat-message-popup { z-index: 200 !important; }
+@media screen and (max-width: 600px) {
+  table.label-value td { white-space: normal !important; overflow-wrap: anywhere; }
+  table.label-value td .nobr, table.label-value td .nobr *,
+  td.tktDspValue .nobr, td.tktDspValue .nobr * { white-space: normal !important; word-break: break-all; }
+  .content table.sortable, .content table.report, .content table.userTable {
+    display: block; max-width: 100%; overflow-x: auto;
+  }
+  .title h1, .title .project-name { font-size: 1.3em; }
+}
+
+/* Hamburger menu. hbmenu.js toggles it instantly (data-anim-ms="0" in the
+   header); the skin slides it in. */
+@keyframes hb-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+nav#hbdrop { animation: hb-in 160ms ease-out; top: var(--nav-bottom, 88px); }
+@media screen and (max-width: 600px), (pointer: coarse) {
+  /* A sheet from under the nav bar to the bottom of the screen, scrolling
+     on its own, with the page behind it held still */
+  nav#hbdrop {
+    bottom: 0; max-height: none; border-radius: 0; border-left: 0; border-right: 0;
+    overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+  }
+  html:has(#hbdrop[style*="display: block"]) { overflow: hidden; }
+  /* Keep the nav bar, and its close button, on screen while the menu is open */
+  html:has(#hbdrop[style*="display: block"]) nav.mainmenu { position: sticky; top: 0; }
+  ul#sitemap ul li a { min-height: 44px; display: flex; align-items: center; }
+}
+@media (prefers-reduced-motion: reduce) { nav#hbdrop { animation: none; } }
+
+/* Menu bar: every item carries the 2px underline slot, transparent until
+   hover or active, so highlighting never changes any item's or the bar's height */
+.mainmenu a { border-bottom: 2px solid transparent; }
+.mainmenu a.active, .mainmenu a:hover { border-bottom-color: var(--active); }
+#hbbtn { line-height: 1.4; font-size: 1em; }
+
+/* Logo: show any repository's logo whole in the same 48px box (36px on
+   phones); a square logo looks exactly as before */
+div.logo img, img.logo-mark { object-fit: contain; }
+
+/* Menu bar as a flex row: the whitespace between items in the header no
+   longer leaves 4px gaps, so each underline meets the divider beside it */
+.mainmenu { display: flex; }
+.mainmenu a { flex: 0 0 auto; }
+
+/* Weekday above each timeline date. The line is reserved here, before any
+   script runs, so the rows already have their final height when Fossil
+   draws the timeline graph; a11y.js only fills in the name through
+   data-dow. (Inserting a line afterwards moved every row, and Fossil
+   redrew the graph a second later, so the nodes jumped.) */
+div.timelineDate::before {
+  content: attr(data-dow); display: block; min-height: 1.2em;
+  font-size: 0.8em; font-weight: 400; opacity: 0.85; line-height: 1.2; margin-bottom: 0.1em;
+}
+
+
+/* The chat's "Load..." bar: a small label over one row of buttons, without
+   the box Fossil's fieldset would draw around them */
+body.chat fieldset#load-msg-toolbar {
+  border: none !important; background: transparent !important;
+  padding: 0.5em 0 0 !important; margin: 0 0 1em !important;
+}
+body.chat #load-msg-toolbar > legend { font-size: 0.85em; color: var(--muted); padding: 0 0 0.35em; }
+body.chat #load-msg-toolbar > div { gap: 0.5em; }
+body.chat #load-msg-toolbar > div > button { border-radius: 6px; }
+
+
+/* ── Fixes from the page-by-page audit ─────────────────────────────────── */
+
+/* Fields Fossil emits with no type, or type="input" (forum title, ticket
+   e-mail), which the input[type=text] rule above does not match */
+input:not([type]), input[type=input] {
+  background: var(--input-bg); border: 1px solid var(--border); border-radius: 4px;
+  color: var(--text); font-family: var(--font); font-size: 1em; padding: 0.35em 0.6em;
+}
+input[type=file]::file-selector-button {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 4px;
+  color: var(--text); font-family: var(--font); font-size: 0.95em; padding: 0.35em 0.8em;
+  margin-right: 0.6em; cursor: pointer;
+}
+input[type=file]::file-selector-button:hover { background: var(--btn-hover); border-color: var(--muted); }
+
+/* Forum subjects may shrink below a long word on narrow screens. */
+@media screen and (max-width: 600px) {
+  body.forum td.subject { overflow-wrap: anywhere; }
+}
+
+/* Long hashes in titles and headings wrap instead of widening the page */
+.title, span.page-title, .content h1, .content h2, .content h3 { overflow-wrap: anywhere; }
+.title { min-width: 0; }
+.content :not(pre) > code { overflow-wrap: break-word; }
+.markdown p, .markdown li { overflow-wrap: break-word; }
+
+/* Rendered markdown looks the same wherever it appears (the wiki editor's
+   preview nests it deeper than the page does) */
+.markdown pre {
+  background-color: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 8px 10px;
+}
+.markdown p > code, .markdown li > code, .markdown td > code {
+  background-color: var(--surface); border: 1px solid var(--border); border-radius: 3px; padding: 0 4px;
+}
+
+/* Chat: a bubble holding an attachment stays inside its column */
+body.chat .message-widget-content { box-sizing: border-box; max-width: 100%; }
+body.chat .chat-message-popup > .toolbar { align-items: stretch; }
+body.chat .chat-message-popup > .toolbar > a { display: inline-flex; align-items: center; }
+
+/* Activity-report charts: a11y.js gives them a viewBox so they can shrink */
+.content svg.fit { max-width: 100%; height: auto; }
+
+/* Contrast: links on Fossil's colored rows, closed tickets in the timeline,
+   the fourth capability marker */
+body.report table.report tr[style*="background-color"] a,
+table.timelineTable td[style*="background"] a { color: var(--link-on-tint) !important; }
+td.tktTlClosed { color: var(--muted); }
+span.ueditInheritNobody { color: var(--green) !important; }
+
+/* Ticket view: a label alone in its row ("Description:") sits at the left,
+   like "User Comments:" below it */
+td.tktDspLabel:only-child { text-align: left; }
+
+/* Bare <table border="1"> (user categories, unversioned files) */
+.content table[border="1"] { border-collapse: collapse; border-color: var(--border); }
+.content table[border="1"] > * > tr > td, .content table[border="1"] > * > tr > th { border: 1px solid var(--border); padding: 4px 8px; }
+
+/* Lists Fossil marks list-style:none keep no bullets */
+.content ul[style*="list-style"] > li { list-style-type: inherit; }
+
+/* Main menu: the full bar on every screen. The menu button stays pinned at
+   the left while the entries scroll sideways beneath it, and a fade at the
+   right edge shows there is more. (Fossil would hide entries marked
+   desktoponly / wideonly on small screens; the display set on ".mainmenu a"
+   above keeps them, on purpose.) */
+#hbbtn {
+  position: sticky; left: 0; z-index: 2;
+  background: var(--surface) linear-gradient(var(--band-top), var(--surface));
+}
+.mainmenu::after {
+  content: ""; flex: 0 0 28px; position: sticky; right: 0; pointer-events: none;
+  background: var(--surface) linear-gradient(var(--band-top), var(--surface));
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 85%); mask-image: linear-gradient(to right, transparent, #000 85%);
+}
+
+/* Phone menu sheet: top-level entries are destinations, so they read as
+   links in 44px rows */
+@media screen and (max-width: 600px), (pointer: coarse) {
+  ul#sitemap { padding: 0.5rem 1rem 1.5rem; }
+  ul#sitemap > li { margin: 0; border-bottom: 1px solid var(--rule); }
+  ul#sitemap > li > a {
+    display: flex; align-items: center; min-height: 44px; box-sizing: border-box;
+    font-size: 1em; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--text);
+  }
+  ul#sitemap ul { margin: 0 0 0.4rem; }
+  ul#sitemap ul li a { box-sizing: border-box; min-height: 44px; padding-left: 1rem; color: var(--link); }
+
+  /* Touch targets */
+  .submenu a, .submenu label, .sectionmenu a { min-height: 44px; box-sizing: border-box; display: inline-flex; align-items: center; }
+  input[type=text], input[type=password], input[type=email], input[type=search], input[type=number],
+  input:not([type]), input[type=input], select, input[type=submit], input[type=button], button {
+    min-height: 44px; box-sizing: border-box;
+  }
+  input[type=checkbox], input[type=radio] { width: 20px; height: 20px; }
+}
+
+@media screen and (max-width: 600px) {
+  /* A long unbroken word in a timeline row (a mirrored e-mail address as the
+     login, a path in the comment) wraps instead of widening the page */
+  table.timelineTable td.timelineModernCell, table.timelineTable td.timelineDetailCell,
+  .timelineModernComment, .timelineModernDetail,
+  .content table.timelineTable td.timelineModernCell * { overflow-wrap: anywhere; }
+
+  /* Forms and their fields never exceed the screen */
+  .content form { max-width: 100%; }
+  .content textarea, .content input:not([type=checkbox]):not([type=radio]), .content select { max-width: 100%; box-sizing: border-box; }
+  body.forum .content form { display: block; }
+
+  /* Markdown tables scroll inside themselves, like sortable tables */
+  .content table.md-table, .markdown table { display: block; max-width: 100%; overflow-x: auto; }
+
+  /* Ticket reports: one line per row inside the scrolling table */
+  .content table.report td { white-space: nowrap; }
+  .content table.report td:last-child { white-space: normal; min-width: 12em; max-width: 18em; }
+
+  /* Tickets: Fossil's label | value tables become label above value */
+  body.tkt .content form > table, body.tkt .content > table[cellpadding],
+  body.tkt .content form > table > tbody, body.tkt .content > table[cellpadding] > tbody,
+  body.tkt .content form > table > tbody > tr, body.tkt .content > table[cellpadding] > tbody > tr { display: block; }
+  body.tkt .content form > table > tbody > tr > td, body.tkt .content > table[cellpadding] > tbody > tr > td {
+    display: block; width: auto; text-align: left; padding: 2px 0;
+  }
+  body.tkt .content > table[cellpadding] > tbody > tr > td.tktDspLabel { padding: 12px 0 3px; font-size: 0.9em; color: var(--muted); }
+  body.tkt .content > table[cellpadding] > tbody > tr > td.tktDspValue { padding: 6px 10px; border-radius: 4px; min-height: 1.4em; overflow-wrap: anywhere; }
+  body.tkt .content form > table > tbody > tr > td:nth-child(3) { color: var(--muted); font-size: 0.9em; }
+  body.tkt .content form > table > tbody > tr > td[align=right] { padding-top: 12px; color: var(--muted); }
+
+  /* File ages: age and file on one line, the check-in below */
+  body.fileage .content table:not(.timelineTable), body.fileage .content table:not(.timelineTable) > * { display: block; }
+  body.fileage .content table:not(.timelineTable) tr { display: grid; grid-template-columns: 6.5em 1fr; border-bottom: 1px solid var(--rule); }
+  body.fileage .content table:not(.timelineTable) td { border: 0; overflow-wrap: anywhere; }
+  body.fileage .content table:not(.timelineTable) td:nth-child(3), body.fileage .content table:not(.timelineTable) th:nth-child(3) {
+    grid-column: 1 / -1; max-width: none; padding-top: 0; color: var(--muted); font-size: 0.9em;
+  }
+
+  /* Admin forms: tables that hold fields stack their cells */
+  body.setup .content table:not(.sortable):not([border]):has(input, textarea, select),
+  body.setup .content table:not(.sortable):not([border]):has(input, textarea, select) > tbody,
+  body.setup .content table:not(.sortable):not([border]):has(input, textarea, select) > tbody > tr,
+  body.setup .content table:not(.sortable):not([border]):has(input, textarea, select) > tbody > tr > td {
+    display: block; width: auto; max-width: 100%; text-align: left;
+  }
+  body.setup .content textarea { width: 100%; }
+  body.setup .content label { white-space: normal; }
+
+  /* Other wide admin tables scroll inside themselves; long option lists wrap */
+  .content table#capabilitySummary, .cpage-rcvfromlist .content > table { display: block; max-width: 100%; overflow-x: auto; }
+  .content tt, .cpage-secaudit0 .content li { overflow-wrap: anywhere; }
+
+  /* Forum replies: 10px a level instead of Fossil's 4ex, so deep threads keep
+     their shape and their width. Every level up to ten stays distinct. */
+  div.forumTime[style*="margin-left:"] { margin-left: 100px !important; }
+  div.forumTime[style*="left:4ex"] { margin-left: 10px !important; }
+  div.forumTime[style*="left:8ex"] { margin-left: 20px !important; }
+  div.forumTime[style*="left:12ex"] { margin-left: 30px !important; }
+  div.forumTime[style*="left:16ex"] { margin-left: 40px !important; }
+  div.forumTime[style*="left:20ex"] { margin-left: 50px !important; }
+  div.forumTime[style*="left:24ex"] { margin-left: 60px !important; }
+  div.forumTime[style*="left:28ex"] { margin-left: 70px !important; }
+  div.forumTime[style*="left:32ex"] { margin-left: 80px !important; }
+  div.forumTime[style*="left:36ex"] { margin-left: 90px !important; }
+  div.forumTime[style*="left:40ex"] { margin-left: 100px !important; }
+}
+
+/* Windows between phone and desktop width (a half-screen browser, a tablet):
+   the page never scrolls sideways there either. The same measures as on
+   phones, without the phone-only layout changes. */
+@media screen and (min-width: 601px) and (max-width: 1100px) {
+  table.label-value td { white-space: normal !important; overflow-wrap: anywhere; }
+  table.label-value td .nobr, table.label-value td .nobr *,
+  td.tktDspValue .nobr, td.tktDspValue .nobr * { white-space: normal !important; word-break: break-all; }
+  .content table.sortable, .content table.report, .content table.userTable, .content table.md-table, .markdown table,
+  .content table#capabilitySummary, .cpage-rcvfromlist .content > table {
+    display: block; max-width: 100%; overflow-x: auto;
+  }
+  .content form { max-width: 100%; }
+  .content textarea, .content input:not([type=checkbox]):not([type=radio]), .content select { max-width: 100%; box-sizing: border-box; }
+  body.forum .content form { display: block; }
+  .content tt, .cpage-secaudit0 .content li { overflow-wrap: anywhere; }
+  /* Ticket forms: label above field, as on phones */
+  body.tkt .content form > table, body.tkt .content form > table > tbody,
+  body.tkt .content form > table > tbody > tr { display: block; }
+  body.tkt .content form > table > tbody > tr > td { display: block; width: auto; text-align: left; padding: 2px 0; }
+  body.tkt .content form > table > tbody > tr > td:nth-child(3) { color: var(--muted); font-size: 0.9em; }
+  body.tkt .content form > table > tbody > tr > td[align=right] { padding-top: 12px; color: var(--muted); }
+}
+
+/* A long unbroken word in any timeline entry (a wiki page named after a
+   full hash, a path, an e-mail address as login) wraps at every width */
+.content table.timelineTable td[class$="Cell"], .content table.timelineTable td[class$="Cell"] *,
+.content table.timelineTable span[class*="Comment"], .content table.timelineTable span[class*="Comment"] *,
+.content table.timelineTable span[class*="Detail"], .content table.timelineTable span[class*="Detail"] * { overflow-wrap: anywhere; }
+
+/* Login page on phones: fields stack under their labels, and the anonymous
+   login's ASCII-art captcha scrolls inside its own box */
+@media screen and (max-width: 600px) {
+  table.login_out, table.login_out > tbody, table.login_out > tbody > tr,
+  table.login_out > tbody > tr > td { display: block; width: auto; text-align: left; }
+  table.login_out input[type=text], table.login_out input[type=password] { width: 100%; box-sizing: border-box; }
+  .content table.captcha, .content div.captcha { display: block; max-width: 100%; overflow-x: auto; }
+}
