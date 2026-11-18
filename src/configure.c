@@ -311,7 +311,10 @@ void configure_rebuild(void){
 static int safeSql(const char *z){
   int i;
   if( z==0 || z[0]==0 ) return 0;
-  if( (z[0]=='x' || z[0]=='X') && z[1]=='\'' ) z++;
+  if( (z[0]=='x' || z[0]=='X') && z[1]=='\'' ){
+    int n = (int)strlen(z);
+    return z[n-1]=='\'' && (n-3)%2==0 && validate16(&z[2], n-3);
+  }
   if( z[0]=='\'' ){
     for(i=1; z[i]; i++){
       if( z[i]=='\'' ){
