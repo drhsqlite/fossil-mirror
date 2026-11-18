@@ -1,5 +1,5 @@
-C In\scgi_same_origin(),\sread\sREQUEST_METHOD,\snot\sREQUST_METHOD,\sso\sthat\sa\sPOST\sfrom\sanother\sorigin\sis\swritten\sto\sthe\serror\slog.
-D 2026-11-18T20:00:03.126
+C When\sa\sclient\skeeps\sthe\slinks\sa\sserver\ssends,\sparse\sa\slink\sonly\sif\sit\sbegins\swith\shttp://\sor\shttps://.\sAny\sother\stext\swas\sparsed\sas\sa\spath\son\sthe\sclient\sand,\sif\sno\srepository\swas\sthere,\sended\sthe\ssync\swith\san\serror.
+D 2026-11-18T21:13:29.136
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -608,7 +608,7 @@ F src/wiki.wiki bd6ca20a0df1054d68bbd7683acc6f24225652276f0ed53ce6fa564faed4dd60
 F src/wikiformat.c 2674a0ff557fc634966f1aa1affaaf492ab6ec3b513082d47ec40c5ed8c6ba13
 F src/winfile.c 9b1ef0cc84959c86839f2de9e52df875c0e77652794aea5487112ebdfb208788
 F src/winhttp.c 093582715f8a7b142b04b651b28473c585fc1e07f4570e33f64b122cf3e9457d
-F src/xfer.c 336869636b7970836833e45104c32a213626e91040ac6dde6aa400d68ca011bc
+F src/xfer.c 235fbef6f50ec7e79ebf047f6aac282eb0ddfacb31fd1f4417b8257c8489c518
 F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b6b
 F src/xsystem.c c8c87776fa160083216bd35c69292a6c3b58870e4c9f6ff1859426b99ea1c106
 F src/zip.c 66a5c78dd2afbb2067b8283ccc8d62e367e761ff2e2b31f3713f7dde10db63bd
@@ -991,10 +991,10 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ab67c854c850583c38990aa2e23cc720377c286ab3ae3eb86ebd20a4e9473bc7
-R 03c029730562f08bdb5853d853b90fdd
+P 932a61d43875cf762812a62ca143b32eb6d9ab23e841c1c8e08138c97d352efd
+R 481cc0c7a0eba32486d52c9fdbe268bd
 T *branch * small-fixes
 T *sym-small-fixes *
 U dmestas
-Z 9516e9b00e1c22fadc1a4efb78b0457a
+Z 7a9bc54588186b996ab23af797881722
 # Remove this line to create a well-formed Fossil manifest.
