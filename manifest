@@ -1,5 +1,5 @@
-C Add\spathname\sunicode\stests,\sincluding\sNFD/NFC\sfor\shandling\scase\scollisions\son\smany\ndifferent\sfilesystems.
-D 2026-11-17T23:56:08.844
+C Tidy\sup\sdocs\sready\sfor\smerge
+D 2026-11-18T09:58:17.370
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -604,7 +604,7 @@ F src/xsystem.c c8c87776fa160083216bd35c69292a6c3b58870e4c9f6ff1859426b99ea1c106
 F src/zip.c 66a5c78dd2afbb2067b8283ccc8d62e367e761ff2e2b31f3713f7dde10db63bd
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
-F test/README.md 848ba6b6161e86e1d7c2da5ab69cb2a222ae86f4a761eb484385110f3b1fc386
+F test/README.md a6c4c3b299f84bcb95d15fb681e40ab59e59086064a37164232db44bae510640
 F test/amend.test fc6cde850ba87ba17d88cdd366fcde66a12108d1bf3166403e452c5e6dd69ac7
 F test/branch-tag.test 4fd89f42683280e0f639bb456328b75d8ee8de52e17fb284d9487e31e409672b
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
@@ -986,8 +986,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 970df5d58b756cbafdbf1f311c45bd2be4f01f265fbe7308d9fb78005969fc04
-R 20f645f9535c382352a6b1c7721d7cd6
+P ea810b6f00dd3602d6fc208879a4b3f1a1b452c6c9ec556d61af1abfe562c1f6
+R 85ca0c30e8b58337ed2468fb67a44241
 U danshearer
-Z 5dee8db2706fed8da3ee1ccf2736b506
+Z 5b0e3eb7ed4cdf82c3aaba70d278bb40
 # Remove this line to create a well-formed Fossil manifest.
