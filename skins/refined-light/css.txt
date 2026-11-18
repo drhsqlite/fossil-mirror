@@ -977,3 +977,24 @@ td.tktDspLabel:only-child { text-align: left; }
   table.login_out input[type=text], table.login_out input[type=password] { width: 100%; box-sizing: border-box; }
   .content table.captcha, .content div.captcha { display: block; max-width: 100%; overflow-x: auto; }
 }
+
+/* Long branch names and "merged into" notes wrap instead of widening the page */
+body.branch .brlist > table td:first-child, body.branch .brlist > table td:last-child {
+  white-space: normal; overflow-wrap: anywhere;
+}
+/* Submenu drop-downs never grow wider than the screen */
+span.submenuctrl { max-width: 100%; min-width: 0; }
+.submenu select, .sectionmenu select { max-width: 100%; min-width: 0; }
+/* Long file names, search snippets, login notes and help options wrap */
+ul.browser a, .content .snippet, body.rpage-search .content li,
+body.login .content p, dl.helpOptions dt, dl.helpOptions dd { overflow-wrap: anywhere; }
+/* Fossil sizes the file browser's columns from the longest name and keeps
+   names on one line. On phones use one column and let a long name wrap. */
+@media screen and (max-width: 600px) {
+  .content div.columns { columns: auto 1 !important; }
+  .content ul.browser { white-space: normal; }
+}
+
+/* A message's header line (sender, number, time) may wrap. Fossil keeps it
+   on one line, so a long login made the message list scroll sideways. */
+body.chat div.message-widget .message-widget-tab { white-space: normal; overflow-wrap: anywhere; max-width: 100%; }
