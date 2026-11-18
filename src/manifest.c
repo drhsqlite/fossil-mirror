@@ -2635,7 +2635,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     const char isAdd = (p->zAttachSrc && p->zAttachSrc[0]) ? 1 : 0;
     char attachToType = 0;
     db_multi_exec(
-       "INSERT INTO attachment(attachid, mtime, src, target,"
+       "REPLACE INTO attachment(attachid, mtime, src, target,"
                               "filename, comment, user)"
        "VALUES(%d,%.17g,%Q,%Q,%Q,%Q,%Q);",
        rid, p->rDate, p->zAttachSrc, p->zAttachTarget, p->zAttachName,
