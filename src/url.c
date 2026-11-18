@@ -237,6 +237,7 @@ void url_parse_local(
       i++;
       while( (c = zUrl[i])!=0 && fossil_isdigit(c) ){
         pUrlData->port = pUrlData->port*10 + c - '0';
+        if( pUrlData->port>65535 ) fossil_fatal("port number too large in url");
         i++;
       }
       if( c!=0 && c!='/' && c!='?' && c!='#' ){
