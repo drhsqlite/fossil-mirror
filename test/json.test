@@ -326,7 +326,7 @@ fossil_post_json "/json/cap" $anon2
 test json-cap-POSTenv-env-0 {[string length $JR] > 0}
 test_json_envelope_ok json-cap-POSTenv-env
 if {[catch {test json-cap-POSTenv-name \
-    {[dict get $JR payload name] eq "anonymous"} knownBug} jerr]} then {
+    {[dict get $JR payload name] eq "anonymous"}} jerr]} then {
   test json-cap-POSTenv-name-threw 0
   protOut "CAUGHT: $jerr"
 }
