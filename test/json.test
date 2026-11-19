@@ -273,7 +273,8 @@ write_file anon-1 [subst {
   }
 }
 }]
-fossil_json --json-input anon-1
+set anon1 [read_file anon-1]
+fossil_post_json "/json/login" $anon1
 test_json_envelope_ok json-login-a-env
 test_json_payload json-login-a {authToken name capabilities loginCookieName} {}
 set AuthAnon [dict get $JR payload]
