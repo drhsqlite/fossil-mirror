@@ -874,11 +874,11 @@ int blob_sqltoken(Blob *pFrom, Blob *pTo){
   int i = pFrom->iCursor;
   while( i<n && fossil_isspace(aData[i]) ){ i++; }
   pFrom->iCursor = i;
-  if( aData[i]=='\'' ){
+  if( i<n && aData[i]=='\'' ){
     i++;
     while( i<n ){
       if( aData[i]=='\'' ){
-        if( aData[++i]!='\'' ) break;
+        if( ++i>=n || aData[i]!='\'' ) break;
       }
       i++;
     }
