@@ -712,7 +712,7 @@ int cgi_same_origin(int bErrorLog){
   zRef = P("HTTP_REFERER");
   if( zRef==0 ) return 0;
   if( strchr(zRef,'%')!=0 ){
-    zToFree = strdup(zRef);
+    zToFree = fossil_strdup(zRef);
     dehttpize(zToFree);
     zRef = zToFree;
   }

@@ -1,5 +1,5 @@
-C Correct\sa\sone-byte\sover-read\sin\sblob_sqltoken()\sfor\sinput\sending\sin\swhitespace\sor\sa\ssingle\squote.\sHarmless\sin\spractice\sbecause\sof\sthe\ssource\sof\sthe\smemory,\sbut\sstill\swrong.
-D 2026-11-19T08:45:19.550
+C Replace\sa\sstrdup()\swith\sfossil_strdup()\sto\savoid\sa\sNULL\sderef\sif\sthat\sdupe\sOOMs.
+D 2026-11-19T08:46:54.994
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -406,7 +406,7 @@ F src/bundle.c 3e335aeab5387e4e83ed0ac9f49940eee160775a0a3c8e3a47eecea0b8aed5f5
 F src/cache.c e7c49243b8b30cc82358f3a81e9c3652de500481c16f7691d6d6c4528ecc5300
 F src/capabilities.c 7b611448e775a4b7cf6600b188b4ffeb94f720e7cc437fe6f3b5efedc5ca3251
 F src/captcha.c f07d93b8bd0c2b5948725700000a6d8b5ecc8cf7614013ae0467f5106b60b349
-F src/cgi.c 7fc7145bde6d761a389e7ef4cf952d8152faaa9d8092aad667800620fbd936d6
+F src/cgi.c aff030de9a92d441d5f1eb5a627211d4cfdacf1061f20fa2d25023ac5d5b5ff8
 F src/chat.c 1336f81882986f1613066f9ce171882f836a8a334531f937d3d8624441d9e822
 F src/checkin.c 76f3d80988700f7aff0d0a85ac894cf8d6bf3b32c519e14d303823006bc3ba53
 F src/checkout.c b4403d7fa11a813fd248c9ffbea29f5cda04264a5393d4ccfd723811a3cafce4
@@ -991,8 +991,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8b0dbb2f3e5fba184080fa442e1f78c6b2a60b5be54b217a0b191ec135988ca1
-R f810ce7ff24b6892455b92c40e3b8744
+P ab15b9c7da88e1ba070adb27a5d3c278b22693dd9f46b28f1802a795bac77319
+R ea89bd5a87f96be224d9ab15885ec8ed
 U stephan
-Z a836c0c4ad782434c411adffb6bd4f4f
+Z d6ed087755263ab08c59c389fa425f03
 # Remove this line to create a well-formed Fossil manifest.
