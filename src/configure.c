@@ -830,6 +830,7 @@ static void export_config(
 */
 void configuration_cmd(void){
   int n;
+  int nErr = 0;
   const char *zMethod;
   db_find_and_open_repository(0, 0);
   db_open_config(0, 0);
@@ -899,13 +900,13 @@ void configuration_cmd(void){
     g.zHttpAuth = get_httpauth();
     if( overwriteFlag ) mask |= CONFIGSET_OVERWRITE;
     if( strncmp(zMethod, "push", n)==0 ){
-      client_sync(0,0,(unsigned)mask,0,0);
+      nErr = client_sync(0,0,(unsigned)mask,0,0);
     }else if( strncmp(zMethod, "pull", n)==0 ){
       if( overwriteFlag ) db_unprotect(PROTECT_USER);
-      client_sync(0,(unsigned)mask,0,0,0);
+      nErr = client_sync(0,(unsigned)mask,0,0,0);
       if( overwriteFlag ) db_protect_pop();
     }else{
-      client_sync(0,(unsigned)mask,(unsigned)mask,0,0);
+      nErr = client_sync(0,(unsigned)mask,(unsigned)mask,0,0);
     }
   }else
   if( strncmp(zMethod, "reset", n)==0 ){
@@ -967,6 +968,7 @@ void configuration_cmd(void){
                  " export import merge pull push reset");
   }
   configure_rebuild();
+  if( nErr ) fossil_exit(1);
 }
 
 
