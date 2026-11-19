@@ -1065,7 +1065,9 @@ void test_var_list_cmd(void){
   if( zPattern && doUnset ){
     prompt_user("Delete all of the above? (y/N)? ", &ans);
     if( blob_str(&ans)[0]=='y' || blob_str(&ans)[0]=='Y' ){
+      db_unprotect(PROTECT_CONFIG);
       db_multi_exec("DELETE FROM config WHERE name GLOB %Q", zPattern);
+      db_protect_pop();
     }
     blob_reset(&ans);
   }
