@@ -33,6 +33,12 @@
 # version that has two names for one file, so those tests are marked
 # knownBug for ASCII names too.
 #
+# On macOS Fossil converts every pathname from Apple's decomposed form
+# to NFC, so some of these pairs will end up normalised to the same name
+# before fossil gets to compare.  "fossil test-echo" reliably detects this.
+# With case-sensitive on we expect to find the file, and with it off
+# we won't find the file, and it's an actual bug.
+#
 # Case folding maps both the sharp s, U+00DF, and the capital sharp s,
 # U+1E9E, to the two letters "ss", so by D145 a name with a sharp s and
 # the same name with "ss" are one file.  ext4 with case folding folds
@@ -51,7 +57,7 @@ set upSavedEncoding [encoding system]
 encoding system utf-8
 
 # Returns NAME with each character outside ASCII written as a Tcl
-# escape, so that two spellings that look the same can be told apart.
+# escape, so that two spellings that look the same can be distinguished.
 #
 proc up_escape {name} {
   set escaped ""
@@ -156,15 +162,33 @@ fossil ls
 test_eq unicode-pathnames-ls [lsort [split [normalize_result] \n]] \
     [lsort $upNames]
 
+# upConverted lists the pairs whose other spelling fossil converts to
+# the checked-in one when it reads its arguments.  Each is one name to
+# fossil, so its tests with the setting off are not marked knownBug.
+#
+set upConverted [list]
+set upRows [list]
+foreach {label a b constraint} $upSame {
+  fossil test-echo $b
+  if {[string first "argv\[2\] = \[$a\]" $RESULT] >= 0} {
+    lappend upConverted $label
+    set constraint ""
+  }
+  lappend upRows $label $a $b $constraint
+}
+set upSame $upRows
+
 # With the setting on, the other spelling is not a file under
-# management.
+# management, unless fossil converts it.
 #
 foreach {label a b constraint} $upSame {
   up_show $label $a $b
+  set converted [expr {$label in $upConverted}]
   fossil ls $b
-  test_eq unicode-pathnames-on-$label-ls [normalize_result] ""
-  fossil cat $b -expectError
-  test_eq unicode-pathnames-on-$label-cat $CODE 1
+  test_eq unicode-pathnames-on-$label-ls [normalize_result] \
+      [expr {$converted ? $a : ""}]
+  fossil cat $b {*}[expr {$converted ? "" : "-expectError"}]
+  test_eq unicode-pathnames-on-$label-cat $CODE [expr {!$converted}]
 }
 
 # With the setting off, "fossil ls", "fossil cat" and "fossil rm" find
@@ -201,7 +225,7 @@ foreach {label a b} $upDifferent {
 set upOneFile [list]
 foreach {label a b constraint} $upSame {
   up_show $label $a $b
-  if {[file exists $b]} {
+  if {[file exists $b] || $label in $upConverted} {
     lappend upOneFile $label
     continue
   }
@@ -221,7 +245,7 @@ foreach {label a b constraint} $upSame {
 }
 if {[llength $upOneFile] > 0} {
   test_skip_part "extras and add tests of [join $upOneFile {, }]:\
-      the file system has one file for both spellings"
+      fossil or the file system has one name for both spellings"
 }
 
 ###############################################################################
@@ -249,7 +273,7 @@ foreach {label a b} $upCollide {
   fossil add $a plain.txt
   fossil commit -m "first spelling"
   set upFirst [up_new_version]
-  if {[file exists $b]} {
+  if {[file exists $b] || $label in $upConverted} {
     lappend upOneFile $label
     continue
   }
@@ -274,7 +298,7 @@ foreach {label a b} $upCollide {
 }
 if {[llength $upOneFile] > 0} {
   test_skip_part "commit and update tests of [join $upOneFile {, }]:\
-      the file system has one file for both spellings"
+      fossil or the file system has one name for both spellings"
 }
 
 ###############################################################################

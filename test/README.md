@@ -88,7 +88,7 @@ When a test finds a fault that is not yet fixed, add `knownBug` as the test's la
 
 If the known bug is the exit status of a `fossil` command, add `-knownBug` to that command too. Otherwise the command prints an `ERROR` line on every run, even with `-quiet`. With `-knownBug` you only see that line under `-strict`.
 
-A known bug should fail on every system. If the fault only shows up in some environments, have the test set up that environment itself. If a test needs something the system might not have, that's a requirement, so use `test_skip`.
+A test marked `knownBug` should fail on every system where it's marked. If the fault only shows up in some environments, have the test set up that environment itself. If Fossil really does behave differently on some system, as it does with decomposed pathnames on macOS, have the test check that behavior and leave the mark off there; don't test for the operating system's name. If a test needs something the system might not have, that's a requirement, so use `test_skip`.
 
 Stray files in `test/` can be confusing because `delta1.test` and `merge2.test` run their tests on every file and the counts may differ from what is expected. A different total is not a failure.
 
