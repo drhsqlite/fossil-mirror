@@ -1,5 +1,5 @@
-C Match\strunk\scheckin\s[5b9ec2c2a324d370]\sin\sbranch;\sshould\sfix\sWindows\stesting
-D 2026-11-19T08:40:20.700
+C Improve\stest\ssuite\sREADME
+D 2026-11-19T09:00:12.376
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -604,7 +604,7 @@ F src/xsystem.c c8c87776fa160083216bd35c69292a6c3b58870e4c9f6ff1859426b99ea1c106
 F src/zip.c 66a5c78dd2afbb2067b8283ccc8d62e367e761ff2e2b31f3713f7dde10db63bd
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
-F test/README.md 69e77cff7aa0a51d3cf5d23e14b4bef716279d95c8614c9d715f3a25ce50379e
+F test/README.md 0084d0438ffd313a6127d26c0228a9b9e2ff80fcf38a338ce16a5d2420e2ff23
 F test/amend.test fc6cde850ba87ba17d88cdd366fcde66a12108d1bf3166403e452c5e6dd69ac7
 F test/branch-tag.test 4fd89f42683280e0f639bb456328b75d8ee8de52e17fb284d9487e31e409672b
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
@@ -986,8 +986,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cb01eaabfd97b051f7c45a0c7749b4a223f4a4fead40adc7e7ba9e035bbea0c9
-R aaee039b35e3dd1a79e5ace25b311d35
+P d781783074540e2930effd9f34ff3f0f58c46f5d3d7cc8d296a82e660b8cd65c
+R eb64d9b2cb21d74c8821100c887ac812
 U danshearer
-Z 65b549b3cd565e657f11716705009786
+Z b6180c5e04df77877f034582e0e3434b
 # Remove this line to create a well-formed Fossil manifest.

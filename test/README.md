@@ -1,5 +1,10 @@
 # Fossil test suite
 
+This is an extensible test suite written in Tcl, where a runner executes all the test files it finds in the test/ directory. Some of the tests derive their
+cases and expecations at runtime, including from the Fossil source code (when checking to see if the Fossil binary agrees with the source) and from
+testing the behaviour of the filesystem the binary is running on (when checking unicode pathname case folding.) There is also some degree of checking for
+platforms (eg is_windows) but that is kept to a minimum.
+
 ## Running the tests
 
 From a build directory:
@@ -33,7 +38,6 @@ what it expected vs what it got. The summary lists skipped files with a reason, 
 change the exit status unless `-strict` is given.
 
 A new test should only require adding another `.test` file.
-
 
 ## Requirements
 
