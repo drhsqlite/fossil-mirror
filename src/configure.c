@@ -946,6 +946,14 @@ void configuration_cmd(void){
         db_multi_exec("DELETE FROM reportfmt");
         assert( strchr(zRepositorySchemaDefaultReports,'%')==0 );
         db_multi_exec(zRepositorySchemaDefaultReports /*works-like:""*/);
+      }else if( fossil_strcmp(zName,"@alias")==0 ){
+        db_unprotect(PROTECT_CONFIG);
+        db_multi_exec("DELETE FROM config WHERE name GLOB 'walias:/*'");
+        db_protect_pop();
+      }else if( fossil_strcmp(zName,"@interwiki")==0 ){
+        db_unprotect(PROTECT_CONFIG);
+        db_multi_exec("DELETE FROM config WHERE name GLOB 'interwiki:*'");
+        db_protect_pop();
       }
     }
     db_end_transaction(0);
