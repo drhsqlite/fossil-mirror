@@ -30,6 +30,7 @@
 # installation. Care is needed to keep compatible with both 8.6 and 9.0.
 package require Tcl 8.6-
 
+set clock_start [clock milliseconds]
 set testfiledir [file normalize [file dirname [info script]]]
 set testrundir [pwd]
 set testdir [file normalize [file dirname $argv0]]
@@ -93,6 +94,20 @@ proc protOut {msg {noQuiet 0}} {
     puts $out $msg
     close $out
   }
+}
+
+# print elapsed time
+proc printElapsedTime {{prependMsg "Time elapsed: "}} {
+  global clock_start
+  set clock_end [clock milliseconds]
+  set millis [expr {$clock_end - $clock_start}]
+  set h [expr {$millis / 3600000}]
+  set m [expr {($millis - (3600000 * $h)) / 60000}]
+  set s [expr {($millis - (3600000 * $h) - (60000 * $m)) / 1000.0}]
+  puts -nonewline $prependMsg
+  if {$h>0} {puts -nonewline $h "hours"}
+  if {$m>0} {puts -nonewline "$m mins"}
+  puts [format "%.3f secs" $s]
 }
 
 # write a dict with just enough formatting
@@ -724,7 +739,7 @@ proc test_report {name ok constraints detail} {
         protOut "  $line" 1
       }
       lappend bad_test $name
-      if {$::HALT} {exit 1}
+      if {$::HALT} {printElapsedTime; exit 1}
     }
   }
 }
@@ -1096,5 +1111,7 @@ if {$nSkipped>0} {
   }
 }
 if {[llength $bad_test]>0} {
+  printElapsedTime
   exit 1
 }
+printElapsedTime
