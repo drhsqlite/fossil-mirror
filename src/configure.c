@@ -847,7 +847,7 @@ void configuration_cmd(void){
     }
     mask = configure_name_to_mask(g.argv[3], 1);
     if( zSince ){
-      iStart = db_multi_exec(
+      iStart = db_int64(0,
          "SELECT coalesce(strftime('%%s',%Q),strftime('%%s','now',%Q))+0",
          zSince, zSince
       );
