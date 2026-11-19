@@ -790,9 +790,7 @@ int validate16(const char *zIn, int nIn){
     return (int)strspn(zIn,"0123456789abcdefABCDEF")==nIn;
   }
   for(i=0; i<nIn; i++, zIn++){
-    if( zDecode[zIn[0]&0xff]>63 ){
-      return zIn[0]==0;
-    }
+    if( zDecode[zIn[0]&0xff]>63 ) return 0;
   }
   return 1;
 }
