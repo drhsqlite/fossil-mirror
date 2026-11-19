@@ -1,5 +1,5 @@
-C In\sjson.test,\sjson-cap-POSTenv-name\snow\spasses\sso\sremove\sknownBug
-D 2026-11-19T17:02:46.666
+C In\sunicode-pathnames.test,\sgive\sthe\smarks\spair\sits\scanonical\sNFD\sspelling.\nPrompted\sby\smacOS,\salthough\sthe\stests\sdynamically\sdistinguish\scasefolding\nbehaviour\sand\sdo\snot\scare\sabout\sfilesystem\sor\sOS.
+D 2026-11-19T20:28:04.391
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -677,7 +677,7 @@ F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
 F test/th1.test 5935980c27550fbb02c412c6e4107fe932589d8dfd90626c9b98a124d2c23e9c
-F test/unicode-pathnames.test d2f7274701aa6ad20e2965ad2d39b92de08affc2bf762c078b3df9274ae54086
+F test/unicode-pathnames.test a0db00fc394e6aa410baa30061838a4effbf4bf05804f4bd3906e62db5075e7b
 F test/unversioned.test b4d04f9d31a217c0aa14302c2a94f5372e8b1e06d86a052c3f4540c57a8ba429
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
@@ -986,8 +986,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 008fb003c2af285e3930499374bdc4c52915fcbae3fd7c2a4437e011956cf34b
-R ee21f6168f2e397eb90fe350ff399461
+P 3e3fb37a283678827dfede77bd8e2028b7768b1ad0b575db16a9e91080f4ca49
+R 72bfa8add9a140307b2b4e51ad6af4f4
 U danshearer
-Z 7a69ffa3bdae833e47d434f0f71bf1fa
+Z 48be19b58656dd1fae4ec71249900028
 # Remove this line to create a well-formed Fossil manifest.

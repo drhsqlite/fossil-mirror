@@ -33,11 +33,11 @@
 # version that has two names for one file, so those tests are marked
 # knownBug for ASCII names too.
 #
-# On macOS Fossil converts every pathname from Apple's decomposed form
-# to NFC, so some of these pairs will end up normalised to the same name
-# before fossil gets to compare.  "fossil test-echo" reliably detects this.
-# With case-sensitive on we expect to find the file, and with it off
-# we won't find the file, and it's an actual bug.
+# On macOS fossil_path_to_utf8 (src/utf8.c) recomposes each argument
+# before fossil compares it; see the comments there for details and
+# Apple references.  The loop below clears knownBug for pairs where
+# fossil_path_to_utf8 will convert to the checked-in name, such that
+# "fossil test-echo" prints the converted argument.
 #
 # Case folding maps both the sharp s, U+00DF, and the capital sharp s,
 # U+1E9E, to the two letters "ss", so by D145 a name with a sharp s and
@@ -103,7 +103,7 @@ set upSame [list \
              "\u039f\u0394\u038c\u03a3.TXT"  knownBug \
   nfd        "r\u00e9sum\u00e9.txt"  "re\u0301sume\u0301.txt"  knownBug \
   nfd-case   "cr\u00e8me.txt"  "CRE\u0300ME.TXT"  knownBug \
-  marks      "\u1ead.txt"      "a\u0302\u0323.txt"  knownBug \
+  marks      "\u1ead.txt"      "a\u0323\u0302.txt"  knownBug \
   angstrom   "\u00e5.txt"      "\u212b.TXT"      knownBug \
   hangul     "\ud55c\uae00.txt" \
              "\u1112\u1161\u11ab\u1100\u1173\u11af.txt"  knownBug \
