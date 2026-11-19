@@ -170,23 +170,52 @@ static const char *const azStyles[] = {
 };
 
 /*
-** Only allow certain mimetypes through.
-** All others become "text/x-fossil-wiki"
+** If zMimetype is one of the supported wiki content mimetypes or a
+** shorthand form of it, returns the full mimetype string, else
+** returns 0.
+*/
+const char * wiki_is_valid_mimetype(const char *zMimetype){
+  int i;
+  for(i=0; i<count(azStyles); i+=3){
+    if( fossil_strcmp(zMimetype,azStyles[i+2])==0
+        || fossil_strcmp(zMimetype,azStyles[i])==0 ){
+      return azStyles[i];
+    }
+  }
+  if( fossil_strcmp(zMimetype, "text/x-markdown")==0
+      || fossil_strcmp(zMimetype, "text/plain")==0 ){
+    return zMimetype;
+  }
+  if( fossil_strcmp(zMimetype, "plaintext")==0 ){
+    /* Inconsistent "plain" vs "plaintext" in some commands/API. */
+    return "text/plain";
+  }
+  return 0;
+}
+
+/*
+** Only allow certain mimetypes through.  All others become
+** "text/x-fossil-wiki". See wiki_is_valid_mimetype().
 */
 const char *wiki_filter_mimetypes(const char *zMimetype){
   if( zMimetype!=0 ){
-    int i;
-    for(i=0; i<count(azStyles); i+=3){
-      if( fossil_strcmp(zMimetype,azStyles[i+2])==0 ){
-        return azStyles[i];
-      }
-    }
-    if(  fossil_strcmp(zMimetype, "text/x-markdown")==0
-        || fossil_strcmp(zMimetype, "text/plain")==0 ){
-      return zMimetype;
+    zMimetype = wiki_is_valid_mimetype(zMimetype);
+  }
+  return zMimetype ? zMimetype : "text/x-fossil-wiki";
+}
+
+char const *wiki_guess_filename_mimetype(const char *zFilename,
+                                         const char *zDefault){
+  if( zFilename ){
+    if( 0==sqlite3_strglob("*.md", zFilename) ){
+      return "text/x-markdown";
+    }else if( 0==sqlite3_strglob("*.txt", zFilename) ){
+      return "text/plain";
+    }else if( 0==sqlite3_strglob("*.wiki", zFilename) ){
+      return "text/x-fossil-wiki";
     }
   }
-  return "text/x-fossil-wiki";
+  return 0;
 }
 
 /*
