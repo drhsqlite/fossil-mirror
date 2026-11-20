@@ -1660,7 +1660,10 @@ static void svn_dump_import(FILE *pIn){
                             "  WHERE checkinID=%d AND filename=%Q"
                             ")",
                          srcRid, zSrcFile);
-            if( zPerm==0 && svn_find_header(rec, "Prop-content-length")==0 ){
+            zTemp = svn_find_header(rec, "Prop-delta");
+            if( zPerm==0
+             && (svn_find_header(rec, "Prop-content-length")==0
+                 || (zTemp && strncmp(zTemp, "true", 4)==0)) ){
               zPerm = db_text(0, "SELECT perm FROM xfoci"
                                  " WHERE checkinID=%d AND filename=%Q"
                                  "   AND perm<>''",
