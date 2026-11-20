@@ -1480,7 +1480,7 @@ void deconstruct_cmd(void){
   }
   /* get and check argument destination directory */
   zDestDir = g.argv[g.argc-1];
-  if( !*zDestDir  || !file_isdir(zDestDir, ExtFILE)) {
+  if( !*zDestDir  || file_isdir(zDestDir, ExtFILE)!=1) {
     fossil_fatal("DESTINATION(%s) is not a directory!",zDestDir);
   }
 #ifndef _WIN32
