@@ -1,5 +1,5 @@
-C Delete\sth1\stest\sth1-encode64-3,\sbecause\sit\sdepended\son\sa\shardcoded\sfossil\nsource\sversion\sand\sthe\stest\sotherwise\shas\smodest\svalue.\sPerhaps\sworth\s\nreinstating\sin\sa\sbetter\sway\slater.
-D 2026-11-20T14:20:09.956
+C Fix\stest\sfor\sth1\selement\smanipulation:\sbriefly\sswitch\soff\srobot-restrict.
+D 2026-11-20T14:28:47.632
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -676,7 +676,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test 0e9556e297455dbf3bba32ccb0b0e7b53d752cb4b6fc3b24e9ed440155445fda
+F test/th1.test 6ffcb40dd5e98d4374c3f34e722432cd0876b0d6156ed7f982528d20df87b63f
 F test/unicode-pathnames.test a0db00fc394e6aa410baa30061838a4effbf4bf05804f4bd3906e62db5075e7b
 F test/unversioned.test 7b016607c4d6fe004193975bb8ac50747f1c580f1a2835ab03750a037c5b6598
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
@@ -986,8 +986,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 70482dea953828ae6ed386ddcdef1839603b147f3d012d68aac285219a4e6d09
-R a0e32067d85dc27d0e22aa238e98f673
+P 93f09491c1a93a5227445c6a22ea70bba8d292efee7d4e64f9448e1ade937719
+R f9db072904d75132bb26a353375f345e
 U danshearer
-Z 5d92f8cf80d86f30e89d1ee43f8516c0
+Z ad1db4d9bfc81397f2be75716f039666
 # Remove this line to create a well-formed Fossil manifest.

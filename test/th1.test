@@ -803,9 +803,15 @@ test th1-defHeader-2 {[string match *<body> [normalize_result]] || \
 
 ###############################################################################
 
-test_in_checkout th1-header-2 {
-  fossil test-th-eval --open-config "styleHeader {Page Title Here}"
-} {[regexp -- {<title>Fossil: Page Title Here</title>} $RESULT]}
+# With the default robot-restrict setting, a command-line run gets the
+# "Browser Verification" page instead of the header. We turn robot detection
+# off just for this one operation, where it isn't relevant anyway.
+#
+fossil settings robot-restrict off
+fossil test-th-eval --open-config "styleHeader {Page Title Here}"
+test th1-header-2 {[regexp -- \
+    {<title>Unnamed Fossil Project: Page Title Here</title>} $RESULT]}
+fossil unset robot-restrict
 
 ###############################################################################
 
