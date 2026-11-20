@@ -15,17 +15,32 @@
 #
 ############################################################################
 #
-# Tests of the delta mechanism.
+# Tests of the "3-way-merge" command on generated text of several
+# kinds: ASCII text, a large file, long lines, CR/LF line endings,
+# UTF-8 text in Greek, in Chinese and in four-byte characters, a file
+# of four lines and a line that has no newline.
 #
 
 test_setup ""
 
-set filelist [lsort [glob $testdir/*]]
-foreach f $filelist {
-  if {[file isdir $f]} continue
-  set base [file root [file tail $f]]
-  if {[string match "utf16*" $base]} continue
-  set f1 [read_file $f]
+set fourbyte {}
+for {set i 0} {$i<40} {incr i} {
+  set char [binary format H6c f0a080 [expr {0x80+$i}]]
+  append fourbyte [string repeat $char [expr {$i%7+3}]]\n
+}
+set inputs [list \
+  ascii     [fixed_word_lines 400] \
+  large     [fixed_word_lines 5000] \
+  longlines [fixed_word_lines 60 97 150] \
+  crlf      [string map [list \n \r\n] [fixed_word_lines 100]] \
+  repeats   [fixed_word_lines 4000 97 1 1] \
+  utf8      [encoding convertto utf-8 [fixed_word_lines 200 0x3b1]] \
+  cjk       [encoding convertto utf-8 [fixed_word_lines 200 0x4e00]] \
+  fourbyte  $fourbyte \
+  short     [fixed_word_lines 4] \
+  oneline   "one line that has no newline" \
+]
+foreach {base f1} $inputs {
   write_file t1 $f1
   for {set i 0} {$i<100} {incr i} {
     expr {srand($i*2)}

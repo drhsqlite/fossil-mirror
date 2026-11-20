@@ -1,5 +1,5 @@
-C Change\sdelta1.test\sso\sit\sgenerates\sits\sown\sinput\srather\sthan\susing\nwhatever\sis\sunder\stest/.\sRuns\sthousands\sfewer\stests\swith\ssame\sgcov\ncoverage.\sFix\s1/2\sof\sspeeding\sup\stest\ssuite\s3x.
-D 2026-11-20T10:21:57.380
+C Change\smerge2.test\sto\sdo\s3-way-merge\son\sgenerated\sinput\srather\sthan\nwhatever\sis\sunder\stest/.\sRuns\sthousands\sfewer\stests\swith\ssame\sgcov\ncoverage.\sFix\s2/2\sof\sspeeding\sup\stest\ssuite\s3x.
+D 2026-11-20T10:22:34.009
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -632,7 +632,7 @@ F test/markdown-test2.md 9a2440fd9b07fb8a8182c323cd38d8a2f0eb4068785aeb09da4f978
 F test/markdown-test3.md 70e697a5e9bab2f1a5bbb7bb4223a8d4b2d7f1a43973f7455e8c7eaebb0ae34a
 F test/merge-history.test 91ebde6b3c1c234dd50444f39321f25768b51533de5ad0dd8f8d43d80b9164c6
 F test/merge1.test 431091c27e8478ce1520c91764f82a1129af9533476379f416d63acd4eb741b8
-F test/merge2.test c569f06bd3a13f01648db1796805972251ccc5fe1a575fa4e2c885172cb4b4ff
+F test/merge2.test 610094cb09e91a9ba04277d7191f2e9ecbd8b07b5ff0bcd9c8e9ca5431fd3138
 F test/merge3.test 363f50779245dc4f84ac165b2a561c6fa3fbcc4a67b7c3cb4bb875ac1b4dfe2c
 F test/merge4.test 0d0f77e07e2bdf8ca26753c3ab7d2b5679e078122d8ef7e6ee629224e0a9c3fc
 F test/merge5.test 6327e9cbbb3b1a926bdf4e1c23f36771516fa79144f358a12c1ecd75201b71e8
@@ -986,8 +986,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P af4f568b3b35832af4372374b2e5a632239a8acf186b8862003359eb7857870d
-R d6df2bc3411d43511d318d8b2e6122db
+P 6aa0ed0f3f078649f3c0c6832acc28e9e80abf1290e40ff7445088d66608bb21
+R 6e8a667ef42128656e70e7d7e933b812
 U danshearer
-Z 96b6126b9980a36e8afaa921f4cd6c11
+Z 07b4eefb2f3d016fcd802129992adc64
 # Remove this line to create a well-formed Fossil manifest.
