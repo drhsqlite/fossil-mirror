@@ -41,8 +41,7 @@ write_file "unversioned space.txt" "\nThis is unversioned file #3.\n"
 write_file unversioned4.txt "This is unversioned file #4."
 write_file unversioned5.txt "This is unversioned file #5."
 
-set env(VISUAL) [appendArgs \
-    [info nameofexecutable] " " [file join $path fake-editor.tcl]]
+set env(VISUAL) [fake_editor_command]
 
 ###############################################################################
 

@@ -175,9 +175,7 @@ set testname "merge-renamed"
 set fname [test_update_setup $testname]
 set message "MERGE $fname -> $fname.renamed"
 set changes "EDITED     $fname.renamed"
-write_file $fname "center\n"
-fossil add $fname
-fossil commit -m "Add $fname"
+commit_file $fname "center\n" "Add $fname"
 write_file $fname "top\ncenter\n"
 fossil mv --hard $fname "$fname.renamed"
 fossil commit -m "Update and rename $fname"
@@ -189,9 +187,7 @@ set testname "merge-standard"
 set fname [test_update_setup $testname]
 set message "MERGE $fname"
 set changes "EDITED     $fname"
-write_file $fname "center\n"
-fossil add $fname
-fossil commit -m "Add $fname"
+commit_file $fname "center\n" "Add $fname"
 write_file $fname "top\ncenter\n"
 fossil commit -m "Update $fname"
 fossil up previous

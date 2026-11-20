@@ -23,15 +23,6 @@ set path [file dirname [info script]]
 
 require_no_open_checkout
 
-# Returns the hash of the check-in of the open repository whose comment
-# is COMMENT.
-#
-proc branchtag_hash {comment} {
-  fossil timeline -t ci -n 0 -F {%H %c}
-  regexp -line "^(\[0-9a-f\]+) $comment\$" $::RESULT -> hash
-  return $hash
-}
-
 # Returns the hash of the current check-out.
 #
 proc branchtag_current {} {
@@ -52,13 +43,11 @@ proc branchtag_lines {} {
 
 test_setup
 
-write_file a.txt "a\n"
-fossil add a.txt
-fossil commit -m "bt-c1"
-set c1 [branchtag_hash bt-c1]
+commit_file a.txt "a\n" "bt-c1"
+set c1 [checkin_hash bt-c1]
 write_file a.txt "a2\n"
 fossil commit -m "bt-c2"
-set c2 [branchtag_hash bt-c2]
+set c2 [checkin_hash bt-c2]
 
 ###############################################################################
 #

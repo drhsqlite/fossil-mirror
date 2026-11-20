@@ -27,9 +27,7 @@ test clean-0 {[normalize_result] eq {}}
 
 ###############################################################################
 
-write_file f1 "f1 line"
-fossil add f1
-fossil commit -m "base file"
+commit_file f1 "f1 line" "base file"
 fossil ls
 test clean-1 {[normalize_result] eq {f1}}
 

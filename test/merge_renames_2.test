@@ -3,11 +3,6 @@
 #
 #
 
-proc commit_id {version} {
-  regexp -line {^artifact:\s+(\S+)} [fossil whatis $version] - id
-  return $id
-}
-
 require_no_open_checkout
 
 #################################################################
@@ -17,13 +12,9 @@ require_no_open_checkout
 
 test_setup
 
-write_file file1 "file1\n"
-fossil add file1
-fossil commit -m "added file1"
+commit_file file1 "file1\n" "added file1"
 
-write_file file2 "file2\n"
-fossil add file2
-fossil commit -m "added file2" --branch added
+commit_file file2 "file2\n" "added file2" --branch added
 
 write_file file2 "edit file2 on added\n"
 fossil commit -m "edited file2"

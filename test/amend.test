@@ -55,9 +55,7 @@ if {![uuid_from_checkout HASHINIT]} {
   test_fail_then_return amend-checkout-failure \
       "could not read the check-out's hash"
 }
-write_file datafile "data"
-fossil add datafile
-fossil commit -m "c1"
+commit_file datafile "data" "c1"
 if {![uuid_from_commit $RESULT HASH]} {
   test_fail_then_return amend-setup-failure \
       "could not read the hash of the first commit: $RESULT"
@@ -358,7 +356,7 @@ proc test-comment {name HASH comment} {
   }
   fossil timeline -n 1
   test amend-comment-$name.3 {
-    [string match "*[short_uuid $HASH]*Edit*check-in*comment.*" $RESULT]
+    [string match "*[string range $HASH 0 9]*Edit*check-in*comment.*" $RESULT]
   }
   fossil info $HASH
   test amend-comment-$name.4 {
@@ -385,8 +383,7 @@ fossil amend $HASH -M commitmsg
 test-comment 4 $HASH "revision 4 revised with -M"
 
 prep-test "final comment" "final content"
-fossil settings editor [appendArgs \
-    [info nameofexecutable] " " [file join $testfiledir fake-editor.tcl]]
+fossil settings editor [fake_editor_command]
 set comment "interactive edited comment"
 set env(FAKE_EDITOR_SCRIPT) [list set data $comment]
 fossil amend $HASH --edit-comment

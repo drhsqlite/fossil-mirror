@@ -17,9 +17,7 @@ require_no_open_checkout
 
 test_setup
 
-write_file f1 "line"
-fossil add f1
-fossil commit -m "c1"
+commit_file f1 "line" "c1"
 fossil tag add pivot current
 
 write_file f1 "line2"
@@ -59,14 +57,10 @@ test_status_list merge_renames-1 $RESULT {UPDATE f1}
 
 test_setup
 
-write_file f1 "line"
-fossil add f1
-fossil commit -m "base file"
+commit_file f1 "line" "base file"
 fossil tag add pivot current
 
-write_file f2 "line2"
-fossil add f2
-fossil commit -m "newfile"
+commit_file f2 "line2" "newfile"
 
 fossil mv --hard f2 f2new
 fossil commit -m "rename"
@@ -90,14 +84,10 @@ test_status_list merge_renames-2 $RESULT {UPDATE f1}
 
 test_setup
 
-write_file f1 "line"
-fossil add f1
-fossil commit -m "base file"
+commit_file f1 "line" "base file"
 fossil tag add pivot current
 
-write_file f2 "line2"
-fossil add f2
-fossil commit -m "newfile"
+commit_file f2 "line2" "newfile"
 
 fossil mv --hard f2 f2new
 fossil commit -m "rename"
@@ -121,9 +111,7 @@ test_status_list merge_renames-3 $RESULT {UPDATE f1}
 
 test_setup
 
-write_file f1 "f1"
-fossil add f1
-fossil commit -m "add f1"
+commit_file f1 "f1" "add f1"
 
 write_file f1 "f1.1"
 fossil commit --branch b -m "change f1"
@@ -143,19 +131,13 @@ test_file_contents merge_renames-4-2 f2 "f1.1"
 
 test_setup
 
-write_file f1 "old f1 line"
-fossil add f1
-fossil commit -m "base file"
+commit_file f1 "old f1 line" "base file"
 
-write_file f3 "f3 line"
-fossil add f3
-fossil commit -m "branch file" -b branch_for_f3
+commit_file f3 "f3 line" "branch file" -b branch_for_f3
 
 fossil update trunk
 fossil mv --hard f1 f2
-write_file f1 "new f1 line"
-fossil add f1
-fossil commit -m "rename and add file with old name"
+commit_file f1 "new f1 line" "rename and add file with old name"
 
 fossil update branch_for_f3
 fossil merge trunk
@@ -179,9 +161,7 @@ f3}}
 
 test_setup
 
-write_file f1 "f1"
-fossil add f1
-fossil commit -m "add f1"
+commit_file f1 "f1" "add f1"
 
 fossil mv --hard f1 f2
 fossil commit -b b -m "f1 -> f2"
@@ -229,9 +209,7 @@ test_file_contents merge_renames-6-4 f4 "f4.1"
 
 test_setup
 
-write_file f1 "f1"
-fossil add f1
-fossil commit -m "add f1"
+commit_file f1 "f1" "add f1"
 
 fossil mv --hard f1 f2
 write_file f2 "f2"
@@ -296,9 +274,7 @@ fossil commit -b b -m "delete f2"
 fossil mv --hard f1 f2
 fossil commit -m "f1 -> f2"
 
-write_file f1 "f1.1"
-fossil add f1
-fossil commit -m "add new f1"
+commit_file f1 "f1.1" "add new f1"
 
 fossil update trunk
 fossil merge b
@@ -394,9 +370,7 @@ test_file_contents merge_renames-10-10 f2 "f1.1"
 
 test_setup
 
-write_file f1 "line"
-fossil add f1
-fossil commit -m "add f1"
+commit_file f1 "line" "add f1"
 
 write_file f1 "line\nline2"
 fossil commit -b b -m "edit f2" --tag p1
@@ -430,9 +404,7 @@ test_file_contents merge_renames-11-4 f1 "line\nline4"
 
 test_setup
 
-write_file f1 "f1\n"
-fossil add f1
-fossil commit -m "add f1" --tag n
+commit_file f1 "f1\n" "add f1" --tag n
 
 fossil mv --hard f1 f1n
 fossil commit -m "f1 -> f1n"
@@ -477,13 +449,9 @@ fossil commit -m "merge m"
 #################################################################
 
 set repoDir [test_setup]
-write_file f1 "line1"
-fossil add f1
-fossil commit -m "add f1" --tag c1
+commit_file f1 "line1" "add f1" --tag c1
 
-write_file f2 "line1"
-fossil add f2
-fossil commit -m "add f2 on branch" -b b --tag c2
+commit_file f2 "line1" "add f2 on branch" -b b --tag c2
 fossil update trunk
 test_status_list merge_renames_13-1 $RESULT {REMOVE f2}
 write_file f1 "line1\nline2\n"

@@ -25,16 +25,6 @@ set path [file dirname [info script]]
 
 require_no_open_checkout
 
-# Returns the hash of the check-in of the open repository whose comment
-# is COMMENT.
-#
-proc mergehist_hash {comment} {
-  fossil timeline -t ci -n 0 -F {%H %c}
-  regexp -line "^(\[0-9a-f\]+) [string map {. \\.} $comment]\$" \
-      $::RESULT -> hash
-  return $hash
-}
-
 # Returns the P-card and Q-cards of the manifest of CHECKIN as a list of
 # lines.
 #
@@ -58,24 +48,20 @@ proc mergehist_lines {result} {
 
 test_setup
 
-write_file a.txt "1\n2\n3\n4\n5\n"
-fossil add a.txt
-fossil commit -m "mh-c1" --user-override alice
-set c1 [mergehist_hash mh-c1]
+commit_file a.txt "1\n2\n3\n4\n5\n" "mh-c1" --user-override alice
+set c1 [checkin_hash mh-c1]
 
 write_file a.txt "1\n2-trunk\n3\n4\n5\n"
 fossil commit -m "mh-c2" --user-override bob
-set c2 [mergehist_hash mh-c2]
+set c2 [checkin_hash mh-c2]
 
 fossil update $c1
 write_file a.txt "1\n2\n3\n4-feature\n5\n"
 fossil commit -m "mh-f1" --branch mh-feature --user-override carol
-set f1 [mergehist_hash mh-f1]
+set f1 [checkin_hash mh-f1]
 write_file a.txt "1\n2\n3\n4-feature\n5\n6-feature\n"
-write_file g.txt "g\n"
-fossil add g.txt
-fossil commit -m "mh-f2" --user-override carol
-set f2 [mergehist_hash mh-f2]
+commit_file g.txt "g\n" "mh-f2" --user-override carol
+set f2 [checkin_hash mh-f2]
 
 ###############################################################################
 #
@@ -86,7 +72,7 @@ set f2 [mergehist_hash mh-f2]
 fossil update trunk
 fossil merge --cherrypick $f1
 fossil commit -m "mh-pick" --user-override dave
-set pick [mergehist_hash mh-pick]
+set pick [checkin_hash mh-pick]
 
 test_eq merge-history-cherrypick-content [read_file a.txt] \
     "1\n2-trunk\n3\n4-feature\n5\n"
@@ -103,7 +89,7 @@ test_eq merge-history-cherrypick-cards [mergehist_cards $pick] \
 #
 fossil merge --backout $c2
 fossil commit -m "mh-backout" --user-override erin
-set backout [mergehist_hash mh-backout]
+set backout [checkin_hash mh-backout]
 
 test_eq merge-history-backout-content [read_file a.txt] \
     "1\n2\n3\n4-feature\n5\n"
@@ -117,7 +103,7 @@ test_eq merge-history-backout-cards [mergehist_cards $backout] \
 #
 fossil merge mh-feature
 fossil commit -m "mh-merge" --user-override frank
-set merge [mergehist_hash mh-merge]
+set merge [checkin_hash mh-merge]
 
 test_eq merge-history-merge-content [read_file a.txt] \
     "1\n2\n3\n4-feature\n5\n6-feature\n"

@@ -163,9 +163,7 @@ fossil add a.txt b.txt sub noeol.txt
 fossil commit -m "rt-c1"
 
 write_file a.txt "one\nTWO\nthree\n"
-write_file d.txt "d\n"
-fossil add d.txt
-fossil commit -m "rt-c2"
+commit_file d.txt "d\n" "rt-c2"
 
 fossil branch new rt-feature current
 fossil update rt-feature
@@ -230,9 +228,7 @@ fossil branch new rt-bundled current
 fossil update rt-bundled
 write_file a.txt "bundled\n"
 fossil commit -m "rt-b1"
-write_file e.txt "e\n"
-fossil add e.txt
-fossil commit -m "rt-b2"
+commit_file e.txt "e\n" "rt-b2"
 fossil update trunk
 
 fossil bundle export rt.bundle --branch rt-bundled

@@ -116,14 +116,13 @@ set testTh1Setup {
 
 ###############################################################################
 
-set data [fossil info]
-regexp -line -- {^repository:   (.*)$} $data dummy repository
+set repository [repository_path]
 
 if {[string length $repository] == 0 || ![file exists $repository]} {
   error "unable to locate repository"
 }
 
-set dataFileName [file join $::testdir th1-hooks-input.txt]
+set dataFileName [file join $::testfiledir th1-hooks-input.txt]
 
 ###############################################################################
 

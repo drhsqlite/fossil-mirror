@@ -20,13 +20,9 @@
 
 test_setup
 
-write_file f1 "f1"
-fossil add f1
-fossil commit -m "add f1" --tag pivot
+commit_file f1 "f1" "add f1" --tag pivot
 
-write_file f2 "f2"
-fossil add f2
-fossil commit -m "add f2"
+commit_file f2 "f2" "add f2"
 
 fossil update pivot
 fossil rm --hard f1
@@ -35,9 +31,7 @@ write_file f3 "f3"
 fossil add f2 f3
 fossil commit -b b -m "delete f1, add f2 and f3" --tag mrg
 
-write_file f4 "f4"
-fossil add f4
-fossil commit -m "add f4"
+commit_file f4 "f4" "add f4"
 
 fossil update trunk
 write_file f1 "f1.1"

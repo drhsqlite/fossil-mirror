@@ -27,17 +27,13 @@ fossil ls
 
 test merge_multi-0 {[normalize_result] eq {}}
 
-write_file f1 "f1 line"
-fossil add f1
-fossil commit -m "base file"
+commit_file f1 "f1 line" "base file"
 fossil ls
 
 test merge_multi-1 {[normalize_result] eq {f1}}
 
 fossil update trunk
-write_file f2 "f2 line"
-fossil add f2
-fossil commit -m "branch for file f2" -b branch_for_f2
+commit_file f2 "f2 line" "branch for file f2" -b branch_for_f2
 fossil ls
 
 test merge_multi-2 {[normalize_result] eq {f1

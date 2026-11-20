@@ -33,7 +33,6 @@ package require Tcl 8.6-
 set clock_start [clock milliseconds]
 set testfiledir [file normalize [file dirname [info script]]]
 set testrundir [pwd]
-set testdir [file normalize [file dirname $argv0]]
 set fossilexe [file normalize [lindex $argv 0]]
 set is_windows [expr {$::tcl_platform(platform) eq "windows"}]
 set is_cygwin [regexp {^CYGWIN} $::tcl_platform(os)]
@@ -65,7 +64,7 @@ foreach option {keep halt prot verbose quiet strict} {
 }
 
 if {[llength $argv]==0} {
-  foreach f [lsort [glob $testdir/*.test]] {
+  foreach f [lsort [glob $testfiledir/*.test]] {
     set base [file root [file tail $f]]
     lappend argv $base
   }
@@ -222,6 +221,15 @@ proc write_file {filename txt} {
   puts -nonewline $out $txt
   close $out
 }
+
+# Write CONTENT to the file NAME, add the file, and commit it with the
+# comment MSG.  ARGS are further options for "fossil commit".
+#
+proc commit_file {name content msg args} {
+  write_file $name $content
+  fossil add $name
+  fossil commit -m $msg {*}$args
+}
 proc write_file_indented {filename txt} {
   write_file $filename [string trim [string map [list "\n  " \n] $txt]]\n
 }
@@ -306,6 +314,33 @@ proc get_all_settings {} {
   return [get_source_settings_in_binary 0]
 }
 
+# Returns the hash of the check-in of the open repository whose comment
+# is COMMENT.
+#
+proc checkin_hash {comment} {
+  fossil timeline -t ci -n 0 -F {%H %c}
+  regexp -line "^(\[0-9a-f\]+) [string map {. \\.} $comment]\$" \
+      $::RESULT -> hash
+  return $hash
+}
+
+# Returns the path of the repository of the open checkout, from
+# "fossil info", or an empty string when there is none.
+#
+proc repository_path {} {
+  set repository ""
+  regexp -line -- {^repository:   (.*)$} [fossil info] -> repository
+  return $repository
+}
+
+# Returns the command that runs fake-editor.tcl, for the "editor"
+# setting and the VISUAL environment variable.
+#
+proc fake_editor_command {} {
+  return [appendArgs [info nameofexecutable] " " \
+      [file join $::testfiledir fake-editor.tcl]]
+}
+
 # Returns the SHA1 hash of the file FILENAME, from "fossil sha1sum".
 #
 proc sha1_file {filename} {
@@ -354,12 +389,6 @@ proc same_uuid {a b} {
     return [string match "$a*" $b]
   }
   return [string match "$b*" $a]
-}
-
-# Return a prefix of a uuid, defaulting to 10 chars.
-#
-proc short_uuid {uuid {len 10}} {
-  string range $uuid 0 $len-1
 }
 
 
@@ -1110,7 +1139,7 @@ cd $tempHomePath
 
 foreach testfile $argv {
   protOut "***** $testfile ******"
-  if { [catch {source $testdir/$testfile.test} testerror testopts] } {
+  if { [catch {source $testfiledir/$testfile.test} testerror testopts] } {
     test_report test-framework-$testfile 0 "" [list "error: $testerror"]
     protOut "!!!!! $testfile: $testerror"
     protOutDict $testopts

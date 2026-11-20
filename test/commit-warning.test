@@ -102,8 +102,8 @@ write_file utf-16le-bomle-hello "$bomLE$hello16LE"
 write_file utf-16be-bombe-hello "$bomBE$hello16BE"
 write_file utf-16le-bombe-hello "$bomBE$hello16LE"
 write_file utf-16be-bomle-hello "$bomLE$hello16BE"
-set le16 [read_file [file join $testdir utf16le.txt]]
-set be16 [read_file [file join $testdir utf16be.txt]]
+set le16 [read_file [file join $testfiledir utf16le.txt]]
+set be16 [read_file [file join $testfiledir utf16be.txt]]
 write_file utf-16le.txt $le16
 write_file utf-16be.txt $be16
 write_file utf-nobom-16le.txt [string range $le16 2 end]

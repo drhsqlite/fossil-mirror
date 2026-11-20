@@ -227,9 +227,7 @@ fossil mv --soft f1 f1new
 # is replaced by the revert.
 #
 test_setup
-write_file f1 "f1"
-fossil add f1
-fossil commit -m "add f1"
+commit_file f1 "f1" "add f1"
 
 write_file f1n "f1n"
 fossil mv f1 f1n
