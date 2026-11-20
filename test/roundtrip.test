@@ -134,7 +134,7 @@ proc roundtrip_checkin_files {checkin} {
 #
 proc roundtrip_dir_files {{dir .} {skip {}}} {
   set files [dict create]
-  foreach f [glob -nocomplain -directory $dir -tails *] {
+  foreach f [lsort [glob -nocomplain -directory $dir -tails *]] {
     set p [expr {$dir eq "." ? $f : "$dir/$f"}]
     if {$p in $skip} continue
     if {[file isdirectory $p]} {
