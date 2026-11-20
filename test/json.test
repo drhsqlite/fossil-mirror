@@ -448,8 +448,8 @@ test_json_payload json-stat {repositorySize ageDays ageYears projectCode compile
 compressionRatio checkinCount fileCount wikiPageCount ticketCount}
 
 fossil_json stat -f
-test_json_envelope_ok json-stat-env
-test_json_payload json-stat {repositorySize \
+test_json_envelope_ok json-stat-full-env
+test_json_payload json-stat-full {repositorySize \
 blobCount deltaCount uncompressedArtifactSize averageArtifactSize maxArtifactSize \
 compressionRatio checkinCount fileCount wikiPageCount ticketCount \
 ageDays ageYears projectCode compiler sqlite} {}
@@ -510,9 +510,9 @@ test json-report-list-count {[llength [dict get $JR payload]] >= 1}
 # json report run NUMBER
 fossil_json report run 1
 test_json_envelope_ok json-report-run-1-env
-test_json_payload json-report-list {report title sqlcode columnNames tickets} {}
-test json-report-list-count {[llength [dict get $JR payload columnNames]] >= 7}
-test json-report-list-count {[llength [dict get $JR payload tickets]] >= 0}
+test_json_payload json-report-run {report title sqlcode columnNames tickets} {}
+test json-report-run-cols {[llength [dict get $JR payload columnNames]] >= 7}
+test json-report-run-tkts {[llength [dict get $JR payload tickets]] >= 0}
 
 
 #### TIMELINE
@@ -645,7 +645,7 @@ fossil_json wiki diff $uuid1 $uuid2
 test_json_envelope_ok json-wiki-diff-env
 test_json_payload json-wiki-diff [list v1 v2 diff] {}
 test json-wiki-diff-v1 {[dict get $JR payload v1] eq $uuid1}
-test json-wiki-diff-v1 {[dict get $JR payload v2] eq $uuid2}
+test json-wiki-diff-v2 {[dict get $JR payload v2] eq $uuid2}
 set diff [dict get $JR payload diff]
 test json-wiki-diff-diff {[string first "+consectetur adipisicing elit" $diff] >= 0}
 #puts [dict get $JR payload diff]

@@ -537,22 +537,22 @@ test th1-expr-45 {$RESULT eq {TH_ERROR: syntax error in expression: "--"}}
 ###############################################################################
 
 fossil test-th-eval "lindex list +"
-test th1-expr-46 {$RESULT eq {TH_ERROR: expected integer, got: "+"}}
+test th1-lindex-bad-1 {$RESULT eq {TH_ERROR: expected integer, got: "+"}}
 
 ###############################################################################
 
 fossil test-th-eval "lindex list -"
-test th1-expr-47 {$RESULT eq {TH_ERROR: expected integer, got: "-"}}
+test th1-lindex-bad-2 {$RESULT eq {TH_ERROR: expected integer, got: "-"}}
 
 ###############################################################################
 
 fossil test-th-eval "lindex list +0x"
-test th1-expr-48 {$RESULT eq {TH_ERROR: expected integer, got: "+0x"}}
+test th1-lindex-bad-3 {$RESULT eq {TH_ERROR: expected integer, got: "+0x"}}
 
 ###############################################################################
 
 fossil test-th-eval "lindex list -0x"
-test th1-expr-49 {$RESULT eq {TH_ERROR: expected integer, got: "-0x"}}
+test th1-lindex-bad-4 {$RESULT eq {TH_ERROR: expected integer, got: "-0x"}}
 
 ###############################################################################
 
@@ -593,7 +593,7 @@ foreach perm [list \
 
     set ::env(TH1_TEST_USER_CAPS) 1; # NOTE: Bad permission.
     fossil test-th-eval --set-user-caps "anycap $perm"
-    test th1-anycap-no-$perm-1 {$RESULT eq {0}}
+    test th1-anycap-no-$perm-2 {$RESULT eq {0}}
 
     set ::env(TH1_TEST_USER_CAPS) sxy
     fossil test-th-eval --set-user-caps "hascap $perm"
@@ -601,7 +601,7 @@ foreach perm [list \
 
     set ::env(TH1_TEST_USER_CAPS) 1; # NOTE: Bad permission.
     fossil test-th-eval --set-user-caps "hascap $perm"
-    test th1-hascap-no-$perm-1 {$RESULT eq {0}}
+    test th1-hascap-no-$perm-2 {$RESULT eq {0}}
     unset ::env(TH1_TEST_USER_CAPS)
 
     set ::env(TH1_TEST_ANON_CAPS) sxy
@@ -610,7 +610,7 @@ foreach perm [list \
 
     set ::env(TH1_TEST_ANON_CAPS) 1; # NOTE: Bad permission.
     fossil test-th-eval --set-anon-caps "anoncap $perm"
-    test th1-anoncap-no-$perm-1 {$RESULT eq {0}}
+    test th1-anoncap-no-$perm-2 {$RESULT eq {0}}
     unset ::env(TH1_TEST_ANON_CAPS)
   }
 }

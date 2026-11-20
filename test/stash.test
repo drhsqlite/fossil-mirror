@@ -376,8 +376,8 @@ test stash-4-3-diff-CODE {!$::CODE}
 fossil stash show -v
 test stash-4-3-show-1 {[regexp {DELETE f1} $RESULT]}
 test stash-4-3-show-2 {[regexp {CHANGED f2} $RESULT]}
-test stash-4-3-show-2 {[regexp {CHANGED f3n} $RESULT]}
-test stash-4-3-show-3 {[regexp {ADDED f0} $RESULT]}
+test stash-4-3-show-3 {[regexp {CHANGED f3n} $RESULT]}
+test stash-4-3-show-4 {[regexp {ADDED f0} $RESULT]}
 
 # fossil stash apply ?STASHID?
 # fossil stash goto ?STASHID?
