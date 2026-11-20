@@ -53,7 +53,9 @@ set inputs [list \
 ]
 foreach {base f1} $inputs {
   write_file t1 $f1
-  for {set i 0} {$i<100} {incr i} {
+  set ntrials [test_trials \
+      [expr {$base eq "large" || $base eq "repeats"}]]
+  for {set i 0} {$i<$ntrials} {incr i} {
     write_file t2 [random_changes $f1 1 1 0 0.1]
     fossil test-delta t1 t2
     test delta-$base-$i-1 {[normalize_result]=="ok"}

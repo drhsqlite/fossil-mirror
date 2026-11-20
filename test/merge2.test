@@ -42,7 +42,9 @@ set inputs [list \
 ]
 foreach {base f1} $inputs {
   write_file t1 $f1
-  for {set i 0} {$i<100} {incr i} {
+  set ntrials [test_trials \
+      [expr {$base eq "large" || $base eq "repeats"}]]
+  for {set i 0} {$i<$ntrials} {incr i} {
     expr {srand($i*2)}
     write_file t2 [set f2 [random_changes $f1 2 4 0 0.1]]
     expr {srand($i*2+1)}

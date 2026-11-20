@@ -30,6 +30,9 @@ Options are:
 * `-halt` stops at the first failure.
 * `-keep` leaves the temporary repositories in place.
 * `-prot` also writes the output to the file `prot`.
+* `-trials N` sets how many random trials fuzz tests (delta1, merge2, …)
+  run per input kind. The default is 20 (5 for expensive `large` /
+  `repeats` inputs). Use `-trials 100` for the historical full fuzz.
 
  `make test TESTFLAGS="-quiet update"` passes options and names via `make`. 
 

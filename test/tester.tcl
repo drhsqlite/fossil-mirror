@@ -23,7 +23,7 @@
 #
 # The first argument is the fossil executable to test, followed by
 # the test files, so "update" runs test/update.test.  See test/README.md
-# for details of options such as -strict, -halt, -prot etc.
+# for details of options such as -strict, -halt, -prot, -trials etc.
 #
 
 # Minimum Tcl is 8.6. auto.def should have found us a suitable Tcl
@@ -69,6 +69,26 @@ foreach option {keep halt prot verbose quiet strict} {
   if {$i >= 0} {
     set argv [lreplace $argv $i $i]
   }
+}
+
+# Default random-trial count for fuzz loops (delta1, merge2, …). Override
+# with -trials N. When the flag is omitted, expensive inputs ("large",
+# "repeats") use fewer trials; an explicit -trials applies to all inputs.
+set TRIALS 20
+set TRIALS_EXPLICIT 0
+set i [lsearch -exact $argv -trials]
+if {$i >= 0} {
+  if {$i + 1 >= [llength $argv]} {
+    puts stderr "missing value for -trials"
+    exit 1
+  }
+  set TRIALS [lindex $argv [expr {$i + 1}]]
+  if {![string is integer -strict $TRIALS] || $TRIALS < 1} {
+    puts stderr "-trials requires a positive integer"
+    exit 1
+  }
+  set TRIALS_EXPLICIT 1
+  set argv [lreplace $argv $i [expr {$i + 1}]]
 }
 
 if {[llength $argv]==0} {
@@ -558,6 +578,16 @@ please set TMPDIR or TEMP variable in environment, error: $error"
     exec $::fossilexe set mtime-changes off
   }
   return $repoPath
+}
+
+# How many random trials to run in a fuzz loop. Pass a true $heavy for
+# expensive inputs such as "large" and "repeats": at the default -trials
+# scale those use 5 iterations; -trials N uses N for every input kind.
+proc test_trials {{heavy 0}} {
+  if {$heavy && !$::TRIALS_EXPLICIT} {
+    return [expr {min(5, $::TRIALS)}]
+  }
+  return $::TRIALS
 }
 
 # This procedure only returns non-zero if the Tcl integration feature was
