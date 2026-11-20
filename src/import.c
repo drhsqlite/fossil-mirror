@@ -1675,9 +1675,9 @@ static void svn_dump_import(FILE *pIn){
             rid = svn_handle_symlinks(zPerm, &rec.content);
           }else if( zSrcPath ){
             if ( zPerm==0 ){
-              zPerm = db_text(0, "SELECT tperm FROM xfiles"
-                                 " WHERE tpath=%Q AND tbranch=%d"
-                                 "", zSrcPath, branchId);
+              zPerm = db_text(0, "SELECT perm FROM xfoci"
+                                 " WHERE checkinID=%d AND filename=%Q",
+                                 srcRid, zSrcFile);
             }
           }
           if( rid==0 ){
