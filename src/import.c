@@ -1530,6 +1530,9 @@ static void svn_dump_import(FILE *pIn){
       int deltaFlag = 0;
       int srcRev = 0;
 
+      if( zAction==0 ){
+        fossil_fatal("svn-dump data format broken");
+      }
       if ( zPerm==0 ){
         zPerm = svn_find_prop(rec, "svn:special") ? "l" : 0;
       }
