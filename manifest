@@ -1,5 +1,5 @@
-C In\sutf8.c,\sexplain\sUnicode\scase\sfolding\son\smacOS\sfrom\sApple's\sofficial\ndocumentation.
-D 2026-11-19T20:04:07.221
+C Fix\sa\spotential\sunsigned\sinteger\soverflow\sin\sblob_uncompress(),\sreported\nby\sÖzgün\sKültekin.
+D 2026-11-20T00:26:38.560
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -398,7 +398,7 @@ F src/backlink.c df29056b3234d39ad47051ba8da1ecf3cc155adbc20cf9218dd3ef20fe20c17
 F src/backoffice.c b7b9c26549593245206fceaac5f044a21da623271886230cf0c912202c65f22f
 F src/bag.c 4e12068e095a8ce749c62ce89414a29fcacbf962453f76ccda8db9b5928ab281
 F src/bisect.c 8a3df0598feb500028ab44923cffb29c8cfad6d85f96a10f0585fa7552e629bc
-F src/blob.c 83f5e8abade4c67d9d32aa70bbd5db6b54c07ce3cd9465e82c3b7e5b04ae7109
+F src/blob.c 9e57e55630e29f8878defcc7a56bacc33e676396892cfa7f6eb0cb3e1f0cdc3d
 F src/branch.c 9ac51ee492d81d79be857084c9207949c293c846d6d2204ca84d99fbeb8e401c
 F src/browse.c a0ff8e6a87321663e4ebb223373aa7c9d9b4007c2e930327f48c94f4d0753234
 F src/builtin.c 68b12985d041ce1be6dd2dc6b2fe339def120b08d949f7a96e945eefc5a30ba3
@@ -991,8 +991,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dc3dbcdca88b8111a560c215b58cd4f1bb374f2143258deda6426cfd6bafc838
-R b5b59e53401a10412f31fda7e421c3c2
-U danshearer
-Z 8e569d350882bb9061d6d913768865ac
+P 6b3e4f8fbd38377c336694d40806a213c785a6c6cc893360de151cd12d209637
+R 0ea7470562e1eea378b39539ff3493e2
+U drh
+Z 8e14caa58567340bbdb59638fef96e9e
 # Remove this line to create a well-formed Fossil manifest.
