@@ -749,8 +749,8 @@ void rebuild_database(void){
 
   db_begin_transaction();
   db_unprotect(PROTECT_ALL);
+  if( !compressOnlyFlag || runReindex ) search_drop_index();
   if( !compressOnlyFlag ){
-    search_drop_index();
     ttyOutput = 1;
     errCnt = rebuild_db(1, doClustering);
     reconstruct_private_table();
