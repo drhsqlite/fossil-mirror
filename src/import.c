@@ -922,13 +922,12 @@ static int svn_number(const char *z, char cEnd){
 
 static int svn_read_headers(FILE *pIn, SvnRecord *rec){
   char zLine[1000];
+  char *z;
 
   rec->aHeaders = 0;
   rec->nHeaders = 0;
-  while( fgets(zLine, sizeof(zLine), pIn) ){
-    if( zLine[0]!='\n' ) break;
-  }
-  if( feof(pIn) ) return 0;
+  while( (z = fgets(zLine, sizeof(zLine), pIn))!=0 && zLine[0]=='\n' ){}
+  if( z==0 ) return 0;
   do{
     char *sep;
     if( zLine[0]=='\n' ) break;
