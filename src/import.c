@@ -693,10 +693,12 @@ static void git_fast_import(FILE *pIn){
       }
       secSince1970 = 0;
       for(zTo++; fossil_isdigit(*zTo); zTo++){
+        if( secSince1970>=100000000000LL ) goto malformed_line;
         secSince1970 = secSince1970*10 + *zTo - '0';
       }
       fossil_free(gg.zDate);
       gg.zDate = db_text(0, "SELECT datetime(%lld, 'unixepoch')",secSince1970);
+      if( gg.zDate==0 || strlen(gg.zDate)<19 ) goto malformed_line;
       gg.zDate[10] = 'T';
     }else
     if( strncmp(zLine, "from ", 5)==0 ){
