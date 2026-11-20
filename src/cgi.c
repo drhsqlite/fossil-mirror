@@ -2271,7 +2271,8 @@ void cgi_handle_http_request(const char *zIpAddr){
     }else if( fossil_strcmp(zFieldName,"range:")==0 ){
       int x1 = 0;
       int x2 = 0;
-      if( sscanf(zVal,"bytes=%d-%d",&x1,&x2)==2 && x1>=0 && x1<=x2 ){
+      if( sscanf(zVal,"bytes=%d-%d",&x1,&x2)==2 && x1>=0 && x1<=x2
+       && x2<0x7fffffff ){
         rangeStart = x1;
         rangeEnd = x2+1;
       }
