@@ -51,7 +51,7 @@ set dataFileName [file join $::testfiledir th1-docs-input.txt]
 set origFileStat [file join $::testfiledir fileStat.th1]
 
 if {![file exists $origFileStat]} {
-  error "unable to locate [$origFileStat]"
+  error "unable to locate $origFileStat"
 }
 
 file copy $origFileStat fileStat.th1

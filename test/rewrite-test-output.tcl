@@ -176,7 +176,7 @@ dict set tests "merge_renames" {
 
 dict set tests "set-manifest" {
   {^(project-code: )[0-9a-f]{40}$}
-      {\1HASH} line
+      {\1HASH}
 }
 
 dict set tests "stash" {
@@ -258,7 +258,7 @@ dict set tests "unversioned" {
   {^[0-9a-f]{12}( YYYY-mm-dd HH:MM:SS *)(\d+)( *)\2( unversioned4.txt)$}
       {HASH        \1SZ\3SZ\4}
   {^[0-9a-f]{40}$}
-      {\1HASH}
+      {HASH}
   {^((?:Clone|Pull)? done, wire bytes sent: )\d+(  received: )\d+(  remote: )(?:127\.0.0\.1|::1)$}
       {\1SENT\2RECV\3LOCALIP}
   {^(project-id: )[0-9a-f]{40}$}
