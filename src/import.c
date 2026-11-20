@@ -1217,13 +1217,13 @@ static void svn_finish_revision(){
       db_bind_int(&setRid, ":rid", rid);
       db_step(&setRid);
       db_reset(&setRid);
-    }else if( branchType==SVN_TAG ){
+    }else if( branchType==SVN_TAG && parentRid>0 ){
       content_put(&manifest);
       db_bind_int(&setRid, ":branch", branchId);
       db_bind_int(&setRid, ":rid", parentRid);
       db_step(&setRid);
       db_reset(&setRid);
-    }else if( mergeRid==MAX_INT_32 ){
+    }else if( mergeRid==MAX_INT_32 && parentRid>0 ){
       content_put(&manifest);
       db_multi_exec("DELETE FROM xrevisions WHERE tbranch=%d AND trev=%d",
                     branchId, gsvn.rev);
