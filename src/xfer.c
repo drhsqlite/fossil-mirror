@@ -2029,7 +2029,7 @@ void page_xfer(void){
       "   WHERE name GLOB 'syncfrom:http*'\n"
       "  UNION ALL\n"
       "  SELECT mtime, substr(name,9), '{\"type\":\"git\"}' FROM config\n"
-      "   WHERE name GLOB 'gitpush:*'\n"
+      "   WHERE name GLOB 'gitpush:http*'\n"
       ")\n"
       "SELECT url, json_insert(arg,'$.src',%Q), max(mtime)\n"
       "  FROM remote WHERE mtime>unixepoch('now','-1 month')\n"
