@@ -90,14 +90,14 @@ If you suspect an output-change bug, use `-verbose` to print the output of every
 
 When a test finds a fault that is not yet fixed, add `knownBug` as the test's last argument, so that the suite still exits with status 0. A known bug that passes is reported as `OK (knownBug)?`. Don't forget to remove `knownBug` when you're sure the fault is fixed.
 
-If the known bug is the exit status of a `fossil` command, add `-knownBug` to that command too. Otherwise the command prints an `ERROR` line on every run, even with `-quiet`. With `-knownBug` you only see that line under `-strict`.
+If the known bug is the exit status of a `fossil` command, add `-knownBug` to that command too. Otherwise the command prints an `ERROR` line on every run, even with `-quiet`. With `-knownBug` you only see the error line under `-strict`.
 
-A test marked `knownBug` should fail on every system where it's marked. If the fault only shows up in some environments, have the test set up that environment itself. If Fossil really does behave differently on some system, as it does with decomposed pathnames on macOS, have the test check that behavior and leave the mark off there; don't test for the operating system's name. If a test needs something the system might not have, that's a requirement, so use `test_skip`.
+A test marked `knownBug` should fail on every applicable system. If the fault only shows up in some environments, the test must set up the relevant environment. If Fossil really does behave differently on some system depending how the system is configured (for example decomposed pathnames on macOS, which vary depending whether the filesystem is HFS+ or APFS) the test must check the behavior. The test suite avoids operating system names by testing for behaviors instead, wherever possible. If a test needs something the system might not have, that becomes a requirement and you can use `test_skip` for.
 
-Stray files in `test/` can be confusing because `delta1.test` and `merge2.test` run their tests on every file and the counts may differ from what is expected. A different total is not a failure.
+`fixed_word_lines NLINE` is a procedure in `tester.tcl` that returns generated text as a string, the same text on every run. `delta1.test` and `merge2.test` use it for their input. If your new test needs text to work on start with this. Look at delta and merge tests for examples of how to use this with character encodings.
 
-Beware of global variables! If you must create a new global variable, be sure there isn't a collision with other files. Some future design should avoid this
-problem.
+Beware of global variables! If you feel you really have to create a new global variable, be sure there isn't a collision with other files. Some future design
+of tester.tcl should avoid this problem.
 
 `make test` runs only the `.test` files. The other scripts in `test/` are run by hand:
 
@@ -106,4 +106,4 @@ problem.
 * `update-test-1.sh` and `update-test-2.sh` run `fossil update` scenarios in an empty directory.
 * `link-tester.html` steps through a list of links in `fossil ui`, for checking each page by eye.
 
-The remaining files are test data.
+The remaining files are helper scripts and test data.
