@@ -104,8 +104,8 @@ proc printElapsedTime {{prependMsg "Time elapsed: "}} {
   set m [expr {($millis - (3600000 * $h)) / 60000}]
   set s [expr {($millis - (3600000 * $h) - (60000 * $m)) / 1000.0}]
   puts -nonewline $prependMsg
-  if {$h>0} {puts -nonewline $h "hours"}
-  if {$m>0} {puts -nonewline "$m mins"}
+  if {$h>0} {puts -nonewline "$h hours "}
+  if {$m>0} {puts -nonewline "$m mins "}
   puts [format "%.3f secs" $s]
 }
 
