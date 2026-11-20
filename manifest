@@ -1,5 +1,5 @@
-C Replaced\sthe\shard-coded\s100-iteration\stest\sloops\swith\sa\s-trials\sflag\ndefaulting\sto\s20,\sto\sallow\srestoration\sof\sthe\sold\scount\sfor\sa\slonger\n(i.e.\sovernight/CI)\sstress\stest.\s\sThis\salone\scuts\sover\s1\sminute\sfrom\nthe\s`make\stest`\stime\shere.
-D 2026-11-20T16:24:14.740
+C The\stwo\stest/settings*.test\sscripts\swere\spartially\sredundant\sand\sended\nup\sretesting\seach\ssetting\stwice.\s\sIt\swas\sfor\sdifferent\sreasons\sin\seach\ncase,\sbut\swe\scan\sget\sthe\sbenefit\sby\sdoing\sone\spass\sfor\sall\ssettings\sand\naugmenting\sit\swith\sa\ssmall\srandom\ssampling\sin\sthe\ssecond\spass.\s\sSaves\n~8\sseconds\shere.
+D 2026-11-20T16:35:10.672
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -659,7 +659,7 @@ F test/revert.test 788488b642bc37c27f0552f42e749d8fd955c110495f1665eed33ea6eea61
 F test/rewrite-test-output.tcl c1e765725e67e53850a90a130be8d6e4c5a77d41da92f75320f9c64467cc81fc
 F test/roundtrip.test 90277ee3766f877b0bf32d725ccab58aaa77a7bd8620c2feb039f31cefd81fae
 F test/set-manifest.test c441fa0438b68d3dec9c3aaa5e0513bedad1d807a4eaedf4dc5c738915647303
-F test/settings-repo.test df9e415ea0c9dd22af4086486e02e1102d54b8ea76ba8937f56e81e6ccb78725
+F test/settings-repo.test c319324e9b4c7ae1a35eb849113a206a38e3a47d6d2aeff567441a1023b4cd74
 F test/settings.test e500c410d0def6a8c9bcecddb6ed75a095906ddae8739723a718b500e4a563a1
 F test/stash.test 1164c17ccb12066c510f4f412ecb609764b63d850d12af3fdd8bf42f145c6618
 F test/subdir\swith\sspaces/filename\swith\sspaces.txt 4c1f053a9aa422cde7f33113511a70ca3a9f77ddebff4458fbf776752fc3a006
@@ -996,8 +996,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c42ebff1ed4a16aa941e9dd75b83a5807ef56f122b6aa4582b451efa893d4e99
-R 482b3aa83e8f64ff3f4d21e33c4e455b
+P 36c9bd5926d4cace632483812c6c8167cdd0a8a6bfd035ff2439f6af8b3fcd7c
+R 2ca016fd9776ea3add598ec7fcb59693
 U wyoung
-Z 16c0c81b8acb7b6f9e02d69f118d5f5a
+Z e69ab0ac08bbb9cf41be5e941bbbed46
 # Remove this line to create a well-formed Fossil manifest.

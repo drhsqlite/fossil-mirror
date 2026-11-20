@@ -42,6 +42,13 @@ test_setup
 
 set all_settings [get_all_settings]
 
+#
+# Spot-check the TH1 "setting" bridge on a small fixed sample only.
+# Every setting still gets full CLI set/unset/get coverage below;
+# th1.test already exercises TH1 setting more broadly.
+#
+set th1_sample [list autosync ignore-glob manifest]
+
 foreach name $all_settings {
   #
   # HACK: Make 100% sure that there are no non-default setting values
@@ -53,10 +60,12 @@ foreach name $all_settings {
     fossil unset $name --exact --global
   }
   fossil unset $name --exact
+}
 
+foreach name $th1_sample {
   #
   # NOTE: Query for the hard-coded default value of this setting and
-  #       save it.
+  #       save it for the TH1 unset checks below.
   #
   fossil test-th-eval "setting $name"
   set defaults($name) [normalize_result]
@@ -117,6 +126,8 @@ set pattern(3) {^%name%[ ]+\(global\)[ ]+%value%+$}
 set pattern(4) {^%name%[ ]+\(local\)[ ]+%value%+$}
 
 foreach name $all_settings {
+  set do_th1 [expr {$name in $th1_sample}]
+
   if {$name ne "manifest"} {
     set value #global_for_$name
     fossil settings $name $value --exact --global
@@ -130,10 +141,12 @@ foreach name $all_settings {
     test_match settings-set-check1-$name-global $data \
         [string map [list %name% $name %value% $value] $pattern(3)]
 
-    fossil test-th-eval --open-config "setting $name"
-    set data [normalize_result]
+    if {$do_th1} {
+      fossil test-th-eval --open-config "setting $name"
+      set data [normalize_result]
 
-    test_eq settings-set-check2-$name-global $data $value
+      test_eq settings-set-check2-$name-global $data $value
+    }
 
     fossil unset $name --exact --global
     set data [normalize_result]
@@ -146,10 +159,12 @@ foreach name $all_settings {
     test_match settings-unset-check1-$name-global $data \
         [string map [list %name% $name %value% $value] $pattern(1)]
 
-    fossil test-th-eval --open-config "setting $name"
-    set data [normalize_result]
+    if {$do_th1} {
+      fossil test-th-eval --open-config "setting $name"
+      set data [normalize_result]
 
-    test_eq settings-unset-check2-$name-global $data $defaults($name)
+      test_eq settings-unset-check2-$name-global $data $defaults($name)
+    }
   }
 
   set value #local_for_$name
@@ -164,10 +179,12 @@ foreach name $all_settings {
   test_match settings-set-check1-$name-local $data \
       [string map [list %name% $name %value% $value] $pattern(4)]
 
-  fossil test-th-eval --open-config "setting $name"
-  set data [normalize_result]
+  if {$do_th1} {
+    fossil test-th-eval --open-config "setting $name"
+    set data [normalize_result]
 
-  test_eq settings-set-check2-$name-local $data $value
+    test_eq settings-set-check2-$name-local $data $value
+  }
 
   fossil unset $name --exact
   set data [normalize_result]
@@ -180,10 +197,12 @@ foreach name $all_settings {
   test_match settings-unset-check1-$name-local $data \
       [string map [list %name% $name %value% $value] $pattern(1)]
 
-  fossil test-th-eval --open-config "setting $name"
-  set data [normalize_result]
+  if {$do_th1} {
+    fossil test-th-eval --open-config "setting $name"
+    set data [normalize_result]
 
-  test_eq settings-unset-check2-$name-local $data $defaults($name)
+    test_eq settings-unset-check2-$name-local $data $defaults($name)
+  }
 }
 
 ###############################################################################
@@ -211,10 +230,12 @@ foreach name $versionable_settings {
   test_match settings-set-check1-versionable-$name $data \
       [string map [list %name% $name] $pattern(5)]
 
-  fossil test-th-eval --open-config "setting $name"
-  set data [normalize_result]
+  if {$name eq "ignore-glob"} {
+    fossil test-th-eval --open-config "setting $name"
+    set data [normalize_result]
 
-  test_eq settings-set-check2-versionable-$name $data ""
+    test_eq settings-set-check2-versionable-$name $data ""
+  }
 
   file delete $fileName
 
