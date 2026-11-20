@@ -1,5 +1,5 @@
-C Fix\s.test\sfile\sproblems\swhere\sa\smissing\sfile\sincorrectly\scauses\sfailures.
-D 2026-11-20T12:10:36.379
+C revert.test\schecked\sthe\swrong\sfile\sso\sit\scould\snever\sfail.\sAlso\sremove\nduplicated\slist.
+D 2026-11-20T12:12:56.559
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -645,7 +645,7 @@ F test/merge_warn.test b0ca846c8a999ffc97197f41bbe97ac3736e59da9f95d3415d73cf04a
 F test/mv-rm.test f7a24674617b1d001812a29f9250c62268497dbf8b4bd70b6cd10b352e732e4a
 F test/release-checklist.wiki e2c611eee0ce2899d72f389e7518e7b8a71284f8b7992def4213b6afb4ddac6e
 F test/reserved-names.test df65768408b881eed35fe276dce13a49b637ed0d11fd46a63c1a9bdb9faaabd2
-F test/revert.test b9a4c2a297bd68b97db0f54cf57cac0bb70bc87800a0e6c5c67d490774ac3fb1
+F test/revert.test 788488b642bc37c27f0552f42e749d8fd955c110495f1665eed33ea6eea614da
 F test/rewrite-test-output.tcl fc2affc10d2ce6911836db498990d72ce5ba6e911cc5036d5f78391c022843ef
 F test/roundtrip.test 77e8e1a27625793701c09c10501c1df5199ce4081a21b0c1d85248fe49ebd262
 F test/set-manifest.test c441fa0438b68d3dec9c3aaa5e0513bedad1d807a4eaedf4dc5c738915647303
@@ -986,8 +986,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 825ad77cea5a1c9fd183a9e1575732d445e805acb06fb5e2ead8b5bef4234261
-R 63aaf37a5d25158fbfa9903bb4502418
+P d7931d72bbaa5554384205c9e4273bc5943b22890ed36ec8daf1880ddf78de25
+R 0e28d77c356cdd12bbddf0867d58a25e
 U danshearer
-Z cf5290083ab416d2120bd3cf442ee463
+Z b7abcebb364285c8c13a6d989b9eeebd
 # Remove this line to create a well-formed Fossil manifest.

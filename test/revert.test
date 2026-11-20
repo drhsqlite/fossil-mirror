@@ -183,7 +183,7 @@ test 3-mv-2 {![file exists f1new]}
 revert-test 3-1 {} {
   REVERT f1
   DELETE f1new
-} -exists {f1} -notexists {f1n}
+} -exists {f1} -notexists {f1new}
 
 
 # Test reverting of files under a sub-directory
@@ -345,7 +345,7 @@ revert-test 5-4 {d d1} {
   ADDED    d/e/fe1
   ADDED    d/e/f/ff1
   ADDED    d1/e/fe2
-} -exists {d/f1 d/f2 d/f3 d/f4 d/e/fe1 d/e/fe1 d/e/f/ff1
+} -exists {d/f1 d/f2 d/f3 d/f4 d/e/fe1 d/e/f/ff1
            d1/e/fe1 d1/e/fe2}
 
 
