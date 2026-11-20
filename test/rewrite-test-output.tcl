@@ -375,13 +375,6 @@ set UNIX 1
 set WINDOWS 2
 set CYGWIN 3
 
-# One specific wiki test creates repetitive output of varying length
-set wiki_f13_cmd1 "fossil wiki create {timestamp of 2399999} f13 --technote 2399999"
-set wiki_f13_cmd2 "fossil wiki list --technote --show-technote-ids"
-set wiki_f13_cmd3 "fossil wiki export a13 --technote ID"
-set collecting_f3 0
-set collecting_f3_verbose 0
-
 # Collected lines for summaries in --extra mode
 set amend_ed_lines [list]
 set amend_ed_failed 0
@@ -465,28 +458,6 @@ while { [gets $fd line] >= 0 } {
           puts ""
         }
         set check_json_empty_line 0
-      }
-    }
-
-    # Summarise repetitive output of varying length for f13 in wiki test
-    if { $testname eq "wiki" } {
-      if { $collecting_f3 == 2 } {
-        if { $collecting_f3_verbose == 1 && [regexp {^HASH } $line] } {
-          incr collecting_f3_verbose
-        } elseif { $line eq $wiki_f13_cmd3 } {
-          incr collecting_f3
-          puts "\[...\]"
-        } else {
-          continue
-        }
-      } elseif { $collecting_f3 == 1 } {
-        if { $line eq $wiki_f13_cmd2 } {
-          incr collecting_f3
-        } elseif { $collecting_f3_verbose == 0 } {
-          incr collecting_f3_verbose
-        }
-      } elseif { $line eq $wiki_f13_cmd1 } {
-        incr collecting_f3
       }
     }
 

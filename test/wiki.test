@@ -309,42 +309,35 @@ fossil wiki export a12.1 --technote [string range $anoldtechnoteid 0 20]
 test wiki-41 {[similar_file f12 a12.1]}
 
 ###############################################################################
-# Now we need to force a collision in the first four characters of the tech
-# note id if we don't already have one so we can check we get an error if the
-# tech note id is ambiguous
-set idcounts [dict create]
-set maxcount 0
+# Force a collision in the first four characters of the tech note id so we
+# can check we get an error if the tech note id is ambiguous.
+#
+# Plant the collision: rewrite one event- tag so it shares another technote's
+# 4-char id prefix. That exercises wiki_technote_to_rid's ambiguity path in
+# O(1) instead of a birthday-paradox create storm (unbounded wall time at
+# smoke). Leave $anoldtechnoteid alone — later tests update that note by id.
+set techIds {}
 fossil wiki list --technote --show-technote-ids
-set technotelist [split $RESULT "\n"]
-for {set i 0} {$i < [llength $technotelist]} {incr i} {
-  set fullid [lindex $technotelist $i]
-  set id [string range $fullid 0 3]
-  dict incr idcounts $id
-  if {[dict get $idcounts $id] > $maxcount} {
-    set maxid $id
-    incr maxcount
+foreach line [split $RESULT "\n"] {
+  if {$line eq ""} continue
+  set id [lindex $line 0]
+  if {$id eq $anoldtechnoteid} continue
+  lappend techIds $id
+}
+if {[llength $techIds] < 2} {
+  error "wiki-collision: need two technotes besides the old one to plant\
+a prefix collision"
+}
+set idA [lindex $techIds 0]
+set idB [lindex $techIds 1]
+set duplicateid [string range $idA 0 3]
+if {[string range $idB 0 3] ne $duplicateid} {
+  set planted "$duplicateid[string range $idB 4 end]"
+  fossil sql "UPDATE tag SET tagname='event-$planted' WHERE tagname='event-$idB';"
+  if {$CODE != 0} {
+    error "wiki-collision: failed to plant prefix collision:\n$RESULT"
   }
 }
-# get i so that, as a julian date, it is in the 1800s, i.e., older than
-# any other tech note, but after 1 AD
-set i 2400000
-while {$maxcount < 2} {
-  # keep getting older
-  incr i -1
-  write_file f13 "A tech note with timestamp of jday=$i"
-  fossil wiki create "timestamp of $i" f13 --technote "$i"
-  fossil wiki list --technote --show-technote-ids
-  set technotelist [split $RESULT "\n"]
-  set oldesttechnoteid [lindex [split [lindex $technotelist [llength $technotelist]-1]] 0]
-  set id [string range $oldesttechnoteid 0 3]
-  dict incr idcounts $id
-  if {[dict get $idcounts $id] > $maxcount} {
-    set maxid $id
-    incr maxcount
-  }
-}
-# Save the duplicate id for this and later tests
-set duplicateid $maxid
 fossil wiki export a13 --technote $duplicateid -expectError
 test wiki-42 {$CODE != 0}
 
