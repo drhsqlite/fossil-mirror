@@ -34,27 +34,30 @@ Options are:
   run per input kind. The default is 20 (5 for expensive `large` /
   `repeats` inputs). Use `-trials 100` for the historical full fuzz.
   This flag is only the fuzz loop count; it does not select
-  unicode-pathnames cases.
-* `-utf-assurance smoke|ci|stress` selects how many Unicode
-  case-folding pairs `unicode-pathnames` runs. The default is `smoke`
-  (one pair per fold-behavior class). `ci` runs the full hand-written
-  lists. `stress` adds generated pairs on top of `ci`. At startup the
-  harness classifies the temporary filesystem once (ASCII case,
-  NFC/NFD, and sharp-s versus `ss`) and `unicode-pathnames` predicts
-  match, miss, or untestable from that classification together with
-  Fossil's `case-sensitive` setting (byte-for-byte when on; Unicode
-  D145 caseless match when off). Unmet predictions fail the run, so a
-  caseless lookup Fossil still mishandles is a real failure rather than
-  a static `knownBug`.
+  `-utf-assurance` cases.
+* `-utf-assurance smoke|ci|stress` selects how thoroughly the Unicode
+  tests run. The default is `smoke`. It applies to both
+  `unicode-pathnames` and `utf`:
+  - `unicode-pathnames`: `smoke` is one pair per fold-behavior class;
+    `ci` is the full hand-written lists; `stress` adds generated pairs.
+    At startup the harness classifies the temporary filesystem once
+    (ASCII case, NFC/NFD, and sharp-s versus `ss`). Predictions use
+    that classification with Fossil's `case-sensitive` setting
+    (byte-for-byte when on; Unicode D145 caseless match when off).
+  - `utf`: `smoke` is a stratified edge set of `test-looks-like-utf`
+    cells; `ci` is the full BOM×payload×extra product; `stress` adds
+    generated payloads. A Tcl predictor scores each LOOK_*/BOM line
+    for both yes and no.
+  Unmet predictions fail the run.
 
  `make test TESTFLAGS="-quiet update"` passes options and names via `make`.
 
-Unicode case-folding recipes:
+Unicode assurance recipes:
 
 ```sh
 make test                                          # smoke (default)
-make test TESTFLAGS="-utf-assurance ci"            # full current lists
-make test TESTFLAGS="-utf-assurance stress"        # ci plus generated pairs
+make test TESTFLAGS="-utf-assurance ci"            # full current coverage
+make test TESTFLAGS="-utf-assurance stress"        # ci plus generated cases
 ``` 
 
 A full run normally takes a few minutes. `tester.tcl` exits with status 0 when all tests pass, 1 when one or more tests fail. Failed tests are reported with
