@@ -853,6 +853,48 @@ proc random_changes {body blocksize count index prob} {
   return [string range $out 1 end]
 }
 
+# Return $nline lines of text for use as test input.  Each line is
+# indented words of one to nine letters, and the letters are the
+# $nletter characters that start at $base.  A line has at most
+# $maxwords words.
+# About one line in eight is empty and about one in eight repeats one
+# of the three lines before it.  The same arguments always give the same text.
+# The procedure does not call rand(), so it does not change the
+# caller's sequence of random numbers.
+#
+proc fixed_word_lines {nline {base 97} {maxwords 12} {nletter 24}} {
+  set seed $nline
+  set lines {}
+  for {set i 0} {$i<$nline} {incr i} {
+    set kind [next_fixed_int seed 8]
+    if {$kind==0} {
+      lappend lines {}
+    } elseif {$kind==1 && $i>=3} {
+      lappend lines [lindex $lines end-[next_fixed_int seed 3]]
+    } else {
+      set words {}
+      for {set w [next_fixed_int seed $maxwords]} {$w>=0} {incr w -1} {
+        set word {}
+        for {set c [next_fixed_int seed 9]} {$c>=0} {incr c -1} {
+          append word [format %c [expr {$base+[next_fixed_int seed $nletter]}]]
+        }
+        lappend words $word
+      }
+      lappend lines [string repeat "  " [next_fixed_int seed 4]][join $words]
+    }
+  }
+  return [join $lines \n]\n
+}
+
+# Return the next integer from 0 to $n-1 in the sequence whose state is
+# in the variable $seedVar.
+#
+proc next_fixed_int {seedVar n} {
+  upvar 1 $seedVar seed
+  set seed [expr {($seed*1103515245+12345) & 0x7fffffff}]
+  return [expr {($seed>>16) % $n}]
+}
+
 # Return true if a TCP connection can be made over the loopback interface,
 # as the tests that run "fossil server" need.  Listening succeeds even when
 # the interface is down, so this procedure also connects.
