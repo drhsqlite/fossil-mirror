@@ -1388,12 +1388,11 @@ static int svn_parse_path(char *zPath, char **zFile, int *type){
       *type = SVN_UNKNOWN;
     }
   }else{
-    if( gsvn.lenBranches>0
-     && strncmp(zPath, gsvn.zBranches, gsvn.lenBranches)==0 ){
+    if( strncmp(zPath, gsvn.zBranches, gsvn.lenBranches)==0 ){
       *zFile = zBranch = zPath+gsvn.lenBranches;
       *type = SVN_BRANCH;
     }else
-    if( gsvn.lenTags>0 && strncmp(zPath, gsvn.zTags, gsvn.lenTags)==0 ){
+    if( strncmp(zPath, gsvn.zTags, gsvn.lenTags)==0 ){
       *zFile = zBranch = zPath+gsvn.lenTags;
       *type = SVN_TAG;
     }else{ /* Not a branch, tag or trunk */
