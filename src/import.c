@@ -1970,6 +1970,10 @@ void import_cmd(void){
       gsvn.lenTrunk = strlen(gsvn.zTrunk);
       gsvn.lenBranches = strlen(gsvn.zBranches);
       gsvn.lenTags = strlen(gsvn.zTags);
+      if( gsvn.lenTrunk==0 || gsvn.lenBranches==0 || gsvn.lenTags==0 ){
+        fossil_fatal("--trunk, --branches and --tags may be empty only "
+                     "with --base");
+      }
       if( gsvn.zTrunk[gsvn.lenTrunk-1]!='/' ){
         gsvn.zTrunk = mprintf("%s/", gsvn.zTrunk);
         gsvn.lenTrunk++;
