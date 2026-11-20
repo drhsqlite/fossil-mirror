@@ -1541,6 +1541,9 @@ static void svn_dump_import(FILE *pIn){
       if( zAction==0 ){
         fossil_fatal("svn-dump data format broken");
       }
+      if( zFile[0]!=0 && !file_is_simple_pathname_nonstrict(zFile) ){
+        fossil_fatal("svn path is not a valid file name: %s", zFile);
+      }
       if( (zTemp = svn_find_header(rec, "Text-delta")) ){
         deltaFlag = strncmp(zTemp, "true", 4)==0;
       }
