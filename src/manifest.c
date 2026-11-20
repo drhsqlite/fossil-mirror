@@ -1211,6 +1211,7 @@ int manifest_is_well_formed(const char *zIn, int nIn){
   int iRes;
   Manifest *pManifest;
   Blob copy, errmsg;
+  if( nIn<1 || zIn[nIn-1]!='\n' ) return 0;
   remove_pgp_signature(&zIn, &nIn);
 
   /* Check to see that the file begins with a "card" */

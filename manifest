@@ -1,5 +1,5 @@
-C In\smanifest_is_well_formed(),\saccept\sa\ssecond\scard\sthat\shas\sno\sargument,\ssuch\sas\san\sempty\sP-card,\swhich\sthe\sartifact\sparser\saccepts.\sOtherwise\simport\s--git\sdid\snot\ssterilize\sa\sfile\sholding\ssuch\san\sartifact,\sand\sthe\srebuild\smade\sit\sa\sreal\sone.
-D 2026-11-20T18:17:55.968
+C In\smanifest_is_well_formed(),\srefuse\sinput\sthat\sdoes\snot\send\swith\sa\snewline\sbefore\sremoving\sa\sPGP\ssignature,\sas\sthe\sartifact\sparser\sdoes,\sso\sthat\sthe\stwo\sagree\son\sa\ssigned\sartifact\swith\snothing\safter\sits\ssignature.
+D 2026-11-20T18:19:03.949
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -507,7 +507,7 @@ F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e7f
 F src/main.c 5c57e081b239b0baec387e646fe5bf49a9c4464b6f1969017dd9d69a31a03645
 F src/main.mk 7fb5a5f26054c31f4c9ee7908e838d0357eac1b07484acb1a4c1a51467b6fc27
-F src/manifest.c 50d89d556cbf3ad44b8e6ac5aaed6d35be9131e35ffad8e6ccf4a9453bec640c
+F src/manifest.c 85db98d8ab4ad460743a86deaabe1b206a0538ab02279f44665466c7dd462de6
 F src/markdown.c be7e46b0bf0b600dd97d47ab14fbaa7c84016ff03e97803c06e26aa572e3b5e0
 F src/markdown.md 0b83b90d943d2c5f4b1654a74753e684e5664a262f343a07901a7c4833e59473
 F src/markdown_html.c 5f60026c7a7c3fec21aafc8c16dbf6264ce59d0e2e028fa2d3f6ad10fa427b00
@@ -991,10 +991,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dfe9fb28251f50c0c44fc38493506589a533f9ca98c1180a0a3809c322d2b54f
-R 946ae4a8031827cc4f6ebf6bb6541b4a
-T *branch * small-fixes
-T *sym-small-fixes *
+P 9eaf484d159c2e671e507e88a62585f845156009449098eaea875e58df754f0a
+R 00da7498bece81808af46e808ffe07c2
 U dmestas
-Z d7b6333b55e11552d83431a6be98bf07
+Z 2d7441915a6ef1a0ed1a08592db7fc71
 # Remove this line to create a well-formed Fossil manifest.
