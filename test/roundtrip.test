@@ -130,13 +130,17 @@ proc roundtrip_checkin_files {checkin} {
 }
 
 # Returns a dictionary from the name of each file in the current
-# directory and below, except those in SKIP, to its content.
+# directory and below to its content.  Leaves out the files in SKIP,
+# files whose names start with ".", and the Windows-specific checkout
+# database name _FOSSIL_. Tricky note: on Windows "glob *" will match names
+# starting with ".", but not on Unix/Mac.
 #
 proc roundtrip_dir_files {{dir .} {skip {}}} {
   set files [dict create]
   foreach f [lsort [glob -nocomplain -directory $dir -tails *]] {
     set p [expr {$dir eq "." ? $f : "$dir/$f"}]
     if {$p in $skip} continue
+    if {[string index $f 0] eq "." || $f eq "_FOSSIL_"} continue
     if {[file isdirectory $p]} {
       set files [dict merge $files [roundtrip_dir_files $p $skip]]
     } else {
