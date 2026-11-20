@@ -1660,6 +1660,12 @@ static void svn_dump_import(FILE *pIn){
                             "  WHERE checkinID=%d AND filename=%Q"
                             ")",
                          srcRid, zSrcFile);
+            if( zPerm==0 && svn_find_header(rec, "Prop-content-length")==0 ){
+              zPerm = db_text(0, "SELECT perm FROM xfoci"
+                                 " WHERE checkinID=%d AND filename=%Q"
+                                 "   AND perm<>''",
+                              srcRid, zSrcFile);
+            }
           }
           if( deltaFlag ){
             Blob deltaSrc;
@@ -1675,12 +1681,6 @@ static void svn_dump_import(FILE *pIn){
             blob_reset(&target);
           }else if( rec.contentFlag ){
             rid = svn_handle_symlinks(zPerm, &rec.content);
-          }else if( zSrcPath ){
-            if ( zPerm==0 ){
-              zPerm = db_text(0, "SELECT perm FROM xfoci"
-                                 " WHERE checkinID=%d AND filename=%Q",
-                                 srcRid, zSrcFile);
-            }
           }
           if( rid==0 ){
             fossil_fatal("svn file has no content and no source: %s", zFile);
