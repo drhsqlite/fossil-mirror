@@ -1137,7 +1137,7 @@ static int tokenize_line(char *z, int mxArg, char **azArg){
     }else{
       if( i<mxArg-1 ){ azArg[i++] = z; }
       while( *z && !fossil_isspace(*z) && *z!=';' && *z!='"' ){ z++; }
-      if( *z && *z!='"' ){
+      if( *z && (*z!='"' || z[1]==0) ){
         *z = 0;
         z++;
       }
