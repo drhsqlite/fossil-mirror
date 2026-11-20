@@ -50,8 +50,16 @@ if {![file isfile $fossilexe]} {
   exit 1
 }
 
-catch {exec $::fossilexe changes --changed} res
-set dirty_ckout [string length $res]
+set dirty_ckout 1
+if {!$outside_fossil_repo} {
+  set savedPwd [pwd]
+  cd $testfiledir
+  if {![catch {exec $::fossilexe changes --changed} res]} {
+    set dirty_ckout [string length $res]
+  }
+  cd $savedPwd
+  unset savedPwd
+}
 
 set argv [lrange $argv 1 end]
 
@@ -109,7 +117,7 @@ proc printElapsedTime {{prependMsg "Time elapsed: "}} {
   puts [format "%.3f secs" $s]
 }
 
-# write a dict with just enough formatting
+# write a dict with enough formatting
 # to make it human readable
 #
 proc protOutDict {dict {pattern *}} {
