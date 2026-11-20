@@ -1,0 +1,7 @@
+<footer>
+  <span class="footer-project">$<project_name></span>
+  <span class="footer-meta">
+    fossil $release_version &middot;
+    <th1>puts [expr {([utime]+[stime]+1000)/1000*0.001}]</th1>s
+  </span>
+</footer>

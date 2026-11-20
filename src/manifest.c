@@ -2663,7 +2663,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
             p->zAttachTarget, p->zAttachTarget);
         }else{
           zComment = mprintf("Delete attachment \"%h\" from "
-                             "[/artifact/%!S|%h",
+                             "[/artifact/%!S|%h]",
                              p->zAttachName, p->zAttachTarget,
                              p->zAttachTarget);
         }
@@ -2689,10 +2689,9 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
             p->zAttachSrc, p->zAttachName, p->zAttachTarget, p->zAttachTarget);
         }else{
           zComment = mprintf(
-            "Delete attachment \"/artifact/%!S|%h\" from"
+            "Delete attachment \"%h\" from"
             " tech note [/technote/%!S|%S]",
-            p->zAttachName, p->zAttachName,
-            p->zAttachTarget,p->zAttachTarget);
+            p->zAttachName, p->zAttachTarget, p->zAttachTarget);
         }
         break;
       case CFTYPE_TICKET:
@@ -2869,7 +2868,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       ** If this edit is the most recent, then make it the title for
       ** all other entries for the same thread
       */
-      if( !db_exists("SELECT 1 FROM forumpost WHERE froot=%d AND firt=0"
+      if( !db_exists("SELECT 1 FROM forumpost WHERE froot=%d AND firt IS NULL"
                      "   AND fpid!=%d AND fmtime>%.17g", froot, rid, p->rDate)
       ){
         /* This entry establishes a new title for all entries on the thread */

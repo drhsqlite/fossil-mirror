@@ -3473,15 +3473,23 @@ void forum_cmd(void){
     if( zFile==0 ){
       fossil_fatal("the --content option is required");
     }
-    if( zMarkup==0 || fossil_strcmp(zMarkup,"markdown")==0 ){
-      zMimetype = "text/x-markdown";
-    }else if( fossil_strcmp(zMarkup,"wiki")==0 ){
-      zMimetype = 0;
-    }else if( fossil_strcmp(zMarkup,"plaintext")==0 ){
-      zMimetype = "text/plain";
-    }else{
+    if( zMarkup==0 ){
+      zMimetype = wiki_guess_filename_mimetype(zFile, 0);
+      if( !zMimetype ){
+        fossil_fatal("Either use --markup <type> or a --content "
+                     "filename extension of (.md, .txt, .wiki) "
+                     "to specify the mime type.");
+        zMimetype = DEFAULT_FORUM_MIMETYPE;
+      }
+    }else if( !wiki_is_valid_mimetype(zMarkup) ){
       fossil_fatal("unknown --markup \"%s\". Should be one of: "
                    "markdown, wiki, plaintext", zMarkup);
+    }else{
+      zMimetype = wiki_filter_mimetypes(zMarkup)/*normalize short names*/;
+      assert( zMimetype );
+    }
+    if( 0==fossil_strcmp(zMimetype, "text/x-fossil-wiki") ){
+      zMimetype = 0 /* avoid setting N-card */;
     }
     if( fossil_strcmp(zFile,"-")==0 ){
       blob_read_from_channel(&content, stdin, -1);

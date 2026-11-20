@@ -117,6 +117,8 @@ void delta_analyze_cmd(void){
 ** It works ok for pTarget and pOriginal to be the same blob.
 **
 ** Return the length of the target.  Return -1 if there is an error.
+** On error pTarget is still initialized, to an empty blob, and if
+** pTarget and pOriginal are the same blob then pOriginal is reset.
 */
 int blob_delta_apply(Blob *pOriginal, Blob *pDelta, Blob *pTarget){
   int len;
@@ -125,16 +127,19 @@ int blob_delta_apply(Blob *pOriginal, Blob *pDelta, Blob *pTarget){
 
   n = delta_output_size(blob_buffer(pDelta), blob_size(pDelta));
   blob_zero(&out);
-  if( n<0 || n>0x7fffffff ) return -1;
-  blob_resize(&out, n);
-  len = delta_apply(
-     blob_buffer(pOriginal), blob_size(pOriginal),
-     blob_buffer(pDelta), blob_size(pDelta),
-     blob_buffer(&out));
-  if( len<0 ){
-    blob_reset(&out);
-  }else if( len!=n ){
-    blob_resize(&out, len);
+  if( n<0 || n>0x7fffffff ){
+    len = -1;
+  }else{
+    blob_resize(&out, n);
+    len = delta_apply(
+       blob_buffer(pOriginal), blob_size(pOriginal),
+       blob_buffer(pDelta), blob_size(pDelta),
+       blob_buffer(&out));
+    if( len<0 ){
+      blob_reset(&out);
+    }else if( len!=n ){
+      blob_resize(&out, len);
+    }
   }
   if( pTarget==pOriginal ){
     blob_reset(pOriginal);

@@ -1,0 +1,44 @@
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script defer src="$home/script.js"></script>
+<a class="skip-nav" href="#main-content">Skip to content</a>
+<header>
+  <div class="title">
+    <a href="$home/home" class="project-name">$<project_name></a>
+    <span class="page-title">$<title></span>
+  </div>
+  <div class="status">
+    <th1>
+      if {[info exists login]} {
+        html "<a href='$home/login'>$login</a>\n"
+      } else {
+        html "<a href='$home/login'>Login</a>\n"
+      }
+    </th1>
+  </div>
+</header>
+<nav class="mainmenu" aria-label="Main menu">
+  <th1>
+    html "<a id='hbbtn' href='$home/sitemap' aria-label='Site Map' aria-expanded='false' aria-controls='hbdrop'>&#9776;</a>"
+    builtin_request_js hbmenu.js
+    foreach {name url expr class} $mainmenu {
+      if {![capexpr $expr]} continue
+      if {[string match /* $url]} {
+        if {[string match $url\[/?#\]* /$current_page/]} {
+          set class "active $class"
+        }
+        set url $home$url
+      }
+      html "<a href='$url' class='$class'>$name</a>\n"
+    }
+  </th1>
+</nav>
+<nav id="hbdrop" class='hbdrop' aria-label="Site map" data-anim-ms="0"></nav>
+<div id="main-content" tabindex="-1" style="height:0;overflow:hidden;position:absolute"></div>
+<th1>
+  if {[string compare $title index]==0 || [string compare $title Home]==0} {
+    html "<h1 class='page-title home-title'>[htmlize $title]</h1>\n"
+  } else {
+    html "<h1 class='page-title'>[htmlize $title]</h1>\n"
+  }
+</th1>
+

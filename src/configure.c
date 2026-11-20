@@ -301,7 +301,7 @@ void configure_rebuild(void){
 }
 
 /*
-** Return true if z[] is not a "safe" SQL token.  A safe token is one of:
+** Return true if z[] is a "safe" SQL token.  A safe token is one of:
 **
 **   *   A string literal
 **   *   A blob literal
@@ -311,7 +311,10 @@ void configure_rebuild(void){
 static int safeSql(const char *z){
   int i;
   if( z==0 || z[0]==0 ) return 0;
-  if( (z[0]=='x' || z[0]=='X') && z[1]=='\'' ) z++;
+  if( (z[0]=='x' || z[0]=='X') && z[1]=='\'' ){
+    int n = (int)strlen(z);
+    return z[n-1]=='\'' && (n-3)%2==0 && validate16(&z[2], n-3);
+  }
   if( z[0]=='\'' ){
     for(i=1; z[i]; i++){
       if( z[i]=='\'' ){
@@ -321,13 +324,9 @@ static int safeSql(const char *z){
       }
     }
     return 0;
-  }else{
-    char c;
-    for(i=0; (c = z[i])!=0; i++){
-      if( !fossil_isalnum(c) ) return 0;
-    }
   }
-  return 1;
+  for(i=0; fossil_isdigit(z[i]); i++){}
+  return z[i]==0 || fossil_stricmp(z,"NULL")==0;
 }
 
 /*
@@ -413,7 +412,6 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
 
     while( blob_token(pContent, &name) && blob_sqltoken(pContent, &value) ){
       char *z = blob_terminate(&name);
-      if( !safeSql(z) ) return;
       if( nToken>0 ){
         for(jj=0; jj<aType[ii].nField; jj++){
           if( fossil_strcmp(aType[ii].azField[jj], z)==0 ) break;
@@ -980,7 +978,7 @@ void configuration_cmd(void){
 ** you know exactly what is being deleted.
 **
 ** If not in an open check-out, use the -R REPO option to specify a
-** a repository.
+** repository.
 */
 void test_var_list_cmd(void){
   Stmt q;
@@ -1075,7 +1073,7 @@ void test_var_list_cmd(void){
 ** GLOB pattern.
 **
 ** If not in an open check-out, use the -R REPO option to specify a
-** a repository.
+** repository.
 */
 void test_var_get_cmd(void){
   const char *zVar;

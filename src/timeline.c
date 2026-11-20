@@ -1860,11 +1860,11 @@ void timeline_test_endpoint(void){
 **    ym=YYYYMM       Show only events for the given year/month
 **    yw=YYYYWW       Show only events for the given week of the given year
 **    yw=YYYYMMDD     Show events for the week that includes the given day
-**    ymd=YYYYMMDD    Show only events on the given day. The use "ymd=now"
+**    ymd=YYYYMMDD    Show only events on the given day. Use "ymd=now"
 **                    to see all changes for the current week.  Add "z" at end
 **                    to divide days at UTC instead of localtime days.
 **                    Use ymd=YYYYMMDD-YYYYMMDD (with optional "z") for a range.
-**    year=YYYY       Show only events on the given year. The use "year=0"
+**    year=YYYY       Show only events on the given year. Use "year=0"
 **                    to see all changes for the current year.
 **    days=N          Show events over the previous N days
 **    datefmt=N       Override the date format:  0=HH:MM, 1=HH:MM:SS,
@@ -3986,7 +3986,7 @@ static int fossil_is_julianday(const char *zDate){
 **   -r|--reverse         Show items in chronological order.
 **   -R REPO_FILE         Specifies the repository db to use. Default is
 **                        the current check-out's repository.
-**   -s|--summmary        Truncate comments after the first blank line.
+**   -s|--summary         Truncate comments after the first blank line.
 **   --sql                Show the SQL used to generate the timeline
 **   -t|--type TYPE       Output items from the given types only, such as:
 **                            ci = file commits only

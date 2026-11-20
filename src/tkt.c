@@ -1859,8 +1859,8 @@ void ticket_cmd(void){
         }else{
           continue;
         }
-        if( aField[i].zName
-            && strncmp(aField[i].zName, "private_", 8)==0 ){
+        if( aField[iF].zName
+            && strncmp(aField[iF].zName, "private_", 8)==0 ){
           zValue = db_conceal(zValue, strlen(zValue));
           blob_appendf(&tktchng, "J%s%s %s\n", zPfx, aField[iF].zName, zValue);
           aUsed[iF] = JCARD_PRIVATE;

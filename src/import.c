@@ -107,7 +107,7 @@ static void import_reset(int freeAll){
     fossil_free(gg.aFile[i].zUuid);
     fossil_free(gg.aFile[i].zPrior);
   }
-  memset(gg.aFile, 0, gg.nFile*sizeof(gg.aFile[0]));
+  if( gg.nFile ) memset(gg.aFile, 0, gg.nFile*sizeof(gg.aFile[0]));
   gg.nFile = 0;
   if( freeAll ){
     fossil_free(gg.zPrevBranch);
@@ -267,7 +267,7 @@ static void finish_commit(void){
   Blob record, cksum;
 
   import_prior_files();
-  qsort(gg.aFile, gg.nFile, sizeof(gg.aFile[0]), mfile_cmp);
+  if( gg.nFile ) qsort(gg.aFile, gg.nFile, sizeof(gg.aFile[0]), mfile_cmp);
   blob_zero(&record);
   blob_appendf(&record, "C %F\n", gg.zComment);
   blob_appendf(&record, "D %s\n", gg.zDate);
@@ -1226,68 +1226,103 @@ static void svn_finish_revision(){
   db_finalize(&setRid);
 }
 
-static u64 svn_get_varint(const char **pz){
+static u64 svn_get_varint(const char **pz, const char *zEnd){
   unsigned int v = 0;
   do{
+    if( *pz>=zEnd ) fossil_fatal("Invalid svndiff0 format");
     v = (v<<7) | ((*pz)[0]&0x7f);
   }while( (*pz)++[0]&0x80 );
   return v;
 }
 
+/*
+** Apply the svndiff0 delta in pDiff to pSrc and write the result into
+** pOut.  Every offset and length is checked against the buffer it names
+** before it is used.
+*/
 static void svn_apply_svndiff(Blob *pDiff, Blob *pSrc, Blob *pOut){
   const char *zDiff = blob_buffer(pDiff);
+  const char *zEnd = zDiff + blob_size(pDiff);
+  u64 nSrc = blob_size(pSrc);
   char *zOut;
   if( blob_size(pDiff)<4 || memcmp(zDiff, "SVN", 4)!=0 ){
     fossil_fatal("Invalid svndiff0 format");
   }
   zDiff += 4;
   blob_zero(pOut);
-  while( zDiff<(blob_buffer(pDiff)+blob_size(pDiff)) ){
-    u64 lenOut, lenInst, lenData, lenOld;
+  while( zDiff<zEnd ){
+    u64 lenOut, lenInst, lenData, lenOld, lenLeft;
     const char *zInst;
     const char *zData;
+    const char *zDataEnd;
 
-    u64 offSrc = svn_get_varint(&zDiff);
-    /*lenSrc =*/ svn_get_varint(&zDiff);
-    lenOut = svn_get_varint(&zDiff);
-    lenInst = svn_get_varint(&zDiff);
-    lenData = svn_get_varint(&zDiff);
+    u64 offSrc = svn_get_varint(&zDiff, zEnd);
+    /*lenSrc =*/ svn_get_varint(&zDiff, zEnd);
+    lenOut = svn_get_varint(&zDiff, zEnd);
+    lenInst = svn_get_varint(&zDiff, zEnd);
+    lenData = svn_get_varint(&zDiff, zEnd);
+    if( lenInst>(u64)(zEnd-zDiff) || lenData>(u64)(zEnd-zDiff)-lenInst ){
+      fossil_fatal("Invalid svndiff0 format");
+    }
     zInst = zDiff;
     zData = zInst+lenInst;
+    zDataEnd = zData+lenData;
     lenOld = blob_size(pOut);
     blob_resize(pOut, lenOut+lenOld);
     zOut = blob_buffer(pOut)+lenOld;
+    lenLeft = lenOut;
     while( zDiff<zInst+lenInst ){
       u64 lenCpy = (*zDiff)&0x3f;
+      u64 off = 0;
       const char *zCpy;
-      switch( (*zDiff)&0xC0 ){
+      int op = (*zDiff)&0xC0;
+      zDiff++;
+      if( lenCpy==0 ){
+        lenCpy = svn_get_varint(&zDiff, zInst+lenInst);
+      }
+      if( op!=0x80 ){
+        off = svn_get_varint(&zDiff, zInst+lenInst);
+      }
+      if( lenCpy>lenLeft ){
+        fossil_fatal("Invalid svndiff0 format");
+      }
+      switch( op ){
         case 0x00:
-          if( 0==blob_size(pSrc) ){
+          if( 0==nSrc ){
             /* https://fossil-scm.org/forum/forumpost/15d4b242bda2a108 */
             fossil_fatal("Don't know how to handle NULL input. "
                          "Tip: do not use the --incremental flag "
                          "in the svn dump command.");
           }
-          zCpy = blob_buffer(pSrc)+offSrc;
+          if( offSrc>nSrc || off>nSrc-offSrc || lenCpy>nSrc-offSrc-off ){
+            fossil_fatal("Invalid svndiff0 format");
+          }
+          zCpy = blob_buffer(pSrc)+offSrc+off;
           break;
-        case 0x40: zCpy = blob_buffer(pOut); break;
-        case 0x80: zCpy = zData; break;
+        case 0x40:
+          if( lenCpy>0 && off>=(u64)(zOut-blob_buffer(pOut)) ){
+            fossil_fatal("Invalid svndiff0 format");
+          }
+          zCpy = blob_buffer(pOut)+off;
+          break;
+        case 0x80:
+          if( lenCpy>(u64)(zDataEnd-zData) ){
+            fossil_fatal("Invalid svndiff0 format");
+          }
+          zCpy = zData;
+          zData += lenCpy;
+          break;
         default: fossil_fatal("Invalid svndiff0 instruction");
       }
-      zDiff++;
-      if( lenCpy==0 ){
-        lenCpy = svn_get_varint(&zDiff);
-      }
-      if( zCpy!=zData ){
-        zCpy += svn_get_varint(&zDiff);
-      }else{
-        zData += lenCpy;
-      }
+      lenLeft -= lenCpy;
       while( lenCpy-- > 0 ){
         *zOut++ = *zCpy++;
       }
     }
-    zDiff += lenData;
+    if( lenLeft!=0 ){
+      fossil_fatal("Invalid svndiff0 format");
+    }
+    zDiff = zDataEnd;
   }
 }
 

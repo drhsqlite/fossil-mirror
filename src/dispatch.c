@@ -867,7 +867,7 @@ static int help_is_platform_command(const char *zName){
 ** Query parameters:
 **
 **    name=CMD        Show help for CMD where CMD is a command name or
-**                    or setting name.  If CMD beings with "/" it is
+**                    setting name.  If CMD begins with "/" it is
 **                    interpreted as a PAGE name.
 **
 **    name=www/PAGE   Show help for web page PAGE.
@@ -1461,7 +1461,7 @@ static void command_list(int cmdMask, int verboseFlag, int useHtml){
 **
 ** Additional options available on most commands that use network I/O:
 **
-**   --accept-any-cert       Disable server SSL cdert validation. Accept any SSL
+**   --accept-any-cert       Disable server SSL cert validation. Accept any SSL
 **                           cert that the server provides.  WARNING: Unsafe!
 **                           Testing and debugging use only!
 **   --ipv4                  Use only IPv4.  Disable IPv6 support.

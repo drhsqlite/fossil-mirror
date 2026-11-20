@@ -960,7 +960,7 @@ static void oneLineChange(
 
 /*
 ** COMMAND: test-line-diff
-** Usage: %fossil% test-line-diff STRING1 STRING2
+** Usage: %fossil test-line-diff STRING1 STRING2
 **
 ** Show the differences between the two strings.  Used for testing
 ** the oneLineChange() routine in the diff logic.

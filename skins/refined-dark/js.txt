@@ -1,0 +1,338 @@
+document.addEventListener('DOMContentLoaded', function () {
+(function () {
+  'use strict';
+
+  /* ─────────────────────────────────────────────────────────────────────
+     1. isDark patch
+     Fossil's C code hard-codes isDark:false for all custom skins,
+     ignoring the skin-detail config key. Patch it here after Fossil's
+     inline scripts have already run (guaranteed by defer).
+  ───────────────────────────────────────────────────────────────────── */
+  function patchIsDark() {
+    /* Only for the dark variant: the light build of this skin embeds the
+       same script, and its stylesheet declares color-scheme: light. */
+    if (getComputedStyle(document.documentElement).colorScheme.indexOf('dark') < 0) return;
+    if (window.fossil && window.fossil.config && window.fossil.config.skin) {
+      window.fossil.config.skin.isDark = true;
+    }
+    document.body.classList.add('fossil-dark-style');
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     2. Main landmark
+     div.content is Fossil's primary content wrapper but has no landmark
+     role. Adding role="main" lets screen reader users jump to content.
+  ───────────────────────────────────────────────────────────────────── */
+  function addMainLandmark() {
+    var content = document.querySelector('div.content');
+    if (content && !content.getAttribute('role')) {
+      content.setAttribute('role', 'main');
+    }
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     3. Hamburger menu — the worst accessibility failure in the skin
+     ----------------------------------------------------------------
+     What Fossil gives us:
+       <a id="hbbtn" href="/repo/sitemap" aria-label="Site Map">☰</a>
+       <nav id="hbdrop" class="hbdrop" title="sitemap"></nav>
+
+     Problems:
+       - No aria-expanded: screen readers can't tell if the menu is open
+       - No aria-controls: no programmatic link between button and panel
+       - hbdrop has no role or accessible name beyond an unhelpful title
+       - When the menu opens, focus stays on hbbtn — user cannot reach
+         the menu links by keyboard without realising the menu opened
+       - Escape key does not close the menu
+       - hbmenu.js controls visibility via style.display; we use
+         MutationObserver to stay in sync rather than patching the JS
+
+     Fixes applied:
+       - aria-expanded / aria-controls on hbbtn
+       - role="navigation" + aria-label on hbdrop
+       - MutationObserver: sync aria-expanded on every show/hide
+       - On open: move focus to the first link in the dropdown
+       - On Escape inside dropdown: close panel, return focus to hbbtn
+  ───────────────────────────────────────────────────────────────────── */
+  function fixHamburgerMenu() {
+    var btn  = document.getElementById('hbbtn');
+    var drop = document.getElementById('hbdrop');
+    if (!btn || !drop) return;
+
+    var nav = btn.closest('nav.mainmenu') || btn.parentNode;
+    if (!nav) return;
+
+    /* Position the dropdown using position:fixed so it overlays content
+       regardless of DOM structure. We set --nav-bottom as a CSS variable
+       so the dropdown's top edge tracks the nav bar's bottom edge. */
+    function setNavBottom() {
+      var bottom = Math.max(0, nav.getBoundingClientRect().bottom);
+      document.documentElement.style.setProperty('--nav-bottom', bottom + 'px');
+    }
+    setNavBottom();
+    window.addEventListener('resize', setNavBottom);
+    /* Measure again on every open (capture: before hbmenu.js shows the
+       panel), so the menu opens under the nav bar wherever the page is. */
+    btn.addEventListener('click', setNavBottom, true);
+    /* Open by touch or mouse vs keyboard: only the keyboard gets focus moved */
+    var openedByPointer = false;
+    btn.addEventListener('pointerdown', function () { openedByPointer = true; });
+    btn.addEventListener('keydown', function () { openedByPointer = false; });
+
+    /* Static button semantics (JS will keep aria-expanded in sync) */
+    btn.setAttribute('aria-expanded', 'false');
+    btn.setAttribute('aria-controls', 'hbdrop');
+
+    /* Panel semantics */
+    drop.setAttribute('role', 'navigation');
+    drop.setAttribute('aria-label', 'Site map');
+
+    /* Sync aria-expanded whenever hbmenu.js toggles panel visibility.
+       hbmenu.js uses style.display to show/hide — observe that attribute. */
+    var menuObserver = new MutationObserver(function () {
+      var open = getComputedStyle(drop).display !== 'none';
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+
+      /* Move focus into the panel when it opens so keyboard users
+         can immediately navigate the links without guessing. */
+      if (open) {
+        /* The nav bar may now be stuck to the top (see the skin CSS) */
+        requestAnimationFrame(setNavBottom);
+        if (!openedByPointer) {
+          var firstLink = drop.querySelector('a');
+          if (firstLink) firstLink.focus({ preventScroll: true });
+        }
+      }
+    });
+    menuObserver.observe(drop, { attributes: true, attributeFilter: ['style'] });
+
+    /* Escape inside the dropdown: close the panel and return focus.
+       We set display directly — this also triggers the MutationObserver
+       which will update aria-expanded to 'false'. */
+    drop.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' || e.keyCode === 27) {
+        drop.style.display = 'none';
+        btn.focus();
+      }
+    });
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     4. Timeline table
+     ----------------------------------------------------------------
+     Structure Fossil generates:
+
+       <table class="timelineTable">
+         <tr class="timelineDateRow">
+           <td><div class="timelineDate">2026-03-14</div></td>
+           <td></td>   <- empty filler for graph column
+           <td></td>   <- empty filler for comment column
+         </tr>
+         <tr>
+           <td class="timelineTime">20:16</td>
+           <td class="timelineGraph">
+             <div class="tl-nodemark"></div>  <- JS draws SVG here later
+           </td>
+           <td class="timelineModernCell" id="mc1">
+             <span class="timelineModernComment">commit message</span>
+             <span class="timelineModernDetail">...</span>
+           </td>
+         </tr>
+       </table>
+
+     Fixes applied:
+       - aria-label="Commit timeline" on each .timelineTable
+       - aria-hidden="true" on all td.timelineGraph cells
+       - aria-hidden="true" on filler cells in timelineDateRow rows
+       - aria-label="Time: HH:MM" on timelineTime cells
+
+     Run at defer-time AND on window.load because Fossil's timeline JS
+     inserts SVG canvas elements into the graph cells on window.load.
+  ───────────────────────────────────────────────────────────────────── */
+  function fixTimeline() {
+    /* Label each timeline table */
+    document.querySelectorAll('table.timelineTable').forEach(function (tbl) {
+      if (!tbl.getAttribute('aria-label') && !tbl.querySelector('caption')) {
+        tbl.setAttribute('aria-label', 'Commit timeline');
+      }
+    });
+
+    /* Hide the graph column — purely visual SVG/canvas drawn by Fossil JS */
+    document.querySelectorAll('td.timelineGraph').forEach(function (td) {
+      td.setAttribute('aria-hidden', 'true');
+    });
+
+    /* Hide filler cells in date-separator rows */
+    document.querySelectorAll('tr.timelineDateRow').forEach(function (tr) {
+      tr.querySelectorAll('td + td').forEach(function (td) {
+        td.setAttribute('aria-hidden', 'true');
+      });
+    });
+
+    /* Give bare time cells a descriptive label.
+       Strip stray </a> text artefact Fossil emits in anonymous mode. */
+    document.querySelectorAll('td.timelineTime').forEach(function (td) {
+      var text = td.textContent.trim();
+      if (text && !td.getAttribute('aria-label')) {
+        td.setAttribute('aria-label', 'Time: ' + text);
+      }
+    });
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     5. Sortable table headers — add scope="col"
+     Fossil generates <th> elements in branch, tag, file, and ticket
+     tables but never includes scope. Screen readers cannot correctly
+     associate header text with the cells in each column.
+  ───────────────────────────────────────────────────────────────────── */
+  function fixTableHeaders() {
+    var selector = [
+      'table.sortable th',
+      'table.filelistTable th',
+      'table.branchlistTable th',
+      'table.taglistTable th',
+      'table.userlistTable th',
+      'table.report th',
+    ].join(', ');
+    document.querySelectorAll(selector).forEach(function (th) {
+      if (!th.getAttribute('scope')) {
+        th.setAttribute('scope', 'col');
+      }
+    });
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     6. Submenu select labels
+     Fossil renders <select> controls in the page submenu with no
+     associated <label>. We add aria-label from the preceding sibling
+     label text, falling back to a class-name lookup table.
+  ───────────────────────────────────────────────────────────────────── */
+  var SELECT_LABELS = {
+    'smc-ss': 'View style',
+    'smc-ci': 'Check-in',
+    'smc-v':  'Version',
+    'smc-r':  'Repository',
+    'smc-b':  'Branch',
+    'smc-t':  'Tag',
+    'smc-u':  'User',
+  };
+
+  /* Charts Fossil draws as <svg width= height=> with no viewBox cannot be
+     scaled by CSS. Give them one; the skin's "svg.fit" rule does the rest. */
+  function fitCharts() {
+    document.querySelectorAll('.content svg[width][height]:not([viewBox])').forEach(function (s) {
+      var w = parseFloat(s.getAttribute('width')), h = parseFloat(s.getAttribute('height'));
+      if (!(w > 0 && h > 0)) return;
+      s.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+      s.classList.add('fit');
+    });
+  }
+
+  /* Sortable column headers respond to clicks only. Put them in the tab
+     order and let Enter or Space do what a click does. */
+  function fixSortableHeaders() {
+    document.querySelectorAll('table.sortable th').forEach(function (th) {
+      if (th.hasAttribute('tabindex')) return;
+      th.setAttribute('tabindex', '0');
+      th.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); th.click(); }
+      });
+    });
+  }
+
+  /* The menu bar scrolls sideways on narrow screens. Bring the current
+     page's entry into view, without moving the page itself. */
+  function showActiveMenuItem() {
+    var nav = document.querySelector('nav.mainmenu');
+    var a = nav && nav.querySelector('a.active');
+    var hb = document.getElementById('hbbtn');
+    if (!a || a === hb || nav.scrollWidth <= nav.clientWidth) return;
+    var left = a.offsetLeft - nav.offsetLeft, pinned = hb ? hb.offsetWidth : 0;
+    if (left - pinned < nav.scrollLeft || left + a.offsetWidth > nav.scrollLeft + nav.clientWidth - 28) {
+      nav.scrollLeft = Math.max(0, left - pinned - 12);
+    }
+  }
+
+  function fixSubmenuSelects() {
+    document.querySelectorAll('div.submenu select, div.sectionmenu select').forEach(function (sel) {
+      if (sel.getAttribute('aria-label') || sel.getAttribute('aria-labelledby')) return;
+
+      /* Walk backwards through siblings to find a .label text node */
+      var prev = sel.previousElementSibling;
+      while (prev) {
+        if (prev.classList.contains('label') && prev.textContent.trim()) {
+          sel.setAttribute('aria-label', prev.textContent.trim());
+          return;
+        }
+        prev = prev.previousElementSibling;
+      }
+
+      /* Class-name lookup */
+      var classes = Array.from(sel.classList);
+      for (var i = 0; i < classes.length; i++) {
+        if (SELECT_LABELS[classes[i]]) {
+          sel.setAttribute('aria-label', SELECT_LABELS[classes[i]]);
+          return;
+        }
+      }
+
+      sel.setAttribute('aria-label', 'Filter');
+    });
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     7. Day of week on each timeline date
+     Fossil's date rows carry only the date ("2026-11-11"). This puts the
+     full weekday on a small line above it. The weekday comes from Ben
+     Joffe's branchless method (benjoffe.com/fast-day-of-week), as zit
+     uses it: one multiply and two shifts, exact for every 32-bit day
+     number. It is read from the date Fossil prints, so it always matches
+     that date whether the timeline shows UTC or local time. The skin CSS
+     reserves the line before this runs, so setting the name moves nothing.
+  ───────────────────────────────────────────────────────────────────── */
+  var WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  function weekdayOf(dayNumber) {   /* days since 1970-01-01 -> 0 = Sunday */
+    return ((Math.imul(dayNumber, 613566756) + 0x95000000 +
+             (dayNumber >> 1) + (dayNumber >> 4)) >>> 0) >>> 29;
+  }
+  function addWeekdays() {
+    var rows = document.querySelectorAll('div.timelineDate');
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i].hasAttribute('data-dow')) continue;
+      var m = /^(\d{4})-(\d\d)-(\d\d)$/.exec(rows[i].textContent.trim());
+      if (!m) continue;
+      /* The skin CSS shows this in a line it reserves above the date */
+      rows[i].setAttribute('data-dow', WEEKDAYS[weekdayOf(Date.UTC(+m[1], m[2] - 1, +m[3]) / 864e5)]);
+    }
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     Execute all fixes
+     The script is deferred so the DOM is fully parsed when this runs.
+     Fossil's inline config scripts have already executed, so
+     window.fossil exists and we can patch isDark immediately.
+  ───────────────────────────────────────────────────────────────────── */
+  patchIsDark();
+  addMainLandmark();
+  fixHamburgerMenu();
+  fixTimeline();
+  fixTableHeaders();
+  fixSubmenuSelects();
+  fitCharts();
+  showActiveMenuItem();
+  fixSortableHeaders();
+  addWeekdays();
+
+  /* Re-run after window.load: Fossil's timeline renderer inserts
+     .tl-canvas SVG elements into td.timelineGraph on load, and
+     Fossil's own load handlers may reset isDark. */
+  window.addEventListener('load', function () {
+    patchIsDark();
+    fixTimeline();
+    fixTableHeaders();
+    fixSubmenuSelects();
+  });
+
+}());
+
+});

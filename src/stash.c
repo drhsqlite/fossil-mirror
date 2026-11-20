@@ -234,6 +234,12 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
       db_bind_blob(&ins, ":content", &content);
     }
     db_bind_int(&ins, ":islink", file_islink(zPath));
+#if !defined(_WIN32)
+    /* vfile.isexe is the baseline's bit, so a stash would lose an
+    ** exec-bit change.  Take the file's own, as create_manifest() does.
+    ** On Windows, file_isexe() is always false, so keep vfile's. */
+    if( !deleted ) db_bind_int(&ins, ":isexe", file_isexe(zPath, RepoFILE));
+#endif
     db_step(&ins);
     db_reset(&ins);
     fossil_free(zPath);

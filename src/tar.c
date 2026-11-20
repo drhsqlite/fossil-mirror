@@ -917,7 +917,7 @@ char *tar_uuid_from_name(char **pzName){
 **                       compressed tarball.  The default value is the name of
 **                       the main branch (usually "trunk").
 **                       If r= is omitted and if the name= query parameter
-**                       contains one "/" character then the of part the
+**                       contains one "/" character then the part of the
 **                       name= value before the / becomes the TAG and the
 **                       part of the name= value  after the / is the download
 **                       filename.  If no check-in is specified by either
@@ -927,7 +927,7 @@ char *tar_uuid_from_name(char **pzName){
 **   in=PATTERN          Only include files that match the comma-separated
 **                       list of GLOB patterns in PATTERN, as with ex=
 **
-**   ex=PATTERN          Omit any file that match PATTERN.  PATTERN is a
+**   ex=PATTERN          Omit any file that matches PATTERN.  PATTERN is a
 **                       comma-separated list of GLOB patterns, where each
 **                       pattern can optionally be quoted using ".." or '..'.
 **                       Any file matching both ex= and in= is excluded.
@@ -1110,7 +1110,7 @@ void download_extra(
 ** |    COUNT   TAG   MAX_AGE    COMMENT
 **
 ** COUNT is the number of check-ins to match, starting with the most
-** recent and working bacwards in time.  Check-ins match if they contain
+** recent and working backwards in time.  Check-ins match if they contain
 ** the tag TAG.  If MAX_AGE is not an empty string, then it specifies
 ** the maximum age of any matching check-in.  COMMENT is an optional
 ** comment for each match.

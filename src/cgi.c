@@ -712,7 +712,7 @@ int cgi_same_origin(int bErrorLog){
   zRef = P("HTTP_REFERER");
   if( zRef==0 ) return 0;
   if( strchr(zRef,'%')!=0 ){
-    zToFree = strdup(zRef);
+    zToFree = fossil_strdup(zRef);
     dehttpize(zToFree);
     zRef = zToFree;
   }
@@ -724,7 +724,7 @@ int cgi_same_origin(int bErrorLog){
   }else{
     rc = 1;
   }
-  if( rc==0 && bErrorLog && fossil_strcmp(P("REQUST_METHOD"),"POST")==0 ){
+  if( rc==0 && bErrorLog && fossil_strcmp(P("REQUEST_METHOD"),"POST")==0 ){
     fossil_errorlog("warning: POST from different origin");
   }
   fossil_free(zToFree);
@@ -1094,6 +1094,7 @@ static char *get_bounded_content(
     }
   }
   *pz = &z[i];
+  *pLen -= i;
   get_line_from_string(pz, pLen);
   return z;
 }
@@ -2541,6 +2542,7 @@ void cgi_handle_scgi_request(void){
 
   assert( !g.httpUseSSL );
   while( (c = fgetc(g.httpIn))!=EOF && fossil_isdigit((char)c) ){
+    if( nHdr>=100000000 ) malformed_request("SCGI header too long");
     nHdr = nHdr*10 + (char)c - '0';
   }
   if( nHdr<16 ) malformed_request("SCGI header too short");
@@ -2983,6 +2985,10 @@ time_t cgi_rfc822_parsedate(const char *zDate){
   if( 7==sscanf(zDate, "%3[A-Za-z], %d %3[A-Za-z] %d %d:%d:%d", zIgnore,
                        &mday, zMonth, &year, &hour, &min, &sec)){
     if( year > 1900 ) year -= 1900;
+    if( year<70 || year>8099 || mday<1 || mday>31
+     || hour<0 || hour>23 || min<0 || min>59 || sec<0 || sec>60 ){
+      return 0;
+    }
     for(mon=0; azMonths[mon]; mon++){
       if( !fossil_strncmp( azMonths[mon], zMonth, 3 )){
         int nDay;
