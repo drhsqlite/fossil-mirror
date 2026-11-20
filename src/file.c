@@ -1254,7 +1254,14 @@ int file_simplify_name(char *z, int n, int slash){
     if( j>=0 ) z[j] = z[i];
     j++;
   }
-  if( j==0 ) z[j++] = '/';
+  if( j<0 ){
+    /* backup_dir() removed everything including the first component.
+  ** Absolute "/.." still has z[0]=='/'; relative "a/.." is cwd. */
+    if( z[0]=='/' ){ j = 0; z[j++] = '/'; }
+    else           { z[0] = '.'; j = 1; }
+  }else if( j==0 ){
+    z[j++] = '/';
+  }
   z[j] = 0;
   return j;
 }
