@@ -571,6 +571,7 @@ static void git_fast_import(FILE *pIn){
     }else
     if( strncmp(zLine, "commit ", 7)==0 ){
       const char *zRefName;
+      int nRef;
       gg.xFinish();
       gg.xFinish = finish_commit;
       trim_newline(&zLine[7]);
@@ -594,9 +595,11 @@ static void git_fast_import(FILE *pIn){
       ** None of the above is explained in the git-fast-export
       ** documentation.  We had to figure it out via trial and error.
       */
-      for(i=5; i<(int)strlen(zRefName) && zRefName[i]!='/'; i++){}
-      gg.tagCommit = strncmp(&zRefName[5], "tags", 4)==0; /* pattern B */
-      if( zRefName[i+1]!=0 ) zRefName += i+1;
+      nRef = (int)strlen(zRefName);
+      for(i=5; i<nRef && zRefName[i]!='/'; i++){}
+      gg.tagCommit = nRef>=9
+                  && strncmp(&zRefName[5], "tags", 4)==0; /* pattern B */
+      if( i<nRef && zRefName[i+1]!=0 ) zRefName += i+1;
       if( fossil_strcmp(zRefName, "master")==0 ) zRefName = ggit.zMasterName;
       gg.zBranch = fossil_strdup(zRefName);
       gg.fromLoaded = 0;
