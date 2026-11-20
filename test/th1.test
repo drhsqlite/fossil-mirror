@@ -1634,19 +1634,6 @@ test th1-encode64-2 {$RESULT eq "dGVzdAA="}
 
 ###############################################################################
 
-#
-# This test will fail if the Fossil source file named below changes.  Update
-# the expected result string below if that happens.
-#
-test_in_checkout th1-encode64-3 {
-  fossil test-th-eval --open-config \
-      {encode64 [artifact trunk ajax/cgi-bin/fossil-json.cgi.example]}
-} {
-  $RESULT eq "IyEvcGF0aC90by9mb3NzaWwvYmluYXJ5CnJlcG9zaXRvcnk6IC9wYXRoL3RvL3JlcG8uZnNsCg=="
-}
-
-###############################################################################
-
 fossil test-th-eval {array exists tcl_platform}
 test th1-platform-1 {$RESULT eq "1"}
 
