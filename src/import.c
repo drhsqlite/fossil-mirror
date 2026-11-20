@@ -1668,6 +1668,9 @@ static void svn_dump_import(FILE *pIn){
                                  "", zSrcPath, branchId);
             }
           }
+          if( rid==0 ){
+            fossil_fatal("svn file has no content and no source: %s", zFile);
+          }
           db_bind_text(&addFile, ":path", zFile);
           db_bind_int(&addFile, ":branch", branchId);
           db_bind_int(&addFile, ":rid", rid);
