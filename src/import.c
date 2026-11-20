@@ -1940,7 +1940,12 @@ void import_cmd(void){
     fossil_binary_mode(pIn);
   }
   if( !incrFlag ){
-    if( forceFlag ) file_delete(g.argv[2]);
+    if( forceFlag ){
+      file_delete(g.argv[2]);
+    }else if( -1 != file_size(g.argv[2], ExtFILE) ){
+      fossil_fatal("file already exists: %s (use --force to replace it)",
+                   g.argv[2]);
+    }
     db_create_repository(g.argv[2]);
   }
   db_open_repository(g.argv[2]);
