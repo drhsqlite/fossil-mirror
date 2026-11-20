@@ -1973,7 +1973,7 @@ void import_cmd(void){
       gsvn.lenTags = strlen(gsvn.zTags);
       if( gsvn.lenTrunk==0 || gsvn.lenBranches==0 || gsvn.lenTags==0 ){
         fossil_fatal("--trunk, --branches and --tags may be empty only "
-                     "with --base");
+                     "with a non-empty --base");
       }
       if( gsvn.zTrunk[gsvn.lenTrunk-1]!='/' ){
         gsvn.zTrunk = mprintf("%s/", gsvn.zTrunk);
