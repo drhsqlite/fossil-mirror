@@ -1410,6 +1410,7 @@ void reconstruct_cmd(void) {
     char *zFnDotPrivate = mprintf("%s/.private", g.argv[3]);
     private_import(zFnDotPrivate);
     free(zFnDotPrivate);
+    fix_private_blob_dependencies(0);
   }
 
   /* Skip the verify_before_commit() step on a reconstruct.  Most artifacts

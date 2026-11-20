@@ -1,5 +1,5 @@
-C Refuse\sa\sDESTINATION\sthat\sis\snot\sa\sdirectory\sin\sdeconstruct,\sso\san\sexisting\sfile\sis\snever\sreplaced.
-D 2026-11-20T21:15:35.705
+C In\sreconstruct\s--keep-private,\sundeltify\spublic\sartifacts\sthat\sare\sdeltas\sfrom\sprivate\sones\safter\sthe\sprivate\slist\sis\sread,\sso\sthe\srepository\sstays\sconsistent.
+D 2026-11-20T21:15:36.146
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -529,7 +529,7 @@ F src/pqueue.c 4bc9471b252a8624435660be144d0031c40d8c10cb023321ab9234cda156eb02
 F src/printf.c 820da1e7d9087d5c2f0dca3b748c9aeaf3fcdb4fa544171a86042f980ce10f3c
 F src/publish.c 53bb0d84c7f9f803c8535c2c2743fc06c15fa09cf0b60ebdb0227fd8caadc058
 F src/purge.c 31c8968590b9859bbb1884c314e24e6ecf05d9deb7144b72a7a3057cbb9e9b40
-F src/rebuild.c ed3bac5d7746586056a7b0f47d15f6f12d04962d669d5acd51a41ed28092d416
+F src/rebuild.c 7ab1d5c2c61c7092152f564f9d8ee033637a8e1822305b97e7ab67f8e3beb9ba
 F src/regexp.c ff7f1ecf7508ca82b6af060b5c1a108005c6e57c5ada88339f7aa0b5f72a4054
 F src/repolist.c 30f8b2415ccc5450eaf6de4d9f5c44ea688f5e1c1f2b4166b077ccf502fb1d0c
 F src/report.c 3aa94251d24255b266460bb653dd51959a0199f62bafd0cdf5362faeb502360c
@@ -991,8 +991,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 137ebe6e987886fc6fa6edaa25e203f0df8f27c6d7f3bdd7c523e3e74e5c0258
-R 3588cd421472b3fce602b34a44713889
+P ac947826fd789b0f10cce105fe91eda0eb521519a1fcb6ed94851bc4a1c84912
+R 7a667eeb2f07393e9505128db7d1053d
 U dmestas
-Z 6dc708fcd9f3509f9d9f9921bbaab1d2
+Z e07d0b0cb7b897d13fc1383819186349
 # Remove this line to create a well-formed Fossil manifest.
