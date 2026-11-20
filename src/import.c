@@ -1606,10 +1606,12 @@ static void svn_dump_import(FILE *pIn){
           srcRid = db_int(0, "SELECT trid, max(trev) FROM xrevisions"
                              " WHERE trev<=%d AND tbranch=%d",
                           srcRev, srcBranch);
-          if( srcRid>0 && srcBranch!=branchId ){
+          if( srcRid>0 ){
             db_bind_int(&addRev, ":branch", branchId);
             db_step(&addRev);
             db_reset(&addRev);
+          }
+          if( srcRid>0 && srcBranch!=branchId ){
             db_bind_int(&revSrc, ":parent", srcRid);
             db_bind_int(&revSrc, ":rev", gsvn.rev);
             db_bind_int(&revSrc, ":branch", branchId);
