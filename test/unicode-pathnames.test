@@ -27,25 +27,20 @@
 # equal after canonical decomposition and case folding.  A file system
 # that ignores case and normalization has one file for both names.
 #
-# With the setting off, fossil folds the ASCII letters and compares
-# every other byte as written, so the tests of names outside ASCII are
-# marked knownBug.  Fossil also checks out, updates to and commits a
-# version that has two names for one file, so those tests are marked
-# knownBug for ASCII names too.
-#
-# On macOS fossil_path_to_utf8 (src/utf8.c) recomposes each argument
-# before fossil compares it; see the comments there for details and
-# Apple references.  The loop below clears knownBug for pairs where
-# fossil_path_to_utf8 will convert to the checked-in name, such that
-# "fossil test-echo" prints the converted argument.
+# The harness classifies the temporary volume once at startup
+# (::fs_type).  This file predicts match, miss, or untestable from
+# that classification, Fossil argv rewriting, and the rules above.
+# -utf-assurance selects how many pairs to run: smoke (one per
+# behavior class), ci (the lists below), or stress (ci plus generated
+# pairs).  Unmet predictions fail the run.
 #
 # Case folding maps both the sharp s, U+00DF, and the capital sharp s,
 # U+1E9E, to the two letters "ss", so by D145 a name with a sharp s and
 # the same name with "ss" are one file.  ext4 with case folding folds
 # each sharp s to "ss" and has one file for the two names.  NTFS and
 # HFS+ convert each character to one character, and have two files.
-# The sharp-s tests expect one file, because a check-out of both names
-# loses a file on a file system that has one file for them.
+# Collide tests require two names on disk, so they are skipped when
+# ::fs_type says this volume has one entry for the pair.
 #
 
 require_no_open_checkout
@@ -55,6 +50,9 @@ require_no_open_checkout
 #
 set upSavedEncoding [encoding system]
 encoding system utf-8
+
+set upPredMet 0
+set upPredUnmet 0
 
 # Returns NAME with each character outside ASCII written as a Tcl
 # escape, so that two spellings that look the same can be distinguished.
@@ -87,48 +85,89 @@ proc up_new_version {} {
   return $hash
 }
 
-# Each row is a label, the pathname that is checked in, another
-# spelling of it, and the constraint for the tests that need fossil to
-# treat the two as one name.
+# Which ::fs_type key governs whether this volume stores A and B as one
+# directory entry.  Case-only pairs use ascii_case; NFC/NFD and
+# compatibility decompositions use normalization; sharp-s uses sharp_s.
 #
-set upSame [list \
-  ascii      readme.txt        README.TXT        "" \
-  ascii-dir  dir/notes.txt     DIR/Notes.TXT     "" \
-  latin      "\u00e4rger.txt"  "\u00c4RGER.TXT"  knownBug \
+proc up_fs_key {label} {
+  switch -exact -- $label {
+    sharp-s - capital-sharp-s - stress-sharp {
+      return sharp_s
+    }
+    nfd - nfd-case - nfd-dir - marks - kana - arabic - angstrom -
+    hangul - han-compat - devanagari - stress-nfd {
+      return normalization
+    }
+    default {
+      return ascii_case
+    }
+  }
+}
+
+# Return 1 when ::fs_type says this volume has one directory entry for
+# the two spellings of LABEL.
+#
+proc up_fs_collides {label} {
+  return [dict get $::fs_type [up_fs_key $label]]
+}
+
+# Return 1 when fossil test-echo rewrites B to the checked-in spelling A.
+#
+proc up_argv_maps {a b} {
+  fossil test-echo $b
+  return [expr {[string first "argv\[2\] = \[$a\]" $::RESULT] >= 0}]
+}
+
+# Record whether ACTUAL equals EXPECTED for prediction NAME.
+#
+proc up_expect {name actual expected} {
+  set ok [expr {$actual eq $expected}]
+  if {$ok} {
+    incr ::upPredMet
+  } else {
+    incr ::upPredUnmet
+  }
+  test_eq $name $actual $expected
+}
+
+# Each row is a label, the pathname that is checked in, and another
+# spelling that is a D145 caseless match (or treated as one file in
+# the header for compatibility pairs).
+#
+set upSameAll [list \
+  ascii      readme.txt        README.TXT \
+  ascii-dir  dir/notes.txt     DIR/Notes.TXT \
+  latin      "\u00e4rger.txt"  "\u00c4RGER.TXT" \
   greek      "\u03b1\u03c1\u03c7\u03b5\u03af\u03bf.txt" \
-             "\u0391\u03a1\u03a7\u0395\u038a\u039f.TXT"  knownBug \
+             "\u0391\u03a1\u03a7\u0395\u038a\u039f.TXT" \
   cyrillic   "\u0444\u0430\u0439\u043b.txt" \
-             "\u0424\u0410\u0419\u041b.TXT"  knownBug \
+             "\u0424\u0410\u0419\u041b.TXT" \
   sigma      "\u03bf\u03b4\u03cc\u03c2.txt" \
-             "\u039f\u0394\u038c\u03a3.TXT"  knownBug \
-  nfd        "r\u00e9sum\u00e9.txt"  "re\u0301sume\u0301.txt"  knownBug \
-  nfd-case   "cr\u00e8me.txt"  "CRE\u0300ME.TXT"  knownBug \
-  marks      "\u1ead.txt"      "a\u0323\u0302.txt"  knownBug \
-  angstrom   "\u00e5.txt"      "\u212b.TXT"      knownBug \
+             "\u039f\u0394\u038c\u03a3.TXT" \
+  nfd        "r\u00e9sum\u00e9.txt"  "re\u0301sume\u0301.txt" \
+  nfd-case   "cr\u00e8me.txt"  "CRE\u0300ME.TXT" \
+  marks      "\u1ead.txt"      "a\u0323\u0302.txt" \
+  angstrom   "\u00e5.txt"      "\u212b.TXT" \
   hangul     "\ud55c\uae00.txt" \
-             "\u1112\u1161\u11ab\u1100\u1173\u11af.txt"  knownBug \
-  nfd-dir    "caf\u00e9/menu.txt"  "CAFE\u0301/MENU.TXT"  knownBug \
-  sharp-s    "stra\u00dfe.txt"  "STRASSE.TXT"    knownBug \
-  capital-sharp-s  "gro\u00df.txt"  "GRO\u1e9e.TXT"  knownBug \
-  han        "\u4e2d\u6587.txt"  "\u4e2d\u6587.TXT"  "" \
-  han-compat "\u8c48.txt"      "\uf900.txt"      knownBug \
+             "\u1112\u1161\u11ab\u1100\u1173\u11af.txt" \
+  nfd-dir    "caf\u00e9/menu.txt"  "CAFE\u0301/MENU.TXT" \
+  sharp-s    "stra\u00dfe.txt"  "STRASSE.TXT" \
+  capital-sharp-s  "gro\u00df.txt"  "GRO\u1e9e.TXT" \
+  han        "\u4e2d\u6587.txt"  "\u4e2d\u6587.TXT" \
+  han-compat "\u8c48.txt"      "\uf900.txt" \
   kana       "\u30ac\u30d1.txt" \
-             "\u30ab\u3099\u30cf\u309a.txt"  knownBug \
+             "\u30ab\u3099\u30cf\u309a.txt" \
   fullwidth  "\uff46\uff49\uff4c\uff45.txt" \
-             "\uff26\uff29\uff2c\uff25.TXT"  knownBug \
+             "\uff26\uff29\uff2c\uff25.TXT" \
   arabic     "\u0623\u062d\u0645\u062f.txt" \
-             "\u0627\u0654\u062d\u0645\u062f.txt"  knownBug \
-  devanagari "\u0915\u093c.txt"  "\u0958.txt"    knownBug \
+             "\u0627\u0654\u062d\u0645\u062f.txt" \
+  devanagari "\u0915\u093c.txt"  "\u0958.txt" \
 ]
 
 # Each row is a label, the pathname that is checked in, and a pathname
-# that is a different file with the setting on or off: a letter without
-# its accent, a letter with another accent, a digit in place of its
-# superscript form, a simplified Chinese character in place of the
-# traditional one, katakana in place of hiragana, and ASCII letters in
-# place of fullwidth ones.
+# that is a different file with the setting on or off.
 #
-set upDifferent [list \
+set upDifferentAll [list \
   accent       "expos\u00e9.txt"    expose.txt \
   other-mark   "\u00e5ngstr.txt"    "\u00e4ngstr.txt" \
   superscript  "x\u00b2.txt"        x2.txt \
@@ -136,6 +175,65 @@ set upDifferent [list \
   kana-script  "\u304b\u306a.txt"   "\u30ab\u30ca.txt" \
   fullwidth-ascii  "\uff41\uff42.txt"  ab.txt \
 ]
+
+set upCollideAll [list \
+  ascii     readme.txt             README.TXT \
+  latin     "\u00e4rger.txt"       "\u00c4RGER.TXT" \
+  nfd       "r\u00e9sum\u00e9.txt" "re\u0301sume\u0301.txt" \
+  nfd-case  "cr\u00e8me.txt"       "CRE\u0300ME.TXT" \
+  sharp-s   "stra\u00dfe.txt"      "STRASSE.TXT" \
+]
+
+# Smoke: one pair per behavior class.
+set upSmokeSame {ascii latin sigma nfd sharp-s han-compat}
+set upSmokeDifferent {accent}
+set upSmokeCollide {ascii}
+
+# Stress-only pairs (not in the ci lists).
+set upStressSame [list \
+  stress-latin  "\u00f6ffentlich.txt"  "\u00d6FFENTLICH.TXT" \
+  stress-nfd    "na\u00efve.txt"       "nai\u0308ve.txt" \
+  stress-sharp  "gro\u00dfartig.txt"   "GROSSARTIG.TXT" \
+]
+set upStressDifferent [list \
+  stress-miss   "caf\u00e9.txt"        cafe.txt \
+]
+set upStressCollide [list \
+  stress-latin  "\u00f6ffentlich.txt"  "\u00d6FFENTLICH.TXT" \
+  stress-nfd    "na\u00efve.txt"       "nai\u0308ve.txt" \
+]
+
+# Build the pair lists for the current -utf-assurance level.
+#
+proc up_select {all smokeLabels} {
+  set level [test_utf_assurance]
+  if {$level eq "smoke"} {
+    set out [list]
+    foreach {label a b} $all {
+      if {$label in $smokeLabels} {
+        lappend out $label $a $b
+      }
+    }
+    return $out
+  }
+  return $all
+}
+
+set upSame [up_select $upSameAll $upSmokeSame]
+set upDifferent [up_select $upDifferentAll $upSmokeDifferent]
+set upCollide [up_select $upCollideAll $upSmokeCollide]
+
+if {[test_utf_assurance] eq "stress"} {
+  foreach {label a b} $upStressSame {
+    lappend upSame $label $a $b
+  }
+  foreach {label a b} $upStressDifferent {
+    lappend upDifferent $label $a $b
+  }
+  foreach {label a b} $upStressCollide {
+    lappend upCollide $label $a $b
+  }
+}
 
 ###############################################################################
 #
@@ -146,7 +244,7 @@ test_setup
 fossil settings case-sensitive 1
 
 set upNames [list]
-foreach {label a b constraint} $upSame {
+foreach {label a b} $upSame {
   file mkdir [file dirname $a]
   write_file $a "$label\n"
   lappend upNames $a
@@ -162,107 +260,97 @@ fossil ls
 test_eq unicode-pathnames-ls [lsort [split [normalize_result] \n]] \
     [lsort $upNames]
 
-# upConverted lists the pairs whose other spelling fossil converts to
-# the checked-in one when it reads its arguments.  Each is one name to
-# fossil, so its tests with the setting off are not marked knownBug.
+# upConverted lists pairs whose other spelling fossil rewrites to the
+# checked-in name when it reads its arguments.
 #
 set upConverted [list]
-set upRows [list]
-foreach {label a b constraint} $upSame {
-  fossil test-echo $b
-  if {[string first "argv\[2\] = \[$a\]" $RESULT] >= 0} {
+foreach {label a b} $upSame {
+  if {[up_argv_maps $a $b]} {
     lappend upConverted $label
-    set constraint ""
   }
-  lappend upRows $label $a $b $constraint
 }
-set upSame $upRows
 
 # With the setting on, the other spelling is not a file under
-# management, unless fossil converts it.
+# management, unless fossil converts it.  Positive: converted pairs
+# find the file.  Negative: unconverted pairs do not.
 #
-foreach {label a b constraint} $upSame {
+foreach {label a b} $upSame {
   up_show $label $a $b
   set converted [expr {$label in $upConverted}]
   fossil ls $b
-  test_eq unicode-pathnames-on-$label-ls [normalize_result] \
+  up_expect unicode-pathnames-on-$label-ls [normalize_result] \
       [expr {$converted ? $a : ""}]
   fossil cat $b {*}[expr {$converted ? "" : "-expectError"}]
-  test_eq unicode-pathnames-on-$label-cat $CODE [expr {!$converted}]
+  up_expect unicode-pathnames-on-$label-cat $CODE [expr {!$converted}]
 }
 
-# With the setting off, "fossil ls", "fossil cat" and "fossil rm" find
-# the file by its other spelling.
+# With the setting off, D145 matches must be found by the other
+# spelling; upDifferent pairs must not.
 #
 fossil settings case-sensitive 0
 
-foreach {label a b constraint} $upSame {
+foreach {label a b} $upSame {
   up_show $label $a $b
   fossil ls $b
-  test_eq unicode-pathnames-off-$label-ls [normalize_result] $a $constraint
-  fossil cat $b {*}[expr {$constraint eq "" ? "" : "-$constraint"}]
-  test_eq unicode-pathnames-off-$label-cat [normalize_result] $label \
-      $constraint
+  up_expect unicode-pathnames-off-$label-ls [normalize_result] $a
+  fossil cat $b
+  up_expect unicode-pathnames-off-$label-cat-code $CODE 0
+  up_expect unicode-pathnames-off-$label-cat [normalize_result] $label
   fossil rm --soft -n $b
-  test_eq unicode-pathnames-off-$label-rm [normalize_result] "DELETED $a" \
-      $constraint
+  up_expect unicode-pathnames-off-$label-rm [normalize_result] "DELETED $a"
 }
 
 foreach {label a b} $upDifferent {
   up_show $label $a $b
   fossil ls $b
-  test_eq unicode-pathnames-off-$label-ls [normalize_result] ""
+  up_expect unicode-pathnames-off-$label-ls [normalize_result] ""
   fossil cat $b -expectError
-  test_eq unicode-pathnames-off-$label-cat $CODE 1
+  up_expect unicode-pathnames-off-$label-cat $CODE 1
   fossil rm --soft -n $b
-  test_eq unicode-pathnames-off-$label-rm [normalize_result] ""
+  up_expect unicode-pathnames-off-$label-rm [normalize_result] ""
 }
 
 # A file on disk under the other spelling is not an extra file, and
-# "fossil add" does not add it.  These tests need a file system that
-# has two files for the two spellings.
+# "fossil add" does not add it.  Needs a volume that stores two names.
 #
 set upOneFile [list]
-foreach {label a b constraint} $upSame {
+foreach {label a b} $upSame {
   up_show $label $a $b
-  if {[file exists $b] || $label in $upConverted} {
+  if {[up_fs_collides $label] || $label in $upConverted} {
+    lappend upOneFile $label
+    continue
+  }
+  # Confirm the working tree still has two distinct entries.
+  if {[file exists $b]} {
     lappend upOneFile $label
     continue
   }
   file mkdir [file dirname $b]
   write_file $b "other spelling\n"
   fossil extras
-  test_eq unicode-pathnames-off-$label-extras [normalize_result] "" \
-      $constraint
+  up_expect unicode-pathnames-off-$label-extras [normalize_result] ""
   fossil add $b
   fossil changes
-  test_eq unicode-pathnames-off-$label-add [normalize_result] "" $constraint
+  up_expect unicode-pathnames-off-$label-add [normalize_result] ""
   fossil revert
   file delete $b
   if {[file dirname $b] ne "."} {
-    file delete [file dirname $b]
+    catch {file delete [file dirname $b]}
   }
 }
 if {[llength $upOneFile] > 0} {
   test_skip_part "extras and add tests of [join $upOneFile {, }]:\
-      fossil or the file system has one name for both spellings"
+      filesystem type or argv rewriting has one name for both spellings\
+      (fs_type: $::fs_type)"
 }
 
 ###############################################################################
 #
 # A version made with the setting on has both spellings of a pathname.
-# With the setting off, fossil does not commit from a check-out of that
-# version and does not update to it, because a file system that has one
-# file for both names would give both the same content.
+# With the setting off, fossil must refuse to commit from a check-out of
+# that version and refuse to update to it, because a file system that
+# has one file for both names would give both the same content.
 #
-set upCollide [list \
-  ascii     readme.txt             README.TXT \
-  latin     "\u00e4rger.txt"       "\u00c4RGER.TXT" \
-  nfd       "r\u00e9sum\u00e9.txt" "re\u0301sume\u0301.txt" \
-  nfd-case  "cr\u00e8me.txt"       "CRE\u0300ME.TXT" \
-  sharp-s   "stra\u00dfe.txt"      "STRASSE.TXT" \
-]
-
 set upOneFile [list]
 foreach {label a b} $upCollide {
   up_show $label $a $b
@@ -273,7 +361,11 @@ foreach {label a b} $upCollide {
   fossil add $a plain.txt
   fossil commit -m "first spelling"
   set upFirst [up_new_version]
-  if {[file exists $b] || $label in $upConverted} {
+  set converted [up_argv_maps $a $b]
+  if {$converted} {
+    lappend upConverted $label
+  }
+  if {[up_fs_collides $label] || $converted || [file exists $b]} {
     lappend upOneFile $label
     continue
   }
@@ -284,24 +376,29 @@ foreach {label a b} $upCollide {
 
   fossil settings case-sensitive 0
   write_file plain.txt "edited\n"
-  fossil commit -m "edit plain.txt" -expectError -knownBug
-  test_eq unicode-pathnames-collide-$label-commit $CODE 1 knownBug
+  fossil commit -m "edit plain.txt" -expectError
+  up_expect unicode-pathnames-collide-$label-commit $CODE 1
 
   fossil settings case-sensitive 1
   fossil revert
   fossil update $upFirst
   fossil settings case-sensitive 0
-  fossil update $upBoth -expectError -knownBug
-  test_eq unicode-pathnames-collide-$label-update $CODE 1 knownBug
-  test_eq unicode-pathnames-collide-$label-update-file [file exists $b] 0 \
-      knownBug
+  fossil update $upBoth -expectError
+  up_expect unicode-pathnames-collide-$label-update $CODE 1
+  up_expect unicode-pathnames-collide-$label-update-file \
+      [file exists $b] 0
 }
 if {[llength $upOneFile] > 0} {
   test_skip_part "commit and update tests of [join $upOneFile {, }]:\
-      fossil or the file system has one name for both spellings"
+      filesystem type or argv rewriting has one name for both spellings\
+      (fs_type: $::fs_type)"
 }
 
 ###############################################################################
+
+protOut "***** unicode-pathnames predictions:\
+met=$upPredMet unmet=$upPredUnmet"
+test unicode-pathnames-predictions-met {$upPredUnmet == 0}
 
 encoding system $upSavedEncoding
 test_cleanup

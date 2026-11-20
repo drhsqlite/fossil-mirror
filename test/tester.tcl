@@ -23,7 +23,8 @@
 #
 # The first argument is the fossil executable to test, followed by
 # the test files, so "update" runs test/update.test.  See test/README.md
-# for details of options such as -strict, -halt, -prot, -trials etc.
+# for details of options such as -strict, -halt, -prot, -trials,
+# -utf-assurance etc.
 #
 
 # Minimum Tcl is 8.6. auto.def should have found us a suitable Tcl
@@ -88,6 +89,23 @@ if {$i >= 0} {
     exit 1
   }
   set TRIALS_EXPLICIT 1
+  set argv [lreplace $argv $i [expr {$i + 1}]]
+}
+
+# Unicode case-folding assurance level for unicode-pathnames.test.
+# Unrelated to -trials. smoke ⊂ ci ⊂ stress; default is smoke.
+set UTF_ASSURANCE smoke
+set i [lsearch -exact $argv -utf-assurance]
+if {$i >= 0} {
+  if {$i + 1 >= [llength $argv]} {
+    puts stderr "missing value for -utf-assurance"
+    exit 1
+  }
+  set UTF_ASSURANCE [lindex $argv [expr {$i + 1}]]
+  if {$UTF_ASSURANCE ni {smoke ci stress}} {
+    puts stderr "-utf-assurance requires smoke, ci, or stress"
+    exit 1
+  }
   set argv [lreplace $argv $i [expr {$i + 1}]]
 }
 
@@ -588,6 +606,49 @@ proc test_trials {{heavy 0}} {
     return [expr {min(5, $::TRIALS)}]
   }
   return $::TRIALS
+}
+
+# Return the -utf-assurance level: smoke, ci, or stress.
+proc test_utf_assurance {} {
+  return $::UTF_ASSURANCE
+}
+
+# After writing PATH A under DIR, return 1 if PATH B names the same
+# directory entry on this volume.
+proc fs_paths_collide {dir a b} {
+  set pa [file join $dir $a]
+  set pb [file join $dir $b]
+  set parent [file dirname $pa]
+  if {![file isdirectory $parent]} {
+    file mkdir $parent
+  }
+  write_file $pa "fs-probe"
+  return [file exists $pb]
+}
+
+# Classify the temporary volume once: whether ASCII case, NFC vs NFD,
+# and sharp-s vs "ss" collapse to one directory entry.  Stores a dict
+# on ::fs_type with keys ascii_case, normalization, and sharp_s, each
+# 1 when the two spellings are one entry.  Called at harness startup
+# for every run, independent of -utf-assurance.
+proc fs_classify {} {
+  set dir [file join $::tempPath fs_classify_[pid]]
+  file mkdir $dir
+  set savedEncoding [encoding system]
+  encoding system utf-8
+  set ascii [fs_paths_collide $dir Readme.txt readme.txt]
+  catch {file delete -force {*}[glob -nocomplain -directory $dir *]}
+  set norm [fs_paths_collide $dir "\u00e9.txt" "e\u0301.txt"]
+  catch {file delete -force {*}[glob -nocomplain -directory $dir *]}
+  set sharp [fs_paths_collide $dir "stra\u00dfe.txt" strasse.txt]
+  encoding system $savedEncoding
+  catch {file delete -force $dir}
+  set ::fs_type [dict create \
+      ascii_case $ascii \
+      normalization $norm \
+      sharp_s $sharp]
+  protOut "***** filesystem type:\
+ascii_case=$ascii normalization=$norm sharp_s=$sharp" 1
 }
 
 # This procedure only returns non-zero if the Tcl integration feature was
@@ -1169,6 +1230,13 @@ please set TEMP variable in environment, error: $error"
 
 protInit $fossilexe
 protOut "***** Testing $fossilexe"
+protOut "***** utf-assurance: $::UTF_ASSURANCE" 1
+
+# Classify the temp volume before any .test file runs.  Always, for
+# every -utf-assurance level and even when unicode-pathnames is not
+# among the files under test.
+fs_classify
+
 set ::tempKeepHome 1
 
 # Start in tempHomePath to help avoid errors with require_no_open_checkout

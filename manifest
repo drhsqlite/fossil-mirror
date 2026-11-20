@@ -1,5 +1,5 @@
-C The\stwo\stest/settings*.test\sscripts\swere\spartially\sredundant\sand\sended\nup\sretesting\seach\ssetting\stwice.\s\sIt\swas\sfor\sdifferent\sreasons\sin\seach\ncase,\sbut\swe\scan\sget\sthe\sbenefit\sby\sdoing\sone\spass\sfor\sall\ssettings\sand\naugmenting\sit\swith\sa\ssmall\srandom\ssampling\sin\sthe\ssecond\spass.\s\sSaves\n~8\sseconds\shere.
-D 2026-11-20T16:35:10.672
+C Reworked\sthe\sUTF-8\sfile\sname\sclassification\stests\salong\stwo\slines:\n\n\s\s*\s\sStratify\sthe\stype\schecks\sso\sthat\sa\snew\s`-utf-assurance=smoke`\stest\n\s\s\s\s\slevel\schecks\sonly\sone\sof\seach\stype.\s\sA\shigher\s=ci\slevel\sis\sthe\sprior\n\s\s\s\s\slevel\sof\stest\sredundancy,\sand\sa\snew\s=stress\slevel\sis\smerciless.\n\s\s*\s\sTake\sthe\sactual\sfilesystem\sbehavior\sinto\saccount\sby\sprobing\sonce\sat\n\s\s\s\s\stester.tcl\sstartup\stime\sso\swe\sdon't\shave\sto\shard-code\sa\sstatic\n\s\s\s\s\s"failure\sexpected"\sflag\sand\shope\swe\sgot\sit\sall\sright.\s\sWe\snow\n\s\s\s\s\s*predict*\sbehavior\sat\sruntime\sand\sreport\sdivergences.\n\nThis\scuts\sthe\stest/unicode-pathnames.tcl\sruntime\sto\sa\sthird.\s\sIt\sdoesn't\nsave\smuch,\snet,\ssince\sthe\stotal\swas\sonly\sa\sfew\sseconds,\sbut\sthere's\smore\nto\sthe\sabove\sthan\sspeed.
+D 2026-11-20T17:18:39.501
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -614,7 +614,7 @@ F src/xsystem.c c8c87776fa160083216bd35c69292a6c3b58870e4c9f6ff1859426b99ea1c106
 F src/zip.c fc5b5c2714c937ecaae4fc2e915cd01f0bde284e543e203b921641ca33c9154d
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
-F test/README.md bdee798064881f3887dcdda2a3e35f1eeb6128b76f1ebce32dca530df693914b
+F test/README.md 7ab46022028be1be11ec9e1eb8856c28f484726c093e17804882a68161dd19ac
 F test/amend.test bde6415a64dd0eb8b34c0c7aa8005fd523dd81208a28b9cffc9c9d381af342fb
 F test/branch-tag.test ea8f83c3ea18fe668181894a238525164c7df753976d4f29f60fb8dfe16fe7cb
 F test/clean.test 67d6d1b95444b6cb15f2cb4694912af10db7afe9c343633aba6acdfe7b211fce
@@ -669,7 +669,7 @@ F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 38517706363b152452eaa75b141417b29547e46e76490b9ccd2000cc6a59b780
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 3229ead69af5514e8d8f03cb4997f902dcac9022aef8f1f87f55f5eb6936fc10
+F test/tester.tcl d4f827b4e3d322801a802650b91156fb1a1b32849714a412696422fe3d49f080
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 8234524e3ad917a031066e97ee553e873e4bda9ffe75c7d33766ffd2e1917a38
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -687,7 +687,7 @@ F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
 F test/th1.test 6ffcb40dd5e98d4374c3f34e722432cd0876b0d6156ed7f982528d20df87b63f
-F test/unicode-pathnames.test a0db00fc394e6aa410baa30061838a4effbf4bf05804f4bd3906e62db5075e7b
+F test/unicode-pathnames.test b48feea167754471825ddf3da9881495ea2ebf2ae50ecf9d4e2911ef38157002
 F test/unversioned.test 7b016607c4d6fe004193975bb8ac50747f1c580f1a2835ab03750a037c5b6598
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
@@ -996,8 +996,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 36c9bd5926d4cace632483812c6c8167cdd0a8a6bfd035ff2439f6af8b3fcd7c
-R 2ca016fd9776ea3add598ec7fcb59693
+P ebf63868b1416503ab4b1cd487731c8009b2c048ede569c2740716e2a0a110b6
+R 19b543f714c4c7e203742197e3abe817
 U wyoung
-Z e69ab0ac08bbb9cf41be5e941bbbed46
+Z 2802d12ca32f6f864d24cbf682f97897
 # Remove this line to create a well-formed Fossil manifest.
