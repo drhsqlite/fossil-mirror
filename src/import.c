@@ -1551,7 +1551,7 @@ static void svn_dump_import(FILE *pIn){
         svn_free_rec(&rec);
         continue;
       }
-      if( zAction==0 ){
+      if( zAction==0 || gsvn.rev<0 ){
         fossil_fatal("svn-dump data format broken");
       }
       if( zFile[0]==0 ){
