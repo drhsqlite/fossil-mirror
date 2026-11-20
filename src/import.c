@@ -1610,7 +1610,7 @@ static void svn_dump_import(FILE *pIn){
             db_step(&addRev);
             db_reset(&addRev);
           }
-          if( srcRid>0 && srcBranch!=branchId ){
+          if( srcRid>0 && (srcBranch!=branchId || zFile[0]==0) ){
             db_bind_int(&revSrc, ":parent", srcRid);
             db_bind_int(&revSrc, ":rev", gsvn.rev);
             db_bind_int(&revSrc, ":branch", branchId);
