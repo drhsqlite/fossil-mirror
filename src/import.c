@@ -927,6 +927,9 @@ static int svn_read_headers(FILE *pIn, SvnRecord *rec){
     *sep = 0;
     rec->aHeaders[rec->nHeaders-1].zVal = sep+1;
     sep = strchr(rec->aHeaders[rec->nHeaders-1].zVal, '\n');
+    if( !sep ){
+      fossil_fatal("svn-dump data format broken");
+    }
     *sep = 0;
     while(rec->aHeaders[rec->nHeaders-1].zVal
        && fossil_isspace(*(rec->aHeaders[rec->nHeaders-1].zVal)) )
