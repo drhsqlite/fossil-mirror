@@ -1,5 +1,5 @@
-C revert.test\schecked\sthe\swrong\sfile\sso\sit\scould\snever\sfail.\sAlso\sremove\nduplicated\slist.
-D 2026-11-20T12:12:56.559
+C Incorrect\svariable\sname\sused\sin\swiki.test
+D 2026-11-20T12:15:07.813
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -687,7 +687,7 @@ F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
 F test/utf8-comment.txt 0964b79ef7d4065702dd6c304b44d26a796409e2e5a3e5eb31d64300df58b165
 F test/valgrind-www.tcl b298cdae985190042a1cf83782af99ec28875b03
-F test/wiki.test 8a6977e1231c4ebcc8065e831db579eb624d4ad74458c987c00b5ebc8b3b0eb3
+F test/wiki.test 89a56c45a1056df9bffc0c3cbefc69a63b7988a3367aef759f15ab417da41fbc
 F tools/co-rsync.tcl bcc9d6d68374f0d03cb4db5a06b0680015df8ed1d185c235939e7a0b0b966e17 x
 F tools/codecheck1.c 6d1bc50e8e3273640f681d8dab370ba05de8ca1ad1e7b4af0714e1f1d25990ac
 F tools/cvs2fossil/changeset 1c99ad8ca9b2f049266d63e0bcc5f26196c72627
@@ -986,8 +986,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d7931d72bbaa5554384205c9e4273bc5943b22890ed36ec8daf1880ddf78de25
-R 0e28d77c356cdd12bbddf0867d58a25e
+P 50c96b2d0c1c0bda74b3c93420823ff8e3afd7c6f7d3c192a7ae43d55b348561
+R 56ec8b77bf7a33dd587c4bdea9f817ce
 U danshearer
-Z b7abcebb364285c8c13a6d989b9eeebd
+Z b3b0e61e7450012ab5e998a836506434
 # Remove this line to create a well-formed Fossil manifest.

@@ -282,7 +282,7 @@ test wiki-37 {[llength $technotelist] == 8}
 # order (with the technote id as the first word of the line)
 fossil wiki list --technote --show-technote-ids
 set technoteidlist [split $RESULT "\n"]
-test wiki-38 {[llength $technotelist] == 8}
+test wiki-38 {[llength $technoteidlist] == 8}
 for {set i 0} {$i < [llength $technotelist]} {incr i} {
   set match "???????????????????????????????????????? "
   append match [lindex $technotelist $i]
