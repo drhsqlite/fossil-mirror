@@ -627,6 +627,9 @@ static void git_fast_import(FILE *pIn){
     }else
     if( strncmp(zLine, "data ", 5)==0 ){
       fossil_free(gg.aData); gg.aData = 0;
+      if( !fossil_isdigit(zLine[5]) || strtoll(&zLine[5], 0, 10)>=0x7fffffff ){
+        goto malformed_line;
+      }
       gg.nData = atoi(&zLine[5]);
       if( gg.nData ){
         int got;
