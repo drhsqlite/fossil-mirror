@@ -1833,7 +1833,6 @@ void import_cmd(void){
   Stmt q;
   int forceFlag = find_option("force", "f", 0)!=0;
   int svnFlag = find_option("svn", 0, 0)!=0;
-  int gitFlag = find_option("git", 0, 0)!=0;
   int omitRebuild = find_option("no-rebuild",0,0)!=0;
   int omitVacuum = find_option("no-vacuum",0,0)!=0;
   const char *zDefaultUser = find_option("admin-user","A",1);
@@ -1883,6 +1882,7 @@ void import_cmd(void){
     gimport.zTrunkName = fossil_strdup(db_main_branch());
   }
 
+  find_option("git", 0, 0);
   if( svnFlag ){
     /* Get --svn related options here, so verify_all_options() fails when
      * svn-only options are specified with --git
@@ -1904,7 +1904,7 @@ void import_cmd(void){
     gsvn.zTags = find_option("tags", 0, 1);
     gsvn.revFlag = find_option("rev-tags", 0, 0)
                 || (incrFlag && !find_option("no-rev-tags", 0, 0));
-  }else if( gitFlag ){
+  }else{
     const char *zGitUser;
     markfile_in = find_option("import-marks", 0, 1);
     markfile_out = find_option("export-marks", 0, 1);
