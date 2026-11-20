@@ -358,7 +358,10 @@ static int purge_extract_item(
     db_finalize(&q);
     fossil_fatal("missing purge-item %d", piid);
   }
-  if( bag_find(&busy, piid) ) return 1;
+  if( bag_find(&busy, piid) ){
+    db_finalize(&q);
+    fossil_fatal("purge-item %d is part of a delta cycle", piid);
+  }
   srcid = db_column_int(&q, 1);
   blob_zero(pOut);
   blob_zero(&x);
