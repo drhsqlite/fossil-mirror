@@ -26,7 +26,6 @@
 #
 proc revert-test {testid revertArgs expectedRevertOutput args} {
   global RESULT
-  set passed 1
 
   set args [dict merge {
     -changes {} -addremove {} -exists {} -notexists {}
@@ -44,6 +43,7 @@ proc revert-test {testid revertArgs expectedRevertOutput args} {
 
   set fileExistsTests [list -exists 1 does -notexists 0 should]
   foreach {key expected verb} $fileExistsTests {
+    set passed 1
     foreach path [dict get $args $key] {
       if {[file exists $path] != $expected} {
         set passed 0
