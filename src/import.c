@@ -674,6 +674,7 @@ static void git_fast_import(FILE *pIn){
       z = strchr(zLine, ' ');
       while( fossil_isspace(*z) ) z++;
       if( (zTo=strchr(z, '>'))==NULL ) goto malformed_line;
+      if( zTo[1]!=' ' ) goto malformed_line;
       *(++zTo) = '\0';
       /*
       ** If --attribute requested, lookup user in fx_ table by email address,
