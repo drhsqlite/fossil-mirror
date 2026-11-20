@@ -904,6 +904,22 @@ static void svn_free_rec(SvnRecord *rec){
   blob_reset(&rec->content);
 }
 
+/*
+** Return the decimal number at z.  It must be all digits up to the byte
+** cEnd and no more than 2147483647, or else the dump is broken.
+*/
+static int svn_number(const char *z, char cEnd){
+  i64 v = 0;
+  int i;
+  for(i=0; fossil_isdigit(z[i]) && v<=0x7fffffff; i++){
+    v = v*10 + z[i] - '0';
+  }
+  if( i==0 || z[i]!=cEnd || v>0x7fffffff ){
+    fossil_fatal("svn-dump data format broken");
+  }
+  return (int)v;
+}
+
 static int svn_read_headers(FILE *pIn, SvnRecord *rec){
   char zLine[1000];
 
@@ -955,10 +971,7 @@ static void svn_read_props(FILE *pIn, SvnRecord *rec){
   rec->nProps = 0;
   zLen = svn_find_header(*rec, "Prop-content-length");
   if( zLen ){
-    nRawProps = atoi(zLen);
-    if( nRawProps<0 ){
-      fossil_fatal("svn-dump data format broken");
-    }
+    nRawProps = svn_number(zLen, 0);
   }
   if( nRawProps ){
     int got;
@@ -978,9 +991,9 @@ static void svn_read_props(FILE *pIn, SvnRecord *rec){
       char *eol;
       int propLen;
       if( zLine[0]=='D' ){
-        propLen = atoi(&zLine[2]);
+        propLen = svn_number(&zLine[2], '\n');
         eol = strchr(zLine, '\n');
-        if( eol==0 || eol>=zEnd || propLen<0 || propLen>zEnd-eol ){
+        if( eol==0 || eol>=zEnd || propLen>zEnd-eol ){
           fossil_fatal("svn-dump data format broken");
         }
         zLine = eol+1+propLen+1;
@@ -988,13 +1001,13 @@ static void svn_read_props(FILE *pIn, SvnRecord *rec){
         if( zLine[0]!='K' ){
           fossil_fatal("svn-dump data format broken");
         }
-        propLen = atoi(&zLine[2]);
+        propLen = svn_number(&zLine[2], '\n');
         eol = strchr(zLine, '\n');
         if( eol==0 || eol>=zEnd ){
           fossil_fatal("svn-dump data format broken");
         }
         zLine = eol+1;
-        if( propLen<0 || propLen>=zEnd-zLine ){
+        if( propLen>=zEnd-zLine ){
           fossil_fatal("svn-dump data format broken");
         }
         eol = zLine+propLen;
@@ -1010,13 +1023,13 @@ static void svn_read_props(FILE *pIn, SvnRecord *rec){
         if( zLine[0]!='V' ){
           fossil_fatal("svn-dump data format broken");
         }
-        propLen = atoi(&zLine[2]);
+        propLen = svn_number(&zLine[2], '\n');
         eol = strchr(zLine, '\n');
         if( eol==0 || eol>=zEnd ){
           fossil_fatal("svn-dump data format broken");
         }
         zLine = eol+1;
-        if( propLen<0 || propLen>=zEnd-zLine ){
+        if( propLen>=zEnd-zLine ){
           fossil_fatal("svn-dump data format broken");
         }
         eol = zLine+propLen;
@@ -1040,7 +1053,7 @@ static int svn_read_rec(FILE *pIn, SvnRecord *rec){
   zLen = svn_find_header(*rec, "Text-content-length");
   if( zLen ){
     rec->contentFlag = 1;
-    nLen = atoi(zLen);
+    nLen = svn_number(zLen, 0);
     blob_read_from_channel(&rec->content, pIn, nLen);
     if( (int)blob_size(&rec->content)!=nLen ){
       fossil_fatal("short read: got %d of %d bytes",
@@ -1448,7 +1461,7 @@ static void svn_dump_import(FILE *pIn){
   /* version */
   if( svn_read_rec(pIn, &rec)
    && (zTemp = svn_find_header(rec, "SVN-fs-dump-format-version")) ){
-    ver = atoi(zTemp);
+    ver = svn_number(zTemp, 0);
     if( ver!=2 && ver!=3 ){
       fossil_fatal("Unknown svn-dump format version: %d", ver);
     }
@@ -1509,7 +1522,7 @@ static void svn_dump_import(FILE *pIn){
         bag_clear(&gsvn.newBranches);
       }
       /* start new revision */
-      gsvn.rev = atoi(zTemp);
+      gsvn.rev = svn_number(zTemp, 0);
       gsvn.zUser = fossil_strdup(svn_find_prop(rec, "svn:author"));
       gsvn.zComment = fossil_strdup(svn_find_prop(rec, "svn:log"));
       zDate = svn_find_prop(rec, "svn:date");
@@ -1582,7 +1595,7 @@ static void svn_dump_import(FILE *pIn){
           int srcBranch;
           zTemp = svn_find_header(rec, "Node-copyfrom-rev");
           if( zTemp ){
-            srcRev = atoi(zTemp);
+            srcRev = svn_number(zTemp, 0);
           }else{
             fossil_fatal("Missing copyfrom-rev");
           }
