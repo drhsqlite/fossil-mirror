@@ -1457,7 +1457,7 @@ void set_base_url(const char *zAltBase){
       fossil_fatal("argument to --baseurl should be 'http://host/path'"
                    " or 'https://host/path'");
     }
-    if( g.zTop[1]==0 ) g.zTop++;
+    if( g.zTop[0] && g.zTop[1]==0 ) g.zTop++;
   }else{
     char *z;
     zMode = PD("HTTPS","off");
