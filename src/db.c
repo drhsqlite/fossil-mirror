@@ -1789,7 +1789,7 @@ static void db_set_saved_encryption_key(
 /*
 ** WEBPAGE: setseekey
 **
-** Sets the sets the saved database encryption key to one that gets passed
+** Sets the saved database encryption key to one that gets passed
 ** via the "key" query string parameter.  If the saved database encryption
 ** key has already been set, does nothing.  This web page does not produce
 ** any output on success or failure.  No permissions are required and none
@@ -4650,7 +4650,7 @@ struct Setting {
 **   (0)  Off:  No adjustments are made to the 'h' privilege based on
 **        the user agent.
 **
-**   (1)  UserAgent and Javascript:  The the href= values of hyperlinks
+**   (1)  UserAgent and Javascript:  The href= values of hyperlinks
 **        initially point to /honeypot and are changed to point to the
 **        correct target by javascript that runs after the page loads.
 **        The auto-hyperlink-delay and auto-hyperlink-mouseover settings

@@ -437,7 +437,7 @@ static int tag_cmd_root(int rid, char const **zSym, int bVerbose){
 **                                      --propagate is assumed. This is
 **                                      most useful with forum posts, wiki
 **                                      pages, and tech notes, where tags are
-**                                      most easliy managed via their initial
+**                                      most easily managed via their initial
 **                                      version.
 **
 **         The --date-override and --user-override options support
@@ -492,7 +492,7 @@ static int tag_cmd_root(int rid, char const **zSym, int bVerbose){
 **         unless the --raw or --prefix options are used.
 **
 **         Options:
-**           -v|--inverse    Inverse the meaning of --tagtype TYPE
+**           -v|--inverse    Invert the meaning of --tagtype TYPE
 **           --prefix        List only tags with the given prefix
 **                           Fossil-internal prefixes include "sym-"
 **                           (branch name), "wiki-", "event-"

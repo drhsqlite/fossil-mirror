@@ -1474,7 +1474,7 @@ char *file_case_preferred_name(const char *zDir, const char *zPath){
 **
 ** Usage: fossil test-case-filename DIRECTORY PATH PATH PATH ....
 **
-** All the PATH arguments (there must be one at least one) are pathnames
+** All the PATH arguments (there must be at least one) are pathnames
 ** relative to DIRECTORY.  This test command prints the OS-preferred name
 ** for each PATH in filesystems where case is not significant.
 */

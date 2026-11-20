@@ -986,7 +986,7 @@ void sqlar_cmd(void){
 **                       SQL or ZIP archive.  The default value is the name
 **                       of the main branch (usually "trunk").
 **                       If r= is omitted and if the name= query parameter
-**                       contains one "/" character then the of part the
+**                       contains one "/" character then the part of the
 **                       name= value before the / becomes the TAG and the
 **                       part of the name= value  after the / is the download
 **                       filename.  If no check-in is specified by either
@@ -996,7 +996,7 @@ void sqlar_cmd(void){
 **   in=PATTERN          Only include files that match the comma-separated
 **                       list of GLOB patterns in PATTERN, as with ex=
 **
-**   ex=PATTERN          Omit any file that match PATTERN.  PATTERN is a
+**   ex=PATTERN          Omit any file that matches PATTERN.  PATTERN is a
 **                       comma-separated list of GLOB patterns, where each
 **                       pattern can optionally be quoted using ".." or '..'.
 **                       Any file matching both ex= and in= is excluded.

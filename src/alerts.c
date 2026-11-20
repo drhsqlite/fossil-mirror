@@ -1833,7 +1833,7 @@ static void alert_unsubscribe(int sid, int bTotal){
 **    *    The name= query parameter contains the complete subscriberCode.
 **         This only happens when the user receives a verification
 **         email and clicks on the link in the email.  When a
-**         compilete subscriberCode is seen on the name= query parameter,
+**         complete subscriberCode is seen on the name= query parameter,
 **         that constitutes verification of the email address.
 **
 **    *    The sid= query parameter contains an integer subscriberId.
@@ -2268,7 +2268,7 @@ static const char zUnsubMsg[] =
 ** an email address to which will be sent the unsubscribe link that
 ** contains the correct subscriber code.
 **
-** The /unsubscribe page requires comfirmation.  The /oneclickunsub
+** The /unsubscribe page requires confirmation.  The /oneclickunsub
 ** page unsubscribes immediately without any need to confirm.
 */
 void unsubscribe_page(void){

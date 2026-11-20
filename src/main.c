@@ -2410,10 +2410,10 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 **                             showing a list of available repositories if
 **                             the URL is "/".  Some control over the display
 **                             is accomplished using environment variables.
-**                             FOSSIL_REPOLIST_TITLE is the tital of the page.
-**                             FOSSIL_REPOLIST_SHOW cause the "Description"
+**                             FOSSIL_REPOLIST_TITLE is the title of the page.
+**                             FOSSIL_REPOLIST_SHOW causes the "Description"
 **                             column to display if it contains "description" as
-**                             as a substring, and causes the Login-Group column
+**                             a substring, and causes the Login-Group column
 **                             to display if it contains the "login-group"
 **                             substring.
 **
