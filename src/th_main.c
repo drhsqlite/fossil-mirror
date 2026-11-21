@@ -1736,7 +1736,9 @@ static int unversionedContentCmd(
   }
   if( Th_IsRepositoryOpen() ){
     Blob content;
-    if( unversioned_content(argv[2], &content)!=0 ){
+    if( db_table_exists("repository", "unversioned")
+     && unversioned_content(argv[2], &content)!=0
+    ){
       Th_SetResult(interp, blob_str(&content), blob_size(&content));
       blob_reset(&content);
       return TH_OK;
@@ -1769,12 +1771,14 @@ static int unversionedListCmd(
     Stmt q;
     char *zList = 0;
     int nList = 0;
-    db_prepare(&q, "SELECT name FROM unversioned WHERE hash IS NOT NULL"
-                   " ORDER BY name");
-    while( db_step(&q)==SQLITE_ROW ){
-      Th_ListAppend(interp, &zList, &nList, db_column_text(&q,0), -1);
+    if( db_table_exists("repository", "unversioned") ){
+      db_prepare(&q, "SELECT name FROM unversioned WHERE hash IS NOT NULL"
+                     " ORDER BY name");
+      while( db_step(&q)==SQLITE_ROW ){
+        Th_ListAppend(interp, &zList, &nList, db_column_text(&q,0), -1);
+      }
+      db_finalize(&q);
     }
-    db_finalize(&q);
     Th_SetResult(interp, zList, nList);
     Th_Free(interp, zList);
     return TH_OK;
