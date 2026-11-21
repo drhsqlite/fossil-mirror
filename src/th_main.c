@@ -522,6 +522,11 @@ static int redirectCmd(
   if( argc!=2 && argc!=3 ){
     return Th_WrongNumArgs(interp, "redirect URL ?withMethod?");
   }
+  if( !g.isHTTP ){
+    Th_ErrorMessage(interp, "redirect is only allowed in a web request",
+                    0, 0);
+    return TH_ERROR;
+  }
   if( argc==3 ){
     if( Th_ToInt(interp, argv[2], argl[2], &withMethod) ){
       return TH_ERROR;
