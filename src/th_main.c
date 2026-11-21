@@ -1909,7 +1909,7 @@ static int randhexCmd(
   unsigned char aRand[50];
   unsigned char zOut[sizeof(aRand)*2+1];
   if( argc!=1 && argc!=2 ){
-    return Th_WrongNumArgs(interp, "repository ?BOOLEAN?");
+    return Th_WrongNumArgs(interp, "randhex ?N?");
   }
   if( argc==2 ){
     if( Th_ToInt(interp, argv[1], argl[1], &n) ){
@@ -2219,7 +2219,7 @@ static int httpCmd(
   }
   if( nArg<argc && fossil_strcmp(argv[nArg], "--")==0 ) nArg++;
   if( nArg+1!=argc && nArg+2!=argc ){
-    return Th_WrongNumArgs(interp, REGEXP_WRONGNUMARGS);
+    return Th_WrongNumArgs(interp, HTTP_WRONGNUMARGS);
   }
   memset(&urlData, '\0', sizeof(urlData));
   url_parse_local(argv[nArg], 0, &urlData);
