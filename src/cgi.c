@@ -1853,7 +1853,7 @@ int cgi_all(const char *z, ...){
   char *z2;
   if( cgi_parameter(z,0)==0 ) return 0;
   va_start(ap, z);
-  while( (z2 = va_arg(ap, char*))==0 ){
+  while( (z2 = va_arg(ap, char*))!=0 ){
     if( cgi_parameter(z2,0)==0 ) return 0;
   }
   va_end(ap);

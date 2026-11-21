@@ -520,7 +520,7 @@ void user_edit(void){
   ** modified user record.  After writing the user record, redirect
   ** to the page that displays a list of users.
   */
-  if( !cgi_all("login","info","pw","apply") ){
+  if( !cgi_all("login","info","pw","apply",(char*)0) ){
     /* need all of the above properties to make a change.  Since one or
     ** more are missing, no-op */
   }else if( higherUser ){
