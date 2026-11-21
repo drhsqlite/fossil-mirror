@@ -1,5 +1,5 @@
-C Fix\ssome\stypos\sin\sdocs/comments.
-D 2026-11-20T13:28:11.428
+C Improve\sthe\sbig-/little-endian\scompile-time\sdetection\sin\ssha1hard.c\sso\sthat\sit\sworks\son\sPowerPC.\sFull\sdetails\sof\sthe\sreport\sand\sfix\sare\sin\sthe\swiki\spage\sattached\sto\s[384705b56ac],\swhich\sthis\smerge\sintegrates.
+D 2026-11-21T13:05:30.719
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -542,7 +542,7 @@ F src/security_audit.c 569043cb02871dfd38172a072229d0d308553201b3b65f95ed8892a25
 F src/setup.c 8f15afcdc357cc7a35c7555a38e07428c426a7158bab07fdd3c2cdfb2481724a
 F src/setupuser.c e2332600755153655c9c01a0f3073c0abd6091d7150e9321abdcf2f3c02c58c9
 F src/sha1.c 58fb2b11857bd03d2211797bcd5be5c8529600e599fb4c90af52fb00223bcdd0
-F src/sha1hard.c 5d02539150f6d37783978e5078d6dd73462a07b3974ec5de51bc7e5aa5fe6ea4
+F src/sha1hard.c 70b29eb5a5338928fd4b89a7427d1d38db2445868ef56bba910e9a9929ffc2e0
 F src/sha3.c 6f51bfb14500f8fb7594fc2ea45bbad2b4d06bc0107d011576bb3d9bfb94fc71
 F src/shun.c 29c9cf679b993b96ef7d087743a6d83eb9eb57289e716270097d4e733f85e69b
 F src/sitemap.c 70bafe184b63950f53cd20712aca5501e090387e6a8361f70da5b6da2afc4d34
@@ -991,8 +991,9 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 57dbf286df4e7213fbe67406218220dd80cef913084bd417c4917ef1585da1d3
-R e9a02d754e1da7546602c3a75947bc62
-U km
-Z 92492a22e22676df8d16a8a809d8bca0
+P aa312b6e7ef5b5c0d178747694713097f01f78f91c40469f4e54a66b9b8da578 384705b56ac5adb3e33ecbc5a4dd8e33393caed8b96f02afbb7799667afffe07
+R 6392ad1e8edb09065f75354dd7cf7128
+T +closed 384705b56ac5adb3e33ecbc5a4dd8e33393caed8b96f02afbb7799667afffe07 Closed\sby\sintegrate-merge.
+U stephan
+Z ead57c8c032b9dc4f5b7e7c06bb9365a
 # Remove this line to create a well-formed Fossil manifest.
