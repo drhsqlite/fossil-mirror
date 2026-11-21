@@ -1134,7 +1134,10 @@ static int comboboxCmd(
     int i;
 
     if( Th_ToInt(interp, argv[3], argl[3], &height) ) return TH_ERROR;
-    Th_SplitList(interp, argv[2], TH1_LEN(argl[2]), &azElem, &aszElem, &nElem);
+    if( Th_SplitList(interp, argv[2], TH1_LEN(argl[2]),
+                     &azElem, &aszElem, &nElem) ){
+      return TH_ERROR;
+    }
     blob_init(&name, (char*)argv[1], TH1_LEN(argl[1]));
     zValue = Th_Fetch(blob_str(&name), &nValue);
     nValue = TH1_LEN(nValue);
