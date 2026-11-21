@@ -80,6 +80,7 @@
 # include <sys/time.h>
 # include <sys/wait.h>
 # include <sys/select.h>
+# include <sys/stat.h>
 # include <errno.h>
 #endif
 #ifdef __EMX__
@@ -2644,6 +2645,8 @@ int cgi_http_server(
   struct sockaddr_un uxaddr;   /* The address for unix-domain sockets */
   int opt = 1;                 /* setsockopt flag */
   int rc;                      /* Result code from system calls */
+  mode_t mSock = 0660;         /* Permissions for a unix-domain socket */
+  mode_t mOld;                 /* Saved umask */
   int iPort = mnPort;          /* Port to try to use */
   const char *zRequestType;    /* Type of requests to listen for */
 
@@ -2687,13 +2690,19 @@ int cgi_http_server(
 
     /* Set the access permission for the new socket.  Default to 0660.
     ** But use an alternative specified by --socket-mode if available.
-    ** Do this before bind() to avoid a race condition. */
+    ** Set it through the umask that bind() uses to avoid a race
+    ** condition. */
     if( g.zSockMode ){
-      file_set_mode(g.zSockName, listen4, g.zSockMode, 0);
-    }else{
-      file_set_mode(g.zSockName, listen4, "0660", 1);
+      char *zEnd = 0;
+      mSock = (mode_t)strtol(g.zSockMode, &zEnd, 0);
+      if( zEnd[0] ){
+        fossil_fatal("cannot change permissions on %s to \"%s\"",
+                     g.zSockName, g.zSockMode);
+      }
     }
+    mOld = umask(~mSock & 0777);
     rc = bind(listen4, (struct sockaddr*)&uxaddr, sizeof(uxaddr));
+    umask(mOld);
     /* Set the owner of the socket if requested by --socket-owner.  This
     ** must wait until after bind(), after the filesystem object has been
     ** created.  See https://lkml.org/lkml/2004/11/1/84 and
