@@ -492,10 +492,22 @@ void cgi_reply(void){
     if( rangeEnd>0
      && iReplyStatus==200
      && fossil_strcmp(P("REQUEST_METHOD"),"GET")==0
+     && fossil_strcmp(zReplyMimeType,"application/x-fossil")!=0
     ){
-      iReplyStatus = 206;
-      zReplyStatus = "Partial Content";
+      int nContent = blob_size(&cgiContent[0]) + blob_size(&cgiContent[1]);
+      if( rangeStart>=nContent ){
+        iReplyStatus = 416;
+        zReplyStatus = "Range Not Satisfiable";
+        rangeEnd = nContent;
+        blob_reset(&cgiContent[0]);
+        blob_reset(&cgiContent[1]);
+      }else{
+        iReplyStatus = 206;
+        zReplyStatus = "Partial Content";
+        if( rangeEnd>nContent ) rangeEnd = nContent;
+      }
     }
+    if( iReplyStatus!=206 ) rangeStart = 0;
     blob_appendf(&hdr, "HTTP/1.0 %d %s\r\n", iReplyStatus, zReplyStatus);
     blob_appendf(&hdr, "Date: %s\r\n", cgi_rfc822_datestamp(time(0)));
     blob_appendf(&hdr, "Connection: close\r\n");
@@ -555,7 +567,7 @@ void cgi_reply(void){
       blob_compress(&cgiContent[0], &cgiContent[0]);
     }
 
-    if( is_gzippable() && iReplyStatus!=206 ){
+    if( is_gzippable() && iReplyStatus!=206 && iReplyStatus!=416 ){
       int i;
       gzip_begin(0);
       for( i=0; i<2; i++ ){
@@ -572,6 +584,8 @@ void cgi_reply(void){
       blob_appendf(&hdr, "Content-Range: bytes %d-%d/%d\r\n",
               rangeStart, rangeEnd-1, total_size);
       total_size = rangeEnd - rangeStart;
+    }else if( iReplyStatus==416 ){
+      blob_appendf(&hdr, "Content-Range: bytes */%d\r\n", rangeEnd);
     }
     blob_appendf(&hdr, "Content-Length: %d\r\n", total_size);
   }else{
@@ -2269,12 +2283,17 @@ void cgi_handle_http_request(const char *zIpAddr){
         cgi_replace_parameter("REMOTE_ADDR", g.zIpAddr);
       }
     }else if( fossil_strcmp(zFieldName,"range:")==0 ){
-      int x1 = 0;
-      int x2 = 0;
-      if( sscanf(zVal,"bytes=%d-%d",&x1,&x2)==2 && x1>=0 && x1<=x2
-       && x2<0x7fffffff ){
-        rangeStart = x1;
-        rangeEnd = x2+1;
+      sqlite3_int64 x1, x2;
+      char *zEnd;
+      if( strncmp(zVal,"bytes=",6)==0 && fossil_isdigit(zVal[6]) ){
+        x1 = strtoll(&zVal[6], &zEnd, 10);
+        if( zEnd[0]=='-' && fossil_isdigit(zEnd[1]) ){
+          x2 = strtoll(&zEnd[1], 0, 10);
+          if( x1<=x2 && x2<0x7fffffff ){
+            rangeStart = (int)x1;
+            rangeEnd = (int)x2 + 1;
+          }
+        }
       }
     }
   }
