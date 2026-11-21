@@ -639,7 +639,14 @@ NORETURN void cgi_redirect_with_status(
   const char *zStat
 ){
   char *zLocation;
+  char *zCopy = 0;
+  int i;
   CGIDEBUG(("redirect to %s\n", zURL));
+  for(i=0; zURL[i] && (unsigned char)zURL[i]>=' '; i++){}
+  if( zURL[i] ){
+    zCopy = mprintf("%.*s", i, zURL);
+    zURL = zCopy;
+  }
   if( fossil_strncmp(zURL,"http:",5)==0
       || fossil_strncmp(zURL,"https:",6)==0 ){
     zLocation = mprintf("Location: %s\r\n", zURL);
@@ -651,6 +658,7 @@ NORETURN void cgi_redirect_with_status(
   }else{
     zLocation = mprintf("Location: %s/%s\r\n", g.zBaseURL, zURL);
   }
+  fossil_free(zCopy);
   cgi_append_header(zLocation);
   cgi_reset_content();
   cgi_printf("<html>\n<p>Redirect to %h</p>\n</html>\n", zLocation);
