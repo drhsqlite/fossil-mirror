@@ -1290,6 +1290,7 @@ void cgi_parse_POST_JSON( Blob * pIn ){
 */
 void cgi_trace(const char *z){
   static FILE *pLog = 0;
+  static char zFile[50];
   if( g.fHttpTrace==0 ) return;
   if( z==0 ){
     if( pLog ) fclose(pLog);
@@ -1297,15 +1298,17 @@ void cgi_trace(const char *z){
     return;
   }
   if( pLog==0 ){
-    char zFile[50];
+    const char *zMode = zFile[0] ? "ab" : "wb";
+    if( zFile[0]==0 ){
 #if defined(_WIN32)
-    unsigned r;
-    sqlite3_randomness(sizeof(r), &r);
-    sqlite3_snprintf(sizeof(zFile), zFile, "httplog-%08x.txt", r);
+      unsigned r;
+      sqlite3_randomness(sizeof(r), &r);
+      sqlite3_snprintf(sizeof(zFile), zFile, "httplog-%08x.txt", r);
 #else
-    sqlite3_snprintf(sizeof(zFile), zFile, "httplog-%05d.txt", getpid());
+      sqlite3_snprintf(sizeof(zFile), zFile, "httplog-%05d.txt", getpid());
 #endif
-    pLog = fossil_fopen(zFile, "wb");
+    }
+    pLog = fossil_fopen(zFile, zMode);
     if( pLog ){
       fprintf(stderr, "# open log on %s\n", zFile);
     }else{
