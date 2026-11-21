@@ -80,7 +80,7 @@ int fossil_isdate(const char *z){
 ** of the input string only, without reference to the artifact table.
 */
 char *fossil_expand_datetime(const char *zIn,int bVerifyNotAHash,int bRoundUp){
-  static char zEDate[24];
+  static char zEDate[25];
   static const char aPunct[] = { 0, 0, '-', '-', ' ', ':', ':' };
   int n = (int)strlen(zIn);
   int i, j;
