@@ -316,6 +316,9 @@ int parse_mark(char *line, struct mark_t *mark){
     mark->name = NULL;
     return 0;
   }
+  if( mark->rid<=0 ){
+    return -1;
+  }
 
   cur_tok = strtok(NULL, " \t");
   if( !cur_tok ){
