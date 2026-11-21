@@ -311,12 +311,7 @@ int parse_mark(char *line, struct mark_t *mark){
   }
   mark->rid = atoi(&cur_tok[1]);
   type_ = cur_tok[0];
-  if( type_!='c' && type_!='b' ){
-    /* This is probably a blob mark */
-    mark->name = NULL;
-    return 0;
-  }
-  if( mark->rid<=0 ){
+  if( (type_!='c' && type_!='b') || mark->rid<=0 ){
     return -1;
   }
 
