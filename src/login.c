@@ -1439,6 +1439,7 @@ void login_check_credentials(void){
     for(i=0; (c = zHash[i])!=0; i++){
       if( c=='/' ){
         zHash[i++] = 0;
+        if( zHash[i]==0 ) break;
         if( zArg==0 ){
           zArg = &zHash[i];
         }else{
