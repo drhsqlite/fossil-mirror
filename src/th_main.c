@@ -1656,7 +1656,15 @@ static int builtinRequestJsCmd(
   if( argc!=2 ){
     return Th_WrongNumArgs(interp, "builtin_request_js NAME");
   }
-  builtin_request_js(argv[1]);
+  switch( builtin_try_request_js(argv[1]) ){
+    case 1:
+      Th_ErrorMessage(interp, "unknown javascript file:",
+                      argv[1], TH1_LEN(argl[1]));
+      return TH_ERROR;
+    case 2:
+      Th_ErrorMessage(interp, "too many javascript files requested", 0, 0);
+      return TH_ERROR;
+  }
   return TH_OK;
 }
 

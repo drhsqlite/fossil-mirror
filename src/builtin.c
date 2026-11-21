@@ -309,6 +309,24 @@ const char *builtin_get_js_delivery_mode_name(void){
 }
 
 /*
+** Add the Javascript file named by zFilename to the queue of requested
+** javascript resources, if it is not there already.  Return 0 on
+** success, 1 if there is no such built-in file, or 2 if the queue is
+** full.
+*/
+int builtin_try_request_js(const char *zFilename){
+  int i = builtin_file_index(zFilename);
+  int j;
+  if( i<0 ) return 1;
+  for(j=0; j<builtin.nReq; j++){
+    if( builtin.aReq[j]==i ) return 0;  /* Already queued or sent */
+  }
+  if( builtin.nReq>=count(builtin.aReq) ) return 2;
+  builtin.aReq[builtin.nReq++] = i;
+  return 0;
+}
+
+/*
 ** The caller wants the Javascript file named by zFilename to be
 ** included in the generated page.  Add the file to the queue of
 ** requested javascript resources, if it is not there already.
@@ -329,18 +347,12 @@ const char *builtin_get_js_delivery_mode_name(void){
 ** delivered as a separate resource.
 */
 void builtin_request_js(const char *zFilename){
-  int i = builtin_file_index(zFilename);
-  int j;
-  if( i<0 ){
-    fossil_panic("unknown javascript file: \"%s\"", zFilename);
+  switch( builtin_try_request_js(zFilename) ){
+    case 1:
+      fossil_panic("unknown javascript file: \"%s\"", zFilename);
+    case 2:
+      fossil_panic("too many javascript files requested");
   }
-  for(j=0; j<builtin.nReq; j++){
-    if( builtin.aReq[j]==i ) return;  /* Already queued or sent */
-  }
-  if( builtin.nReq>=count(builtin.aReq) ){
-    fossil_panic("too many javascript files requested");
-  }
-  builtin.aReq[builtin.nReq++] = i;
 }
 
 /*
