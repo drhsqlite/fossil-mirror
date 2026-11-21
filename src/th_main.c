@@ -1892,7 +1892,7 @@ static int randhexCmd(
 ){
   int n;
   unsigned char aRand[50];
-  unsigned char zOut[100];
+  unsigned char zOut[sizeof(aRand)*2+1];
   if( argc!=1 && argc!=2 ){
     return Th_WrongNumArgs(interp, "repository ?BOOLEAN?");
   }
