@@ -311,7 +311,7 @@ void url_parse_local(
         pUrlData->port, pUrlData->path, zExe
       );
     }
-    if( pUrlData->isSsh && pUrlData->path[1] ){
+    if( pUrlData->isSsh && pUrlData->path[0] && pUrlData->path[1] ){
       char *zOld = pUrlData->path;
       pUrlData->path = fossil_strdup(zOld+1);
       fossil_free(zOld);
