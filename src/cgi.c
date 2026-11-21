@@ -1279,6 +1279,7 @@ void cgi_parse_POST_JSON( Blob * pIn ){
   }else{ /* generic error message */
       json_err( FSL_JSON_E_INVALID_REQUEST, NULL, 1 );
   }
+  if( g.isHTTP ) cgi_reply();
   fossil_exit( g.isHTTP ? 0 : 1);
 }
 #endif /* FOSSIL_ENABLE_JSON */
