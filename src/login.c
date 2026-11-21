@@ -124,8 +124,13 @@ NORETURN void login_redirect_to_g(void){
   if( zGoto ){
     cgi_redirectf("%R/%s",zGoto);
   }else if( (zGoto = P("fossil-goto"))!=0 && zGoto[0]!=0 ){
+    int n = g.zBaseURL ? (int)strlen(g.zBaseURL) : 0;
     cgi_set_cookie("fossil-goto","",0,1);
-    cgi_redirect(zGoto);
+    if( n>0 && strncmp(zGoto, g.zBaseURL, n)==0
+     && (zGoto[n]==0 || zGoto[n]=='/') ){
+      cgi_redirect(zGoto);
+    }
+    fossil_redirect_home();
   }else{
     fossil_redirect_home();
   }
