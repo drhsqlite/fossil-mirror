@@ -2058,7 +2058,7 @@ static int settingCmd(
   if( fossil_strcmp(argv[nArg], "-strict")==0 ){
     strict = 1; nArg++;
   }
-  if( fossil_strcmp(argv[nArg], "--")==0 ) nArg++;
+  if( nArg<argc && fossil_strcmp(argv[nArg], "--")==0 ) nArg++;
   if( nArg+1!=argc ){
     return Th_WrongNumArgs(interp, SETTING_WRONGNUMARGS);
   }
@@ -2197,10 +2197,12 @@ static int httpCmd(
   if( argc<2 || argc>5 ){
     return Th_WrongNumArgs(interp, HTTP_WRONGNUMARGS);
   }
-  if( fossil_strnicmp(argv[nArg], "-asynchronous", TH1_LEN(argl[nArg]))==0 ){
+  if( TH1_LEN(argl[nArg])>0
+   && fossil_strnicmp(argv[nArg], "-asynchronous", TH1_LEN(argl[nArg]))==0
+  ){
     fAsynchronous = 1; nArg++;
   }
-  if( fossil_strcmp(argv[nArg], "--")==0 ) nArg++;
+  if( nArg<argc && fossil_strcmp(argv[nArg], "--")==0 ) nArg++;
   if( nArg+1!=argc && nArg+2!=argc ){
     return Th_WrongNumArgs(interp, REGEXP_WRONGNUMARGS);
   }
