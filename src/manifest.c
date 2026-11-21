@@ -1959,10 +1959,10 @@ void manifest_reparent_checkin(int rid, const char *zValue){
   azParent = fossil_malloc( sizeof(azParent[0])*mxParent );
   for(nParent=0, i=0; zCopy[i]; i++){
     char *z = &zCopy[i];
-    azParent[nParent++] = z;
-    if( nParent>mxParent ) goto reparent_abort;
-    for(j=HNAME_MIN; z[j]>' '; j++){}
+    if( nParent>=mxParent ) goto reparent_abort;
+    for(j=0; z[j]>' '; j++){}
     if( !hname_validate(z, j) ) goto reparent_abort;
+    azParent[nParent++] = z;
     if( z[j]==0 ) break;
     z[j] = 0;
     i += j;
