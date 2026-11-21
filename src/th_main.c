@@ -1983,7 +1983,7 @@ static int queryCmd(
     zErr = 0;
     report_restrict_sql(&zErr);
     g.dbIgnoreErrors++;
-    rc = sqlite3_prepare_v2(g.db, argv[1], TH1_LEN(argl[1]), &pStmt, &zTail);
+    rc = sqlite3_prepare_v2(g.db, zSql, nSql, &pStmt, &zTail);
     g.dbIgnoreErrors--;
     report_unrestrict_sql();
     if( rc!=0 || zErr!=0 ){
