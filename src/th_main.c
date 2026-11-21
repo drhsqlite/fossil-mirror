@@ -522,7 +522,10 @@ static int redirectCmd(
   if( argc!=2 && argc!=3 ){
     return Th_WrongNumArgs(interp, "redirect URL ?withMethod?");
   }
-  if( !g.isHTTP ){
+  if( g.httpOut==0
+   || (g.zBaseURL==0 && fossil_strncmp(argv[1],"http:",5)!=0
+                     && fossil_strncmp(argv[1],"https:",6)!=0)
+  ){
     Th_ErrorMessage(interp, "redirect is only allowed in a web request",
                     0, 0);
     return TH_ERROR;
