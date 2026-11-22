@@ -11,7 +11,7 @@ That is the only way the links below will work.
 
 <li><p>
 From a private directory (not the source tree) run
-"<b>tclsh $SRC/test/tester.tcl $FOSSIL</b>" where $FOSSIL is the
+"<b>tclsh $SRC/test/tester.tcl $FOSSIL -assurance ci</b>" where $FOSSIL is the
 name of the executable under test and $SRC is the source tree.
 Verify that there are no errors.
 

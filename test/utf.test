@@ -17,7 +17,7 @@
 #
 # Test UTF-8/UTF-16 detection via fossil test-looks-like-utf.
 #
-# -utf-assurance selects how many cells to run: smoke (stratified
+# -assurance selects how many cells to run: smoke (stratified
 # edges), ci (full BOM x payload x extra product), or stress (ci plus
 # generated payloads).  Expectations come from a Tcl predictor over
 # the bytes written, not from a fossil-echo dump.  Each LOOK_*/BOM
@@ -712,7 +712,7 @@ proc utf_stress_extras {} {
 }
 
 # Select cells for the current assurance level.
-set level [test_utf_assurance]
+set level [test_assurance]
 if {$level eq "smoke"} {
   set utfCells [utf_smoke_cells]
 } else {

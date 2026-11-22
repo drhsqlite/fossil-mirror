@@ -30,7 +30,7 @@
 # The harness classifies the temporary volume once at startup
 # (::fs_type).  This file predicts match, miss, or untestable from
 # that classification, Fossil argv rewriting, and the rules above.
-# -utf-assurance selects how many pairs to run: smoke (one per
+# -assurance selects how many pairs to run: smoke (one per
 # behavior class), ci (the lists below), or stress (ci plus generated
 # pairs).  Unmet predictions fail the run.
 #
@@ -203,10 +203,10 @@ set upStressCollide [list \
   stress-nfd    "na\u00efve.txt"       "nai\u0308ve.txt" \
 ]
 
-# Build the pair lists for the current -utf-assurance level.
+# Build the pair lists for the current -assurance level.
 #
 proc up_select {all smokeLabels} {
-  set level [test_utf_assurance]
+  set level [test_assurance]
   if {$level eq "smoke"} {
     set out [list]
     foreach {label a b} $all {
@@ -223,7 +223,7 @@ set upSame [up_select $upSameAll $upSmokeSame]
 set upDifferent [up_select $upDifferentAll $upSmokeDifferent]
 set upCollide [up_select $upCollideAll $upSmokeCollide]
 
-if {[test_utf_assurance] eq "stress"} {
+if {[test_assurance] eq "stress"} {
   foreach {label a b} $upStressSame {
     lappend upSame $label $a $b
   }

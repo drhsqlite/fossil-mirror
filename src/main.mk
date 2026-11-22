@@ -640,6 +640,7 @@ $(OBJDIR)/codecheck1:	$(SRCDIR_tools)/codecheck1.c
 #  -verbose  Include even more details in the output
 #  -quiet    Hide most output from the terminal
 #  -strict   Treat known bugs as failures
+#  -assurance smoke|ci|stress   How thorough a run is
 #
 # TESTFLAGS can also include names of specific test files to limit
 # the run to just those test cases.

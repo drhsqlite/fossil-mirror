@@ -24,7 +24,7 @@
 # The first argument is the fossil executable to test, followed by
 # the test files, so "update" runs test/update.test.  See test/README.md
 # for details of options such as -strict, -halt, -prot, -trials,
-# -utf-assurance etc.
+# -assurance etc.
 #
 
 # Minimum Tcl is 8.6. auto.def should have found us a suitable Tcl
@@ -92,18 +92,18 @@ if {$i >= 0} {
   set argv [lreplace $argv $i [expr {$i + 1}]]
 }
 
-# Unicode case-folding assurance level for unicode-pathnames.test.
+# Assurance level from -assurance.
 # Unrelated to -trials. smoke ⊂ ci ⊂ stress; default is smoke.
-set UTF_ASSURANCE smoke
-set i [lsearch -exact $argv -utf-assurance]
+set ASSURANCE smoke
+set i [lsearch -exact $argv -assurance]
 if {$i >= 0} {
   if {$i + 1 >= [llength $argv]} {
-    puts stderr "missing value for -utf-assurance"
+    puts stderr "missing value for -assurance"
     exit 1
   }
-  set UTF_ASSURANCE [lindex $argv [expr {$i + 1}]]
-  if {$UTF_ASSURANCE ni {smoke ci stress}} {
-    puts stderr "-utf-assurance requires smoke, ci, or stress"
+  set ASSURANCE [lindex $argv [expr {$i + 1}]]
+  if {$ASSURANCE ni {smoke ci stress}} {
+    puts stderr "-assurance requires smoke, ci, or stress"
     exit 1
   }
   set argv [lreplace $argv $i [expr {$i + 1}]]
@@ -608,9 +608,9 @@ proc test_trials {{heavy 0}} {
   return $::TRIALS
 }
 
-# Return the -utf-assurance level: smoke, ci, or stress.
-proc test_utf_assurance {} {
-  return $::UTF_ASSURANCE
+# Return the -assurance level: smoke, ci, or stress.
+proc test_assurance {} {
+  return $::ASSURANCE
 }
 
 # After writing PATH A under DIR, return 1 if PATH B names the same
@@ -630,7 +630,7 @@ proc fs_paths_collide {dir a b} {
 # and sharp-s vs "ss" collapse to one directory entry.  Stores a dict
 # on ::fs_type with keys ascii_case, normalization, and sharp_s, each
 # 1 when the two spellings are one entry.  Called at harness startup
-# for every run, independent of -utf-assurance.
+# for every run, independent of -assurance.
 proc fs_classify {} {
   set dir [file join $::tempPath fs_classify_[pid]]
   file mkdir $dir
@@ -1230,10 +1230,10 @@ please set TEMP variable in environment, error: $error"
 
 protInit $fossilexe
 protOut "***** Testing $fossilexe"
-protOut "***** utf-assurance: $::UTF_ASSURANCE" 1
+protOut "***** assurance: $::ASSURANCE" 1
 
 # Classify the temp volume before any .test file runs.  Always, for
-# every -utf-assurance level and even when unicode-pathnames is not
+# every -assurance level and even when unicode-pathnames is not
 # among the files under test.
 fs_classify
 

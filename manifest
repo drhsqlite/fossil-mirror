@@ -1,5 +1,5 @@
-C Collected\sorthogonal\stests\sin\stest/th1.test\sso\sthey\srun\sinside\sa\ssingle\nchild\sprocess\sinstead\sof\sneeding\sa\sseparate\sspawn\sper.\s\sEven\son\sLinux,\nwhere\sthis\sis\sultra-fast,\sit\scuts\sa\ssecond\soff\sthe\stotal\srun\stime\sfor\nthis\spiece\sof\sthe\stest\ssuite.\s\sUnder\sASAN,\sit\scan\scut\smultiple\sseconds\noff\sthe\stest\srun.
-D 2026-11-20T18:12:28.728
+C Make\stest\ssuite\sassurance\slevels\sgeneric\s(ie\snot\sjust\sutf),\sdocument\nthe\snew\sflags,\sand\sadd\sto\srelease\schecklist
+D 2026-11-22T11:02:52.138
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -506,7 +506,7 @@ F src/login.c 14b99a6b0f4e8c3217e0f8ccebe85ad8c330bbb946e55fde5b81e126eca068cb
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c efdf21fe8794cd51bf337acf64b347bdd4b2933ca78fd49bd2f08577ce891e7f
 F src/main.c 47b8880be1a040b78a6c92f0f13fcd2f159c63355e3813c8d86c2f6e201ae905
-F src/main.mk 7fb5a5f26054c31f4c9ee7908e838d0357eac1b07484acb1a4c1a51467b6fc27
+F src/main.mk 3e5490811abfee2cda1d2ba4ae3fa086f4d2ddf8c9ab0bcdca0ea12d8f2798cb
 F src/manifest.c 8e26780e5c44429b2e79535186ca1f2024f318e8776f3e7cf8cfe51bb61ec723
 F src/markdown.c be7e46b0bf0b600dd97d47ab14fbaa7c84016ff03e97803c06e26aa572e3b5e0
 F src/markdown.md 0b83b90d943d2c5f4b1654a74753e684e5664a262f343a07901a7c4833e59473
@@ -653,7 +653,7 @@ F test/merge_renames.test 19cc7dad5225ba429e5532d9d2af7d05e1d9414045eb9ec897cd4d
 F test/merge_renames_2.test 3397cef8c59ae7ad9986c81b2470d787bccff63c81299929b47c906fb83ea4a0
 F test/merge_warn.test b0ca846c8a999ffc97197f41bbe97ac3736e59da9f95d3415d73cf04a94013ad
 F test/mv-rm.test f7a24674617b1d001812a29f9250c62268497dbf8b4bd70b6cd10b352e732e4a
-F test/release-checklist.wiki e2c611eee0ce2899d72f389e7518e7b8a71284f8b7992def4213b6afb4ddac6e
+F test/release-checklist.wiki 53c86f104d43359f2404f08abef5a57b2472646f4200ed93258b0a4ace0708af
 F test/reserved-names.test df65768408b881eed35fe276dce13a49b637ed0d11fd46a63c1a9bdb9faaabd2
 F test/revert.test 788488b642bc37c27f0552f42e749d8fd955c110495f1665eed33ea6eea614da
 F test/rewrite-test-output.tcl 704fa6869531aac90fef93c892a275563bb9dff9581fe3227087f277df21aa59
@@ -669,7 +669,7 @@ F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 38517706363b152452eaa75b141417b29547e46e76490b9ccd2000cc6a59b780
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl d4f827b4e3d322801a802650b91156fb1a1b32849714a412696422fe3d49f080
+F test/tester.tcl 345c5e5861b042ae060d6b1264f14932fc0d6dae09bea532d599ec5fe9b5ce8e
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 8234524e3ad917a031066e97ee553e873e4bda9ffe75c7d33766ffd2e1917a38
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -687,12 +687,12 @@ F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
 F test/th1.test fb73bde55c44039f943fc1af9164409b6616ee465d36f007845bec176b355368
-F test/unicode-pathnames.test b48feea167754471825ddf3da9881495ea2ebf2ae50ecf9d4e2911ef38157002
+F test/unicode-pathnames.test 630b959378ee9850639497d5839801a6d17c19524347f292ca04b96afc037be9
 F test/unversioned.test 7b016607c4d6fe004193975bb8ac50747f1c580f1a2835ab03750a037c5b6598
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/update.test 1882a36551b503499625a54e8fc8bd0848d906f2fae5d882617f482ef411faa1
-F test/utf.test 27f992dceee84d81ece289ece0383e3d21e0b9cb2f22cb0b403ce599a39314b7
+F test/utf.test 622da39c3def0c6fa56a0f4efa9e028b885fcab79405024c16ac5a4f199f31b9
 F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
 F test/utf8-comment.txt 0964b79ef7d4065702dd6c304b44d26a796409e2e5a3e5eb31d64300df58b165
@@ -767,7 +767,7 @@ F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv b616e6dbbda6a621b023b159d24826292e77009a93553a31537159eed382e621 x
 F tools/makeheaders.c 2d4ffaf9812b93c894010ef9071b08af0d1df2e0d947d8d35a192d24ea16bf0b
 F tools/makeheaders.html 262696252dc50250c896c90cc240dcd946614b9c7727902aa7606640507e9231
-F tools/makemake.tcl 409d69b16fb30f20cfea032a1ff4da3405b3e231d73249bb6a911765603461ac x
+F tools/makemake.tcl cd2736458960155cb90595244a4a6df4abb14e6cf2eb9ed3b5e61c433cb91b68 x
 F tools/man_page_command_list.tcl 8f7f2c0717cb7e2ddece0a92bd10809bb16a1d8c3aa8bf6f77f6143b9282a099 x
 F tools/mkbuiltin.c 8752297a4a10324fab61542fd6e0a3163ce1ac00b093acd66ca86e089317321c
 F tools/mkindex.c ab9760d4ab795e9e04e1e730866320f9f9def3493fb1b84379c39cbf6463aba2
@@ -996,8 +996,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 250e1b140df3c3f4cc5e784fe54bb4578390cb30493430acb6668bdf0b8f3280
-R 7ad7426d586e738ef8855973cdf4aeb7
-U wyoung
-Z 256334aadbf72e6fba8cb04782f24f99
+P 7bda23362a63c21e304071ad492e446e54678e0d81ef9cec5edf8ede14c47a1a
+R 2dc331d58a0948bf2774c86fb32dc8dc
+U danshearer
+Z 6843e7f7896c0e12cb75aaac520fcf50
 # Remove this line to create a well-formed Fossil manifest.
