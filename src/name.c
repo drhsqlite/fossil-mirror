@@ -2098,8 +2098,8 @@ void bloblist_page(void){
     zRange = mprintf("IN unclustered");
   }else if( bRecent ){
     @ <h2>%d(n) Most Recent Artifacts</h2>
-    zRange = mprintf(">=(SELECT rid FROM blob"
-                     " ORDER BY rid DESC LIMIT 1 OFFSET %d)",n);
+    zRange = mprintf("IN (SELECT rid FROM blob"
+                     " ORDER BY rid DESC LIMIT %d)",n);
   }else{
     zRange = mprintf("BETWEEN %d AND %d", s, s+n-1);
   }
