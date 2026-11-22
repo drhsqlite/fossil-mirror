@@ -2215,7 +2215,7 @@ void table_of_public_phantoms(void){
 **
 ** Show a list of all "phantom" artifacts that are not marked as "private".
 **
-** A "phantom" artifact is an artifact whose hash named appears in some
+** A "phantom" artifact is an artifact whose hash name appears in some
 ** artifact but whose content is unknown.  For example, if a manifest
 ** references a particular SHA3 hash of a file, but that SHA3 hash is
 ** not on the shunning list and is not in the database, then the file

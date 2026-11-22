@@ -705,7 +705,7 @@ int content_new(const char *zUuid, int isPrivate){
 **
 ** Usage: %fossil test-content-put [OPTIONS] FILE ...
 **
-** Read the content of all FILE argments and add them to the Blob
+** Read the content of all FILE arguments and add them to the Blob
 ** table as a new artifact using a direct call to content_put().
 **
 ** Options:
@@ -953,9 +953,9 @@ int content_deltify(int rid, int *aSrc, int nSrc, int force){
 /*
 ** COMMAND: test-content-deltify
 **
-** Usage:  %fossil RID SRCID SRCID ...  [-force]
+** Usage: %fossil test-content-deltify [--force] RID SRCID SRCID...
 **
-** Convert the content at RID into a delta one of the from SRCIDs.
+** Convert the content at RID into a delta from one of the SRCIDs.
 */
 void test_content_deltify_cmd(void){
   int nSrc;

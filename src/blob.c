@@ -874,11 +874,11 @@ int blob_sqltoken(Blob *pFrom, Blob *pTo){
   int i = pFrom->iCursor;
   while( i<n && fossil_isspace(aData[i]) ){ i++; }
   pFrom->iCursor = i;
-  if( aData[i]=='\'' ){
+  if( i<n && aData[i]=='\'' ){
     i++;
     while( i<n ){
       if( aData[i]=='\'' ){
-        if( aData[++i]!='\'' ) break;
+        if( ++i>=n || aData[i]!='\'' ) break;
       }
       i++;
     }
@@ -1490,6 +1490,8 @@ void compress2_cmd(void){
 ** pOut to be the same blob.
 **
 ** pOut must be either uninitialized or the same as pIn.
+**
+** Return the number of errors encountered, which means return 0 on success.
 */
 int blob_uncompress(Blob *pIn, Blob *pOut){
   unsigned int nOut;
@@ -1504,7 +1506,7 @@ int blob_uncompress(Blob *pIn, Blob *pOut){
   inBuf = (unsigned char*)blob_buffer(pIn);
   nOut = (inBuf[0]<<24) + (inBuf[1]<<16) + (inBuf[2]<<8) + inBuf[3];
   blob_zero(&temp);
-  blob_resize(&temp, nOut+1);
+  blob_resize(&temp, (u64)nOut+1);
   nOut2 = (long int)nOut;
   rc = uncompress((unsigned char*)blob_buffer(&temp), &nOut2,
                   &inBuf[4], nIn - 4);
@@ -1857,7 +1859,7 @@ void blob_append_escaped_arg(Blob *pBlob, const char *zIn, int isFilename){
 **                              unusual characters as an argument for testing.
 **
 **    --compare HEX ASCII       Verify that argument ASCII is identical to
-**                              to decoded HEX.
+**                              decoded HEX.
 **
 **    --fuzz N                  Run N fuzz cases.  Each case is a call
 **                              to "fossil test-escaped-arg --compare HEX ARG"

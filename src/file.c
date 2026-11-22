@@ -1254,7 +1254,14 @@ int file_simplify_name(char *z, int n, int slash){
     if( j>=0 ) z[j] = z[i];
     j++;
   }
-  if( j==0 ) z[j++] = '/';
+  if( j<0 ){
+    /* backup_dir() removed everything including the first component.
+  ** Absolute "/.." still has z[0]=='/'; relative "a/.." is cwd. */
+    if( z[0]=='/' ){ j = 0; z[j++] = '/'; }
+    else           { z[0] = '.'; j = 1; }
+  }else if( j==0 ){
+    z[j++] = '/';
+  }
   z[j] = 0;
   return j;
 }
@@ -1467,7 +1474,7 @@ char *file_case_preferred_name(const char *zDir, const char *zPath){
 **
 ** Usage: fossil test-case-filename DIRECTORY PATH PATH PATH ....
 **
-** All the PATH arguments (there must be one at least one) are pathnames
+** All the PATH arguments (there must be at least one) are pathnames
 ** relative to DIRECTORY.  This test command prints the OS-preferred name
 ** for each PATH in filesystems where case is not significant.
 */

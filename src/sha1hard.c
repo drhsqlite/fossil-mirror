@@ -443,11 +443,36 @@ if (mask) {
 
 #define sha1_mix(W, t)  (rotate_left(W[t - 3] ^ W[t - 8] ^ W[t - 14] ^ W[t - 16], 1))
 
-#if defined(BIGENDIAN)
-  #define sha1_load(m, t) (m[t])
+/*
+** SHA1 message words are big-endian, so they must be byte-swapped on
+** little-endian hosts and loaded as-is on big-endian ones. Upstream
+** sha1dc has a large detection block for SHA1DC_BIGENDIAN. This is a
+** condensed form of it. SHA1DCInit() double-checks the result at
+** runtime so that a misdetection fails loudly instead of silently
+** producing wrong hashes.
+*/
+#if !defined(SHA1DC_BIGENDIAN) && !defined(SHA1DC_LITTLEENDIAN)
+# if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__)
+#  if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#   define SHA1DC_BIGENDIAN 1
+#  endif
+# elif defined(__BIG_ENDIAN__) || defined(__ARMEB__) \
+    || defined(__THUMBEB__) || defined(__AARCH64EB__) \
+    || defined(__MIPSEB__) || defined(__MIPSEB) || defined(_MIPSEB) \
+    || defined(__ppc__) || defined(__powerpc__) || defined(_POWER) \
+    || defined(__sparc) || defined(__sparc__) || defined(__hppa__) \
+    || defined(__s390__) || defined(__m68k__)
+   /* __ppc__/__powerpc__ without __BYTE_ORDER__ means an old compiler,
+   ** which predates ppc64le, so big-endian is a safe assumption. */
+#  define SHA1DC_BIGENDIAN 1
+# endif
+#endif
+
+#if defined(SHA1DC_BIGENDIAN)
+  #define sha1_load(m, t, temp)  { temp = m[t]; }
 #else
   #define sha1_load(m, t, temp)  { temp = m[t]; sha1_bswap32(temp); }
-#endif /*define(BIGENDIAN)*/
+#endif /*defined(SHA1DC_BIGENDIAN)*/
 
 #define sha1_store(W, t, x)  *(volatile uint32_t *)&W[t] = x
 
@@ -1326,6 +1351,17 @@ static void sha1_process(SHA1_CTX* ctx, const uint32_t block[16])
 
 void SHA1DCInit(SHA1_CTX* ctx)
 {
+  static const union { unsigned char b[4]; uint32_t v; } e = {{0,1,2,3}};
+#if defined(SHA1DC_BIGENDIAN)
+  if( e.v!=0x00010203 )
+#else
+  if( e.v!=0x03020100 )
+#endif
+  {
+    fprintf(stderr, "sha1hard.c: compile-time byte-order detection "
+            "is wrong for this platform\n");
+    abort();
+  }
   ctx->total = 0;
   ctx->ihv[0] = 0x67452301;
   ctx->ihv[1] = 0xEFCDAB89;

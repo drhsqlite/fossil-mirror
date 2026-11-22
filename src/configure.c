@@ -988,7 +988,7 @@ void configuration_cmd(void){
 ** you know exactly what is being deleted.
 **
 ** If not in an open check-out, use the -R REPO option to specify a
-** a repository.
+** repository.
 */
 void test_var_list_cmd(void){
   Stmt q;
@@ -1085,7 +1085,7 @@ void test_var_list_cmd(void){
 ** GLOB pattern.
 **
 ** If not in an open check-out, use the -R REPO option to specify a
-** a repository.
+** repository.
 */
 void test_var_get_cmd(void){
   const char *zVar;

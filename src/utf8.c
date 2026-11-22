@@ -142,7 +142,17 @@ char *fossil_path_to_utf8(const void *zPath){
   zOut = fossil_strdup(zPath);
   return zOut;
 #elif defined(__APPLE__) && !defined(WITHOUT_ICONV)
-  char *zIn = (char*)zPath;
+  /* macOS gives us a pathname already in Apple's decomposed form.  HFS+
+  ** stores names "fully decomposed and in canonical order" as per Unicode
+  ** 3.2, while APFS uses the same decomposed form but compares names
+  ** normalization-insensitively as per Unicode 9.0 basis (see Apple TN1150,
+  ** "Unicode Subtleties"; Apple File System Guide FAQ).  iconv from
+  ** UTF-8-MAC recomposes the sequence to precomposed UTF-8.  So this is a
+  ** composition pass, not full NFC. This function relies on the marks being
+  ** in canonical order as per a real macOS pathname, and it doesn't touch
+  ** characters Apple does not decompose, such as the U+F900-U+FAFF CJK
+  ** compatibility ideographs, again as per Apple documentation. */
+    char *zIn = (char*)zPath;
   char *zOut;
   iconv_t cd;
   size_t n, x;

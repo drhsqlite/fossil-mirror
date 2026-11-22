@@ -631,7 +631,7 @@ static void branch_cmd_close(int nStartAtArg, int fClose){
 ** > fossil branch hide|unhide ?OPTIONS? BRANCH-NAME ?...BRANCH-NAMES?
 **
 **       Adds or cancels the "hidden" tag for the specified branches or
-**       or check-in IDs. Accepts the same options as the close
+**       check-in IDs. Accepts the same options as the close
 **       subcommand.
 **
 ** > fossil branch info BRANCH-NAME
