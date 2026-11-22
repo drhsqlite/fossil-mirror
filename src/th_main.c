@@ -429,6 +429,7 @@ int th1_artifact_from_ci_and_filename(
     return 0;
   }
   cirid = th1_name_to_typed_rid(interp, zCI, "*");
+  if( cirid<0 ) return 0;
   blob_zero(&err);
   pManifest = manifest_get(cirid, CFTYPE_MANIFEST, &err);
   if( pManifest==0 ){
@@ -1693,7 +1694,7 @@ static int artifactCmd(
     }else{
       rid = th1_name_to_typed_rid(interp, argv[1], "*");
     }
-    if( rid!=0 && content_get(rid, &content) ){
+    if( rid>0 && content_get(rid, &content) ){
       Th_SetResult(interp, blob_str(&content), blob_size(&content));
       blob_reset(&content);
       return TH_OK;
