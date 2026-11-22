@@ -1503,10 +1503,12 @@ void whatis_artifact(
         zC
       );
       while( db_step(&q)==SQLITE_ROW ){
-        if( pOut ){
-          sqlite3_str_append(pOut, ",", 1);
-        }else{
-          fossil_print("%12s---- meaning #%d ----\n", " ", cnt);
+        if( cnt++ ){
+          if( pOut ){
+            sqlite3_str_append(pOut, ",", 1);
+          }else{
+            fossil_print("%12s---- meaning #%d ----\n", " ", cnt);
+          }
         }
         whatis_rid(db_column_int(&q, 0), mFlags, pOut);
       }
