@@ -743,8 +743,8 @@ int http_exchange(
       }
       j = strlen(zLine) - 1;
       while( j>4 && fossil_strcmp(&zLine[j-4],"/xfer")==0 ){
-         j -= 5;
-         zLine[j+1] = 0;
+         j -= 4;
+         zLine[j] = 0;
       }
       if( (mHttpFlags & HTTP_QUIET)==0 ){
         fossil_print("redirect with status %d to %s\n", rc, &zLine[i]);
