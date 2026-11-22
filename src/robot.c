@@ -142,6 +142,12 @@ int client_might_be_a_robot(void){
     return robot.resultCache==MIGHT_BE_ROBOT;
   }
 
+  /* A command run from the command line has no web client. */
+  if( !g.isHTTP ){
+    robot.resultCache = KNOWN_NOT_ROBOT;
+    return 0;
+  }
+
   /* Condition 1:  Is there a valid login?
   */
   if( g.userUid==0 ){

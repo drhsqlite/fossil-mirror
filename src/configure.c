@@ -830,6 +830,7 @@ static void export_config(
 */
 void configuration_cmd(void){
   int n;
+  int nErr = 0;
   const char *zMethod;
   db_find_and_open_repository(0, 0);
   db_open_config(0, 0);
@@ -847,7 +848,7 @@ void configuration_cmd(void){
     }
     mask = configure_name_to_mask(g.argv[3], 1);
     if( zSince ){
-      iStart = db_multi_exec(
+      iStart = db_int64(0,
          "SELECT coalesce(strftime('%%s',%Q),strftime('%%s','now',%Q))+0",
          zSince, zSince
       );
@@ -899,13 +900,13 @@ void configuration_cmd(void){
     g.zHttpAuth = get_httpauth();
     if( overwriteFlag ) mask |= CONFIGSET_OVERWRITE;
     if( strncmp(zMethod, "push", n)==0 ){
-      client_sync(0,0,(unsigned)mask,0,0);
+      nErr = client_sync(0,0,(unsigned)mask,0,0);
     }else if( strncmp(zMethod, "pull", n)==0 ){
       if( overwriteFlag ) db_unprotect(PROTECT_USER);
-      client_sync(0,(unsigned)mask,0,0,0);
+      nErr = client_sync(0,(unsigned)mask,0,0,0);
       if( overwriteFlag ) db_protect_pop();
     }else{
-      client_sync(0,(unsigned)mask,(unsigned)mask,0,0);
+      nErr = client_sync(0,(unsigned)mask,(unsigned)mask,0,0);
     }
   }else
   if( strncmp(zMethod, "reset", n)==0 ){
@@ -946,6 +947,14 @@ void configuration_cmd(void){
         db_multi_exec("DELETE FROM reportfmt");
         assert( strchr(zRepositorySchemaDefaultReports,'%')==0 );
         db_multi_exec(zRepositorySchemaDefaultReports /*works-like:""*/);
+      }else if( fossil_strcmp(zName,"@alias")==0 ){
+        db_unprotect(PROTECT_CONFIG);
+        db_multi_exec("DELETE FROM config WHERE name GLOB 'walias:/*'");
+        db_protect_pop();
+      }else if( fossil_strcmp(zName,"@interwiki")==0 ){
+        db_unprotect(PROTECT_CONFIG);
+        db_multi_exec("DELETE FROM config WHERE name GLOB 'interwiki:*'");
+        db_protect_pop();
       }
     }
     db_end_transaction(0);
@@ -959,6 +968,7 @@ void configuration_cmd(void){
                  " export import merge pull push reset");
   }
   configure_rebuild();
+  if( nErr ) fossil_exit(1);
 }
 
 
@@ -1057,7 +1067,9 @@ void test_var_list_cmd(void){
   if( zPattern && doUnset ){
     prompt_user("Delete all of the above? (y/N)? ", &ans);
     if( blob_str(&ans)[0]=='y' || blob_str(&ans)[0]=='Y' ){
+      db_unprotect(PROTECT_CONFIG);
       db_multi_exec("DELETE FROM config WHERE name GLOB %Q", zPattern);
+      db_protect_pop();
     }
     blob_reset(&ans);
   }

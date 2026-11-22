@@ -1211,6 +1211,7 @@ int manifest_is_well_formed(const char *zIn, int nIn){
   int iRes;
   Manifest *pManifest;
   Blob copy, errmsg;
+  if( nIn<1 || zIn[nIn-1]!='\n' ) return 0;
   remove_pgp_signature(&zIn, &nIn);
 
   /* Check to see that the file begins with a "card" */
@@ -1221,7 +1222,8 @@ int manifest_is_well_formed(const char *zIn, int nIn){
   for(i=2; i<nIn && zIn[i]!='\n'; i++){}
   if( i>=nIn-3 ) return 0;
   i++;
-  if( !fossil_isupper(zIn[i]) || zIn[i]<zIn[0] || zIn[i+1]!=' ' ) return 0;
+  if( !fossil_isupper(zIn[i]) || zIn[i]<zIn[0] ) return 0;
+  if( zIn[i+1]!=' ' && zIn[i+1]!='\n' ) return 0;
 
   /* The checks above will eliminate most random inputs.  If these
   ** quick checks pass, then we could be dealing with a well-formed
@@ -2635,7 +2637,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     const char isAdd = (p->zAttachSrc && p->zAttachSrc[0]) ? 1 : 0;
     char attachToType = 0;
     db_multi_exec(
-       "INSERT INTO attachment(attachid, mtime, src, target,"
+       "REPLACE INTO attachment(attachid, mtime, src, target,"
                               "filename, comment, user)"
        "VALUES(%d,%.17g,%Q,%Q,%Q,%Q,%Q);",
        rid, p->rDate, p->zAttachSrc, p->zAttachTarget, p->zAttachName,

@@ -1306,7 +1306,11 @@ int xfer_run_common_script(void){
 static void xfer_syncwith(const char *zUrl, int bSyncFrom){
   UrlData x;
   memset(&x, 0, sizeof(x));
-  url_parse_local(zUrl, URL_OMIT_USER, &x);
+  if( fossil_strnicmp(zUrl, "http://", 7)==0
+   || fossil_strnicmp(zUrl, "https://", 8)==0
+  ){
+    url_parse_local(zUrl, URL_OMIT_USER, &x);
+  }
   if( x.protocol && strncmp(x.protocol,"http",4)==0
    && x.name && sqlite3_strlike("%localhost%", x.name, 0)!=0
   ){
@@ -2025,7 +2029,8 @@ void page_xfer(void){
       "   WHERE name GLOB 'syncfrom:http*'\n"
       "  UNION ALL\n"
       "  SELECT mtime, substr(name,9), '{\"type\":\"git\"}' FROM config\n"
-      "   WHERE name GLOB 'gitpush:*'\n"
+      "   WHERE name GLOB 'gitpush:http://*'\n"
+      "      OR name GLOB 'gitpush:https://*'\n"
       ")\n"
       "SELECT url, json_insert(arg,'$.src',%Q), max(mtime)\n"
       "  FROM remote WHERE mtime>unixepoch('now','-1 month')\n"
@@ -3002,7 +3007,11 @@ int client_sync(
           memset(&x, 0, sizeof(x));
           defossilize(zUrl);
           defossilize(zArg);
-          url_parse_local(zUrl, URL_OMIT_USER, &x);
+          if( fossil_strnicmp(zUrl, "http://", 7)==0
+           || fossil_strnicmp(zUrl, "https://", 8)==0
+          ){
+            url_parse_local(zUrl, URL_OMIT_USER, &x);
+          }
           if( x.protocol
            && strncmp(x.protocol,"http",4)==0
            && iTime>0
