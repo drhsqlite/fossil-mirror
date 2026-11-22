@@ -2224,12 +2224,14 @@ static int httpCmd(
   if( nArg+1!=argc && nArg+2!=argc ){
     return Th_WrongNumArgs(interp, HTTP_WRONGNUMARGS);
   }
-  memset(&urlData, '\0', sizeof(urlData));
-  url_parse_local(argv[nArg], 0, &urlData);
-  if( urlData.isSsh || urlData.isFile ){
+  if( fossil_strnicmp(argv[nArg], "http://", 7)!=0
+   && fossil_strnicmp(argv[nArg], "https://", 8)!=0
+  ){
     Th_ErrorMessage(interp, "url must be http:// or https://", 0, 0);
     return TH_ERROR;
   }
+  memset(&urlData, '\0', sizeof(urlData));
+  url_parse_local(argv[nArg], 0, &urlData);
   zRegexp = db_get("th1-uri-regexp", 0);
   if( zRegexp && zRegexp[0] ){
     const char *zErr = fossil_re_compile(&pRe, zRegexp, 0);
