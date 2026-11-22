@@ -2007,7 +2007,10 @@ static int queryCmd(
     n = (int)(zTail - zSql);
     zSql += n;
     nSql -= n;
-    if( pStmt==0 ) continue;
+    if( pStmt==0 ){
+      if( n==0 ) break;
+      continue;
+    }
     nVar = sqlite3_bind_parameter_count(pStmt);
     for(i=1; i<=nVar; i++){
       const char *zVar = sqlite3_bind_parameter_name(pStmt, i);
