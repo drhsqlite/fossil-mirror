@@ -1720,7 +1720,9 @@ void gitmirror_export_command(void){
   if( zPushUrl ){
     char *zPushCmd;
     UrlData url;
-    if( sqlite3_strglob("http*", zPushUrl)==0 ){
+    if( fossil_strnicmp(zPushUrl, "http://", 7)==0
+     || fossil_strnicmp(zPushUrl, "https://", 8)==0
+    ){
       url_parse_local(zPushUrl, 0, &url);
       zPushCmd = mprintf("git push --mirror %s", url.canonical);
     }else{
@@ -1803,7 +1805,9 @@ void gitmirror_status_command(void){
     fossil_print("Autopush:    off\n");
   }else{
     UrlData url;
-    if( sqlite3_strglob("http*", z)==0 ){
+    if( fossil_strnicmp(z, "http://", 7)==0
+     || fossil_strnicmp(z, "https://", 8)==0
+    ){
       url_parse_local(z, 0, &url);
       fossil_print("Autopush:    %s\n", url.canonical);
     }else{

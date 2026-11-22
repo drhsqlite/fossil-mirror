@@ -1,5 +1,5 @@
-C Apply\sthe\ssame\sfix\sas\s[f56a138ee179e152]\sin\s/urllist.
-D 2026-11-22T13:48:22.485
+C In\sgit\sexport/status,\sapply\sthe\ssame\sURL\slogic\sas\s[076b7694046c4]\sto\savoid\sattempting\sto\sURL-parse\sgit@...\sURLs\sand\sgracefully\shandle\sscp\saliases\swhich\sstart\swith\s'http'.
+D 2026-11-22T13:52:44.016
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -436,7 +436,7 @@ F src/doc.c 56e99623c31e41c2a04fe104ae89433d5cf4e41a610b3d8d69b6f5fbf7efcaac
 F src/encode.c e7e28493c434f65998a683d5fbae1a50e484a72f3b6c0584128c06c9761bb436
 F src/etag.c f5ae12e6858162847c26183858f6ed58520af6b91fb3a6d786a69770c74de1c4
 F src/event.c 0aed141f6a2a70a9d14759b3e35609b459f87427a7758426e78067c08ccbb28c
-F src/export.c a2f93af3a1448742362a0e771f98c77e4e5e6504474e004b70096ee832892ce2
+F src/export.c b096771f56e24b5e1b17a697500e31feedafbaba425ee098487f33303d57b6ef
 F src/extcgi.c ba1285ef63307493e837f74e4f0c98e0cfc8029a43dcc0c90b81c59f5dff12dc
 F src/file.c ab9b0ce23d4236edff89ffa62c31c4667e05655814e1c2a2315eae10681969d8
 F src/fileedit.c 1c047bcbaec5896615d7ef869ef5d572ff307903ab4754e5e5c596b99a030125
@@ -991,8 +991,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 201cf952db7637bf15efa24ae15193599a929975439acf1f87ebcdbf3b33b7de
-R 091f5e040fd90ec916362984bf24056c
+P 3c20bf3c70daf513076ece8113f5b0b1647a281405191d29bb6b9399d9c02a56
+R e978ec07cef807051b0abc2b2c9bf58c
 U stephan
-Z 02ace411c461e15de2679fa2ff1bf7bc
+Z a4c5b285064e1c9be050db86f9364454
 # Remove this line to create a well-formed Fossil manifest.
