@@ -159,7 +159,6 @@ void url_parse_local(
     int iStart;
     char *zLogin;
     char *zExe;
-    char cQuerySep = '?';
     const char *zLb;     /* "[" before an IPv6 address in a URL, else "" */
     const char *zRb;     /* "]" after an IPv6 address in a URL, else "" */
 
@@ -291,8 +290,7 @@ void url_parse_local(
         pUrlData->fossil = fossil_strdup(zValue);
         dehttpize(pUrlData->fossil);
         fossil_free(zExe);
-        zExe = mprintf("%cfossil=%T", cQuerySep, pUrlData->fossil);
-        cQuerySep = '&';
+        zExe = mprintf("?fossil=%T", pUrlData->fossil);
         urlFlags |= URL_SSH_EXE;
       }
     }
