@@ -1023,46 +1023,50 @@ void ambiguous_page(void){
     @ </p></li>
   }
   db_finalize(&q);
-  db_prepare(&q,
-    "   SELECT tkt_rid, tkt_uuid, title"
-    "     FROM ticket, ticketchng"
-    "    WHERE ticket.tkt_id = ticketchng.tkt_id"
-    "      AND tkt_uuid GLOB '%q*'"
-    " GROUP BY tkt_uuid"
-    " ORDER BY tkt_ctime DESC", z);
-  while( db_step(&q)==SQLITE_ROW ){
-    int rid = db_column_int(&q, 0);
-    const char *zUuid = db_column_text(&q, 1);
-    const char *zTitle = db_column_text(&q, 2);
-    @ <li><p><a href="%R/%T(zSrc)/%!S(zUuid)">
-    @ %s(zUuid)</a> -
-    @ <ul></ul>
-    @ Ticket
-    hyperlink_to_version(zUuid);
-    @ - %h(zTitle).
-    @ <ul><li>
-    object_description(rid, 0, 0, 0);
-    @ </li></ul>
-    @ </p></li>
+  if( g.perm.RdTkt ){
+    db_prepare(&q,
+      "   SELECT tkt_rid, tkt_uuid, title"
+      "     FROM ticket, ticketchng"
+      "    WHERE ticket.tkt_id = ticketchng.tkt_id"
+      "      AND tkt_uuid GLOB '%q*'"
+      " GROUP BY tkt_uuid"
+      " ORDER BY tkt_ctime DESC", z);
+    while( db_step(&q)==SQLITE_ROW ){
+      int rid = db_column_int(&q, 0);
+      const char *zUuid = db_column_text(&q, 1);
+      const char *zTitle = db_column_text(&q, 2);
+      @ <li><p><a href="%R/%T(zSrc)/%!S(zUuid)">
+      @ %s(zUuid)</a> -
+      @ <ul></ul>
+      @ Ticket
+      hyperlink_to_version(zUuid);
+      @ - %h(zTitle).
+      @ <ul><li>
+      object_description(rid, 0, 0, 0);
+      @ </li></ul>
+      @ </p></li>
+    }
+    db_finalize(&q);
   }
-  db_finalize(&q);
-  db_prepare(&q,
-    "SELECT rid, uuid FROM"
-    "  (SELECT tagxref.rid AS rid, substr(tagname, 7) AS uuid"
-    "     FROM tagxref, tag WHERE tagxref.tagid = tag.tagid"
-    "      AND tagname GLOB 'event-%q*') GROUP BY uuid", z);
-  while( db_step(&q)==SQLITE_ROW ){
-    int rid = db_column_int(&q, 0);
-    const char* zUuid = db_column_text(&q, 1);
-    @ <li><p><a href="%R/%T(zSrc)/%!S(zUuid)">
-    @ %s(zUuid)</a> -
-    @ <ul><li>
-    object_description(rid, 0, 0, 0);
-    @ </li></ul>
-    @ </p></li>
+  if( g.perm.RdWiki ){
+    db_prepare(&q,
+      "SELECT rid, uuid FROM"
+      "  (SELECT tagxref.rid AS rid, substr(tagname, 7) AS uuid"
+      "     FROM tagxref, tag WHERE tagxref.tagid = tag.tagid"
+      "      AND tagname GLOB 'event-%q*') GROUP BY uuid", z);
+    while( db_step(&q)==SQLITE_ROW ){
+      int rid = db_column_int(&q, 0);
+      const char* zUuid = db_column_text(&q, 1);
+      @ <li><p><a href="%R/%T(zSrc)/%!S(zUuid)">
+      @ %s(zUuid)</a> -
+      @ <ul><li>
+      object_description(rid, 0, 0, 0);
+      @ </li></ul>
+      @ </p></li>
+    }
+    db_finalize(&q);
   }
   @ </ol>
-  db_finalize(&q);
   style_finish_page();
 }
 
