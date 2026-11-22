@@ -1,9 +1,21 @@
 # Fossil test suite
 
-This is an extensible test suite written in Tcl, where a runner executes all the test files it finds in the test/ directory. Some of the tests derive their
-cases and expecations at runtime, including from the Fossil source code (when checking to see if the Fossil binary agrees with the source) and from
-testing the behaviour of the filesystem the binary is running on (when checking unicode pathname case folding.) There is also some degree of checking for
-platforms (eg is_windows) but that is kept to a minimum.
+Test a given fossil binary for correct behaviour, either explicitly or in some
+cases computed from the binary in question and the OS context it is running on.
+
+This is an extensible test suite written in Tcl, where a runner executes all
+the test files it finds in the test/ directory. Tests do not necessarily have
+to pass, because the optional status *knownBug* constrains a test to merely
+report a bug that hasn't yet been fixed. knownBug enables a useful pattern,
+where tests are written first and the code is improved to reduce the knownBug
+count to zero over time.
+
+Some of the tests derive their cases and expecations (even some knownBugs) at
+runtime by examining the running system and its configuration; many others have
+test cases hardcoded. Other tests check for particular platforms (eg
+`is_windows`) but we wish to keep that to a minimum because of the myriad of
+different system configurations that exist within any given operating system
+platform.
 
 ## Running the tests
 
@@ -34,10 +46,10 @@ Options are:
   run per input kind. The default is 20 (5 for expensive `large` /
   `repeats` inputs). Use `-trials 100` for the historical full fuzz.
   This flag is only the fuzz loop count; it does not select
-  `-utf-assurance` cases.
-* `-utf-assurance smoke|ci|stress` selects how thoroughly the Unicode
-  tests run. The default is `smoke`. It applies to both
-  `unicode-pathnames` and `utf`:
+  `-assurance` cases.
+* `-assurance smoke|ci|stress` selects how thoroughly the tests run.
+  The default is `smoke`, which skips `powerloss`. It also sets the
+  cases that `unicode-pathnames` and `utf` run:
   - `unicode-pathnames`: `smoke` is one pair per fold-behavior class;
     `ci` is the full hand-written lists; `stress` adds generated pairs.
     At startup the harness classifies the temporary filesystem once
@@ -52,17 +64,19 @@ Options are:
 
  `make test TESTFLAGS="-quiet update"` passes options and names via `make`.
 
-Unicode assurance recipes:
+Assurance recipes:
 
 ```sh
 make test                                          # smoke (default)
-make test TESTFLAGS="-utf-assurance ci"            # full current coverage
-make test TESTFLAGS="-utf-assurance stress"        # ci plus generated cases
+make test TESTFLAGS="-assurance ci"                # full current coverage
+make test TESTFLAGS="-assurance stress"            # ci plus generated cases
 ``` 
 
-A full run normally takes a few minutes. `tester.tcl` exits with status 0 when all tests pass, 1 when one or more tests fail. Failed tests are reported with
-what it expected vs what it got. The summary lists skipped files with a reason, and all known bugs reported as `FAILED (knownBug)`. Skips and known bugs do not
-change the exit status unless `-strict` is given.
+`tester.tcl` exits with status 0 when all tests pass, 1 when one or more tests
+fail. Failed tests are reported with what it expected vs what it got. The
+summary lists skipped files with a reason, and all known bugs reported as
+`FAILED (knownBug)`. Skips and known bugs do not change the exit status unless
+`-strict` is given.
 
 A new test should only require adding another `.test` file.
 
@@ -71,17 +85,21 @@ A new test should only require adding another `.test` file.
 * Tcl 8.6 or later, we also test with Tcl 9.0 which is now common. `configure` finds `tclsh`, and `make test` fails if it finds none.
 * A writable temporary directory, from `TMPDIR`, `TEMP` or `TMP`, falling back to `/tmp`. All writes are made to the temporary directory, except with `-prot`
   which writes a session log to wherever it was started from.
-* `src/` which must be next to `test/`, just as it is in the source tree. Otherwise `settings.test` and `settings-repo.test` can't read the settings from the source.
+* `src/` which must be at the same level in the same directory as `test/`, reflecting the source tree layout. The tests (at least) `settings.test` and `settings-repo.test` need the source to do their job.
 
 The following tests are skipped when their requirements are missing:
 
 | Needs | Test files |
 | --- | --- |
-| a TCP connection over the loopback interface | `unversioned` |
+| a TCP connection over the loopback interface | `unversioned`, and the HTTP clone in `powerloss` |
+| `-assurance ci` or `stress` | `powerloss` |
+| a C compiler (`cc`, or `CC`), `LD_PRELOAD`, `tools/powerloss/powerloss.c` from the source tree, and a Fossil that isn't statically linked | `powerloss` |
 | `configure --json` | `json` |
 | `configure --with-th1-docs` | `th1-docs` |
 | `configure --with-th1-hooks` | `th1-hooks` |
 | `configure --with-tcl` | `th1-tcl` |
+
+[`tools/powerloss/README-POWERLOSS.md`](../tools/powerloss/README-POWERLOSS.md) describes the `powerloss` library dependency.
 
 None of the tests need network access. That doesn't mean all network-related tests will work, because some isolated environments don't even have loopback and
 the test suite detects this.
@@ -93,6 +111,7 @@ the test suite detects this.
 | Check-ins and the working tree | `amend`, `clean`, `commit-warning`, `mv-rm`, `revert`, `stash`, `symlinks`, `unicode-pathnames`, `update` |
 | Branches and tags | `branch-tag` |
 | Merges, cherrypicks, backouts, and annotate and blame after them | `merge1` to `merge6`, `merge-history`, `merge_exe`, `merge_renames`, `merge_renames_2`, `merge_warn` |
+| Commands interrupted by a power loss or a killed process | `powerloss` |
 | Git export and import, bundles, patches, ZIP and tarball archives | `roundtrip` |
 | Diffs and deltas | `delta1`, `diff` |
 | Settings | `settings`, `settings-repo`, `set-manifest` |

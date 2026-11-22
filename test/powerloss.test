@@ -1,0 +1,783 @@
+#
+# Tests that a fossil command interrupted by a power loss or a killed
+# process leaves repositories and check-outs that fossil can use, and
+# does not lose the user's work.
+#
+# tools/powerloss/powerloss.c is a library that fossil loads with
+# LD_PRELOAD.  It stops the command at its Nth stop point, and leaves the
+# repository and check-out database files as a power loss or a killed
+# process would at that moment.  tools/powerloss/README-POWERLOSS.md
+# describes it.  For each command, and each of its stop points in turn,
+# these tests run the command from a fresh copy of the files, stop it
+# there, and check what the user would find.  Each check is reported
+# once, with the stop points where it failed.
+#
+# The tests run for a repository in DELETE mode, Fossil's default, and in
+# WAL mode, except the clones, which make a repository in DELETE mode.
+# With a WAL repository, SQLite commits the repository and the check-out
+# database one after the other, so an interrupted command can leave the
+# check-out database one check-in behind the repository, which "fossil
+# update" repairs, or ahead of it, where the check-out can't be used
+# until its database is deleted and it is opened again.
+#
+
+require_no_open_checkout
+
+if {[test_assurance] eq "smoke"} {
+  test_skip "powerloss runs only with -assurance ci or stress"
+}
+if {$::tcl_platform(os) ni {Linux FreeBSD NetBSD OpenBSD DragonFly}} {
+  test_skip "the power loss library needs LD_PRELOAD, which\
+$::tcl_platform(os) does not have"
+}
+set shimSource [file join $::testfiledir .. tools powerloss powerloss.c]
+if {![file exists $shimSource]} {
+  test_skip "the source tree has no tools/powerloss/powerloss.c"
+}
+set workDir [test_setup ""]
+set cc [expr {[info exists ::env(CC)] ? $::env(CC) : ""}]
+if {$cc eq ""} {set cc cc}
+set shim [file join $workDir powerloss.so]
+if {[catch {exec {*}$cc -shared -fPIC -o $shim $shimSource} err] &&
+    [catch {exec {*}$cc -shared -fPIC -o $shim $shimSource -ldl} err]} {
+  test_skip "$cc cannot build tools/powerloss/powerloss.c: $err"
+}
+
+# Runs fossil with ARGS in directory DIR, with the NAME=VALUE settings of
+# the list ENV added to its environment, and returns a list of its exit
+# status and its output.  A stopped command exits with status 77.
+#
+proc pl_exec {env dir args} {
+  protOut [list fossil {*}$args]
+  set saved [pwd]
+  cd $dir
+  set rc [catch {
+    exec env {*}$env $::fossilexe {*}$args << "" 2>@1
+  } result options]
+  cd $saved
+  set status 0
+  if {$rc} {
+    set status [lindex [dict get $options -errorcode] 2]
+  }
+  return [list $status [string trim $result]]
+}
+
+# Runs fossil without the power loss library, for set-up and checks.
+#
+proc pl_fossil {dir args} {
+  return [pl_exec {} $dir {*}$args]
+}
+
+# Returns what fossil's sqlite3 command prints for SQL on database FILE,
+# which is the error message if the SQL fails.
+#
+proc pl_sql {file sql} {
+  return [lindex [pl_fossil . sqlite3 --no-repository -list $file $sql] 1]
+}
+
+# Runs a fossil command that builds a template.  A failure is an error.
+#
+proc pl_setup {dir args} {
+  set r [pl_fossil $dir {*}$args]
+  if {[lindex $r 0] != 0} {
+    error "fossil $args: [lindex $r 1]"
+  }
+}
+
+# Returns a list of two lines for repository REPO: the hashes, in order,
+# of its artifacts that are neither phantoms nor private, and of its
+# check-ins that are not private.
+#
+proc pl_content {repo} {
+  return [split [pl_sql $repo "SELECT 'artifacts', group_concat(uuid, ' ')\
+      FROM (SELECT uuid FROM blob WHERE size>=0 AND rid NOT IN private\
+            ORDER BY uuid);\
+    SELECT 'check-ins', group_concat(uuid, ' ')\
+      FROM (SELECT uuid FROM blob JOIN event ON objid=rid\
+            WHERE type='ci' AND rid NOT IN private ORDER BY uuid)"] \n]
+}
+
+# SQL for the record ID of the latest check-in in a repository.
+#
+set plTipSql "SELECT objid FROM event WHERE type='ci'\
+              ORDER BY mtime DESC, objid DESC LIMIT 1"
+
+# Returns the record ID of the latest check-in in repository REPO.
+#
+proc pl_tip {repo} {
+  return [pl_sql $repo $::plTipSql]
+}
+
+# Returns the number of parents of the latest check-in in repository REPO.
+#
+proc pl_tip_parents {repo} {
+  return [pl_sql $repo "SELECT count(*) FROM plink WHERE cid=($::plTipSql)"]
+}
+
+# Returns the number of check-ins in repository REPO.
+#
+proc pl_checkins {repo} {
+  return [pl_sql $repo "SELECT count(*) FROM event WHERE type='ci'"]
+}
+
+# Makes WORK/template/r.fossil, a repository in journal mode JOURNAL
+# with one check-in of a.txt, b.txt and c.txt, and its check-out
+# WORK/template/ck, and returns the check-out's directory.
+#
+proc pl_template_base {work journal} {
+  set run [file join $work template]
+  set ck [file join $run ck]
+  file delete -force $run
+  file mkdir $ck
+  pl_setup $run new r.fossil
+  if {$journal eq "wal"} {
+    pl_setup $run rebuild --wal r.fossil
+  }
+  pl_setup $ck open ../r.fossil
+  write_file [file join $ck a.txt] "one\ntwo\nthree\n"
+  write_file [file join $ck b.txt] "bee\n"
+  write_file [file join $ck c.txt] "sea\n"
+  pl_setup $ck add a.txt b.txt c.txt
+  pl_setup $ck commit -m one
+  return $ck
+}
+
+# In the check-out, a.txt is edited, d.txt added, b.txt removed and
+# c.txt renamed to e.txt.
+#
+proc pl_template_commit {work journal} {
+  set ck [pl_template_base $work $journal]
+  write_file [file join $ck a.txt] "second version\n"
+  write_file [file join $ck d.txt] "new\n"
+  pl_setup $ck add d.txt
+  pl_setup $ck rm b.txt
+  pl_setup $ck mv --hard c.txt e.txt
+}
+
+# Branch "side" edits b.txt and adds f.txt, trunk edits a.txt, and the
+# check-out is of trunk.
+#
+proc pl_template_merge {work journal} {
+  set ck [pl_template_base $work $journal]
+  write_file [file join $ck b.txt] "side\n"
+  write_file [file join $ck f.txt] "side file\n"
+  pl_setup $ck add f.txt
+  pl_setup $ck commit -m side --branch side
+  pl_setup $ck update trunk
+  write_file [file join $ck a.txt] "trunk\n"
+  pl_setup $ck commit -m two
+}
+
+# The check-out of the merge template has merged "side".
+#
+proc pl_template_commit_merge {work journal} {
+  pl_template_merge $work $journal
+  pl_setup [file join $work template ck] merge side
+}
+
+# The merge of the commit_merge template is committed.
+#
+proc pl_template_merged {work journal} {
+  pl_template_commit_merge $work $journal
+  pl_setup [file join $work template ck] commit -m merged
+}
+
+# The merged template, made in an earlier second than the first run.
+# "fossil rebuild" writes the time in seconds to config rows, and SQLite
+# skips the page if the time is the same as when the template was made.
+#
+proc pl_template_rebuild {work journal} {
+  pl_template_merged $work $journal
+  set made [clock seconds]
+  while {[clock seconds] == $made} {after 50}
+}
+
+# WORK/source.fossil, outside the files that the power loss library
+# tracks, is a copy of the repository with two more check-ins.
+#
+proc pl_template_pull {work journal} {
+  pl_template_base $work $journal
+  set source [file join $work source.fossil]
+  file copy [file join $work template r.fossil] $source
+  set ck [file join $work source-ck]
+  file mkdir $ck
+  pl_setup $ck open $source
+  write_file [file join $ck a.txt] "pulled\n"
+  pl_setup $ck commit -m pulled
+  write_file [file join $ck g.txt] "new in source\n"
+  pl_setup $ck add g.txt
+  pl_setup $ck commit -m "add g.txt"
+  pl_setup $ck close
+  file delete -force $ck
+}
+
+# WORK/template/l.fossil is a clone of r.fossil in journal mode JOURNAL,
+# and the check-out is of l.fossil, with two check-ins that r.fossil
+# lacks.
+#
+proc pl_template_push {work journal} {
+  set ck [pl_template_base $work $journal]
+  set run [file join $work template]
+  pl_setup $ck close
+  file delete -force $ck
+  file mkdir $ck
+  pl_setup $run clone r.fossil l.fossil
+  if {$journal eq "wal"} {
+    pl_setup $run rebuild --wal l.fossil
+  }
+  pl_setup $ck open ../l.fossil
+  pl_setup $ck settings autosync off
+  write_file [file join $ck a.txt] "pushed\n"
+  pl_setup $ck commit -m pushed
+  write_file [file join $ck g.txt] "new in clone\n"
+  pl_setup $ck add g.txt
+  pl_setup $ck commit -m "add g.txt"
+}
+
+# The second check-in changes the first line of a.txt, adds d.txt,
+# removes b.txt and renames c.txt to e.txt.  The check-out is at the
+# first check-in, and the user has added a line to a.txt.
+#
+proc pl_template_update {work journal} {
+  set ck [pl_template_base $work $journal]
+  write_file [file join $ck a.txt] "ONE TWO\ntwo\nthree\n"
+  write_file [file join $ck d.txt] "new\n"
+  pl_setup $ck add d.txt
+  pl_setup $ck rm --hard b.txt
+  pl_setup $ck mv --hard c.txt e.txt
+  pl_setup $ck commit -m two
+  pl_setup $ck update prev
+  write_file [file join $ck a.txt] "one\ntwo\nthree\nlocal\n"
+}
+
+# The user has added a line to a.txt.
+#
+proc pl_template_edit {work journal} {
+  set ck [pl_template_base $work $journal]
+  write_file [file join $ck a.txt] "one\ntwo\nthree\nlocal\n"
+}
+
+# The user's edit to a.txt is in the stash.
+#
+proc pl_template_stash {work journal} {
+  pl_template_edit $work $journal
+  pl_setup [file join $work template ck] stash save -m local
+}
+
+# The user's edit to a.txt is reverted, and "fossil undo" can restore it.
+#
+proc pl_template_reverted {work journal} {
+  pl_template_edit $work $journal
+  pl_setup [file join $work template ck] revert
+}
+
+# The check-out directory is empty.
+#
+proc pl_template_open {work journal} {
+  set ck [pl_template_base $work $journal]
+  pl_setup $ck close
+  file delete -force $ck
+  file mkdir $ck
+}
+
+# WORK/source.fossil, outside the files that the power loss library
+# tracks, has the check-ins of the merged template and a private
+# check-in.  WORK/template is empty.
+#
+proc pl_template_clone {work journal} {
+  pl_template_merged $work $journal
+  set ck [file join $work template ck]
+  write_file [file join $ck a.txt] "secret\n"
+  pl_setup $ck commit -m secret --branch hidden --private
+  pl_setup $ck close
+  file rename -force [file join $work template r.fossil] \
+      [file join $work source.fossil]
+  file delete -force [file join $work template]
+  file mkdir [file join $work template]
+}
+
+# Copies WORK/template to WORK/run and runs the fossil command CMD in
+# directory DIR of the copy.  powerloss.so stops the command at stop
+# point AT, or never if AT is 0, in MODE, which is "power" or "kill".
+# Returns the stop points that powerloss.so logged, and sets ::plRun to
+# fossil's exit status and output.
+#
+proc pl_run {work dir cmd at mode} {
+  set run [file join $work run]
+  set log [file join $work log]
+  file delete -force $run [file join $work shadow] $log
+  file copy [file join $work template] $run
+  set preload $::shim
+  if {[info exists ::env(LD_PRELOAD)]} {
+    append preload : $::env(LD_PRELOAD)
+  }
+  set ::plRun [pl_exec [list STOP_DIR=$work STOP_AT=$at STOP_MODE=$mode \
+      LD_PRELOAD=$preload] [file join $run $dir] {*}$cmd]
+  if {![file exists $log]} {return {}}
+  return [split [string trim [read_file $log]] \n]
+}
+
+# Checks that the last pl_run stopped where it was told to.  STOPPED is
+# the stop points that run logged, AT is the stop point it was given,
+# and POINT is the log line for AT from the counting run.  Returns
+# "stopped", or else what was seen.  A run that does not stop would pass
+# every other check, because it leaves the files of a finished command.
+#
+# The stop point must be logged, and the process that logged it must not
+# have logged anything after it.  In power mode the other processes must
+# not have logged anything after it either.
+#
+# When one process logged every stop point, the stop point must also be
+# the same call on the same file as in the counting run, and the command
+# must exit with status 77.  SQLite gives a super-journal a random name,
+# which differs from run to run, so the end of such a name is not
+# compared.
+#
+# When several processes logged stop points, their order can differ from
+# one run to the next, and the process that stopped may be a child, whose
+# parent can still succeed: "fossil push" exits with status 0 when
+# "fossil http" is killed in its second transaction.  So the call, the
+# file and the exit status are not compared.
+#
+proc pl_stop_seen {stopped at point mode} {
+  set status [lindex $::plRun 0]
+  set last [lindex $stopped [expr {$at-1}]]
+  set later [lrange $stopped $at end]
+  if {$mode eq "kill"} {
+    set later [lsearch -all -inline -exact -index 3 $later [lindex $last 3]]
+  }
+  if {$last eq "" || [llength $later] > 0} {
+    return "[llength $stopped] stop points logged, exit status $status"
+  }
+  if {[llength [lsort -unique [lmap line $stopped {lindex $line 3}]]] > 1} {
+    return stopped
+  }
+  set seen [regsub -- {-mj[0-9A-F]+$} [lrange $last 1 2] -mj]
+  set wanted [regsub -- {-mj[0-9A-F]+$} [lrange $point 1 2] -mj]
+  if {$seen ne $wanted} {
+    return "stop point $at was [lrange $last 1 2]"
+  }
+  if {$status != 77} {
+    return "exit status $status"
+  }
+  return stopped
+}
+
+# Records the result of the check CHECK at the current stop point,
+# ::plPoint, of the run ::plName.  pl_report reports each check once,
+# with the stop points where it failed.  With "knownBug" in CONSTRAINTS,
+# a failure at this stop point is a known bug.  ::plResults has two lists
+# for each check, the failures that are known bugs and those that are
+# not.  A failure is its stop point and the expected and actual values.
+#
+proc pl_expect {check actual expected {constraints ""}} {
+  set key $::plName-$check
+  if {![dict exists $::plResults $key]} {
+    dict set ::plResults $key {marked 0 failed {} known {}}
+  }
+  set kind failed
+  if {"knownBug" in $constraints} {
+    set kind known
+    dict set ::plResults $key marked 1
+  }
+  if {$actual ne $expected} {
+    set failures [dict get $::plResults $key $kind]
+    lappend failures [list $::plPoint $expected $actual]
+    dict set ::plResults $key $kind $failures
+  }
+}
+
+# Reports each check recorded since the last report as one test.  The
+# test fails with the stop points where the check failed, and the
+# expected and actual values at the first of them.  The failure is a
+# known bug if it is one at every stop point where the check failed.
+#
+proc pl_report {} {
+  dict for {key result} $::plResults {
+    set failures [dict get $result failed]
+    set isKnown [expr {[dict get $result marked] && [llength $failures] == 0}]
+    if {$isKnown} {set failures [dict get $result known]}
+    set actual ""
+    if {[llength $failures] > 0} {
+      set points [lmap failure $failures {lindex $failure 0}]
+      lassign [lindex $failures 0] at expected got
+      set actual "stop points $points; at $at, expected \"$expected\",\
+got \"$got\""
+    }
+    test_eq $key $actual "" [expr {$isKnown ? "knownBug" : ""}]
+  }
+  set ::plResults [dict create]
+}
+set plResults [dict create]
+
+# Checks that the repository and check-out databases of WORK/run pass
+# PRAGMA integrity_check, that the check-out database does not record a
+# check-in missing from the repository, and that "fossil status" works.
+# Returns 1 when "fossil status" works.  CONSTRAINTS apply to the check
+# that the check-out is not ahead of the repository, and to "fossil
+# status" where it is ahead.
+#
+proc pl_check_databases {work {constraints ""}} {
+  set run [file join $work run]
+  set ck [file join $run ck]
+  set found [split [pl_sql [file join $run r.fossil] \
+      "ATTACH '[file join $ck .fslckout]' AS ck;\
+       SELECT count(*) FROM blob WHERE rid=\
+         (SELECT 0+value FROM ck.vvar WHERE name='checkout');\
+       PRAGMA main.integrity_check; PRAGMA ck.integrity_check"] \n]
+  pl_expect integrity [lrange $found 1 end] {ok ok}
+  set ahead [expr {[lindex $found 0] != 1}]
+  pl_expect not-ahead [lindex $found 0] 1 $constraints
+  set r [pl_fossil $ck status]
+  pl_expect status [lindex $r 0] 0 [expr {$ahead ? $constraints : ""}]
+  return [expr {[lindex $r 0] == 0}]
+}
+
+# Checks that repository REPO has the artifacts and check-ins of
+# repository WANTED.  CONSTRAINTS apply to the check of the check-ins
+# where REPO has none.
+#
+proc pl_expect_artifacts {repo wanted {constraints ""}} {
+  lassign [pl_content $repo] artifacts checkins
+  lassign [pl_content $wanted] wantedArtifacts wantedCheckins
+  if {$checkins ne "check-ins|"} {set constraints ""}
+  pl_expect artifacts $artifacts $wantedArtifacts
+  pl_expect checkins $checkins $wantedCheckins $constraints
+}
+
+# Returns "knownBug" for a WAL repository stopped by a power loss, which
+# is where a stopped commit can leave a check-out that cannot be used, and
+# "" otherwise.  A power loss just after the check-out database commits
+# loses the repository's unsynced commit, which leaves the check-out
+# ahead of the repository.
+#
+proc pl_wal_commit_bug {} {
+  set lost [expr {$::plJournal eq "wal" && $::plMode eq "power"}]
+  return [expr {$lost ? "knownBug" : ""}]
+}
+
+# Finishes the check-in that a stopped commit was making, as the user
+# would: "fossil update", then "fossil commit" if changes are pending.
+# Returns the changes that were pending.
+#
+proc pl_finish_commit {ck} {
+  pl_fossil $ck update
+  set pending [lindex [pl_fossil $ck changes] 1]
+  if {$pending ne ""} {
+    pl_fossil $ck commit -m retry
+  }
+  return $pending
+}
+
+# The databases are usable, and once the user finishes the check-in, the
+# latest check-in has the files the user committed, and the repository
+# has one new check-in.
+#
+proc pl_check_commit {work} {
+  set ck [file join $work run ck]
+  if {![pl_check_databases $work [pl_wal_commit_bug]]} return
+  pl_finish_commit $ck
+  pl_expect checkin-count [pl_checkins [file join $work run r.fossil]] 3
+  pl_expect tip-files [lindex [pl_fossil $ck ls -r tip] 1] \
+      "a.txt\nd.txt\ne.txt"
+  pl_expect content [lindex [pl_fossil $ck cat a.txt -r tip] 1] \
+      "second version"
+}
+
+# The same as pl_check_commit, and the check-in has both parents.
+#
+proc pl_check_commit_merge {work} {
+  set ck [file join $work run ck]
+  if {![pl_check_databases $work [pl_wal_commit_bug]]} return
+  # Where the repository has the merge check-in and the check-out lacks
+  # it, "fossil update" leaves the merge pending, and the next commit
+  # checks in the same merge again.
+  set remerged [regexp {^MERGED_WITH \S+$} [pl_finish_commit $ck]]
+  pl_expect checkin-count [pl_checkins [file join $work run r.fossil]] 5 \
+      [expr {$remerged ? "knownBug" : ""}]
+  pl_expect parents [pl_tip_parents [file join $work run r.fossil]] 2
+  pl_expect content \
+      [lindex [pl_fossil $ck cat a.txt -r tip] 1]/[lindex \
+        [pl_fossil $ck cat b.txt -r tip] 1] trunk/side
+}
+
+# Checks the files in check-out CK against the list EXPECTED.  A command
+# that follows an interrupted one finds the files that the interrupted
+# command wrote, and backs each one up as NAME-original.  That is a known
+# bug, which has its own check.
+#
+proc pl_expect_files {ck expected} {
+  set files [lsort [glob -nocomplain -tails -directory $ck *]]
+  pl_expect backups [lsearch -all -inline -glob $files *-original] {} knownBug
+  pl_expect files [lsearch -all -inline -not -glob $files *-original] $expected
+}
+
+# The databases are usable, and after "fossil update" the check-out is at
+# the latest check-in, with the user's edit merged into a.txt.
+#
+proc pl_check_update {work} {
+  set ck [file join $work run ck]
+  if {![pl_check_databases $work]} return
+  pl_expect update [lindex [pl_fossil $ck update] 0] 0
+  set rid [pl_sql [file join $ck .fslckout] \
+      "SELECT value FROM vvar WHERE name='checkout'"]
+  pl_expect at-tip $rid [pl_tip [file join $work run r.fossil]]
+  pl_expect_files $ck {a.txt d.txt e.txt}
+  pl_expect content [read_file [file join $ck a.txt]] \
+      "ONE TWO\ntwo\nthree\nlocal\n"
+}
+
+# The databases are usable, and after "fossil merge" again if the merge
+# is not pending, the check-out has the merged files and nothing else,
+# and the commit has both parents.
+#
+proc pl_check_merge {work} {
+  set ck [file join $work run ck]
+  if {![pl_check_databases $work]} return
+  set pending [pl_sql [file join $ck .fslckout] "SELECT count(*) FROM vmerge"]
+  if {$pending == 0} {
+    pl_expect merge [lindex [pl_fossil $ck merge side] 0] 0
+  }
+  pl_expect_files $ck {a.txt b.txt c.txt f.txt}
+  pl_expect content [read_file [file join $ck a.txt]]/[read_file \
+      [file join $ck b.txt]]/[read_file [file join $ck f.txt]] \
+      "trunk\n/side\n/side file\n"
+  pl_fossil $ck commit -m merged
+  pl_expect parents [pl_tip_parents [file join $work run r.fossil]] 2
+}
+
+# The databases are usable, and after "fossil pull" again the repository
+# has the artifacts and check-ins of WORK/source.fossil.
+#
+proc pl_check_pull {work} {
+  set ck [file join $work run ck]
+  set repo [file join $work run r.fossil]
+  set source [file join $work source.fossil]
+  if {![pl_check_databases $work]} return
+  pl_expect pull [lindex [pl_fossil $ck pull $source] 0] 0
+  pl_expect_artifacts $repo $source
+  pl_fossil $ck update
+  pl_expect content [read_file [file join $ck a.txt]] "pulled\n"
+}
+
+# Both repositories pass PRAGMA integrity_check, and after "fossil push"
+# again r.fossil has the artifacts and check-ins of l.fossil.
+#
+proc pl_check_push {work} {
+  set ck [file join $work run ck]
+  set remote [file join $work run r.fossil]
+  set clone [file join $work run l.fossil]
+  pl_expect integrity [pl_sql $remote "ATTACH '$clone' AS l;\
+      PRAGMA main.integrity_check; PRAGMA l.integrity_check"] "ok\nok"
+  pl_expect push [lindex [pl_fossil $ck push ../r.fossil] 0] 0
+  pl_expect_artifacts $remote $clone
+}
+
+# For "stash save" and "stash pop": the user's edit is in a.txt or in
+# the stash, and is in a.txt after "fossil stash pop".
+#
+proc pl_check_stash {work} {
+  set ck [file join $work run ck]
+  if {![pl_check_databases $work]} return
+  if {[lindex [pl_fossil $ck stash list] 1] ne "empty stash"} {
+    pl_fossil $ck stash pop
+  }
+  pl_expect content [read_file [file join $ck a.txt]] \
+      "one\ntwo\nthree\nlocal\n"
+}
+
+# Returns the content of FILE, or "" if it does not exist.
+#
+proc pl_read {file} {
+  if {![file exists $file]} {return ""}
+  return [read_file $file]
+}
+
+# Checks that the user's edit to a.txt is in the file, or that "fossil
+# undo" puts it back.  CONSTRAINTS apply where a.txt is left with the
+# content of the check-in.
+#
+proc pl_check_edit_kept {ck {constraints ""}} {
+  set edit "one\ntwo\nthree\nlocal\n"
+  if {[pl_read [file join $ck a.txt]] ne $edit} {
+    pl_fossil $ck undo
+  }
+  set found [pl_read [file join $ck a.txt]]
+  if {$found ne "one\ntwo\nthree\n"} {set constraints ""}
+  pl_expect edit $found $edit $constraints
+}
+
+# The databases are usable, and the edit is in a.txt or "fossil undo"
+# puts it back.
+#
+proc pl_check_revert {work} {
+  if {![pl_check_databases $work]} return
+  # A revert overwrites the files before it commits their undo
+  # information, so an interrupted revert loses the user's edits.
+  pl_check_edit_kept [file join $work run ck] knownBug
+}
+
+# The databases are usable, and the edit is in a.txt or "fossil undo"
+# again puts it back.
+#
+proc pl_check_undo {work} {
+  if {![pl_check_databases $work]} return
+  pl_check_edit_kept [file join $work run ck]
+}
+
+# The check-out database is missing or passes PRAGMA integrity_check,
+# and after "fossil open" again where "fossil status" fails, or "fossil
+# update" where it works, the check-out has every file of the check-in,
+# unchanged.
+#
+proc pl_check_open {work} {
+  set ck [file join $work run ck]
+  set ckout [file join $ck .fslckout]
+  if {[file exists $ckout]} {
+    pl_expect integrity [pl_sql $ckout {PRAGMA integrity_check}] ok
+  }
+  if {[lindex [pl_fossil $ck status] 0] == 0} {
+    pl_fossil $ck update
+  } else {
+    # An open interrupted before it records the name of the repository
+    # leaves a check-out database that every command rejects.
+    lassign [pl_fossil $ck open ../r.fossil] status output
+    set unnamed [string match "*unable to find the name of a repo*" $output]
+    pl_expect open $status 0 [expr {$unnamed ? "knownBug" : ""}]
+    if {$status != 0} return
+  }
+  pl_expect_files $ck {a.txt b.txt c.txt}
+  pl_expect changes [pl_fossil $ck changes] {0 {}}
+  pl_expect content [pl_read [file join $ck a.txt]] "one\ntwo\nthree\n"
+}
+
+# The databases are usable, and the repository has the same artifacts
+# and check-ins as before.
+#
+proc pl_check_rebuild {work} {
+  set repo [file join $work run r.fossil]
+  set original [file join $work template r.fossil]
+  if {![pl_check_databases $work]} return
+  pl_expect_artifacts $repo $original
+}
+
+# The new repository is missing, or fossil refuses to use it, or it has
+# every public artifact and check-in of the original and no private one.
+# An interrupted clone over a file: URL can leave the private content of
+# the original, and one over HTTP a repository without its check-ins.
+#
+proc pl_check_clone {work} {
+  set clone [file join $work run c.fossil]
+  set source [file join $work source.fossil]
+  if {![file exists $clone] ||
+      [lindex [pl_fossil [file join $work run] info -R $clone] 0] != 0} {
+    return
+  }
+  set found [split [pl_sql $clone "SELECT count(*) FROM private;\
+                                   PRAGMA integrity_check"] \n]
+  pl_expect integrity [lrange $found 1 end] ok
+  set http [expr {$::plTest eq "clone-http"}]
+  pl_expect private [lindex $found 0] 0 [expr {$http ? "" : "knownBug"}]
+  pl_expect_artifacts $clone $source [expr {$http ? "knownBug" : ""}]
+}
+
+# Runs TEST for a repository in journal mode JOURNAL, from the template
+# TEMPLATE, uninterrupted and then stopped at each stop point in each
+# mode, and reports each check of the procedure CHECK once for each mode.
+# The command CMD runs in directory DIR of the copy of the template.  In
+# CMD, SOURCE stands for WORK/source.fossil and PORT for the port of a
+# server of it, which is started for a CMD that has PORT in it.
+#
+proc pl_test {test journal template dir check cmd} {
+  set ::plTest $test
+  set ::plJournal $journal
+  set work [file join $::workDir $test-$journal]
+  file mkdir $work
+  pl_template_$template $work $journal
+  set source [file join $work source.fossil]
+  set port ""
+  set server ""
+  if {[string match *PORT* $cmd]} {
+    set server [test_start_server $source stopArg]
+    set port [lindex $server 1]
+  }
+  try {
+    set cmd [lmap a $cmd {string map [list SOURCE $source PORT $port] $a}]
+    foreach mode {power kill} {
+      set ::plMode $mode
+      set ::plName powerloss-$test-$journal-$mode
+      set points [pl_run $work $dir $cmd 0 $mode]
+      test $::plName-points {[llength $points] > 0}
+      set ::plPoint none
+      $check $work
+      foreach point $points {
+        set at [lindex $point 0]
+        set stopped [pl_run $work $dir $cmd $at $mode]
+        protOut "$test stop point $at: [lrange $point 1 end]"
+        set ::plPoint $at
+        pl_expect stopped [pl_stop_seen $stopped $at $point $mode] stopped
+        $check $work
+      }
+      pl_report
+    }
+  } finally {
+    if {$server ne ""} {
+      test_stop_server $stopArg [lindex $server 0] [lindex $server 2]
+    }
+    file delete -force $work
+  }
+}
+
+# A fossil that is statically linked does not load the library.
+file mkdir [file join $workDir probe template]
+if {[pl_run [file join $workDir probe] . {new r.fossil} 0 power] eq ""} {
+  test_skip "LD_PRELOAD of powerloss.so has no effect on fossil,\
+which may be statically linked"
+}
+
+set env(FOSSIL_USER) tester
+# Each row is a test, its template, the directory the command runs in, its
+# check procedure, the journal modes it runs for, and the command.  The
+# check procedures mark the known bugs.
+#
+foreach {test template dir check journals cmd} {
+  commit       commit       ck pl_check_commit       {delete wal}
+               {commit -m two}
+  commit-merge commit_merge ck pl_check_commit_merge {delete wal}
+               {commit -m merged}
+  merge        merge        ck pl_check_merge        {delete wal}
+               {merge side}
+  update       update       ck pl_check_update       {delete wal}
+               {update}
+  stash-save   edit         ck pl_check_stash        {delete wal}
+               {stash save -m local}
+  stash-pop    stash        ck pl_check_stash        {delete wal}
+               {stash pop}
+  revert       edit         ck pl_check_revert       {delete wal}
+               {revert}
+  undo         reverted     ck pl_check_undo         {delete wal}
+               {undo}
+  open         open         ck pl_check_open         {delete wal}
+               {open ../r.fossil}
+  rebuild      rebuild      ck pl_check_rebuild      {delete wal}
+               {rebuild}
+  pull         pull         ck pl_check_pull         {delete wal}
+               {pull SOURCE}
+  push         push         ck pl_check_push         {delete wal}
+               {push ../r.fossil}
+  clone-file   clone        .  pl_check_clone        delete
+               {clone SOURCE c.fossil}
+  clone-http   clone        .  pl_check_clone        delete
+               {clone --proxy off http://127.0.0.1:PORT/ c.fossil}
+} {
+  if {[string match *PORT* $cmd] && ![loopback_available]} {
+    test_skip_part "powerloss-$test needs a loopback interface"
+    continue
+  }
+  foreach journal $journals {
+    pl_test $test $journal $template $dir $check $cmd
+  }
+}
+unset env(FOSSIL_USER)
+
+test_cleanup
