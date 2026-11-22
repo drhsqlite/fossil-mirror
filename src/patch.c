@@ -1031,7 +1031,7 @@ void patch_cmd(void){
   n = strlen(zCmd);
   if( strncmp(zCmd, "alias", n)==0 ){
     const char * zArg = g.argc>3 ? g.argv[3] : 0;
-    db_must_be_within_tree();
+    db_find_and_open_repository(0, 0);
     if( 0==zArg ){
       goto usage_patch_alias;
     }else if( 0==strcmp("ls",zArg) || 0==strcmp("list",zArg) ){
