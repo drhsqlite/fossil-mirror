@@ -623,12 +623,20 @@ void urllist_page(void){
       @ <div class="section">Recently synced with these URLs</div>
       @ <table border='0' width='100%%'>
     }
-    memset(&x, 0, sizeof(x));
-    url_parse_local(zURL, URL_OMIT_USER, &x);
-    @ <tr><td width='100%%'><a href='%h(x.canonical)'>%h(x.canonical)</a>
+    if( fossil_strnicmp(zURL, "http://", 7)==0
+     || fossil_strnicmp(zURL, "https://", 8)==0
+    ){
+      memset(&x, 0, sizeof(x));
+      url_parse_local(zURL, URL_OMIT_USER, &x);
+      @ <tr><td width='100%%'><a href='%h(x.canonical)'>%h(x.canonical)</a>
+      url_unparse(&x);
+    }else{
+      /* A gitpush address such as git@host:path is not a URL that
+      ** url_parse_local() understands.  Show it as it is. */
+      @ <tr><td width='100%%'>%h(zURL)
+    }
     @ <td><nobr>%h(db_column_text(&q,1))</nobr></td></tr>
     cnt++;
-    url_unparse(&x);
   }
   db_finalize(&q);
   if( cnt ){
