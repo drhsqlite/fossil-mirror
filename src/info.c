@@ -3304,6 +3304,8 @@ static void cluster_info(int rid, const char *zName){
   int hashClr = PB("hclr");
   const char *zDate;
 
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   pCluster = manifest_get(rid, CFTYPE_CLUSTER, 0);
   if( pCluster==0 ){
     artifact_page();
