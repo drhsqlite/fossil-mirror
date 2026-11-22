@@ -441,13 +441,15 @@ void ssh_add_path_argument(Blob *pCmd){
 */
 char *http_last_trace_reply(void){
   Blob x;
-  int n;
   char *zFilename;
   if( g.fHttpTrace==0 ) return 0;
   zFilename = mprintf("http-reply-%d.txt", traceCnt);
-  n = blob_read_from_file(&x, zFilename, ExtFILE);
+  if( file_size(zFilename, ExtFILE)<=0 ){
+    fossil_free(zFilename);
+    return 0;
+  }
+  blob_read_from_file(&x, zFilename, ExtFILE);
   fossil_free(zFilename);
-  if( n<=0 ) return 0;
   return blob_str(&x);
 }
 
