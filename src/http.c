@@ -725,6 +725,7 @@ int http_exchange(
                 fossil_strnicmp(zLine, "location:", 9)==0 ){
       int i, j;
       int wasHttps;
+      int wasProxy;
       int priorUrlFlags;
 
       if ( --maxRedirect == 0){
@@ -754,6 +755,7 @@ int http_exchange(
         goto write_err;
       }
       wasHttps = g.url.isHttps;
+      wasProxy = g.url.useProxy;
       priorUrlFlags = g.url.flags;
       url_parse(&zLine[i], 0);
       if( wasHttps && !g.url.isHttps ){
@@ -777,6 +779,7 @@ int http_exchange(
         g.url.flags |= URL_REMEMBER;
         url_remember();
       }
+      if( wasProxy ) url_enable_proxy(0);
       return http_exchange(pSend, pReply, mHttpFlags,
                            maxRedirect, zAltMimetype);
     }else if( fossil_strnicmp(zLine, "content-type: ", 14)==0 ){
