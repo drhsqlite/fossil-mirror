@@ -1248,7 +1248,7 @@ void whatis_rid(int rid, int flags, sqlite3_str *pOut){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTag = (const char*)db_column_text(&q,0);
     if( pOut ){
-      const char *zSep = cnt==0 ? ",tags:[" : ",";
+      const char *zSep = cnt==0 ? ",\"tags\":[" : ",";
       sqlite3_str_appendf(pOut, "%s%J", zSep, zTag);
     }else{
       const char *zPrefix = cnt ? ", " : "tags:       ";
