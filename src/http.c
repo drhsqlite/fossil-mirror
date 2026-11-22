@@ -941,6 +941,7 @@ int http_exchange(
       fossil_print("Reply received: %d of %d bytes\n", iRecvLen, iLength);
     }
     if( iRecvLen != iLength ){
+      blob_resize(pReply, iRecvLen);
       if( mHttpFlags & HTTP_QUIET ) goto write_err;
       fossil_warning("response truncated: got %d bytes of %d",
                      iRecvLen, iLength);
