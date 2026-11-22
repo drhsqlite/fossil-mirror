@@ -2560,7 +2560,7 @@ void page_timeline(void){
         double rStartDate = mtime_of_rid(d_rid, 0.0);
         ridFwdTo = first_checkin_with_tag_after_date(zFwdTo, rStartDate);
         if( ridFwdTo==0 ){
-          ridFwdTo = name_to_typed_rid(zBackTo,"ci");
+          ridFwdTo = name_to_typed_rid(zFwdTo,"ci");
         }
         if( ridFwdTo ){
           if( !haveParameterN ) nEntry = 0;
