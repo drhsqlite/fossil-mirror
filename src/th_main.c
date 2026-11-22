@@ -3004,7 +3004,7 @@ int Th_RenderToBlob(const char *z, Blob * pOut, u32 mFlags){
   if( rc==TH_ERROR ){
     zResult = (char*)Th_GetResult(g.interp, &n);
     sendError(pOut,zResult, n, 1);
-  }else{
+  }else if( rc==TH_OK ){
     sendText(pOut,z, i, 0);
   }
   Th_SetOutputBlob(origOut);
