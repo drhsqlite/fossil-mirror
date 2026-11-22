@@ -703,9 +703,10 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   if( strncmp(zTag, "rid:", 4)==0 ){
     zTag += 4;
     for(i=0; fossil_isdigit(zTag[i]); i++){}
-    if( zTag[i]==0 ){
+    if( i>0 && zTag[i]==0 ){
       if( strcmp(zType,"*")==0 ){
-        rid = atoi(zTag);
+        rid = db_int(0, "SELECT rid FROM blob WHERE rid=%s",
+                     zTag /*safe-for-%s*/);
       }else{
         rid = db_int(0,
           "SELECT event.objid"
