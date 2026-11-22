@@ -401,6 +401,10 @@ char *url_full(const UrlData *p){
   if( p->dfltPort!=p->port ){
     blob_appendf(&x, ":%d", p->port);
   }
+  if( p->isSsh && p->path[0] && fossil_strcmp(p->path, "/")!=0 ){
+    /* The path of an ssh: URL is held without its first "/". */
+    blob_append_char(&x, '/');
+  }
   blob_appendf(&x, "%T", p->path);
   (void)blob_str(&x);
   return x.aData;
@@ -420,6 +424,10 @@ char *url_nouser(const UrlData *p){
   url_append_host(&x, p->name);
   if( p->dfltPort!=p->port ){
     blob_appendf(&x, ":%d", p->port);
+  }
+  if( p->isSsh && p->path[0] && fossil_strcmp(p->path, "/")!=0 ){
+    /* The path of an ssh: URL is held without its first "/". */
+    blob_append_char(&x, '/');
   }
   blob_appendf(&x, "%T", p->path);
   (void)blob_str(&x);
