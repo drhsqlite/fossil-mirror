@@ -88,7 +88,9 @@ static void http_build_login_card(Blob * const pPayload, Blob * const pLogin){
   }else if( g.cgiOutput ){
     /* Password failure while doing a sync from the web interface */
     cgi_printf("*** incorrect or missing password for user %h\n", zLogin);
-    zPw = 0;
+    blob_reset(&pw);
+    blob_reset(&nonce);
+    return;
   }else{
     /* Password failure while doing a sync from the command-line interface */
     url_prompt_for_password();
