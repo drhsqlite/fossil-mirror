@@ -967,12 +967,13 @@ int http_exchange(
     char *z;
     int i, j;
     z = blob_str(pReply);
-    for(i=j=0; z[i]; i++, j++){
+    for(i=j=0; z[i]; i++){
       if( z[i]=='<' ){
         while( z[i] && z[i]!='>' ) i++;
         if( z[i]==0 ) break;
+      }else{
+        z[j++] = z[i];
       }
-      z[j] = z[i];
     }
     z[j] = 0;
     if( mHttpFlags & HTTP_QUIET ){
