@@ -2047,6 +2047,7 @@ void bloblist_page(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   cgi_check_for_malice();
+  if( n<1 ) n = 1;
   style_header("List Of Artifacts");
   style_submenu_element("250 Largest", "bigbloblist");
   if( bRecent==0 || n!=250 ){
@@ -2103,7 +2104,7 @@ void bloblist_page(void){
     zRange = mprintf("IN (SELECT rid FROM blob"
                      " ORDER BY rid DESC LIMIT %d)",n);
   }else{
-    zRange = mprintf("BETWEEN %d AND %d", s, s+n-1);
+    zRange = mprintf("BETWEEN %d AND %lld", s, (i64)s+n-1);
   }
   describe_artifacts(zRange);
   fossil_free(zRange);
