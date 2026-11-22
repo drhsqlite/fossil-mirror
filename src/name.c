@@ -1002,6 +1002,8 @@ void ambiguous_page(void){
   const char *zSrc = PD("src","info");
   char *z;
 
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( zName==0 || zName[0]==0 || zSrc==0 || zSrc[0]==0 ){
     fossil_redirect_home();
   }
