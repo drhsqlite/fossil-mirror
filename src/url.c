@@ -648,6 +648,9 @@ void url_enable_proxy(const char *zMsg){
     g.url.user = 0;
     g.url.passwd = "";
     url_parse(zProxy, 0);
+    if( g.url.isFile || g.url.isSsh ){
+      fossil_fatal("the proxy must be an http: or https: URL: %s", zProxy);
+    }
     if( zMsg ) fossil_print("%s%s\n", zMsg, g.url.canonical);
     g.url.path = zOriginalUrl;
     g.url.hostname = zOriginalHost;
