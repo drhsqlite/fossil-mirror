@@ -1011,3 +1011,31 @@ body.login .content p, dl.helpOptions dt, dl.helpOptions dd { overflow-wrap: any
 /* A message's header line (sender, number, time) may wrap. Fossil keeps it
    on one line, so a long login made the message list scroll sideways. */
 body.chat div.message-widget .message-widget-tab { white-space: normal; overflow-wrap: anywhere; max-width: 100%; }
+
+/* iOS Safari zooms into a focused field whose text is under 16px. Phones
+   get .content at 0.95em, so the chat field (15.2px) zoomed the page and
+   left it scrolling sideways; other fields default to about 13px. */
+@media (pointer: coarse), (max-width: 600px) {
+  body.chat .chat-input-field { font-size: max(16px, 1em) !important; }
+  textarea, select,
+  input:not([type=checkbox]):not([type=radio]):not([type=submit]):not([type=button]):not([type=reset]):not([type=file]) {
+    font-size: max(16px, 1em);
+  }
+}
+/* The input wrapper's border already shows focus; the field's own
+   :focus-visible outline was drawn outside it. */
+body.chat .chat-input-field:focus-visible { outline: none; }
+/* In compact mode fossil stacks the field over the button row, so a border
+   on the wrapper enclosed the buttons and the blank space beside them.
+   Draw it on the field instead. */
+body.chat #chat-input-line-wrapper.compact { border: none !important; background: transparent !important; gap: 4px; }
+body.chat #chat-input-line-wrapper.compact .chat-input-field {
+  border: 1px solid var(--border) !important; border-radius: 6px !important;
+  background: var(--input-bg) !important; padding: 0.3em 0.45em !important;
+}
+body.chat #chat-input-line-wrapper.compact .chat-input-field:focus { border-color: var(--link) !important; }
+/* Space the buttons so neighboring borders do not double up. */
+body.chat #chat-buttons-wrapper { gap: 4px; }
+/* Light-mode bubbles keep the sender's own color, on which the page link
+   blue measured 4.0:1. Links in messages use the darker on-tint blue. */
+body.chat .message-widget-content a, body.chat .message-widget-content a:visited { color: var(--link-on-tint) !important; }
