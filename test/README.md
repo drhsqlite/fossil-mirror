@@ -128,6 +128,25 @@ report both values when they fail, and `test NAME EXPRESSION` gives the report. 
 reports a few skipped tests while the file continues, and `test_fail_then_return NAME
 REASON` records a failed setup step and stops the file. A last argument of `knownBug` to any of the `test` procedures marks a known bug as described above.
 
+`fossil_raw ARGS` also runs the executable, for the tests `fossil` can't
+do. It sets `RESULT` to standard output and standard error together, as
+bytes, and `CODE` to the exit status, to `crash` if a signal ended the
+command, or to `timeout`. A failed command isn't reported as an error, so
+check `CODE` yourself. Use it when you need:
+
+* the output byte for byte, such as CRLF line endings or binary content
+* the exit status, or to tell a crash from a failure
+* text on standard error from a command that succeeds
+* standard input, with `-input TEXT`
+* a time limit, with `-seconds N`. The default is 600.
+* a server in the test's own Tcl. The Tcl event loop runs while the
+  command does, so a `socket -server` in your test file can answer it.
+
+`holds_strings TEXT WANTED` returns 1 if `TEXT` has every string in the
+list `WANTED`, where a string starting with `!` must be absent.
+`test_start_server` takes options for `fossil server` after its second
+argument.
+
 ## Maintaining the tests
 
 First step is noticing bugs. One pattern is when Fossil's output changes causing tests that rely on changed output to fail. `tester.tcl` prints the expected and the actual text for each but this won't always be obvious. It's possible that output changes may mask a code failure too.
@@ -142,8 +161,9 @@ A test marked `knownBug` should fail on every applicable system. If the fault on
 
 `fixed_word_lines NLINE` is a procedure in `tester.tcl` that returns generated text as a string, the same text on every run. `delta1.test` and `merge2.test` use it for their input. If your new test needs text to work on start with this. Look at delta and merge tests for examples of how to use this with character encodings.
 
-Beware of global variables! If you feel you really have to create a new global variable, be sure there isn't a collision with other files. Some future design
-of tester.tcl should avoid this problem.
+Beware of global variables! `tester.tcl` removes on exit any globals a test file
+creates. A global defined by `tester.tcl`, such as `RESULT`, is still shared, so
+don't reuse one of those.
 
 `make test` runs only the `.test` files. The other scripts in `test/` are run by hand:
 

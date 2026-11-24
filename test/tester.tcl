@@ -249,6 +249,119 @@ proc fossil_maybe_answer {answer args} {
   set RESULT $result
 }
 
+# Run the Fossil program with the arguments ARGS.  fossil_raw does not
+# report a failed command as an error, which the "fossil" procedure does.
+# Use it where a test reads the output as bytes, expects text on
+# standard error, gives fossil input, or has to tell a crash from a
+# failure.  ARGS can begin with either or both of these options:
+#
+#   -seconds N    Kill fossil after N seconds.  The default is 600.
+#   -input TEXT   Give fossil TEXT on standard input.  The default is
+#                 an empty standard input.
+#
+# Sets RESULT to standard output and standard error together, as bytes.
+# Sets CODE to the exit status, to "crash" when a signal ended fossil, or
+# to "timeout" when fossil was killed at the time limit.  The Tcl event
+# loop runs while fossil does, so a server that the test file has made
+# with "socket -server" can answer fossil.
+#
+proc fossil_raw {args} {
+  global fossilexe RESULT CODE LASTCMD fossilRawState
+  set seconds 600
+  set input ""
+  while {[lindex $args 0] in {-seconds -input}} {
+    set args [lassign $args option value]
+    switch -- $option {
+      -seconds {set seconds $value}
+      -input   {set input $value}
+    }
+  }
+  set LASTCMD [list fossil {*}$args]
+  protOut $LASTCMD
+  flush stdout
+
+  set RESULT ""
+  set fossilRawState running
+  set pipe [open "|[list $fossilexe {*}$args << $input 2>@1]" rb]
+  fconfigure $pipe -blocking 0
+  fileevent $pipe readable [list fossil_raw_read $pipe]
+  set timer [after [expr {$seconds*1000}] {set fossilRawState late}]
+  vwait fossilRawState
+  after cancel $timer
+
+  if {$fossilRawState eq "late"} {
+    fossil_raw_kill $pipe
+    set CODE timeout
+  } else {
+    set CODE [fossil_raw_status $pipe]
+  }
+  if {$::VERBOSE} {
+    protOut "RESULT ($CODE): $RESULT"
+  }
+}
+
+# Adds what fossil has written on PIPE to RESULT, and ends the wait in
+# fossil_raw when fossil has closed its output.
+#
+proc fossil_raw_read {pipe} {
+  append ::RESULT [read $pipe]
+  if {[eof $pipe]} {set ::fossilRawState done}
+}
+
+# Kills the fossil process that writes to PIPE.
+#
+proc fossil_raw_kill {pipe} {
+  foreach process [pid $pipe] {
+    if {$::is_windows} {
+      catch {exec taskkill /F /PID $process}
+    } else {
+      catch {exec kill -9 $process}
+    }
+  }
+  catch {close $pipe}
+}
+
+# Closes PIPE and returns the exit status of its fossil process, or
+# "crash" when a signal ended the process.
+#
+proc fossil_raw_status {pipe} {
+  fconfigure $pipe -blocking 1
+  if {![catch {close $pipe} message options]} {
+    return 0
+  }
+  lassign [dict get $options -errorcode] kind process status
+  return [expr {$kind eq "CHILDSTATUS" ? $status : "crash"}]
+}
+
+# Returns 1 if TEXT holds every string in WANTED, and 0 otherwise.  A
+# string in WANTED that begins with "!" must be absent from TEXT.
+#
+proc holds_strings {text wanted} {
+  foreach string $wanted {
+    if {[string index $string 0] eq "!"} {
+      if {[string first [string range $string 1 end] $text] >= 0} {return 0}
+    } elseif {[string first $string $text] < 0} {
+      return 0
+    }
+  }
+  return 1
+}
+
+proc test_standin {name destination} {
+  file copy -force [file join $::testfiledir standin $name] $destination
+  file attributes $destination -permissions 0755
+  return $destination
+}
+
+# The cards with which a sync client and a sync server state their
+# version, for a test that writes a request or a reply.  A server treats
+# a client that does not send the card as older than 2.0, and does not
+# send it SHA3 hashes.
+#
+set XFER_VERSION "22900 20261110 124827"
+set CLIENT_VERSION_CARD "pragma client-version $XFER_VERSION\n"
+set SERVER_VERSION_CARD "pragma server-version $XFER_VERSION\n"
+
 # Read a file into memory.
 #
 proc read_file {filename} {
@@ -726,9 +839,9 @@ proc test_block_in_checkout { name rscript {tscript ""} } {
 }
 
 # Single-test wrapper for the above.
-proc test_in_checkout { name rscript tscript } {
-  uplevel 1 [list test_block_in_checkout $name $rscript \
-      [list test $name $tscript]]
+proc test_in_checkout { name rscript tscript args } {
+  return [uplevel 1 [list test_block_in_checkout $name $rscript \
+      [list test $name $tscript {*}$args]]]
 }
 
 # Normalize file status lists (like those returned by 'fossil changes')
@@ -945,7 +1058,7 @@ proc rand_str {N} {
 # block is number 0.  Changes are only made within blocks where
 # the block number divided by $count has a remainder of $index.
 #
-# For any given line that mets the block count criteria, the probably
+# For any given line that meets the block count criteria, the probability
 # of a change is $prob
 #
 # Changes do not add or remove newlines
@@ -1042,8 +1155,9 @@ proc loopback_available {} {
 # is a list comprised of the new process identifier and the port on which
 # the server started.  The varName argument refers to a variable
 # where the "stop argument" is to be stored.  This value must eventually be
-# passed to the [test_stop_server] procedure.
-proc test_start_server { repository {varName ""} } {
+# passed to the [test_stop_server] procedure.  Any further arguments are
+# options for "fossil server".
+proc test_start_server { repository {varName ""} args } {
   global fossilexe tempPath
   set command [list exec $fossilexe server --localhost]
   if {[string length $varName] > 0} {
@@ -1057,7 +1171,7 @@ proc test_start_server { repository {varName ""} } {
   set outFileName [file join $tempPath [appendArgs \
       fossil_server_ [string trim [clock seconds] -] _ \
       [getSeqNo]]].out
-  lappend command $repository >&$outFileName &
+  lappend command {*}$args $repository >&$outFileName &
   set pid [eval $command]
   if {!$::is_windows} {
     set stopArg $pid
@@ -1126,7 +1240,7 @@ proc test_stop_server { stopArg pid fileName } {
 # Executes the "fossil http" command.  The entire content of the HTTP request
 # is read from the data file name, with [subst] being performed on it prior to
 # submission.  Temporary input and output files are created and deleted.  The
-# result will be the contents of the temoprary output file.
+# result will be the contents of the temporary output file.
 proc test_fossil_http { repository dataFileName url } {
   set suffix [appendArgs [pid] - [getSeqNo] - [clock seconds] .txt]
   set inFileName [file join $::tempPath [appendArgs test-http-in- $suffix]]
@@ -1213,8 +1327,8 @@ set tempHomePath [file join $tempPath home_[pid]]
 
 # Close stdin to avoid errors on wrapped text for narrow terminals.
 # Closing stdin means that terminal detection returns 0 width, in turn
-# causing the relvant strings to be printed on a single line.
-# However, closing stdin makes file descriptor 0 avaailable on some systems
+# causing the relevant strings to be printed on a single line.
+# However, closing stdin makes file descriptor 0 available on some systems
 # and/or TCL implementations, which triggers fossil to complain about opening
 # databases using fd 0. Avoid this by opening the script, consuming fd 0.
 close stdin
@@ -1243,7 +1357,23 @@ set ::tempKeepHome 1
 set startPwd [pwd]
 cd $tempHomePath
 
+# Remove every global variable that is not in the list BEFORE, apart from
+# the ones that Tcl makes for itself.  Run after each test file, this
+# stops a variable that one test file sets from changing what a later
+# test file does.
+#
+proc unset_new_globals {before} {
+  foreach name [info globals] {
+    if {$name in $before} continue
+    if {[regexp {^(tcl_|auto_|error)} $name]} continue
+    uplevel #0 [list unset -nocomplain $name]
+  }
+}
+set seqNo 0
+
 foreach testfile $argv {
+  set globalsBefore [info globals]
+  lappend globalsBefore globalsBefore
   protOut "***** $testfile ******"
   if { [catch {source $testfiledir/$testfile.test} testerror testopts] } {
     test_report test-framework-$testfile 0 "" [list "error: $testerror"]
@@ -1258,6 +1388,7 @@ foreach testfile $argv {
     test test-framework-$testfile 1
   }
   protOut "***** End of $testfile: [llength $bad_test] errors so far ******"
+  unset_new_globals $globalsBefore
 }
 cd $startPwd
 unset ::tempKeepHome; delete_temporary_home
