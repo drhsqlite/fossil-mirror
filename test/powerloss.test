@@ -48,18 +48,20 @@ if {[catch {exec {*}$cc -shared -fPIC -o $shim $shimSource} err] &&
 # status and its output.  A stopped command exits with status 77.
 #
 proc pl_exec {env dir args} {
-  protOut [list fossil {*}$args]
   set saved [pwd]
   cd $dir
-  set rc [catch {
-    exec env {*}$env $::fossilexe {*}$args << "" 2>@1
-  } result options]
-  cd $saved
-  set status 0
-  if {$rc} {
-    set status [lindex [dict get $options -errorcode] 2]
+  set names {}
+  foreach setting $env {
+    regexp {^([^=]+)=(.*)$} $setting all name value
+    set ::env($name) $value
+    lappend names $name
   }
-  return [list $status [string trim $result]]
+  fossil_raw {*}$args
+  foreach name $names {
+    unset ::env($name)
+  }
+  cd $saved
+  return [list $::CODE [string trim $::RESULT]]
 }
 
 # Runs fossil without the power loss library, for set-up and checks.

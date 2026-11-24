@@ -122,9 +122,8 @@ proc roundtrip_checkin_files {checkin} {
   set files [dict create]
   fossil ls -r $checkin
   foreach name [split [string trim $::RESULT] \n] {
-    set fd [open "|[list $::fossilexe cat -r $checkin $name]" rb]
-    dict set files $name [read $fd]
-    close $fd
+    fossil_raw cat -r $checkin $name
+    dict set files $name $::RESULT
   }
   return $files
 }
@@ -193,7 +192,8 @@ test_eq roundtrip-setup-checkins [lsort [dict keys $original]] \
 # "fossil export --git" into "fossil import --git": each check-in keeps
 # its comment, its branch and its files with their content.
 #
-exec $::fossilexe export --git > export.git
+fossil_raw export --git
+write_file export.git $RESULT
 fossil import --git imported.fossil export.git
 set imported [roundtrip_checkins imported.fossil]
 

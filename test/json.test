@@ -794,10 +794,8 @@ test json-env-RC-1102a-code {[dict get $JR resultCode] eq "FOSSIL-1102"}
 # FOSSIL-1103 FSL_JSON_E_UNKNOWN
 #     Unknown error
 
-write_file bad.sql  {
-CREATE TABLE spam(a integer, b text);
-}
-exec $::fossilexe sqlite3 --no-repository bad.fossil <bad.sql
+fossil_raw -input "CREATE TABLE spam(a integer, b text);\n" \
+    sqlite3 --no-repository bad.fossil
 fossil_json HAI -R bad.fossil -expectError
 test json-env-RC-1103-CLI-exit {$CODE != 0}
 if { $JR ne "" } {

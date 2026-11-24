@@ -21,20 +21,8 @@
 set path [file dirname [info script]]; test_setup
 
 proc taint-test {testnum th1script expected} {
-  global fossilexe
-  set rc [catch {exec $fossilexe test-th-eval $th1script} got]
-  if {$rc} {
-    test th1-taint-$testnum 0
-    puts $got
-    return
-  }
-  if {$got ne $expected} {
-    test th1-taint-$testnum 0
-    puts " Expected: $expected"
-    puts " Got:      $got"
-  } else {
-    test th1-taint-$testnum 1
-  }
+  fossil test-th-eval $th1script
+  test_eq th1-taint-$testnum $::RESULT $expected
 }
 
 taint-test 10 {string is tainted abcd} 0

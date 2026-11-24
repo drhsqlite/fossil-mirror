@@ -123,10 +123,7 @@ foreach {color result} {
 fossil amend $HASH -bgcolor {}
 test amend-bgcolor-2.1 {[string match "*hash:*$HASH*" $RESULT]}
 fossil tag list --raw $HASH
-test amend-bgcolor-2.2 {
-  [string first "bgcolor=" $RESULT] == -1 &&
-  [string first "bgcolor" $RESULT] != -1
-}
+test amend-bgcolor-2.2 {[holds_strings $RESULT {!bgcolor= bgcolor}]}
 fossil timeline -n 1
 test amend-bgcolor-2.3 {[string match "*Cancel*background*color.*" $RESULT]}
 if {[artifact_from_timeline $RESULT artid]} {
