@@ -46,7 +46,8 @@ require_no_open_checkout; test_setup ""
 
 # Construct a test repository
 #
-exec $::fossilexe sqlite3 --no-repository m5.fossil <$testfiledir/${testfile}_repo.sql
+exec $::fossilexe sqlite3 --no-repository m5.fossil \
+    <$testfiledir/${testfile}_repo.sql
 fossil rebuild m5.fossil
 fossil open m5.fossil
 fossil user default drh --user drh
@@ -138,7 +139,7 @@ checkout-test 73 {
 }
 
 # Merge br2 into the trunk.  br2 contains some independent change to the
-# two.txt file.  Verify that these are merge in correctly.
+# two.txt file.  Verify that these are merged in correctly.
 #
 fossil update m1
 fossil merge br2
@@ -287,7 +288,7 @@ checkout-test 136 {
 }
 
 # Merge the chng3 check-in into br5, verifying that the change to two.txt
-# from chng3 are applies to two-rename.txt in br5.
+# from chng3 are applied to two-rename.txt in br5.
 #
 fossil update br5
 checkout-test 140 {

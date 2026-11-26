@@ -566,12 +566,16 @@ test th1-set-parameter-5 {$RESULT eq {value3}}
 
 ###############################################################################
 
-fossil test-th-eval "setParameter test4 value4; setParameter test4 value5; getParameter test4"
+fossil test-th-eval \
+    "setParameter test4 value4; setParameter test4 value5; getParameter test4"
 test th1-set-parameter-6 {$RESULT eq {value5}}
 
 ###############################################################################
 
-fossil test-th-eval "setParameter test4 value4; setParameter test4 value5; getParameter test4 defValue4"
+fossil test-th-eval \
+    [join [list \
+        "setParameter test4 value4; setParameter test4 value5; " \
+        "getParameter test4 defValue4"] ""]
 test th1-set-parameter-7 {$RESULT eq {value5}}
 
 ###############################################################################
@@ -638,7 +642,7 @@ test_in_checkout th1-globalState-1 {
 test_block_in_checkout th1-globalState-2 {
   if {$th1Hooks} {
     fossil test-th-eval "globalState checkout"
-    test th1-globalState-2 {$RESULT eq [fossil test-th-eval checkout]}
+    test_eq th1-globalState-2 $RESULT [fossil test-th-eval checkout]
   } else {
     # NOTE: No TH1 hooks, force checkout to be populated.
     fossil test-th-eval --open-config "globalState checkout"
@@ -661,7 +665,7 @@ test th1-globalState-4 {[string length $RESULT] > 0}
 ###############################################################################
 
 fossil test-th-eval "globalState executable"
-test th1-globalState-5 {[file rootname [file tail $RESULT]] eq "fossil"}
+test_eq th1-globalState-5 [file rootname [file tail $RESULT]] "fossil"
 
 ###############################################################################
 
@@ -689,7 +693,7 @@ test_in_checkout th1-globalState-8 {
 test_block_in_checkout th1-globalState-9 {
   if {$th1Hooks} {
     fossil test-th-eval "globalState repository"
-    test th1-globalState-9 {$RESULT eq [fossil test-th-eval repository]}
+    test_eq th1-globalState-9 $RESULT [fossil test-th-eval repository]
   } else {
     # NOTE: No TH1 hooks, force repository to be populated.
     fossil test-th-eval --open-config "globalState repository"
@@ -774,7 +778,8 @@ test th1-reinitialize-2 {$RESULT ne ""}
 #      unversioned uplevel upvar utime verifyCsrf verifyLogin wiki}
 #set tcl_commands {tclEval tclExpr tclInvoke tclIsSafe tclMakeSafe}
 #if {$th1Tcl} {
-#  test th1-info-commands-1 {$sorted_result eq [lsort "$base_commands $tcl_commands"]}
+#  test th1-info-commands-1 {$sorted_result eq [lsort "$base_commands
+# $tcl_commands"]}
 #} else {
 #  test th1-info-commands-1 {$sorted_result eq [lsort "$base_commands"]}
 #}
@@ -798,7 +803,7 @@ if {$th1Hooks} {
   test th1-info-vars-2 {[lsort $RESULT] eq \
       [lsort "x th_stack_trace cmd_flags tcl_platform cmd_name cmd_args"]}
 } else {
-  test th1-info-vars-2 {[lsort $RESULT] eq [lsort "x tcl_platform"]}
+  test_eq th1-info-vars-2 [lsort $RESULT] [lsort "x tcl_platform"]
 }
 
 ###############################################################################
@@ -825,7 +830,7 @@ if {$th1Hooks} {
   test th1-info-vars-5 {[lsort $RESULT] eq \
       [lsort "th_stack_trace y cmd_flags tcl_platform cmd_name cmd_args"]}
 } else {
-  test th1-info-vars-5 {[lsort $RESULT] eq [lsort "y tcl_platform"]}
+  test_eq th1-info-vars-5 [lsort $RESULT] [lsort "y tcl_platform"]
 }
 
 ###############################################################################
@@ -1004,22 +1009,24 @@ test th1-markdown-2 {$RESULT eq \
 ###############################################################################
 
 fossil test-th-eval {markdown "*This is a test.*"}
-test th1-markdown-3 {[normalize_result] eq {{} {<div class="markdown">
+test_eq th1-markdown-3 [normalize_result] \
+    {{} {<div class="markdown">
 
 <p><em>This is a test.</em></p>
 
 </div>
-}}}
+}}
 
 ###############################################################################
 
 fossil test-th-eval {markdown "Test1\n=====\n*This is a test.*"}
-test th1-markdown-4 {[normalize_result] eq {Test1 {<div class="markdown">
+test_eq th1-markdown-4 [normalize_result] \
+    {Test1 {<div class="markdown">
 
 <p><em>This is a test.</em></p>
 
 </div>
-}}}
+}}
 
 ###############################################################################
 
@@ -1062,13 +1069,14 @@ test th1-markdown-5 {[normalize_result] eq \
 # Verify that quoted delimiters like * and _ don't terminate their
 # span. This was fixed by checkin [dd41f85acf].
 fossil test-th-eval {markdown "*This is\\*a test.*\n_second\\_test_"}
-test th1-markdown-6 {[normalize_result] eq {{} {<div class="markdown">
+test_eq th1-markdown-6 [normalize_result] \
+    {{} {<div class="markdown">
 
 <p><em>This is*a test.</em>
 <em>second_test</em></p>
 
 </div>
-}}}
+}}
 
 ###############################################################################
 
@@ -1126,7 +1134,7 @@ fossil unversioned list
 
 # unversioned list
 fossil test-th-eval --open-config "unversioned list"
-test th1-unversioned-1 {[normalize_result] eq {ten.txt}}
+test_eq th1-unversioned-1 [normalize_result] {ten.txt}
 
 # unversioned content
 fossil test-th-eval --open-config \

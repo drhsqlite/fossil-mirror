@@ -77,7 +77,10 @@ proc fossil_json {args} {
 # Returns the status code from the HTTP header.
 proc fossil_http_json {url {cookie "Muppet=Monster"} args} {
   global RESULT JR
-  set request "GET $url HTTP/1.1\r\nHost: localhost\r\nUser-Agent: Fossil-http-json\r\nCookie: $cookie"
+  set request \
+      [join [list \
+          "GET $url HTTP/1.1\r\nHost: localhost\r\n" \
+          "User-Agent: Fossil-http-json\r\nCookie: $cookie"] ""]
   set RESULT [fossil_maybe_answer $request http {*}$args --ipaddr 127.0.0.1]
   set head ""; set body ""; set status "--NO_MATCH--"
   regexp {(?w)(.*)^\s*$(.*)} $RESULT dummy head body
@@ -119,7 +122,6 @@ Cookie: $cookie\r
 
   # handle the actual request
   flush stdout
-  #exec $fossilexe
   set RESULT [fossil_maybe_answer $request http {*}$args --ipaddr 127.0.0.1]
 
   # separate HTTP headers from body
@@ -192,7 +194,7 @@ fossil settings backoffice-disable 1
 fossil_json -expectError
 test_json_envelope json-enverr [concat resultCode fossil timestamp \
 resultText command procTimeUs procTimeMs] {}
-test json-enverr-rc-1 {[dict get $JR resultCode] eq "FOSSIL-3002"}
+test_eq json-enverr-rc-1 [dict get $JR resultCode] "FOSSIL-3002"
 
 
 # Check for basic envelope fields in the result with a successful
@@ -223,7 +225,8 @@ test json-version-api {[dict get $JR payload jsonApiVersion] >= 20120713}
 # sha1 of 0 bytes and a file to match in a commit
 set UUID_empty da39a3ee5e6b4b0d3255bfef95601890afd80709
 # sha3 of 0 bytes and a file to match in a commit
-set UUID_empty_64 a7ffc6f8bf1ed76651c14756a061d662f580ff4de43b49fa82d80a4b80f8434a
+set UUID_empty_64 \
+    a7ffc6f8bf1ed76651c14756a061d662f580ff4de43b49fa82d80a4b80f8434a
 write_file empty ""
 fossil add empty
 fossil ci -m "empty file"
@@ -231,24 +234,24 @@ fossil ci -m "empty file"
 # json artifact (checkin)
 fossil_json [concat artifact tip]
 test_json_envelope_ok json-artifact-checkin-env
-test json-artifact-checkin {[dict get $JR payload type] eq "checkin"}
+test_eq json-artifact-checkin [dict get $JR payload type] "checkin"
 test_json_payload json-artifact \
 [concat type uuid isLeaf timestamp user comment parents tags files] {}
 
 # json artifact (file)
 fossil_json [concat artifact $UUID_empty_64]
 test_json_envelope_ok json-artifact-file-env
-test json-artifact-file {[dict get $JR payload type] eq "file"}
+test_eq json-artifact-file [dict get $JR payload type] "file"
 test_json_payload json-artifact [concat type uuid size checkins] {}
 
 # json artifact (wiki)
 fossil wiki create Empty <<"-=BLANK=-"
 fossil_json wiki get Empty
-test json-wiki-get {[dict get $JR payload name] eq "Empty"}
+test_eq json-wiki-get [dict get $JR payload name] "Empty"
 set uuid [dict get $JR payload uuid]
 fossil_json artifact $uuid
 test_json_envelope_ok json-artifact-wiki-env
-test json-artifact-wiki {[dict get $JR payload type] eq "wiki"}
+test_eq json-artifact-wiki [dict get $JR payload type] "wiki"
 test_json_payload json-artifact-wiki [list type uuid artifact] {}
 set artifact [dict get $JR payload artifact]
 test_dict_keys json-artifact-wiki-artifact $artifact \
@@ -302,8 +305,10 @@ test_json_payload json-login-u1 {authToken name capabilities loginCookieName} {}
 set AuthU1 [dict get $JR payload]
 test_hascaps json-login-c "s" [dict get $AuthU1 capabilities]
 
-set U1Cookie [dict get $AuthU1 loginCookieName]=[regsub -all {[/]} [dict get $AuthU1 authToken] {%2F} ]
-set AnonCookie [dict get $AuthAnon loginCookieName]=[regsub -all {[/]} [dict get $AuthAnon authToken] {%2F} ]
+set U1Cookie [dict get $AuthU1 loginCookieName]=[regsub -all {[/]} \
+    [dict get $AuthU1 authToken] {%2F} ]
+set AnonCookie [dict get $AuthAnon loginCookieName]=[regsub -all {[/]} \
+    [dict get $AuthAnon authToken] {%2F} ]
 
 # json cap
 # The CLI user has all rights, and no auth token affects that. This
@@ -342,7 +347,8 @@ if {[catch {test json-cap-GETcookie-name-0 \
   test json-cap-GETcookie-name-0-threw 0
   protOut "CAUGHT: $jerr"
 }
-test json-cap-GETcookie-notsetup-0 {![dict get $JR payload permissionFlags setup]}
+test json-cap-GETcookie-notsetup-0 \
+    {![dict get $JR payload permissionFlags setup]}
 
 
 # json cap via GET with authToken in a parameter
@@ -354,27 +360,25 @@ if {[catch {test json-cap-GETcookie-name-1 \
   test json-cap-GETcookie-name-1-threw 0
   protOut "CAUGHT: $jerr"
 }
-test json-cap-GETcookie-notsetup-1 {![dict get $JR payload permissionFlags setup]}
+test json-cap-GETcookie-notsetup-1 \
+    {![dict get $JR payload permissionFlags setup]}
 
 
-# whoami
 # via CLI with no auth token supplied
 fossil_json whoami
 test_json_envelope_ok json-whoami-cli-env
 test_json_payload json-whoami-cli {name capabilities} {}
-test json-whoami-cli-name {[dict get $JR payload name] eq "nobody"}
+test_eq json-whoami-cli-name [dict get $JR payload name] "nobody"
 test_hascaps json-whoami-cli-cap "gjorz" [dict get $JR payload capabilities]
 
 #### BRANCHES
-# json branch list
 fossil_json branch list
 test_json_envelope_ok json-branch-list-env
 test_json_payload json-branch-list {range current branches} {}
-test json-branch-list-cur {[dict get $JR payload current] eq "trunk"}
+test_eq json-branch-list-cur [dict get $JR payload current] "trunk"
 test json-branch-list-cnt {[llength [dict get $JR payload branches]] == 1}
-test json-branch-list-val {[dict get $JR payload branches] eq "trunk"}
+test_eq json-branch-list-val [dict get $JR payload branches] "trunk"
 
-# json branch create
 fossil_json branch create alpha --basis trunk
 test_json_envelope_ok json-branch-create-env
 test_json_payload json-branch-create {name basis rid uuid isPrivate} {}
@@ -414,36 +418,33 @@ test fossil-diff-setup {$fishV1 ne $fishV2}
 fossil_json diff $fishV1 $fishV2
 test_json_envelope_ok json-diff-env
 test_json_payload json-diff {from to diff} {}
-test json-diff-v1 {[dict get $JR payload from] eq $fishV1}
-test json-diff-v2 {[dict get $JR payload to] eq $fishV2}
+test_eq json-diff-v1 [dict get $JR payload from] $fishV1
+test_eq json-diff-v2 [dict get $JR payload to] $fishV2
 set diff [dict get $JR payload diff]
 test json-diff-diff {[string first "+LMNO goldfish" $diff] >= 0}
 protOut [dict get $JR payload diff]
 
 
 #### DIRECTORY LISTING
-# json dir DIRNAME
 fossil_json dir
 test_json_envelope_ok json-dir-env
 test_json_payload json-dir {name entries} {}
 
 #### FILE INFO
-# json finfo FILENAME
 fossil_json finfo empty
 test_json_envelope_ok json-finfo-env
 test_json_payload json-finfo {name checkins} {}
 
 #### QUERY
-# json query SQLCODE
 fossil_json query {"SELECT * FROM reportfmt"}
 test_json_envelope_ok json-query-env
 test_json_payload json-query {columns rows} {}
 
 #### STATS
-# json stat
 fossil_json stat
 test_json_envelope_ok json-stat-env
-test_json_payload json-stat {repositorySize ageDays ageYears projectCode compiler sqlite} \
+test_json_payload json-stat \
+    {repositorySize ageDays ageYears projectCode compiler sqlite} \
 {blobCount deltaCount uncompressedArtifactSize averageArtifactSize maxArtifactSize \
 compressionRatio checkinCount fileCount wikiPageCount ticketCount}
 
@@ -457,14 +458,13 @@ ageDays ageYears projectCode compiler sqlite} {}
 
 #### STATUS
 # NOTE: Local checkout required
-# json status
 fossil_json status
 test_json_envelope_ok json-status-env
-test_json_payload json-status {repository localRoot checkout files errorCount} {}
+test_json_payload json-status {repository localRoot checkout files errorCount} \
+    {}
 
 #### TAGS
 
-# json tag add NAME CHECKIN VALUE
 fossil_json tag add blue trunk green
 test_json_envelope_ok json-tag-add-env
 test_json_payload json-tag-add {name value propagate raw appliedTo} {}
@@ -476,13 +476,11 @@ test_json_envelope_ok json-tag-cancel-env
 # DOCBUG? Doc says no payload.
 test_json_payload json-tag-cancel {name value propagate raw appliedTo} {}
 
-# json tag find NAME
 fossil_json tag find alpha
 test_json_envelope_ok json-tag-find-env
 test_json_payload json-tag-find {name raw type limit artifacts} {}
 test json-tag-find-count {[llength [dict get $JR payload artifacts]] >= 1}
 
-# json tag list CHECKIN
 fossil_json tag list
 test_json_envelope_ok json-tag-list-env
 test_json_payload json-tag-list {raw includeTickets tags} {}
@@ -495,19 +493,16 @@ test json-tag-list-count {[llength [dict get $JR payload tags]] >= 2}
 
 #### TICKET REPORTS
 
-# json report get NUMBER
 fossil_json report get 1
 test_json_envelope_ok json-report-get-env
-test_json_payload json-report-get {report owner title timestamp columns sqlCode} {}
+test_json_payload json-report-get \
+    {report owner title timestamp columns sqlCode} {}
 
-# json report list
 fossil_json report list
 test_json_envelope_ok json-report-list-env
-#test_json_payload json-report-list {raw includeTickets tags} {}
 test json-report-list-count {[llength [dict get $JR payload]] >= 1}
 
 
-# json report run NUMBER
 fossil_json report run 1
 test_json_envelope_ok json-report-run-1-env
 test_json_payload json-report-run {report title sqlcode columnNames tickets} {}
@@ -517,7 +512,6 @@ test json-report-run-tkts {[llength [dict get $JR payload tickets]] >= 0}
 
 #### TIMELINE
 
-# json timeline checkin
 fossil_json timeline checkin
 test_json_envelope_ok json-timeline-checkin-env
 test_json_payload json-timeline-checkin {limit timeline} {}
@@ -525,22 +519,15 @@ set i 0
 foreach t [dict get $JR payload timeline] {
   # parents appears only for entries that have a parent
   # files appears only if requested by the --files parameter
-  test_dict_keys json-timeline-checkin-$i $t {type uuid timestamp comment user isLeaf tags} {}
+  test_dict_keys json-timeline-checkin-$i $t \
+      {type uuid timestamp comment user isLeaf tags} {}
   incr i
 }
 
-# json timeline ci
-# removed from documentation
-#fossil_json timeline ci
-#test json-timeline-ci {[dict get $JR resultCode] ne "FOSSIL-1102"} knownBug
-#test_json_payload json-timeline-ci {limit timeline} {}
-
-# json timeline ticket
 fossil_json timeline ticket
 test_json_envelope_ok json-timeline-ticket-env
 test_json_payload json-timeline-ticket {limit timeline} {}
 
-# json timeline wiki
 fossil_json timeline wiki
 test_json_envelope_ok json-timeline-wiki-env
 test_json_payload json-timeline-wiki {limit timeline} {}
@@ -555,7 +542,6 @@ foreach u [list nobody anonymous reader developer U1] {
   test_json_payload json-user-get-$u {uid name capabilities info timestamp} {}
 }
 
-# json user list
 fossil_json user list
 test_json_envelope_ok json-user-list-env
 set i 0
@@ -564,7 +550,6 @@ foreach u [dict get $JR payload] {
   incr i
 }
 
-# json user save
 fossil_json user save --uid -1 --name U2 --password Utwo
 test_json_envelope_ok json-user-save-env
 test_json_payload json-user-save {uid name capabilities info timestamp} {}
@@ -572,33 +557,27 @@ test_json_payload json-user-save {uid name capabilities info timestamp} {}
 
 # DOCBUG? Doc says payload is "same as /json/user/get" but actual
 # result was an array of one user similar to /json/user/list.
-#set i 0
-#foreach u [dict get $JR payload] {
-#  test_dict_keys json-user-save-$i $u {uid name capabilities info timestamp} {}
-#  incr i
-#}
-#test json-user-save-count {$i == 1}
 
 
 
 #### WIKI
 
-# wiki list
 fossil_json wiki list
 test_json_envelope_ok json-wiki-list-env
 set pages  [dict get $JR payload]
 test json-wiki-1 {[llength $pages] == 1}
-test json-wiki-2 {[lindex  $pages 0] eq "Empty"}
+test_eq json-wiki-2 [lindex  $pages 0] "Empty"
 fossil_json wiki list --verbose
 set pages  [dict get $JR payload]
 test json-wiki-verbose-1 {[llength $pages] == 1}
-test_dict_keys json-wiki-verbose-pages [lindex $pages 0] [list name uuid user timestamp size] {}
+test_dict_keys json-wiki-verbose-pages [lindex $pages 0] \
+    [list name uuid user timestamp size] {}
 
-# wiki get
 fossil_json wiki get Empty
 test_json_envelope_ok json-wiki-get-env
 # this page has only one version, so no parent should be listed
-test_json_payload json-wiki-get [list name uuid user timestamp size content] [list parent]
+test_json_payload json-wiki-get [list name uuid user timestamp size content] \
+    [list parent]
 
 
 # wiki create
@@ -617,7 +596,8 @@ fossil_json --json-input req.json
 test_json_envelope_ok json-wiki-create-env
 fossil_json wiki get Page2
 test_json_envelope_ok json-wiki-create-get-env
-test_json_payload json-wiki-save-get [list name uuid user timestamp size content] {parent}
+test_json_payload json-wiki-save-get \
+    [list name uuid user timestamp size content] {parent}
 set uuid1 [dict get $JR payload uuid]
 
 # wiki save
@@ -635,20 +615,21 @@ fossil_json --json-input req2.json
 test_json_envelope_ok json-wiki-save-env
 fossil_json wiki get Page2
 test_json_envelope_ok json-wiki-save-get-env
-test_json_payload json-wiki-save-get [list name uuid user timestamp size parent content] {}
+test_json_payload json-wiki-save-get \
+    [list name uuid user timestamp size parent content] {}
 set uuid2 [dict get $JR payload uuid]
-test json-wiki-save-parent {[dict get $JR payload parent] eq $uuid1}
+test_eq json-wiki-save-parent [dict get $JR payload parent] $uuid1
 
 # wiki diff
 
 fossil_json wiki diff $uuid1 $uuid2
 test_json_envelope_ok json-wiki-diff-env
 test_json_payload json-wiki-diff [list v1 v2 diff] {}
-test json-wiki-diff-v1 {[dict get $JR payload v1] eq $uuid1}
-test json-wiki-diff-v2 {[dict get $JR payload v2] eq $uuid2}
+test_eq json-wiki-diff-v1 [dict get $JR payload v1] $uuid1
+test_eq json-wiki-diff-v2 [dict get $JR payload v2] $uuid2
 set diff [dict get $JR payload diff]
-test json-wiki-diff-diff {[string first "+consectetur adipisicing elit" $diff] >= 0}
-#puts [dict get $JR payload diff]
+test json-wiki-diff-diff {[string first "+consectetur adipisicing elit" $diff]
+    >= 0}
 
 # wiki preview
 #
@@ -669,27 +650,25 @@ test json-wiki-preview-out-2 {[string last "<p>" $pv] == 0}
 
 #### UNAVOIDABLE MISC
 
-# json g
 fossil_json g
 test_json_envelope_ok json-g-env
-#puts [llength [dict keys [dict get $JR payload]]]
 test json-g-g {[llength [dict keys [dict get $JR payload]]] >= 60};# 64 on my PC
 
-# json rebuild
 fossil_json rebuild
-test_json_envelope json-rebuild-env [concat fossil timestamp command procTimeUs \
+test_json_envelope json-rebuild-env \
+    [concat fossil timestamp command procTimeUs \
   procTimeMs] [concat payload resultCode resultText]
 
-# json resultCodes
 fossil_json resultCodes
 test_json_envelope_ok json-resultCodes-env
 set codes [dict get $JR payload]
-test json-resultCodes-codes-1 {[llength $codes] >= 35} ;# count as of API 20120713
-# foreach c $codes {
-#   puts [dict values $c]
-# }
+test json-resultCodes-codes-1 \
+    {[llength $codes] >= 35} ;# count as of API 20120713
 foreach r $codes {
-  protOut "# [dict get $r resultCode] [dict get $r cSymbol]\n#     [dict get $r description]"
+  protOut \
+      [join [list \
+          "# [dict get $r resultCode] [dict get $r cSymbol]\n" \
+          "#     [dict get $r description]"] ""]
 }
 
 
@@ -704,8 +683,8 @@ foreach r $codes {
 # in JSON mode or if the error handling is incorrectly not
 # recognizing JSON mode.
 #
-#test_setup x.fossil
-fossil_http_json /json/query?sql=PRAGMA%20repository.journal_mode%3Dwal $U1Cookie
+fossil_http_json /json/query?sql=PRAGMA%20repository.journal_mode%3Dwal \
+    $U1Cookie
 test json-ROrepo-1-1 {$CODE == 0}
 test json-ROrepo-1-2 {[regexp {\}\s*$} $RESULT]}
 test json-ROrepo-1-3 {![regexp {SQLITE_[A-Z]+:} $RESULT]}
@@ -716,11 +695,11 @@ if {$is_windows} then {
   catch {exec chmod 444 .rep.fossil}; # Unix
 }
 protOut "chmod 444 repo"
-fossil_http_json /json/query?sql=PRAGMA%20repository.journal_mode%3Ddelete $U1Cookie -expectError --json-preserve-rc
+fossil_http_json /json/query?sql=PRAGMA%20repository.journal_mode%3Ddelete \
+    $U1Cookie -expectError --json-preserve-rc
 test json-ROrepo-2-1 {$CODE != 0}
 test json-ROrepo-2-2 {[regexp {\}\s*$} $RESULT]}
 test json-ROrepo-2-3 {![regexp {SQLITE_[A-Z]+:} $RESULT]}
-#test_json_envelope_ok json-http-timeline2
 if {$is_windows} then {
   catch {exec attrib -r .rep.fossil}; # Windows
   catch {exec attrib -r .rep.fossil-shm}
@@ -757,16 +736,17 @@ fossil_json --json-input e1101.json -expectError
 test json-RC-1101-array-CLI-exit {$CODE != 0}
 test_json_envelope json-RC-1101-array-env {fossil timestamp command procTimeUs \
 procTimeMs resultCode resultText} {payload}
-test json-RC-1101-array-code {[dict get $JR resultCode] eq "FOSSIL-1101"}
+test_eq json-RC-1101-array-code [dict get $JR resultCode] "FOSSIL-1101"
 
 write_file e1101.json {
   "Not really a command but more of a suggestion"
 }
 fossil_json --json-input e1101.json -expectError
 test json-RC-1101-string-CLI-exit {$CODE != 0}
-test_json_envelope json-RC-1101-string-env {fossil timestamp command procTimeUs \
+test_json_envelope json-RC-1101-string-env \
+    {fossil timestamp command procTimeUs \
 procTimeMs resultCode resultText} {payload}
-test json-RC-1101-string-code {[dict get $JR resultCode] eq "FOSSIL-1101"}
+test_eq json-RC-1101-string-code [dict get $JR resultCode] "FOSSIL-1101"
 
 
 
@@ -777,7 +757,7 @@ fossil_json NoSuchEndpoint -expectError
 test json-RC-1102-CLI-exit {$CODE != 0}
 test_json_envelope json-RC-1102-env {fossil timestamp command procTimeUs \
 procTimeMs resultCode resultText} {payload}
-test json-RC-1102-code {[dict get $JR resultCode] eq "FOSSIL-1102"}
+test_eq json-RC-1102-code [dict get $JR resultCode] "FOSSIL-1102"
 
 write_file e1102.json {
   {
@@ -788,7 +768,7 @@ fossil_json --json-input e1102.json -expectError
 test json-env-RC-1102a-CLI-exit {$CODE != 0}
 test_json_envelope json-env-RC-1102a-env {fossil timestamp command procTimeUs \
 procTimeMs resultCode resultText} {payload}
-test json-env-RC-1102a-code {[dict get $JR resultCode] eq "FOSSIL-1102"}
+test_eq json-env-RC-1102a-code [dict get $JR resultCode] "FOSSIL-1102"
 
 
 # FOSSIL-1103 FSL_JSON_E_UNKNOWN
@@ -802,7 +782,8 @@ if { $JR ne "" } {
   test_json_envelope json-env-RC-1103-env {fossil timestamp command procTimeUs \
     procTimeMs resultCode resultText} {payload}
   test json-env-RC-1103-code {[dict exists $JR resultCode]\
-                           && [dict get $JR resultCode] eq "FOSSIL-1103"} knownBug
+                           && [dict get $JR resultCode] eq "FOSSIL-1103"} \
+                           knownBug
 } else {
   protOut "Want test case for FOSSIL-1103"
   test json-RC-1103 0 knownBug
@@ -857,9 +838,10 @@ write_file e3002.json {
 }
 fossil_json --json-input e3002.json -expectError
 test json-RC-3002-strange-CLI-exit {$CODE != 0}
-test_json_envelope json-RC-3002-strange-env {fossil timestamp command procTimeUs \
+test_json_envelope json-RC-3002-strange-env \
+    {fossil timestamp command procTimeUs \
 procTimeMs resultCode resultText} {payload}
-test json-RC-3002-strange-code {[dict get $JR resultCode] eq "FOSSIL-3002"}
+test_eq json-RC-3002-strange-code [dict get $JR resultCode] "FOSSIL-3002"
 
 
 # FOSSIL-3003 FSL_JSON_E_AMBIGUOUS_UUID
@@ -891,7 +873,7 @@ fossil_json HAI -expectError
 test json-RC-4102-CLI-exit {$CODE != 0}
 test_json_envelope json-RC-4102-CLI-exit {fossil timestamp command procTimeUs \
 procTimeMs resultCode resultText} {payload}
-test json-RC-4102 {[dict get $JR resultCode] eq "FOSSIL-4102"}
+test_eq json-RC-4102 [dict get $JR resultCode] "FOSSIL-4102"
 
 # FOSSIL-4103 FSL_JSON_E_DB_NOT_VALID
 #     Fossil repository db file is not valid.
@@ -904,7 +886,7 @@ test json-RC-4103-CLI-exit {$CODE != 0}
 if { $JR ne "" } {
   test_json_envelope json-RC-4103-CLI {fossil timestamp command procTimeUs \
     procTimeMs resultCode resultText} {payload}
-  test json-RC-4103 {[dict get $JR resultCode] eq "FOSSIL-4103"}
+  test_eq json-RC-4103 [dict get $JR resultCode] "FOSSIL-4103"
 } else {
   test json-RC-4103 0 knownBug
 }

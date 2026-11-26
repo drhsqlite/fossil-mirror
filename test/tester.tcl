@@ -159,7 +159,8 @@ proc printElapsedTime {{prependMsg "Time elapsed: "}} {
 # to make it human readable
 #
 proc protOutDict {dict {pattern *}} {
-   set longest [tcl::mathfunc::max 0 {*}[lmap key [dict keys $dict $pattern] {string length $key}]]
+   set longest [tcl::mathfunc::max 0 \
+       {*}[lmap key [dict keys $dict $pattern] {string length $key}]]
    dict for {key value} $dict {
       protOut [format "%-${longest}s = %s" $key $value]
    }
@@ -345,6 +346,51 @@ proc holds_strings {text wanted} {
     }
   }
   return 1
+}
+
+# Listens on a port on 127.0.0.1 that the system chooses, and returns
+# the port.  Calls HANDLER with each connection and the request on it,
+# once the whole request has arrived or the client has closed its side,
+# and then closes the connection.  The request is whole when it has its
+# header lines and as many bytes after them as Content-Length says.
+#
+set testListeners [list]
+proc test_listen {handler} {
+  set server [socket -server [list test_listen_accept $handler] \
+                  -myaddr 127.0.0.1 0]
+  lappend ::testListeners $server
+  return [lindex [fconfigure $server -sockname] 2]
+}
+
+proc test_listen_accept {handler chan address port} {
+  fconfigure $chan -translation binary -blocking 0
+  set ::testListenRequest($chan) ""
+  fileevent $chan readable [list test_listen_receive $handler $chan]
+}
+
+proc test_listen_receive {handler chan} {
+  append ::testListenRequest($chan) [read $chan]
+  set request $::testListenRequest($chan)
+  set end [string first "\r\n\r\n" $request]
+  set length 0
+  regexp -nocase -line {^content-length:\s*(\d+)} $request -> length
+  if {![eof $chan] &&
+      ($end < 0 || [string length $request] < $end + 4 + $length)} {
+    return
+  }
+  unset ::testListenRequest($chan)
+  fileevent $chan readable {}
+  fconfigure $chan -blocking 1
+  catch {{*}$handler $chan $request}
+  catch {close $chan}
+}
+
+# Closes every server that test_listen has started.
+#
+proc test_listen_stop {} {
+  update
+  foreach server $::testListeners {close $server}
+  set ::testListeners [list]
 }
 
 proc test_standin {name destination} {
@@ -629,7 +675,8 @@ proc test_fail_then_return {name reason} {
 proc test_cleanup {{scriptName ""}} {
   if {$::KEEP} {
       # To avoid errors with require_no_open_checkout, cd out of here.
-      if {[info exists ::tempSavedPwd]} {cd $::tempSavedPwd; unset ::tempSavedPwd}
+      if {[info exists ::tempSavedPwd]} \
+          {cd $::tempSavedPwd; unset ::tempSavedPwd}
       return
   }
   if {![info exists ::tempRepoPath]} {return}
@@ -1027,6 +1074,18 @@ proc test_eq {name actual expected {constraints ""}} {
 # Test NAME passes if ACTUAL matches the regular expression PATTERN.  A
 # failure is reported with the pattern and the actual value.
 #
+# Tests that ACTUAL equals EXPECTED, as test_eq does, and counts the
+# result in the global variable PREFIXPredMet or PREFIXPredUnmet.
+#
+proc test_predict {prefix name actual expected} {
+  if {$actual eq $expected} {
+    incr ::${prefix}PredMet
+  } else {
+    incr ::${prefix}PredUnmet
+  }
+  test_eq $name $actual $expected
+}
+
 proc test_match {name actual pattern {constraints ""}} {
   set detail [concat [list "pattern:  $pattern"] \
                      [test_value_lines "actual:  " $actual]]
@@ -1182,8 +1241,8 @@ proc test_start_server { repository {varName ""} args } {
   set listening {Listening for [^\n]+ requests on }
   append listening {(?:TCP port )?(?:\S*:)?(\d+)[,\r\n]}
   set port ""
-  for {set i 0} {$i < 100 && $port eq ""} {incr i} {
-    after 100
+  for {set i 0} {$i < 1000 && $port eq ""} {incr i} {
+    after 10
     set output [read_file $outFileName]
     regexp $listening $output -> port
   }
@@ -1226,7 +1285,7 @@ proc test_stop_server { stopArg pid fileName } {
         } result] != 0 || ![regexp -- "(?:^$pid| $pid) " $result]} {
           break
         }
-        after 1000; # wait a bit...
+        after 10; # wait a bit...
       }
       if {[string length $fileName] > 0} {
         file delete $fileName

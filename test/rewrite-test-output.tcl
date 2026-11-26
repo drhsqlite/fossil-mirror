@@ -328,7 +328,7 @@ dict set tests "wiki" {
 }
 
 #
-# Some pattersn are used in multiple groups
+# Some patterns are used in multiple groups
 #
 
 set testnames {"th1" "th1-docs" "th1-hooks"}
@@ -383,7 +383,7 @@ set symlinks_failed 0
 set test_simplify_name_lines [list]
 set test_simplify_name_failed 0
 
-# State information s we progress
+# State information as we progress
 set check_json_empty_line 0
 set lineno 0
 set platform $UNKOWN_PLATFORM
@@ -513,7 +513,7 @@ while { [gets $fd line] >= 0 } {
         }
       } elseif { $testname eq "file1" } {
         # test-simplify-name with question marks is specific to Windows
-        # They all immediately preceed "fossil test-relative-name --chdir . ."
+        # They all immediately precede "fossil test-relative-name --chdir . ."
         if { $line eq "fossil test-relative-name --chdir . ." } {
           if { $test_simplify_name_failed } {
             foreach l $test_simplify_name_lines {

@@ -30,11 +30,13 @@ proc test_update_setup {desc} {
     return [format "test-%02u-%s.txt" $UPDATE_TEST $desc]
 }
 
-# The output is in file name order, so massage $RESULT to remove initial UNCHANGED
+# The output is in file name order, so massage $RESULT to remove initial
+# UNCHANGED
 # files. Only do this if we have the expected branch information.
 proc test_update {testname message changes {fossil_args ""}} {
     fossil update --verbose {*}$fossil_args
-    if { [regsub {\n-{79}\nupdated-from: [0-9a-z]{40} .*} $::RESULT {} test_result ] } {
+    if { [regsub {\n-{79}\nupdated-from: [0-9a-z]{40} .*} $::RESULT {} \
+        test_result ] } {
         regsub {^(?:UNCHANGED [-a-z0-9.]+\n)*} $test_result {} test_result
     } else {
         set test_result $::RESULT
@@ -67,7 +69,7 @@ test update-already-up-to-date {
 # Common approach for tests below:
 # 1. Set the testname
 # 2. Set the file name, done by calling update_setup
-# 3. Set message and changes, the expected message message and subsequent changes
+# 3. Set message and changes, the expected message and subsequent changes
 # 3. Optionally set up and commit a common base for the next steps
 # 4. Commit a change to the repository (new tip)
 # 5. Update to the previous version
@@ -89,7 +91,10 @@ test_update $testname $message $changes -expectError
 
 set testname "add-overwrites"
 set fname [test_update_setup $testname]
-set message "ADD $fname - overwrites an unmanaged file, original copy backed up as \"./$fname-original\""
+set message \
+    [join [list \
+        "ADD $fname - overwrites an unmanaged file, original copy " \
+        "backed up as \"./$fname-original\""] ""]
 set changes ""
 write_seq_to_file $fname
 fossil add $fname

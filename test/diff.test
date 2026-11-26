@@ -50,73 +50,84 @@ test diff-ls-1 {[normalize_result] eq \
 write_file file0.dat "\0"
 fossil diff file0.dat
 
-test diff-file0-1 {[normalize_result] eq "Index: file0.dat
+test_eq diff-file0-1 [normalize_result] \
+    "Index: file0.dat
 ==================================================================
 --- file0.dat\t
 +++ file0.dat\t
-cannot compute difference between binary files"}
+cannot compute difference between binary files"
 
 ###############################################################################
 
 write_file file1.dat [string repeat z 32768]
 fossil diff file1.dat
 
-test diff-file1-1 {[normalize_result] eq "Index: file1.dat
+test_eq diff-file1-1 [normalize_result] \
+    "Index: file1.dat
 ==================================================================
 --- file1.dat\t
 +++ file1.dat\t
-cannot compute difference between binary files"}
+cannot compute difference between binary files"
 
 ###############################################################################
 
 write_file file2.dat "test file 2 (no NUL character)."
 fossil diff file2.dat
 
-test diff-file2-1 {[normalize_result] eq "Index: file2.dat
+test_eq diff-file2-1 [normalize_result] \
+    "Index: file2.dat
 ==================================================================
 --- file2.dat\t
 +++ file2.dat\t
-cannot compute difference between binary files"}
+cannot compute difference between binary files"
 
 ###############################################################################
 
 write_file file3.dat "test file 3 (not a long line)."
 fossil diff file3.dat
 
-test diff-file3-1 {[normalize_result] eq "Index: file3.dat
+test_eq diff-file3-1 [normalize_result] \
+    "Index: file3.dat
 ==================================================================
 --- file3.dat\t
 +++ file3.dat\t
-cannot compute difference between binary files"}
+cannot compute difference between binary files"
 
 ###############################################################################
 
 write_file file4.dat "test file 4 (not a long line).\ntwo"
 fossil diff file4.dat
 
-test diff-file4-1 {[normalize_result] eq "Index: file4.dat
+test_eq diff-file4-1 [normalize_result] \
+    "Index: file4.dat
 ==================================================================
 --- file4.dat\t
 +++ file4.dat\t
-cannot compute difference between binary files"}
+cannot compute difference between binary files"
 
 ###############################################################################
 
 write_file file5.dat "[string repeat 0 16]\ntest file 5 (not a long line)."
 fossil diff file5.dat
 
-test diff-file5-1 {[normalize_result] eq "Index: file5.dat
+test_eq diff-file5-1 [normalize_result] \
+    "Index: file5.dat
 ==================================================================
 --- file5.dat\t
 +++ file5.dat\t
-cannot compute difference between binary files"}
+cannot compute difference between binary files"
 
 ###############################################################################
 
-write_file file6a.dat "{\n \"abc\": {\n  \"def\": false,\n  \"ghi\": false\n }\n}\n"
-write_file file6b.dat "{\n \"abc\": {\n  \"def\": false,\n  \"ghi\": false\n },\n \"jkl\": {\n  \"mno\": {\n   \"pqr\": false\n  }\n }\n}\n"
+write_file file6a.dat \
+    "{\n \"abc\": {\n  \"def\": false,\n  \"ghi\": false\n }\n}\n"
+write_file file6b.dat \
+    [join [list \
+        "{\n \"abc\": {\n  \"def\": false,\n  \"ghi\": false\n },\n" \
+        " \"jkl\": {\n  \"mno\": {\n   \"pqr\": false\n  }\n }\n}\n"] ""]
 fossil xdiff -y -W 16 file6a.dat file6b.dat
-test diff-file-6-1 {[normalize_result] eq {========== file6a.dat ===== versus ===== file6b.dat =====
+test_eq diff-file-6-1 [normalize_result] \
+    {========== file6a.dat ===== versus ===== file6b.dat =====
      1 {                       1 {
      2  "abc": {               2  "abc": {
      3   "def": false,         3   "def": false,
@@ -127,20 +138,21 @@ test diff-file-6-1 {[normalize_result] eq {========== file6a.dat ===== versus ==
                         >      8    "pqr": false
                         >      9   }
      5  }                     10  }
-     6 }                      11 }}}
+     6 }                      11 }}
 
 ###############################################################################
 
 fossil rm file1.dat
 fossil diff -v file1.dat
 
-test diff-deleted-file-1 {[normalize_result] eq "DELETED  file1.dat
+test_eq diff-deleted-file-1 [normalize_result] \
+    "DELETED  file1.dat
 Index: file1.dat
 ==================================================================
 --- file1.dat\t
 +++ /dev/null\t
 @@ -1,1 +0,0 @@
--test file 1 (one line no term)."}
+-test file 1 (one line no term)."
 
 ###############################################################################
 
@@ -149,13 +161,14 @@ fossil add file6.dat
 
 fossil diff -v file6.dat
 
-test diff-added-file-1 {[normalize_result] eq "ADDED    file6.dat
+test_eq diff-added-file-1 [normalize_result] \
+    "ADDED    file6.dat
 Index: file6.dat
 ==================================================================
 --- /dev/null\t
 +++ file6.dat\t
 @@ -0,0 +1,1 @@
-+test file 6 (one line no term)."}
++test file 6 (one line no term)."
 
 ###############################################################################
 

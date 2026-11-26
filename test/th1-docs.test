@@ -63,7 +63,8 @@ fossil commit -m "Add fileStat.th1"
 set RESULT [test_fossil_http \
   $repository $dataFileName /doc/trunk/fileStat.th1]
 
-test th1-docs-1a {[regexp {<title>Unnamed Fossil Project: fileStat.th1</title>} $RESULT]}
+test th1-docs-1a {[regexp \
+    {<title>Unnamed Fossil Project: fileStat.th1</title>} $RESULT]}
 test th1-docs-1b {[regexp {>\[[0-9a-f]{40,64}\]<} $RESULT]}
 test th1-docs-1c {[regexp { contains \d+ files\.} $RESULT]}
 

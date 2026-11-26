@@ -150,9 +150,10 @@ fossil commit -m "trunk merged, should have 3 files"
 
 fossil ls
 
-test merge_renames-5-2 {[normalize_result] eq {f1
+test_eq merge_renames-5-2 [normalize_result] \
+    {f1
 f2
-f3}}
+f3}
 
 #####################################
 #  Test 6                           #
@@ -305,7 +306,7 @@ test_status_list merge_renames-9-6 $RESULT "
   $expectedMerge
   REMINDER: this was a dry run - no files were actually changed.
 "
-test merge_renames-9-7 {[fossil changes] eq ""}
+test_eq merge_renames-9-7 [fossil changes] ""
 
 ###################################################################
 #  Test 10                                                        #

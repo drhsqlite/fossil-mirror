@@ -78,7 +78,7 @@ proc get_mime_type {name} {
 ###############################################################################
 # Initially there should be no wiki entries
 fossil wiki list
-test wiki-0 {[normalize_result] eq {}}
+test_eq wiki-0 [normalize_result] {}
 
 ###############################################################################
 # Adding an entry should add it to the wiki list
@@ -86,7 +86,7 @@ write_file f1 "first wiki note"
 fossil wiki create tcltest f1
 test wiki-1 {$CODE == 0}
 fossil wiki list
-test wiki-2 {[normalize_result] eq {tcltest}}
+test_eq wiki-2 [normalize_result] {tcltest}
 
 ###############################################################################
 # Trying to add the same entry should fail
@@ -99,7 +99,7 @@ fossil wiki export tcltest a1
 test wiki-4 {[similar_file f1 a1]}
 
 ###############################################################################
-# commiting a change to an existing page should replace the page on export
+# committing a change to an existing page should replace the page on export
 write_file f2 "second version of the page"
 fossil wiki commit tcltest f2
 test wiki-5 {$CODE == 0}
@@ -107,14 +107,14 @@ fossil wiki export tcltest a2
 test wiki-6 {[similar_file f2 a2]}
 
 ###############################################################################
-# But we shouldn't be able to update non-existant pages
+# But we shouldn't be able to update nonexistent pages
 fossil wiki commit doesntexist f1 -expectError
 test wiki-7 {$CODE != 0}
 
 ###############################################################################
 # There shouldn't be any tech notes at this point
 fossil wiki list --technote
-test wiki-8 {[normalize_result] eq {}}
+test_eq wiki-8 [normalize_result] {}
 
 ###############################################################################
 # Creating a tech note with a specified timestamp should add a technote
@@ -122,7 +122,7 @@ write_file f3 "A technote"
 fossil wiki create technote f3 --technote {2016-01-01 12:34}
 test wiki-9 {$CODE == 0}
 fossil wiki list --technote
-test wiki-10 {[normalize_result] eq {2016-01-01 12:34:00}}
+test_eq wiki-10 [normalize_result] {2016-01-01 12:34:00}
 fossil wiki list --technote --show-technote-ids
 set technotelist [split $RESULT "\n"]
 set veryfirsttechnoteid [lindex [split [lindex $technotelist 0]] 0]
@@ -142,7 +142,7 @@ set technotelist [split $RESULT "\n"]
 test wiki-13.1 {[llength $technotelist] == 2}
 
 ###############################################################################
-# commiting a change to an existing technote should replace the page on export
+# committing a change to an existing technote should replace the page on export
 # (this should update the tech note from wiki-13 as that the most recently
 # updated one, that should also be the one exported by the export command)
 write_file f4 "technote 2nd variant"
@@ -156,30 +156,35 @@ fossil wiki export a4.1 --technote $veryfirsttechnoteid
 test wiki-15.1 {[similar_file f3 a4.1]}
 
 ###############################################################################
-# But we shouldn't be able to update non-existant pages
+# But we shouldn't be able to update nonexistent pages
 fossil wiki commit doesntexist f1 -expectError
 test wiki-16 {$CODE != 0}
 
 ###############################################################################
 # Check specifying tags for a technote is OK
 write_file f5 "technote with tags"
-fossil wiki create {tagged technote} f5 --technote {2016-01-02 12:34} --technote-tags {A B}
+fossil wiki create {tagged technote} f5 --technote {2016-01-02 12:34} \
+    --technote-tags {A B}
 test wiki-17 {$CODE == 0}
 write_file f5.1 "editted and tagged technote"
-fossil wiki commit {tagged technote} f5 --technote {2016-01-02 12:34} --technote-tags {C D}
+fossil wiki commit {tagged technote} f5 --technote {2016-01-02 12:34} \
+    --technote-tags {C D}
 test wiki-18 {$CODE == 0}
 
 ###############################################################################
 # Check specifying a bgcolor for a technote is OK
 write_file f6 "bgcolored technote"
-fossil wiki create bgcolor f6 --technote {2016-01-03 12:34} --technote-bgcolor red
+fossil wiki create bgcolor f6 --technote {2016-01-03 12:34} \
+    --technote-bgcolor red
 test wiki-19 {$CODE == 0}
 write_file f6.1 "editted technote with a background color"
-fossil wiki commit bgcolor f6.1 --technote {2016-01-03 12:34} --technote-bgcolor yellow
+fossil wiki commit bgcolor f6.1 --technote {2016-01-03 12:34} \
+    --technote-bgcolor yellow
 test wiki-20 {$CODE == 0}
 
 ###############################################################################
-# Test adding an attachment to both a non-existant (should fail) and existing wiki page
+# Test adding an attachment to both a nonexistent (should fail) and existing
+# wiki page
 write_file fa "This is a file to be attached"
 fossil attachment add doesntexist fa -expectError
 test wiki-21 {$CODE != 0}
@@ -187,7 +192,8 @@ fossil attachment add tcltest fa
 test wiki-22 {$CODE == 0}
 
 ###############################################################################
-# Test adding an attachment to both a non-existant (should fail) and existing tech note
+# Test adding an attachment to both a nonexistent (should fail) and existing
+# tech note
 fossil attachment add fa --technote {2016-07-22 12:00} -expectError
 test wiki-23 {$CODE != 0}
 fossil attachment add fa --technote {2016-01-03 12:34}
@@ -202,9 +208,11 @@ test wiki-25 {$CODE == 0}
 # Check that a technote with an attachment can be updated
 fossil wiki commit technote f6 --technote {2016-01-03 12:34}
 test wiki-26 {$CODE == 0}
-fossil wiki commit technote f6 --technote {2016-01-03 12:34} --technote-tags {E F}
+fossil wiki commit technote f6 --technote {2016-01-03 12:34} \
+    --technote-tags {E F}
 test wiki-27 {$CODE == 0}
-fossil wiki commit technote f6 --technote {2016-01-03 12:34} --technote-bgcolor blue
+fossil wiki commit technote f6 --technote {2016-01-03 12:34} \
+    --technote-bgcolor blue
 test wiki-28 {$CODE == 0}
 
 ###############################################################################
@@ -290,13 +298,16 @@ for {set i 0} {$i < [llength $technotelist]} {incr i} {
 }
 
 ###############################################################################
-# Create new tech note with a old timestamp so that it is oldest and then check that
-# the contents of the oldest tech note (by tech note id, both full and short) match up
+# Create new tech note with a old timestamp so that it is oldest and then check
+# that
+# the contents of the oldest tech note (by tech note id, both full and short)
+# match up
 write_file f12 "A really old tech note"
 fossil wiki create {Old tech note} f12 --technote {2001-07-07 09:08:07}
 fossil wiki list --technote --show-technote-ids
 set technotelist [split $RESULT "\n"]
-set anoldtechnoteid [lindex [split [lindex $technotelist [llength $technotelist]-1]] 0]
+set anoldtechnoteid [lindex \
+    [split [lindex $technotelist [llength $technotelist]-1]] 0]
 fossil wiki export a12 --technote $anoldtechnoteid
 test wiki-40 {[similar_file f12 a12]}
 
@@ -333,7 +344,8 @@ set idB [lindex $techIds 1]
 set duplicateid [string range $idA 0 3]
 if {[string range $idB 0 3] ne $duplicateid} {
   set planted "$duplicateid[string range $idB 4 end]"
-  fossil sql "UPDATE tag SET tagname='event-$planted' WHERE tagname='event-$idB';"
+  fossil sql \
+      "UPDATE tag SET tagname='event-$planted' WHERE tagname='event-$idB';"
   if {$CODE != 0} {
     error "wiki-collision: failed to plant prefix collision:\n$RESULT"
   }
@@ -349,19 +361,18 @@ fossil wiki export a14 --technote $anoldtechnoteid
 test wiki-43 {[similar_file f14 a14]}
 
 ###############################################################################
-# Check we can add attachments to a technote by its id
 fossil attachment add fa --technote $anoldtechnoteid
 test wiki-44 {$CODE == 0}
 
 ###############################################################################
 # Also check that we can specify a prefix of the tech note id
 write_file f15 "Updated text for the really old tech note specified by its id"
-fossil wiki commit {Old tech note} f15 --technote [string range $anoldtechnoteid 0 20]
+fossil wiki commit {Old tech note} f15 \
+    --technote [string range $anoldtechnoteid 0 20]
 fossil wiki export a15 --technote $anoldtechnoteid
 test wiki-45 {[similar_file f15 a15]}
 
 ###############################################################################
-# Check we can add attachments to a technote by a prefix of its id
 fossil attachment add fa --technote [string range $anoldtechnoteid 0 20]
 test wiki-46 {$CODE == 0}
 
@@ -373,7 +384,6 @@ fossil attachment add fa --technote $duplicateid -expectError
 test wiki-48 {$CODE != 0}
 
 ###############################################################################
-# Check the default mimetype is text/x-fossil-wiki
 test wiki-49 {[get_mime_type tcltest] == "text/x-fossil-wiki"}
 
 ###############################################################################

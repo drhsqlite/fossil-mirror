@@ -118,17 +118,6 @@ proc up_argv_maps {a b} {
   return [expr {[string first "argv\[2\] = \[$a\]" $::RESULT] >= 0}]
 }
 
-# Record whether ACTUAL equals EXPECTED for prediction NAME.
-#
-proc up_expect {name actual expected} {
-  set ok [expr {$actual eq $expected}]
-  if {$ok} {
-    incr ::upPredMet
-  } else {
-    incr ::upPredUnmet
-  }
-  test_eq $name $actual $expected
-}
 
 # Each row is a label, the pathname that is checked in, and another
 # spelling that is a D145 caseless match (or treated as one file in
@@ -278,10 +267,10 @@ foreach {label a b} $upSame {
   up_show $label $a $b
   set converted [expr {$label in $upConverted}]
   fossil ls $b
-  up_expect unicode-pathnames-on-$label-ls [normalize_result] \
+  test_predict up unicode-pathnames-on-$label-ls [normalize_result] \
       [expr {$converted ? $a : ""}]
   fossil cat $b {*}[expr {$converted ? "" : "-expectError"}]
-  up_expect unicode-pathnames-on-$label-cat $CODE [expr {!$converted}]
+  test_predict up unicode-pathnames-on-$label-cat $CODE [expr {!$converted}]
 }
 
 # With the setting off, D145 matches must be found by the other
@@ -292,22 +281,23 @@ fossil settings case-sensitive 0
 foreach {label a b} $upSame {
   up_show $label $a $b
   fossil ls $b
-  up_expect unicode-pathnames-off-$label-ls [normalize_result] $a
+  test_predict up unicode-pathnames-off-$label-ls [normalize_result] $a
   fossil cat $b
-  up_expect unicode-pathnames-off-$label-cat-code $CODE 0
-  up_expect unicode-pathnames-off-$label-cat [normalize_result] $label
+  test_predict up unicode-pathnames-off-$label-cat-code $CODE 0
+  test_predict up unicode-pathnames-off-$label-cat [normalize_result] $label
   fossil rm --soft -n $b
-  up_expect unicode-pathnames-off-$label-rm [normalize_result] "DELETED $a"
+  test_predict up unicode-pathnames-off-$label-rm [normalize_result] \
+      "DELETED $a"
 }
 
 foreach {label a b} $upDifferent {
   up_show $label $a $b
   fossil ls $b
-  up_expect unicode-pathnames-off-$label-ls [normalize_result] ""
+  test_predict up unicode-pathnames-off-$label-ls [normalize_result] ""
   fossil cat $b -expectError
-  up_expect unicode-pathnames-off-$label-cat $CODE 1
+  test_predict up unicode-pathnames-off-$label-cat $CODE 1
   fossil rm --soft -n $b
-  up_expect unicode-pathnames-off-$label-rm [normalize_result] ""
+  test_predict up unicode-pathnames-off-$label-rm [normalize_result] ""
 }
 
 # A file on disk under the other spelling is not an extra file, and
@@ -328,10 +318,10 @@ foreach {label a b} $upSame {
   file mkdir [file dirname $b]
   write_file $b "other spelling\n"
   fossil extras
-  up_expect unicode-pathnames-off-$label-extras [normalize_result] ""
+  test_predict up unicode-pathnames-off-$label-extras [normalize_result] ""
   fossil add $b
   fossil changes
-  up_expect unicode-pathnames-off-$label-add [normalize_result] ""
+  test_predict up unicode-pathnames-off-$label-add [normalize_result] ""
   fossil revert
   file delete $b
   if {[file dirname $b] ne "."} {
@@ -377,15 +367,15 @@ foreach {label a b} $upCollide {
   fossil settings case-sensitive 0
   write_file plain.txt "edited\n"
   fossil commit -m "edit plain.txt" -expectError
-  up_expect unicode-pathnames-collide-$label-commit $CODE 1
+  test_predict up unicode-pathnames-collide-$label-commit $CODE 1
 
   fossil settings case-sensitive 1
   fossil revert
   fossil update $upFirst
   fossil settings case-sensitive 0
   fossil update $upBoth -expectError
-  up_expect unicode-pathnames-collide-$label-update $CODE 1
-  up_expect unicode-pathnames-collide-$label-update-file \
+  test_predict up unicode-pathnames-collide-$label-update $CODE 1
+  test_predict up unicode-pathnames-collide-$label-update-file \
       [file exists $b] 0
 }
 if {[llength $upOneFile] > 0} {

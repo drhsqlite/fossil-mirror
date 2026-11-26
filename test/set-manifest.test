@@ -48,7 +48,8 @@ foreach v $truths {
   fossil settings manifest $v
   test "set-manifest-2-$v" {$RESULT eq ""}
   fossil settings manifest
-  test "set-manifest-2-$v-a" {[regexp "^manifest\\s+\\(local\\)\\s+$v\\s*$" $RESULT]}
+  test "set-manifest-2-$v-a" \
+      {[regexp "^manifest\\s+\\(local\\)\\s+$v\\s*$" $RESULT]}
   set filelist [lsort [glob manifest*]]
   test "set-manifest-2-$v-n" {[llength $filelist] == 2}
   foreach f $filelist {
@@ -63,16 +64,6 @@ set uuid [string trim [read_file "manifest.uuid"]]
 test "set-manifest-2-uuid" {[same_uuid $ckid $uuid]}
 
 
-# ... which is also the SHA1 of the file "manifest" before it was
-# sterilized by appending an extra line when writing the file. The
-# extra text begins with # and is a full line, so we'll just strip
-# it with a brute-force substitution. This probably has the right
-# effect even if the checkin was PGP-signed, but we don't have that
-# setting turned on for this manifest in any case.
-#regsub {(?m)^#.*\n} [read_file "manifest"] "" manifest
-#set muuid [::sha1::sha1 $manifest]
-#test "set-manifest-2-manifest" {[same_uuid $muuid $uuid]}
-
 
 # Classic behavior: FALSE value removes manifest and manifest.uuid
 set falses [list false off 0]
@@ -80,7 +71,8 @@ foreach v $falses {
   fossil settings manifest $v
   test "set-manifest-3-$v" {$RESULT eq ""}
   fossil settings manifest
-  test "set-manifest-3-$v-a" {[regexp "^manifest\\s+\\(local\\)\\s+$v\\s*$" $RESULT]}
+  test "set-manifest-3-$v-a" \
+      {[regexp "^manifest\\s+\\(local\\)\\s+$v\\s*$" $RESULT]}
   set filelist [lsort [glob -nocomplain manifest*]]
   test "set-manifest-3-$v-n" {[llength $filelist] == 0}
 }
@@ -104,7 +96,8 @@ foreach v $truths {
   fossil settings manifest $v
   test "set-manifest-5-$v" {$RESULT eq ""}
   fossil settings manifest
-  test "set-manifest-5-$v-a" {[regexp "^manifest\\s+\\(local\\)\\s+$v\\s*$" $RESULT]}
+  test "set-manifest-5-$v-a" \
+      {[regexp "^manifest\\s+\\(local\\)\\s+$v\\s*$" $RESULT]}
   set filelist [lsort [glob manifest*]]
   test "set-manifest-5-$v-n" {[llength $filelist] == [string length $v]}
   foreach f $filelist {
@@ -124,15 +117,18 @@ test "set-manifest-7-1" {[file isfile manifest.tags]}
 
 # Add a tag and make sure it appears in manifest.tags
 fossil tag add manifest-7-tag-1 tip
-test "set-manifest-7-2" {[file_contains "manifest.tags" "^tag manifest-7-tag-1$"]}
+test "set-manifest-7-2" {[file_contains "manifest.tags" \
+    "^tag manifest-7-tag-1$"]}
 
 # Add a file and make sure tag has disappeared from manifest.tags
 commit_file file1 "file1 contents" "Added file1."
-test "set-manifest-7-3" {![file_contains "manifest.tags" "^tag manifest-7-tag-1$"]}
+test "set-manifest-7-3" {![file_contains "manifest.tags" \
+    "^tag manifest-7-tag-1$"]}
 
 # Add new tag and check that it is in manifest.tags
 fossil tag add manifest-7-tag-2 tip
-test "set-manifest-7-4" {[file_contains "manifest.tags" "^tag manifest-7-tag-2$"]}
+test "set-manifest-7-4" {[file_contains "manifest.tags" \
+    "^tag manifest-7-tag-2$"]}
 
 
 ##### Tags manifest branch= updates
@@ -140,7 +136,8 @@ test "set-manifest-7-4" {[file_contains "manifest.tags" "^tag manifest-7-tag-2$"
 # Add file, create new branch on commit and check that
 # manifest.tags has been updated appropriately
 commit_file file3 "file3 contents" "Added file3." --branch manifest-8-branch
-test "set-manifest-8" {[file_contains "manifest.tags" "^branch manifest-8-branch$"]}
+test "set-manifest-8" {[file_contains "manifest.tags" \
+    "^branch manifest-8-branch$"]}
 
 
 test_cleanup

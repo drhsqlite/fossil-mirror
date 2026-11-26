@@ -23,24 +23,24 @@ test_setup
 ###############################################################################
 
 fossil extra
-test clean-0 {[normalize_result] eq {}}
+test_eq clean-0 [normalize_result] {}
 
 ###############################################################################
 
 commit_file f1 "f1 line" "base file"
 fossil ls
-test clean-1 {[normalize_result] eq {f1}}
+test_eq clean-1 [normalize_result] {f1}
 
 ###############################################################################
 
 fossil extra
-test clean-2 {[normalize_result] eq {}}
+test_eq clean-2 [normalize_result] {}
 
 ###############################################################################
 
 write_file f2 "f2 line"
 fossil extra
-test clean-3 {[normalize_result] eq {f2}}
+test_eq clean-3 [normalize_result] {f2}
 
 ###############################################################################
 
@@ -52,25 +52,26 @@ test clean-4 {[normalize_result] eq \
 ###############################################################################
 
 fossil extra
-test clean-5 {[normalize_result] eq {}}
+test_eq clean-5 [normalize_result] {}
 
 ###############################################################################
 
 fossil undo
-test clean-6 {[normalize_result] eq {NEW    f2}}
-test clean-7 {[read_file f2] eq "f2 line"}
+test_eq clean-6 [normalize_result] {NEW    f2}
+test_eq clean-7 [read_file f2] "f2 line"
 
 ###############################################################################
 
 fossil extra
-test clean-8 {[normalize_result] eq {f2}}
+test_eq clean-8 [normalize_result] {f2}
 
 ###############################################################################
 
 write_file f3 [string repeat ABCDEFGHIJK 1048576]
 fossil extra
-test clean-9 {[normalize_result] eq {f2
-f3}}
+test_eq clean-9 [normalize_result] \
+    {f2
+f3}
 
 ###############################################################################
 
@@ -82,20 +83,21 @@ test clean-10 {[normalize_result] eq \
 ###############################################################################
 
 fossil extra
-test clean-11 {[normalize_result] eq {f3}}
+test_eq clean-11 [normalize_result] {f3}
 
 ###############################################################################
 
 fossil undo
-test clean-12 {[normalize_result] eq {NEW    f2}}
-test clean-13 {[read_file f2] eq "f2 line"}
-test clean-14 {[read_file f3] eq [string repeat ABCDEFGHIJK 1048576]}
+test_eq clean-12 [normalize_result] {NEW    f2}
+test_eq clean-13 [read_file f2] "f2 line"
+test_eq clean-14 [read_file f3] [string repeat ABCDEFGHIJK 1048576]
 
 ###############################################################################
 
 fossil extra
-test clean-15 {[normalize_result] eq {f2
-f3}}
+test_eq clean-15 [normalize_result] \
+    {f2
+f3}
 
 ###############################################################################
 
@@ -107,59 +109,61 @@ test clean-16 {[normalize_result] eq \
 ###############################################################################
 
 fossil extra
-test clean-17 {[normalize_result] eq {}}
+test_eq clean-17 [normalize_result] {}
 
 ###############################################################################
 
 fossil undo
-test clean-18 {[normalize_result] eq {NEW    f2}}
-test clean-19 {[read_file f2] eq "f2 line"}
+test_eq clean-18 [normalize_result] {NEW    f2}
+test_eq clean-19 [read_file f2] "f2 line"
 
 ###############################################################################
 
 write_file f4 [string repeat KJIHGFEDCBA 1048576]
 fossil extra
-test clean-20 {[normalize_result] eq {f2
-f4}}
+test_eq clean-20 [normalize_result] \
+    {f2
+f4}
 
 ###############################################################################
 
 # clean w/undo disabled, no prompt, 1 file < 10MiB, 1 file > 10MiB
 fossil clean --disable-undo --no-prompt
-test clean-21 {[normalize_result] eq {}}
+test_eq clean-21 [normalize_result] {}
 
 ###############################################################################
 
 fossil extra
-test clean-22 {[normalize_result] eq {f2
-f4}}
+test_eq clean-22 [normalize_result] \
+    {f2
+f4}
 
 ###############################################################################
 
 fossil undo -expectError
-test clean-23 {[normalize_result] eq {nothing to undo}}
+test_eq clean-23 [normalize_result] {nothing to undo}
 
 ###############################################################################
 
 # clean w/undo disabled, force, 1 file < 10MiB, 1 file > 10MiB
 fossil clean --disable-undo --force
-test clean-24 {[normalize_result] eq {}}
+test_eq clean-24 [normalize_result] {}
 
 ###############################################################################
 
 fossil extra
-test clean-25 {[normalize_result] eq {}}
+test_eq clean-25 [normalize_result] {}
 
 ###############################################################################
 
 fossil undo -expectError
-test clean-26 {[normalize_result] eq {nothing to undo}}
+test_eq clean-26 [normalize_result] {nothing to undo}
 
 ###############################################################################
 
 write_file f5 "f5 line"
 fossil extra
-test clean-27 {[normalize_result] eq {f5}}
+test_eq clean-27 [normalize_result] {f5}
 
 ###############################################################################
 
@@ -174,17 +178,17 @@ Remove unmanaged file "f5" (a=all/y/N)?}}
 ###############################################################################
 
 fossil extra
-test clean-29 {[normalize_result] eq {}}
+test_eq clean-29 [normalize_result] {}
 
 ###############################################################################
 
 fossil undo -expectError
-test clean-30 {[normalize_result] eq {nothing to undo}}
+test_eq clean-30 [normalize_result] {nothing to undo}
 
 ###############################################################################
 
 fossil extra
-test clean-31 {[normalize_result] eq {}}
+test_eq clean-31 [normalize_result] {}
 
 ###############################################################################
 

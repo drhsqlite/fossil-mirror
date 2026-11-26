@@ -20,76 +20,57 @@
 
 test_setup ""
 
-write_file_indented t1 {
-  111 - This is line one of the demo program - 1111
-  222 - The second line program line in code - 2222
-  333 - This is a test of the merging algohm - 3333
-  444 - If all goes well, we will be pleased - 4444
-  555 - we think it well and other stuff too - 5555
+# Merges V1 and V2, two versions of BASE, and tests that the result is
+# EXPECTED.  ARGS are more arguments for "fossil 3-way-merge".
+#
+proc merge1_case {name base v1 v2 expected args} {
+  write_file_indented t1 $base
+  write_file_indented t2 $v1
+  write_file_indented t3 $v2
+  write_file_indented expected $expected
+  fossil 3-way-merge t1 t2 t3 merged {*}$args
+  test $name {[same_file expected merged]}
 }
-write_file_indented t2 {
-  111 - This is line ONE of the demo program - 1111
-  222 - The second line program line in code - 2222
-  333 - This is a test of the merging algohm - 3333
-  444 - If all goes well, we will be pleased - 4444
-  555 - we think it well and other stuff too - 5555
-}
-write_file_indented t3 {
-  111 - This is line one of the demo program - 1111
-  222 - The second line program line in code - 2222
-  333 - This is a test OF THE merging algohm - 3333
-  444 - If all goes well, we will be pleased - 4444
-  555 - we think it well and other stuff too - 5555
-}
-write_file_indented t23 {
-  111 - This is line ONE of the demo program - 1111
-  222 - The second line program line in code - 2222
-  333 - This is a test OF THE merging algohm - 3333
-  444 - If all goes well, we will be pleased - 4444
-  555 - we think it well and other stuff too - 5555
-}
-fossil 3-way-merge t1 t3 t2 a32
-test merge1-1.1 {[same_file t23 a32]}
-fossil 3-way-merge t1 t2 t3 a23
-test merge1-1.2 {[same_file t23 a23]}
 
-write_file_indented t1 {
+set merge1Base {
   111 - This is line one of the demo program - 1111
   222 - The second line program line in code - 2222
   333 - This is a test of the merging algohm - 3333
   444 - If all goes well, we will be pleased - 4444
   555 - we think it well and other stuff too - 5555
 }
-write_file_indented t2 {
-  111 - This is line ONE of the demo program - 1111
-  222 - The second line program line in code - 2222
-  333 - This is a test of the merging algohm - 3333
-  444 - If all goes well, we will be pleased - 4444
-  555 - we think it well and other stuff too - 5555
-}
-write_file_indented t3 {
-  111 - This is line one OF the demo program - 1111
-  222 - The second line program line in code - 2222
-  333 - This is a test of the merging algohm - 3333
-  444 - If all goes well, we will be pleased - 4444
-  555 - we think it well and other stuff too - 5555
-}
-write_file_indented t23 {
-  <<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<< (line 1)
-  111 - This is line ONE of the demo program - 1111
-  ####### SUGGESTED CONFLICT RESOLUTION follows ###################
-  111 - This is line ONE OF the demo program - 1111
-  ||||||| COMMON ANCESTOR content follows ||||||||||||||||||||||||| (line 1)
+set merge1G1T3 {
   111 - This is line one of the demo program - 1111
-  ======= MERGED IN content follows =============================== (line 1)
-  111 - This is line one OF the demo program - 1111
-  >>>>>>> END MERGE CONFLICT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  222 - The second line program line in code - 2222
+  333 - This is a test OF THE merging algohm - 3333
+  444 - If all goes well, we will be pleased - 4444
+  555 - we think it well and other stuff too - 5555
+}
+set merge1G1T2 {
+  111 - This is line ONE of the demo program - 1111
   222 - The second line program line in code - 2222
   333 - This is a test of the merging algohm - 3333
   444 - If all goes well, we will be pleased - 4444
   555 - we think it well and other stuff too - 5555
 }
-write_file_indented t32 {
+set merge1G1T23 {
+  111 - This is line ONE of the demo program - 1111
+  222 - The second line program line in code - 2222
+  333 - This is a test OF THE merging algohm - 3333
+  444 - If all goes well, we will be pleased - 4444
+  555 - we think it well and other stuff too - 5555
+}
+merge1_case merge1-1.1 $merge1Base $merge1G1T3 $merge1G1T2 $merge1G1T23
+merge1_case merge1-1.2 $merge1Base $merge1G1T2 $merge1G1T3 $merge1G1T23
+
+set merge1G2T3 {
+  111 - This is line one OF the demo program - 1111
+  222 - The second line program line in code - 2222
+  333 - This is a test of the merging algohm - 3333
+  444 - If all goes well, we will be pleased - 4444
+  555 - we think it well and other stuff too - 5555
+}
+merge1_case merge1-2.1 $merge1Base $merge1G2T3 $merge1G1T2 {
   <<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<< (line 1)
   111 - This is line one OF the demo program - 1111
   ####### SUGGESTED CONFLICT RESOLUTION follows ###################
@@ -103,53 +84,33 @@ write_file_indented t32 {
   333 - This is a test of the merging algohm - 3333
   444 - If all goes well, we will be pleased - 4444
   555 - we think it well and other stuff too - 5555
-}
-fossil 3-way-merge t1 t3 t2 a32 -expectError
-test merge1-2.1 {[same_file t32 a32]}
-fossil 3-way-merge t1 t2 t3 a23 -expectError
-test merge1-2.2 {[same_file t23 a23]}
-
-write_file_indented t1 {
+} -expectError
+merge1_case merge1-2.2 $merge1Base $merge1G1T2 $merge1G2T3 {
+  <<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<< (line 1)
+  111 - This is line ONE of the demo program - 1111
+  ####### SUGGESTED CONFLICT RESOLUTION follows ###################
+  111 - This is line ONE OF the demo program - 1111
+  ||||||| COMMON ANCESTOR content follows ||||||||||||||||||||||||| (line 1)
   111 - This is line one of the demo program - 1111
+  ======= MERGED IN content follows =============================== (line 1)
+  111 - This is line one OF the demo program - 1111
+  >>>>>>> END MERGE CONFLICT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   222 - The second line program line in code - 2222
   333 - This is a test of the merging algohm - 3333
   444 - If all goes well, we will be pleased - 4444
   555 - we think it well and other stuff too - 5555
-}
-write_file_indented t2 {
-  111 - This is line ONE of the demo program - 1111
-  222 - The second line program line in code - 2222
-  333 - This is a test of the merging algohm - 3333
-  444 - If all goes well, we will be pleased - 4444
-  555 - we think it well and other stuff too - 5555
-}
-write_file_indented t3 {
-  111 - This is line ONE of the demo program - 1111
-  222 - The second line program line in code - 2222
-  333 - This is a test of the merging algohm - 3333
-  444 - If all goes well, we will be pleased - 4444
-  555 - we think it well and other stuff too - 5555
-}
-write_file_indented t23 {
-  111 - This is line ONE of the demo program - 1111
-  222 - The second line program line in code - 2222
-  333 - This is a test of the merging algohm - 3333
-  444 - If all goes well, we will be pleased - 4444
-  555 - we think it well and other stuff too - 5555
-}
-fossil 3-way-merge t1 t3 t2 a32
-test merge1-3.1 {[same_file t23 a32]}
-fossil 3-way-merge t1 t2 t3 a23
-test merge1-3.2 {[same_file t23 a23]}
+} -expectError
 
-write_file_indented t1 {
-  111 - This is line one of the demo program - 1111
+merge1_case merge1-3.1 $merge1Base $merge1G1T2 $merge1G1T2 $merge1G1T2
+merge1_case merge1-3.2 $merge1Base $merge1G1T2 $merge1G1T2 $merge1G1T2
+
+set merge1G4T3 {
   222 - The second line program line in code - 2222
   333 - This is a test of the merging algohm - 3333
   444 - If all goes well, we will be pleased - 4444
   555 - we think it well and other stuff too - 5555
 }
-write_file_indented t2 {
+set merge1G4T2 {
   000 - Zero lines added to the beginning of - 0000
   111 - This is line one of the demo program - 1111
   222 - The second line program line in code - 2222
@@ -157,13 +118,7 @@ write_file_indented t2 {
   444 - If all goes well, we will be pleased - 4444
   555 - we think it well and other stuff too - 5555
 }
-write_file_indented t3 {
-  222 - The second line program line in code - 2222
-  333 - This is a test of the merging algohm - 3333
-  444 - If all goes well, we will be pleased - 4444
-  555 - we think it well and other stuff too - 5555
-}
-write_file_indented t32 {
+merge1_case merge1-4.1 $merge1Base $merge1G4T3 $merge1G4T2 {
   <<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<< (line 1)
   ####### SUGGESTED CONFLICT RESOLUTION follows ###################
   000 - Zero lines added to the beginning of - 0000
@@ -178,8 +133,8 @@ write_file_indented t32 {
   333 - This is a test of the merging algohm - 3333
   444 - If all goes well, we will be pleased - 4444
   555 - we think it well and other stuff too - 5555
-}
-write_file_indented t23 {
+} -expectError
+merge1_case merge1-4.2 $merge1Base $merge1G4T2 $merge1G4T3 {
   <<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<< (line 1)
   000 - Zero lines added to the beginning of - 0000
   111 - This is line one of the demo program - 1111
@@ -191,20 +146,9 @@ write_file_indented t23 {
   333 - This is a test of the merging algohm - 3333
   444 - If all goes well, we will be pleased - 4444
   555 - we think it well and other stuff too - 5555
-}
-fossil 3-way-merge t1 t3 t2 a32 -expectError
-test merge1-4.1 {[same_file t32 a32]}
-fossil 3-way-merge t1 t2 t3 a23 -expectError
-test merge1-4.2 {[same_file t23 a23]}
+} -expectError
 
-write_file_indented t1 {
-  111 - This is line one of the demo program - 1111
-  222 - The second line program line in code - 2222
-  333 - This is a test of the merging algohm - 3333
-  444 - If all goes well, we will be pleased - 4444
-  555 - we think it well and other stuff too - 5555
-}
-write_file_indented t2 {
+set merge1G5T2 {
   111 - This is line one of the demo program - 1111
   222 - The second line program line in code - 2222
   333 - This is a test of the merging algohm - 3333
@@ -212,54 +156,37 @@ write_file_indented t2 {
   555 - we think it well and other stuff too - 5555
   666 - Extra line at the end of the file wi - 6666
 }
-write_file_indented t3 {
-  222 - The second line program line in code - 2222
-  333 - This is a test of the merging algohm - 3333
-  444 - If all goes well, we will be pleased - 4444
-  555 - we think it well and other stuff too - 5555
-}
-write_file_indented t32 {
+set merge1G5T32 {
   222 - The second line program line in code - 2222
   333 - This is a test of the merging algohm - 3333
   444 - If all goes well, we will be pleased - 4444
   555 - we think it well and other stuff too - 5555
   666 - Extra line at the end of the file wi - 6666
 }
-fossil 3-way-merge t1 t3 t2 a32
-test merge1-5.1 {[same_file t32 a32]}
-fossil 3-way-merge t1 t2 t3 a23
-test merge1-5.2 {[same_file t32 a23]}
+merge1_case merge1-5.1 $merge1Base $merge1G4T3 $merge1G5T2 $merge1G5T32
+merge1_case merge1-5.2 $merge1Base $merge1G5T2 $merge1G4T3 $merge1G5T32
 
-write_file_indented t1 {
-  111 - This is line one of the demo program - 1111
-  222 - The second line program line in code - 2222
-  333 - This is a test of the merging algohm - 3333
-  444 - If all goes well, we will be pleased - 4444
-  555 - we think it well and other stuff too - 5555
-}
-write_file_indented t2 {
-  111 - This is line one of the demo program - 1111
-  333 - This is a test of the merging algohm - 3333
-  444 - If all goes well, we will be pleased - 4444
-  555 - we think it well and other stuff too - 5555
-}
-write_file_indented t3 {
+set merge1G6T3 {
   111 - This is line one of the demo program - 1111
   222 - The second line program line in code - 2222
   333 - This is a test of the merging algohm - 3333
   555 - we think it well and other stuff too - 5555
 }
-write_file_indented t32 {
+set merge1G6T2 {
+  111 - This is line one of the demo program - 1111
+  333 - This is a test of the merging algohm - 3333
+  444 - If all goes well, we will be pleased - 4444
+  555 - we think it well and other stuff too - 5555
+}
+set merge1G6T32 {
   111 - This is line one of the demo program - 1111
   333 - This is a test of the merging algohm - 3333
   555 - we think it well and other stuff too - 5555
 }
-fossil 3-way-merge t1 t3 t2 a32
-test merge1-6.1 {[same_file t32 a32]}
-fossil 3-way-merge t1 t2 t3 a23
-test merge1-6.2 {[same_file t32 a23]}
+merge1_case merge1-6.1 $merge1Base $merge1G6T3 $merge1G6T2 $merge1G6T32
+merge1_case merge1-6.2 $merge1Base $merge1G6T2 $merge1G6T3 $merge1G6T32
 
-write_file_indented t1 {
+set merge1G7T1 {
   abcd
   efgh
   ijkl
@@ -274,22 +201,7 @@ write_file_indented t1 {
   STUV
   XYZ.
 }
-write_file_indented t2 {
-  abcd
-  efgh 2
-  ijkl 2
-  mnop 2
-  qrst
-  uvwx
-  yzAB 2
-  CDEF 2
-  GHIJ 2
-  KLMN
-  OPQR
-  STUV
-  XYZ.
-}
-write_file_indented t3 {
+set merge1G7T3 {
   abcd
   efgh
   ijkl
@@ -304,7 +216,21 @@ write_file_indented t3 {
   STUV
   XYZ.
 }
-write_file_indented t23 {
+merge1_case merge1-7.1 $merge1G7T1 {
+  abcd
+  efgh 2
+  ijkl 2
+  mnop 2
+  qrst
+  uvwx
+  yzAB 2
+  CDEF 2
+  GHIJ 2
+  KLMN
+  OPQR
+  STUV
+  XYZ.
+} $merge1G7T3 {
   abcd
   <<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<< (line 2)
   efgh 2
@@ -347,11 +273,8 @@ write_file_indented t23 {
   OPQR
   STUV
   XYZ.
-}
-fossil 3-way-merge t1 t2 t3 a23 -expectError
-test merge1-7.1 {[same_file t23 a23]}
-
-write_file_indented t2 {
+} -expectError
+merge1_case merge1-7.2 $merge1G7T1 {
   abcd
   efgh 2
   ijkl 2
@@ -365,23 +288,7 @@ write_file_indented t2 {
   OPQR
   STUV
   XYZ.
-}
-write_file_indented t3 {
-  abcd
-  efgh
-  ijkl
-  mnop 3
-  qrst 3
-  uvwx 3
-  yzAB 3
-  CDEF
-  GHIJ
-  KLMN
-  OPQR
-  STUV
-  XYZ.
-}
-write_file_indented t23 {
+} $merge1G7T3 {
   abcd
   <<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<< (line 2)
   efgh 2
@@ -424,9 +331,7 @@ write_file_indented t23 {
   OPQR
   STUV
   XYZ.
-}
-fossil 3-way-merge t1 t2 t3 a23 -expectError
-test merge1-7.2 {[same_file t23 a23]}
+} -expectError
 
 ###############################################################################
 

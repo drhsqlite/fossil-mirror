@@ -60,27 +60,27 @@ unversioned add|cat|edit|export|list|revert|remove|sync|touch}]}
 ###############################################################################
 
 fossil unversioned list
-test unversioned-2 {[normalize_result] eq {}}
+test_eq unversioned-2 [normalize_result] {}
 
 ###############################################################################
 
 fossil unversioned cat not-found.txt
-test unversioned-3 {[normalize_result] eq {}}
+test_eq unversioned-3 [normalize_result] {}
 
 ###############################################################################
 
 fossil unversioned cat unversioned1.txt
-test unversioned-4 {[normalize_result] eq {}}
+test_eq unversioned-4 [normalize_result] {}
 
 ###############################################################################
 
 fossil unversioned add unversioned1.txt
-test unversioned-5 {[normalize_result] eq {}}
+test_eq unversioned-5 [normalize_result] {}
 
 ###############################################################################
 
 fossil unversioned cat unversioned1.txt
-test unversioned-6 {[normalize_result] eq {This is unversioned file #1.}}
+test_eq unversioned-6 [normalize_result] {This is unversioned file #1.}
 
 ###############################################################################
 
@@ -92,22 +92,22 @@ unversioned1\.txt$} [normalize_result]]}
 ###############################################################################
 
 fossil unversioned ls
-test unversioned-8 {[normalize_result] eq {unversioned1.txt}}
+test_eq unversioned-8 [normalize_result] {unversioned1.txt}
 
 ###############################################################################
 
 fossil unversioned remove unversioned1.txt
-test unversioned-9 {[normalize_result] eq {}}
+test_eq unversioned-9 [normalize_result] {}
 
 ###############################################################################
 
 fossil unversioned list
-test unversioned-10 {[normalize_result] eq {}}
+test_eq unversioned-10 [normalize_result] {}
 
 ###############################################################################
 
 fossil unversioned ls
-test unversioned-11 {[normalize_result] eq {}}
+test_eq unversioned-11 [normalize_result] {}
 
 ###############################################################################
 
@@ -119,7 +119,7 @@ unversioned1\.txt$} [normalize_result]]}
 ###############################################################################
 
 fossil unversioned ls --all
-test unversioned-13 {[normalize_result] eq {unversioned1.txt}}
+test_eq unversioned-13 [normalize_result] {unversioned1.txt}
 
 ###############################################################################
 
@@ -130,7 +130,7 @@ test unversioned-14 {[normalize_result] eq \
 ###############################################################################
 
 fossil unversioned add "unversioned space.txt" --as unversioned3.txt
-test unversioned-15 {[normalize_result] eq {}}
+test_eq unversioned-15 [normalize_result] {}
 
 ###############################################################################
 
@@ -149,12 +149,12 @@ unversioned3\.txt$} [normalize_result]]}
 ###############################################################################
 
 fossil unversioned ls
-test unversioned-18 {[normalize_result] eq {unversioned3.txt}}
+test_eq unversioned-18 [normalize_result] {unversioned3.txt}
 
 ###############################################################################
 
 fossil unversioned add unversioned2.txt --mtime 2016-10-01
-test unversioned-19 {[normalize_result] eq {}}
+test_eq unversioned-19 [normalize_result] {}
 
 ###############################################################################
 
@@ -168,13 +168,14 @@ unversioned3\.txt$} [normalize_result]]}
 ###############################################################################
 
 fossil unversioned ls
-test unversioned-21 {[normalize_result] eq {unversioned2.txt
-unversioned3.txt}}
+test_eq unversioned-21 [normalize_result] \
+    {unversioned2.txt
+unversioned3.txt}
 
 ###############################################################################
 
 fossil unversioned cat unversioned1.txt
-test unversioned-22 {[normalize_result] eq {}}
+test_eq unversioned-22 [normalize_result] {}
 
 ###############################################################################
 
@@ -191,12 +192,12 @@ test unversioned-24 {[sha1_text $RESULT] eq \
 ###############################################################################
 
 fossil unversioned rm unversioned3.txt
-test unversioned-25 {[normalize_result] eq {}}
+test_eq unversioned-25 [normalize_result] {}
 
 ###############################################################################
 
 fossil unversioned add unversioned4.txt
-test unversioned-26 {[normalize_result] eq {}}
+test_eq unversioned-26 [normalize_result] {}
 
 ###############################################################################
 
@@ -208,7 +209,7 @@ test unversioned-27 {$hash(before) eq \
 ###############################################################################
 
 fossil unversioned edit unversioned4.txt
-test unversioned-28 {[normalize_result] eq {}}
+test_eq unversioned-28 [normalize_result] {}
 
 ###############################################################################
 
@@ -220,7 +221,7 @@ test unversioned-30 {[regexp { \d+ (?:-)?\d+$} $RESULT]}
 ###############################################################################
 
 fossil unversioned edit unversioned4.txt --mtime 2016-10-01
-test unversioned-31 {[normalize_result] eq {}}
+test_eq unversioned-31 [normalize_result] {}
 
 ###############################################################################
 
@@ -239,7 +240,7 @@ unversioned4\.txt$} [normalize_result]]}
 ###############################################################################
 
 fossil unversioned export unversioned2.txt unversioned2-ex.txt
-test unversioned-34 {[normalize_result] eq {}}
+test_eq unversioned-34 [normalize_result] {}
 test unversioned-35 {[sha1_file unversioned2-ex.txt] eq \
 {962f96ebd613e4fdd9aa2d20bd9fe21a64e925f2}}
 
@@ -259,7 +260,7 @@ unversioned4\.txt 2016-10-01 00:00:00 [0-9a-f]{40,64}
 ###############################################################################
 
 fossil unversioned remove unversioned4.txt --mtime "2016-10-02 13:47:29"
-test unversioned-38 {[normalize_result] eq {}}
+test_eq unversioned-38 [normalize_result] {}
 
 ###############################################################################
 
@@ -276,7 +277,7 @@ unversioned3\.txt
 ###############################################################################
 
 fossil unversioned touch unversioned1.txt --mtime "2016-10-03 23:01:44"
-test unversioned-40 {[normalize_result] eq {}}
+test_eq unversioned-40 [normalize_result] {}
 
 ###############################################################################
 
@@ -293,12 +294,12 @@ unversioned3\.txt
 ###############################################################################
 
 fossil unversioned add unversioned5.txt
-test unversioned-42 {[normalize_result] eq {}}
+test_eq unversioned-42 [normalize_result] {}
 
 ###############################################################################
 
 fossil unversioned touch unversioned5.txt
-test unversioned-43 {[normalize_result] eq {}}
+test_eq unversioned-43 [normalize_result] {}
 
 ###############################################################################
 
@@ -324,7 +325,8 @@ if {![loopback_available]} {
 
 foreach {pid port outTmpFile} [test_start_server $repository stopArg] {}
 if {! $::QUIET} {
-  puts [appendArgs "Started Fossil server, pid \"" $pid \" ", port \"" $port \".]
+  puts [appendArgs "Started Fossil server, pid \"" $pid \" ", port \"" \
+      $port \".]
 }
 set remote [appendArgs http://uvtester: $password @localhost: $port /]
 
@@ -348,7 +350,7 @@ fossil open -f uvrepo.fossil
 ###############################################################################
 
 fossil unversioned list
-test unversioned-45 {[normalize_result] eq {}}
+test_eq unversioned-45 [normalize_result] {}
 
 ###############################################################################
 
@@ -361,15 +363,16 @@ test unversioned-46 {[regexp \
 ###############################################################################
 
 fossil unversioned ls
-test unversioned-47 {[normalize_result] eq {unversioned2.txt
-unversioned5.txt}}
+test_eq unversioned-47 [normalize_result] \
+    {unversioned2.txt
+unversioned5.txt}
 
 ###############################################################################
 
 set env(FAKE_EDITOR_SCRIPT) "append data this_is_a_test"; # deterministic
 
 fossil unversioned edit unversioned2.txt
-test unversioned-48 {[normalize_result] eq {}}
+test_eq unversioned-48 [normalize_result] {}
 
 unset env(FAKE_EDITOR_SCRIPT)
 
@@ -382,7 +385,7 @@ test unversioned-49 {[sha1_text $RESULT] eq \
 ###############################################################################
 
 fossil unversioned remove unversioned5.txt
-test unversioned-50 {[normalize_result] eq {}}
+test_eq unversioned-50 [normalize_result] {}
 
 ###############################################################################
 
@@ -413,7 +416,7 @@ unversioned5\.txt$} [normalize_result]]}
 ###############################################################################
 
 fossil unversioned add unversioned-client1.txt
-test unversioned-54 {[normalize_result] eq {}}
+test_eq unversioned-54 [normalize_result] {}
 
 ###############################################################################
 
@@ -426,7 +429,7 @@ test unversioned-55 {[regexp \
 ###############################################################################
 
 fossil close
-test unversioned-56 {[normalize_result] eq {}}
+test_eq unversioned-56 [normalize_result] {}
 
 ###############################################################################
 

@@ -87,12 +87,14 @@ A new test should only require adding another `.test` file.
   which writes a session log to wherever it was started from.
 * `src/` which must be at the same level in the same directory as `test/`, reflecting the source tree layout. The tests (at least) `settings.test` and `settings-repo.test` need the source to do their job.
 
-The following tests are skipped when their requirements are missing:
+Tests are skipped when their requirements are missing:
 
 | Needs | Test files |
 | --- | --- |
-| a TCP connection over the loopback interface | `unversioned`, and the HTTP clone in `powerloss` |
+| a TCP connection over the loopback interface | `http`, `unversioned`, the HTTP tests in `sync`, and the HTTP clone in `powerloss` |
 | `-assurance ci` or `stress` | `powerloss` |
+| `openssl` and a Fossil built with TLS support | the HTTPS tests in `http` |
+| `python3` | the tests in `http` that run `http-relay.py` |
 | a C compiler (`cc`, or `CC`), `LD_PRELOAD`, `tools/powerloss/powerloss.c` from the source tree, and a Fossil that isn't statically linked | `powerloss` |
 | `configure --json` | `json` |
 | `configure --with-th1-docs` | `th1-docs` |
@@ -106,19 +108,23 @@ the test suite detects this.
 
 ## Coverage
 
-| Area | Test files |
-| --- | --- |
-| Check-ins and the working tree | `amend`, `clean`, `commit-warning`, `mv-rm`, `revert`, `stash`, `symlinks`, `unicode-pathnames`, `update` |
-| Branches and tags | `branch-tag` |
-| Merges, cherrypicks, backouts, and annotate and blame after them | `merge1` to `merge6`, `merge-history`, `merge_exe`, `merge_renames`, `merge_renames_2`, `merge_warn` |
-| Commands interrupted by a power loss or a killed process | `powerloss` |
+The last column is the lowest `-assurance` level that runs the files: `smoke`
+means every run, and `ci` means `ci` and `stress`.
+
+| Area | Test files | Runs at |
+| --- | --- | --- |
+| Check-ins and the working tree | `amend`, `clean`, `commit-warning`, `mv-rm`, `revert`, `stash`, `symlinks`, `unicode-pathnames`, `update` | `smoke` |
+| Branches and tags | `branch-tag` | `smoke` |
+| Merges, cherrypicks, backouts, and annotate and blame after them | `merge1` to `merge6`, `merge-history`, `merge_exe`, `merge_renames`, `merge_renames_2`, `merge_warn` | `smoke` |
+| HTTP and HTTPS client | `http` | `smoke` |
+| Commands interrupted by a power loss or a killed process | `powerloss` | `ci` |
+| Diffs and deltas | `delta1`, `diff` | `smoke` |
+| Settings | `settings`, `settings-repo`, `set-manifest` | `smoke` |
+| Wiki, attachments and unversioned files | `wiki`, `unversioned` | `smoke` |
+| TH1 scripting | `th1`, `th1-docs`, `th1-hooks`, `th1-repo`, `th1-taint`, `th1-tcl` | `smoke` |
+| JSON API | `json` | `smoke` |
+| Parsing and file utilities | `cmdline`, `contains-selector`, `file1`, `glob`, `reserved-names`, `utf` | `smoke` |
 | Git export and import, bundles, patches, ZIP and tarball archives | `roundtrip` |
-| Diffs and deltas | `delta1`, `diff` |
-| Settings | `settings`, `settings-repo`, `set-manifest` |
-| Wiki, attachments and unversioned files | `wiki`, `unversioned` |
-| TH1 scripting | `th1`, `th1-docs`, `th1-hooks`, `th1-repo`, `th1-taint`, `th1-tcl` |
-| JSON API | `json` |
-| Parsing and file utilities | `cmdline`, `contains-selector`, `file1`, `glob`, `reserved-names`, `utf` |
 
 ## Writing new tests
 
@@ -126,13 +132,37 @@ Each `NAME.test` file is a Tcl script sourced by `tester.tcl`. `test_setup` crea
 executable being tested and sets `RESULT` to its output and `CODE` to 0 if the command succeeded and did not write anything to standard error, or 1 otherwise. `test_eq NAME ACTUAL EXPECTED` and `test_match NAME ACTUAL PATTERN`
 report both values when they fail, and `test NAME EXPRESSION` gives the report. `test_skip REASON` skips the rest of the file, `test_skip_part REASON`
 reports a few skipped tests while the file continues, and `test_fail_then_return NAME
-REASON` records a failed setup step and stops the file. A last argument of `knownBug` to any of the `test` procedures marks a known bug as described above.
+REASON` records a failed setup step and stops the file.
 
-`fossil_raw ARGS` also runs the executable, for the tests `fossil` can't
-do. It sets `RESULT` to standard output and standard error together, as
-bytes, and `CODE` to the exit status, to `crash` if a signal ended the
-command, or to `timeout`. A failed command isn't reported as an error, so
-check `CODE` yourself. Use it when you need:
+A test file looks like this:
+
+```tcl
+#
+# What this file tests, in a sentence or two.
+#
+
+require_no_open_checkout
+
+test_setup
+
+write_file a.txt "one\n"
+fossil add a.txt
+fossil commit -m one
+test example-commit {$CODE == 0}
+
+test_cleanup
+```
+
+* Start each test name and each procedure name with the file's name or a short form of it, such as `sync-clone-artifacts` and `sync_commit`. A failure report then says which file to open.
+* Comment a procedure only if its name and arguments don't say what it does. Don't repeat the code in a comment.
+* Call your global variables what you like. `tester.tcl` removes them when your file ends, so two files can't collide. Don't set a variable that `tester.tcl` owns, such as `RESULT`, `CODE`, `testdir` or `fossilexe`.
+* If the file needs something the system might not have, call `test_skip` near the top so the summary shows it.
+* `fossil ARGS` counts output on standard error as a failure and can't tell a crash from an error. If your test expects either, reads the output as bytes, gives `fossil` input or needs a time limit, use `fossil_raw ARGS`, which sets `CODE` to the exit status, `crash` or `timeout`. Don't call `exec $::fossilexe` yourself.
+* Read a file with `read_file` and write one with `write_file`.
+* Keep lines within 80 columns.
+
+A command that fails under `fossil_raw` isn't reported as an error, so
+check `CODE` yourself. Use `fossil_raw` when you need:
 
 * the output byte for byte, such as CRLF line endings or binary content
 * the exit status, or to tell a crash from a failure
@@ -160,10 +190,6 @@ If the known bug is the exit status of a `fossil` command, add `-knownBug` to th
 A test marked `knownBug` should fail on every applicable system. If the fault only shows up in some environments, the test must set up the relevant environment. If Fossil really does behave differently on some system depending how the system is configured (for example decomposed pathnames on macOS, which vary depending whether the filesystem is HFS+ or APFS) the test must check the behavior. The test suite avoids operating system names by testing for behaviors instead, wherever possible. If a test needs something the system might not have, that becomes a requirement and you can use `test_skip` for.
 
 `fixed_word_lines NLINE` is a procedure in `tester.tcl` that returns generated text as a string, the same text on every run. `delta1.test` and `merge2.test` use it for their input. If your new test needs text to work on start with this. Look at delta and merge tests for examples of how to use this with character encodings.
-
-Beware of global variables! `tester.tcl` removes on exit any globals a test file
-creates. A global defined by `tester.tcl`, such as `RESULT`, is still shared, so
-don't reuse one of those.
 
 `make test` runs only the `.test` files. The other scripts in `test/` are run by hand:
 

@@ -1,10 +1,9 @@
 #
-# Tests of fossil's HTTP and HTTPS client.  Servers in this file send
-# fossil replies that HTTP/1.1 allows, which must give a complete clone,
-# and malformed replies, which must make the clone fail with a message
-# and not leave a repository behind.  Others close or reset the connection,
-# record the request line fossil sends, or present certificates that
-# fossil must or must not trust.
+# Tests of fossil's HTTP and HTTPS client.  A clone must work when the
+# reply is framed in any way HTTP/1.1 allows.  It must fail with a
+# message, and leave no repository, when the reply is malformed or the
+# connection is closed or reset.  Other tests check the request line
+# fossil sends and which certificates it trusts.
 #
 # The HTTPS tests need openssl and a fossil built with TLS support.  The
 # tests that reset a connection, and the HTTPS tests that check what
@@ -36,44 +35,9 @@ fossil test-th-eval {hasfeature ssl}
 set haveTls [expr {[normalize_result] eq "1" && [auto_execok openssl] ne ""}]
 set havePython [expr {[auto_execok python3] ne ""}]
 set haveIpv6 [expr {![catch {close [socket -server list -myaddr ::1 0]}]}]
-set httpServers [list]
 set httpPids [list]
 set httpFossilServers [list]
 set httpAnswer ""
-
-# Runs fossil with ARGS and INPUT on its standard input, while the event
-# loop runs the servers in this file.  Sets RESULT to fossil's output and
-# CODE to its exit status, the name of the signal that ended it, or
-# "timeout" if it ran for more than 60 seconds.
-#
-proc http_fossil {input args} {
-  global RESULT CODE LASTCMD
-  set LASTCMD [list $::fossilexe {*}$args]
-  protOut $LASTCMD
-  set chan [open |[concat $LASTCMD [list << $input 2>@1]] r]
-  fconfigure $chan -blocking 0
-  set ::httpOutput ""
-  set ::httpDone 0
-  fileevent $chan readable [list http_fossil_read $chan]
-  set timer [after 60000 {set ::httpDone timeout}]
-  vwait ::httpDone
-  after cancel $timer
-  if {$::httpDone eq "timeout"} {
-    catch {exec kill -KILL {*}[pid $chan]}
-  }
-  fconfigure $chan -blocking 1
-  set CODE 0
-  if {[catch {close $chan} msg options]} {
-    set CODE [lindex [dict get $options -errorcode] 2]
-  }
-  if {$::httpDone eq "timeout"} {set CODE timeout}
-  set RESULT [string trim $::httpOutput]
-}
-
-proc http_fossil_read {chan} {
-  append ::httpOutput [read $chan]
-  if {[eof $chan]} {set ::httpDone 1}
-}
 
 # Clones URL into c.fossil with the options in ARGS, answering fossil's
 # prompts with the lines in httpAnswer.  Returns "cloned" when the clone
@@ -83,7 +47,8 @@ proc http_fossil_read {chan} {
 #
 proc http_clone {url args} {
   file delete c.fossil
-  http_fossil $::httpAnswer clone $url c.fossil {*}$args
+  fossil_raw -seconds 60 -input $::httpAnswer clone $url c.fossil {*}$args
+  set ::RESULT [string trim $::RESULT]
   if {$::CODE == 0} {
     fossil sql -R c.fossil "SELECT count(*) FROM blob"
     if {$::RESULT == $::httpBlobs} {return cloned}
@@ -99,43 +64,19 @@ proc http_clone {url args} {
 # once the whole request has arrived, and then closes the connection.
 #
 proc http_listen {handler} {
-  set server [socket -server [list http_accept $handler] -myaddr 127.0.0.1 0]
-  lappend ::httpServers $server
-  return [lindex [fconfigure $server -sockname] 2]
+  return [test_listen [list http_receive $handler]]
 }
 
-proc http_accept {handler chan address port} {
-  fconfigure $chan -translation binary -blocking 0
-  set ::httpRequest($chan) ""
-  fileevent $chan readable [list http_receive $handler $chan]
-}
-
-proc http_receive {handler chan} {
-  append ::httpRequest($chan) [read $chan]
-  set request $::httpRequest($chan)
-  set end [string first "\r\n\r\n" $request]
-  set length 0
-  regexp -nocase -line {^content-length:\s*(\d+)} $request -> length
-  if {![eof $chan] &&
-      ($end < 0 || [string length $request] < $end + 4 + $length)} {
-    return
+proc http_receive {handler chan request} {
+  if {[string first "\r\n\r\n" $request] >= 0} {
+    {*}$handler $chan $request
   }
-  unset ::httpRequest($chan)
-  fileevent $chan readable {}
-  fconfigure $chan -blocking 1
-  if {$end >= 0} {
-    catch {{*}$handler $chan $request}
-  }
-  catch {close $chan}
 }
 
-# Listens like http_listen, and closes each connection as soon as it is
-# accepted.
-#
 proc http_listen_close {} {
   set server [socket -server {apply {{chan address port} {close $chan}}} \
                   -myaddr 127.0.0.1 0]
-  lappend ::httpServers $server
+  lappend ::testListeners $server
   return [lindex [fconfigure $server -sockname] 2]
 }
 
@@ -360,7 +301,7 @@ proc http_redirect {chan request} {
   }
 }
 set port [http_listen http_redirect]
-http_fossil "" test-httpmsg http://127.0.0.1:$port/old --out new.txt
+fossil_raw -seconds 60 test-httpmsg http://127.0.0.1:$port/old --out new.txt
 test_eq http-rfc-relative-redirect \
     [expr {[file exists new.txt] ? [read_file new.txt] : ""}] new knownBug
 
@@ -631,7 +572,7 @@ if {$haveTls && $havePython} {
   unset env(SSL_CERT_FILE)
 }
 
-foreach server $httpServers {close $server}
+test_listen_stop
 foreach pid $httpPids {catch {exec kill $pid}}
 foreach server $httpFossilServers {
   test_stop_server [lindex $server 0] [lindex $server 0] [lindex $server 2]

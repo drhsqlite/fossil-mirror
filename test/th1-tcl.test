@@ -137,9 +137,10 @@ if { $::is_cygwin && [file extension $fossilexe] eq ".exe" } {
   set fossilexeref $fossilexe
 }
 
-test th1-tcl-9 {[string trim $RESULT] eq [list [file tail $fossilexeref] 3 \
+test_eq th1-tcl-9 [string trim $RESULT] \
+    [list [file tail $fossilexeref] 3 \
 [list test-th-render --open-config [file nativename [file join $path \
-th1-tcl9.txt]]]]}
+th1-tcl9.txt]]]]
 
 ###############################################################################
 
@@ -150,7 +151,7 @@ test th1-tcl-10 {[normalize_result] eq \
 ###############################################################################
 
 fossil test-th-eval "list \[tclIsSafe\] \[tclMakeSafe\] \[tclIsSafe\]"
-test th1-tcl-11 {[normalize_result] eq {0 {} 1}}
+test_eq th1-tcl-11 [normalize_result] {0 {} 1}
 
 ###############################################################################
 
@@ -161,27 +162,27 @@ test th1-tcl-12 {[normalize_result] eq \
 ###############################################################################
 
 fossil test-th-eval "tclEval pwd; tclMakeSafe; tclEval pwd"
-test th1-tcl-13 {[normalize_result] eq {TH_ERROR: invalid command name "pwd"}}
+test_eq th1-tcl-13 [normalize_result] {TH_ERROR: invalid command name "pwd"}
 
 ###############################################################################
 
 fossil test-th-eval "tclMakeSafe; tclExpr {0 + \[string length \[pwd\]\]}"
-test th1-tcl-14 {[normalize_result] eq {TH_ERROR: invalid command name "pwd"}}
+test_eq th1-tcl-14 [normalize_result] {TH_ERROR: invalid command name "pwd"}
 
 ###############################################################################
 
 fossil test-th-eval "tclInvoke pwd; tclMakeSafe; tclInvoke pwd"
-test th1-tcl-15 {[normalize_result] eq {TH_ERROR: Tcl command not found: pwd}}
+test_eq th1-tcl-15 [normalize_result] {TH_ERROR: Tcl command not found: pwd}
 
 ###############################################################################
 
 fossil test-th-eval "tclMakeSafe; tclEval set x 2"
-test th1-tcl-16 {[normalize_result] eq {2}}
+test_eq th1-tcl-16 [normalize_result] {2}
 
 ###############################################################################
 
 fossil test-th-eval "tclMakeSafe; tclEval set x 2; tclEval info vars x"
-test th1-tcl-17 {[normalize_result] eq {x}}
+test_eq th1-tcl-17 [normalize_result] {x}
 
 ###############################################################################
 

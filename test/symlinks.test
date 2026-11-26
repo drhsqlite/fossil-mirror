@@ -53,10 +53,10 @@ exec ln -s [file join $rootDir subdirA] symdirA
 write_file [file join $rootDir subdirA f1.txt] "f1"
 write_file [file join $rootDir subdirA f2.txt] "f2"
 
-test symlinks-dir-1 {[file exists [file join $rootDir subdirA f1.txt]] eq 1}
-test symlinks-dir-2 {[file exists [file join $rootDir symdirA f1.txt]] eq 1}
-test symlinks-dir-3 {[file exists [file join $rootDir subdirA f2.txt]] eq 1}
-test symlinks-dir-4 {[file exists [file join $rootDir symdirA f2.txt]] eq 1}
+test_eq symlinks-dir-1 [file exists [file join $rootDir subdirA f1.txt]] 1
+test_eq symlinks-dir-2 [file exists [file join $rootDir symdirA f1.txt]] 1
+test_eq symlinks-dir-3 [file exists [file join $rootDir subdirA f2.txt]] 1
+test_eq symlinks-dir-4 [file exists [file join $rootDir symdirA f2.txt]] 1
 
 fossil add [file join $rootDir symdirA f1.txt]
 test symlinks-skip-dir-traversal {[normalize_result] eq \
@@ -70,7 +70,7 @@ test symlinks-empty-commit {[normalize_result] eq \
 ###############################################################################
 
 fossil ls
-test symlinks-dir-5 {[normalize_result] eq ""}
+test_eq symlinks-dir-5 [normalize_result] ""
 
 ###############################################################################
 
@@ -83,10 +83,10 @@ test symlinks-dir-6 {[normalize_result] eq \
 fossil close
 file delete [file join $rootDir subdirA f1.txt]
 
-test symlinks-dir-7 {[file exists [file join $rootDir subdirA f1.txt]] eq 0}
-test symlinks-dir-8 {[file exists [file join $rootDir symdirA f1.txt]] eq 0}
-test symlinks-dir-9 {[file exists [file join $rootDir subdirA f2.txt]] eq 1}
-test symlinks-dir-10 {[file exists [file join $rootDir symdirA f2.txt]] eq 1}
+test_eq symlinks-dir-7 [file exists [file join $rootDir subdirA f1.txt]] 0
+test_eq symlinks-dir-8 [file exists [file join $rootDir symdirA f1.txt]] 0
+test_eq symlinks-dir-9 [file exists [file join $rootDir subdirA f2.txt]] 1
+test_eq symlinks-dir-10 [file exists [file join $rootDir symdirA f2.txt]] 1
 
 ###############################################################################
 
@@ -94,11 +94,11 @@ fossil open --force $repository
 set code [catch {file readlink [file join $rootDir symdirA]} result]
 
 test symlinks-dir-11 {$code == 0}
-test symlinks-dir-12 {$result eq [file join $rootDir subdirA]}
-test symlinks-dir-13 {[file exists [file join $rootDir subdirA f1.txt]] eq 0}
-test symlinks-dir-14 {[file exists [file join $rootDir symdirA f1.txt]] eq 0}
-test symlinks-dir-15 {[file exists [file join $rootDir subdirA f2.txt]] eq 1}
-test symlinks-dir-16 {[file exists [file join $rootDir symdirA f2.txt]] eq 1}
+test_eq symlinks-dir-12 $result [file join $rootDir subdirA]
+test_eq symlinks-dir-13 [file exists [file join $rootDir subdirA f1.txt]] 0
+test_eq symlinks-dir-14 [file exists [file join $rootDir symdirA f1.txt]] 0
+test_eq symlinks-dir-15 [file exists [file join $rootDir subdirA f2.txt]] 1
+test_eq symlinks-dir-16 [file exists [file join $rootDir symdirA f2.txt]] 1
 
 ###############################################################################
 #

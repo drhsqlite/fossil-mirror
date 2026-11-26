@@ -70,9 +70,8 @@ fossil mv ../f1 .
 test mv-soft-relative-1 {$RESULT eq "RENAME f1 subdir1/f1"}
 
 fossil revert
-test mv-soft-relative-2 {
-  [normalize_result] eq "DELETE   subdir1/f1\nREVERT   f1${undoMsg}"
-}
+test_eq mv-soft-relative-2 [normalize_result] \
+    "DELETE   subdir1/f1\nREVERT   f1${undoMsg}"
 
 cd $rootDir
 
@@ -87,9 +86,8 @@ fossil mv ../f2 ./f2
 test mv-soft-relative-3 {$RESULT eq "RENAME f2 subdir2/f2"}
 
 fossil revert
-test mv-soft-relative-4 {
-  [normalize_result] eq "DELETE   subdir2/f2\nREVERT   f2${undoMsg}"
-}
+test_eq mv-soft-relative-4 [normalize_result] \
+    "DELETE   subdir2/f2\nREVERT   f2${undoMsg}"
 
 cd $rootDir
 
@@ -101,14 +99,12 @@ file mkdir [file join $rootDir subdir3]
 cd [file join $rootDir subdir3]
 
 fossil mv --hard ../f3 .
-test mv-hard-relative-1 {
-  [normalize_result] eq "RENAME f3 subdir3/f3\nMOVED_FILE ${rootDir}/f3"
-}
+test_eq mv-hard-relative-1 [normalize_result] \
+    "RENAME f3 subdir3/f3\nMOVED_FILE ${rootDir}/f3"
 
 fossil revert
-test mv-hard-relative-2 {
-  [normalize_result] eq "DELETE   subdir3/f3\nREVERT   f3${undoMsg}"
-}
+test_eq mv-hard-relative-2 [normalize_result] \
+    "DELETE   subdir3/f3\nREVERT   f3${undoMsg}"
 
 cd $rootDir
 
@@ -120,14 +116,12 @@ file mkdir [file join $rootDir subdir4]
 cd [file join $rootDir subdir4]
 
 fossil mv --hard ../f4 ./f4
-test mv-hard-relative-3 {
-  [normalize_result] eq "RENAME f4 subdir4/f4\nMOVED_FILE ${rootDir}/f4"
-}
+test_eq mv-hard-relative-3 [normalize_result] \
+    "RENAME f4 subdir4/f4\nMOVED_FILE ${rootDir}/f4"
 
 fossil revert
-test mv-hard-relative-4 {
-  [normalize_result] eq "DELETE   subdir4/f4\nREVERT   f4${undoMsg}"
-}
+test_eq mv-hard-relative-4 [normalize_result] \
+    "DELETE   subdir4/f4\nREVERT   f4${undoMsg}"
 
 cd $rootDir
 
@@ -142,9 +136,8 @@ fossil mv [file join $rootDir f5] [file join $rootDir subdir5]
 test mv-soft-absolute-1 {$RESULT eq "RENAME f5 subdir5/f5"}
 
 fossil revert
-test mv-soft-absolute-2 {
-  [normalize_result] eq "DELETE   subdir5/f5\nREVERT   f5${undoMsg}"
-}
+test_eq mv-soft-absolute-2 [normalize_result] \
+    "DELETE   subdir5/f5\nREVERT   f5${undoMsg}"
 
 cd $rootDir
 
@@ -159,9 +152,8 @@ fossil mv [file join $rootDir f6] [file join $rootDir subdir6 f6]
 test mv-soft-absolute-3 {$RESULT eq "RENAME f6 subdir6/f6"}
 
 fossil revert
-test mv-soft-absolute-4 {
-  [normalize_result] eq "DELETE   subdir6/f6\nREVERT   f6${undoMsg}"
-}
+test_eq mv-soft-absolute-4 [normalize_result] \
+    "DELETE   subdir6/f6\nREVERT   f6${undoMsg}"
 
 cd $rootDir
 
@@ -173,14 +165,12 @@ file mkdir [file join $rootDir subdir7]
 cd [file join $rootDir subdir7]
 
 fossil mv --hard [file join $rootDir f7] [file join $rootDir subdir7]
-test mv-hard-absolute-1 {
-  [normalize_result] eq "RENAME f7 subdir7/f7\nMOVED_FILE ${rootDir}/f7"
-}
+test_eq mv-hard-absolute-1 [normalize_result] \
+    "RENAME f7 subdir7/f7\nMOVED_FILE ${rootDir}/f7"
 
 fossil revert
-test mv-hard-absolute-2 {
-  [normalize_result] eq "DELETE   subdir7/f7\nREVERT   f7${undoMsg}"
-}
+test_eq mv-hard-absolute-2 [normalize_result] \
+    "DELETE   subdir7/f7\nREVERT   f7${undoMsg}"
 
 cd $rootDir
 
@@ -192,14 +182,12 @@ file mkdir [file join $rootDir subdir8]
 cd [file join $rootDir subdir8]
 
 fossil mv --hard [file join $rootDir f8] [file join $rootDir subdir8 f8]
-test mv-hard-absolute-3 {
-  [normalize_result] eq "RENAME f8 subdir8/f8\nMOVED_FILE ${rootDir}/f8"
-}
+test_eq mv-hard-absolute-3 [normalize_result] \
+    "RENAME f8 subdir8/f8\nMOVED_FILE ${rootDir}/f8"
 
 fossil revert
-test mv-hard-absolute-4 {
-  [normalize_result] eq "DELETE   subdir8/f8\nREVERT   f8${undoMsg}"
-}
+test_eq mv-hard-absolute-4 [normalize_result] \
+    "DELETE   subdir8/f8\nREVERT   f8${undoMsg}"
 
 cd $rootDir
 
@@ -217,9 +205,8 @@ fossil rm ../subdirB
 test rm-soft-relative-2 {$RESULT eq "DELETED subdirB/f9"}
 
 fossil rm ../subdirC
-test rm-soft-relative-3 {
-  [normalize_result] eq "DELETED subdirC/f10\nDELETED subdirC/f11"
-}
+test_eq rm-soft-relative-3 [normalize_result] \
+    "DELETED subdirC/f10\nDELETED subdirC/f11"
 
 fossil revert
 test rm-soft-relative-4 {
@@ -240,9 +227,7 @@ fossil rm ../f2
 test rm-soft-relative-5 {$RESULT eq "DELETED f2"}
 
 fossil revert
-test rm-soft-relative-6 {
-  [normalize_result] eq "REVERT   f2${undoMsg}"
-}
+test_eq rm-soft-relative-6 [normalize_result] "REVERT   f2${undoMsg}"
 
 cd $rootDir
 
@@ -254,9 +239,7 @@ file mkdir [file join $rootDir subdir3]
 cd [file join $rootDir subdir3]
 
 fossil rm --hard ../subdirA
-test rm-hard-relative-1 {
-  [normalize_result] eq ""
-}
+test_eq rm-hard-relative-1 [normalize_result] ""
 
 fossil rm --hard ../subdirB
 test rm-hard-relative-2 {
@@ -287,14 +270,11 @@ file mkdir [file join $rootDir subdir4]
 cd [file join $rootDir subdir4]
 
 fossil rm --hard ../f4
-test rm-hard-relative-5 {
-  [normalize_result] eq "DELETED f4\nDELETED_FILE ${rootDir}/f4"
-}
+test_eq rm-hard-relative-5 [normalize_result] \
+    "DELETED f4\nDELETED_FILE ${rootDir}/f4"
 
 fossil revert
-test rm-hard-relative-6 {
-  [normalize_result] eq "REVERT   f4${undoMsg}"
-}
+test_eq rm-hard-relative-6 [normalize_result] "REVERT   f4${undoMsg}"
 
 cd $rootDir
 
@@ -312,9 +292,8 @@ fossil rm [file join $rootDir subdirB]
 test rm-soft-absolute-2 {$RESULT eq "DELETED subdirB/f9"}
 
 fossil rm [file join $rootDir subdirC]
-test rm-soft-absolute-3 {
-  [normalize_result] eq "DELETED subdirC/f10\nDELETED subdirC/f11"
-}
+test_eq rm-soft-absolute-3 [normalize_result] \
+    "DELETED subdirC/f10\nDELETED subdirC/f11"
 
 fossil revert
 test rm-soft-absolute-4 {
@@ -335,9 +314,7 @@ fossil rm [file join $rootDir f6]
 test rm-soft-absolute-5 {$RESULT eq "DELETED f6"}
 
 fossil revert
-test rm-soft-absolute-6 {
-  [normalize_result] eq "REVERT   f6${undoMsg}"
-}
+test_eq rm-soft-absolute-6 [normalize_result] "REVERT   f6${undoMsg}"
 
 cd $rootDir
 
@@ -380,14 +357,11 @@ file mkdir [file join $rootDir subdir8]
 cd [file join $rootDir subdir8]
 
 fossil rm --hard [file join $rootDir f8]
-test rm-hard-absolute-5 {
-  [normalize_result] eq "DELETED f8\nDELETED_FILE ${rootDir}/f8"
-}
+test_eq rm-hard-absolute-5 [normalize_result] \
+    "DELETED f8\nDELETED_FILE ${rootDir}/f8"
 
 fossil revert
-test rm-hard-absolute-6 {
-  [normalize_result] eq "REVERT   f8${undoMsg}"
-}
+test_eq rm-hard-absolute-6 [normalize_result] "REVERT   f8${undoMsg}"
 
 cd $rootDir
 
@@ -396,20 +370,18 @@ cd $rootDir
 #######################################
 
 fossil mv --hard f12 d2/f13
-test mv-file-new-directory-1 {
-  [normalize_result] eq "RENAME f12 d2/f13\nMOVED_FILE ${rootDir}/f12"
-}
+test_eq mv-file-new-directory-1 [normalize_result] \
+    "RENAME f12 d2/f13\nMOVED_FILE ${rootDir}/f12"
 
 test mv-file-new-directory-2 {[file size d2/f13] == 3}
-test mv-file-new-directory-3 {[read_file d2/f13] eq "f12"}
+test_eq mv-file-new-directory-3 [read_file d2/f13] "f12"
 
 fossil revert
-test mv-file-new-directory-4 {
-  [normalize_result] eq "DELETE   d2/f13\nREVERT   f12${undoMsg}"
-}
+test_eq mv-file-new-directory-4 [normalize_result] \
+    "DELETE   d2/f13\nREVERT   f12${undoMsg}"
 
 test mv-file-new-directory-5 {[file size f12] == 3}
-test mv-file-new-directory-6 {[read_file f12] eq "f12"}
+test_eq mv-file-new-directory-6 [read_file f12] "f12"
 
 cd $rootDir
 
@@ -418,24 +390,28 @@ cd $rootDir
 ############################################
 
 fossil mv --hard subdirC subdirD
-test mv-file-new-directory-7 {
-  [normalize_result] eq "RENAME subdirC/f10 subdirD/f10\nRENAME subdirC/f11 subdirD/f11\nMOVED_FILE ${rootDir}/subdirC/f10\nMOVED_FILE ${rootDir}/subdirC/f11"
-}
+test_eq mv-file-new-directory-7 [normalize_result] \
+    [join [list \
+        "RENAME subdirC/f10 subdirD/f10\n" \
+        "RENAME subdirC/f11 subdirD/f11\n" \
+        "MOVED_FILE ${rootDir}/subdirC/f10\n" \
+        "MOVED_FILE ${rootDir}/subdirC/f11"] ""]
 
 test mv-file-new-directory-8 {[file size subdirD/f10] == 3}
-test mv-file-new-directory-9 {[read_file subdirD/f10] eq "f10"}
+test_eq mv-file-new-directory-9 [read_file subdirD/f10] "f10"
 test mv-file-new-directory-10 {[file size subdirD/f11] == 3}
-test mv-file-new-directory-11 {[read_file subdirD/f11] eq "f11"}
+test_eq mv-file-new-directory-11 [read_file subdirD/f11] "f11"
 
 fossil revert
-test mv-file-new-directory-12 {
-  [normalize_result] eq "DELETE   subdirD/f10\nDELETE   subdirD/f11\nREVERT   subdirC/f10\nREVERT   subdirC/f11${undoMsg}"
-}
+test_eq mv-file-new-directory-12 [normalize_result] \
+    [join [list \
+        "DELETE   subdirD/f10\nDELETE   subdirD/f11\n" \
+        "REVERT   subdirC/f10\nREVERT   subdirC/f11${undoMsg}"] ""]
 
 test mv-file-new-directory-13 {[file size subdirC/f10] == 3}
-test mv-file-new-directory-14 {[read_file subdirC/f10] eq "f10"}
+test_eq mv-file-new-directory-14 [read_file subdirC/f10] "f10"
 test mv-file-new-directory-15 {[file size subdirC/f11] == 3}
-test mv-file-new-directory-16 {[read_file subdirC/f11] eq "f11"}
+test_eq mv-file-new-directory-16 [read_file subdirC/f11] "f11"
 
 cd $rootDir
 
@@ -443,23 +419,24 @@ cd $rootDir
 # Test 19: Follow-up Soft Rename of a Directory Already Renamed on Filesystem #
 ###############################################################################
 
-file rename [file join $rootDir subdirE/a] [file join $rootDir subdirE/a_renamed]
+file rename [file join $rootDir subdirE/a] \
+    [file join $rootDir subdirE/a_renamed]
 
 fossil mv subdirE/a subdirE/a_renamed
-test mv-soft-already-renamed-directory-1 {
-  [normalize_result] eq "RENAME subdirE/a/f14 subdirE/a_renamed/f14"
-}
+test_eq mv-soft-already-renamed-directory-1 [normalize_result] \
+    "RENAME subdirE/a/f14 subdirE/a_renamed/f14"
 
-test mv-soft-already-renamed-directory-2 {[file size subdirE/a_renamed/f14] == 3}
-test mv-soft-already-renamed-directory-3 {[read_file subdirE/a_renamed/f14] eq "f14"}
+test mv-soft-already-renamed-directory-2 \
+    {[file size subdirE/a_renamed/f14] == 3}
+test_eq mv-soft-already-renamed-directory-3 [read_file subdirE/a_renamed/f14] \
+    "f14"
 
 fossil revert
-test mv-soft-already-renamed-directory-4 {
-  [normalize_result] eq "DELETE   subdirE/a_renamed/f14\nREVERT   subdirE/a/f14${undoMsg}"
-}
+test_eq mv-soft-already-renamed-directory-4 [normalize_result] \
+    "DELETE   subdirE/a_renamed/f14\nREVERT   subdirE/a/f14${undoMsg}"
 
 test mv-soft-already-renamed-directory-5 {[file size subdirE/a/f14] == 3}
-test mv-soft-already-renamed-directory-6 {[read_file subdirE/a/f14] eq "f14"}
+test_eq mv-soft-already-renamed-directory-6 [read_file subdirE/a/f14] "f14"
 
 file delete -force [file join $rootDir subdirE/a_renamed]
 

@@ -158,7 +158,7 @@ fossil timeline
 test th1-cmd-hooks-2a {[first_data_line] eq \
     {<h1><b>command_hook timeline</b></h1>}}
 
-test th1-cmd-hooks-2b {[second_data_line] eq {ERROR: unsupported timeline}}
+test_eq th1-cmd-hooks-2b [second_data_line] {ERROR: unsupported timeline}
 
 ###############################################################################
 
@@ -178,7 +178,7 @@ test th1-cmd-hooks-3d {[last_data_line] eq \
 ###############################################################################
 
 fossil test1
-test th1-custom-cmd-1a {[next_to_last_data_line] eq $repository}
+test_eq th1-custom-cmd-1a [next_to_last_data_line] $repository
 
 test th1-custom-cmd-1b {[last_data_line] eq \
     {<h1><b>command_hook test1 command_notify test1</b></h1>}}
@@ -186,7 +186,7 @@ test th1-custom-cmd-1b {[last_data_line] eq \
 ###############################################################################
 
 fossil test2
-test th1-custom-cmd-2a {[first_data_line] eq {ERROR: unsupported command}}
+test_eq th1-custom-cmd-2a [first_data_line] {ERROR: unsupported command}
 
 ###############################################################################
 
@@ -221,7 +221,7 @@ test th1-web-hooks-1b {[regexp [appendArgs \
 ###############################################################################
 
 set RESULT [test_fossil_http $repository $dataFileName /test1]
-test th1-custom-web-1a {[next_to_last_data_line] eq $repository}
+test_eq th1-custom-web-1a [next_to_last_data_line] $repository
 
 test th1-custom-web-1b {[last_data_line] eq \
     {<h1><b>command_hook http webpage_hook test1 webpage_notify test1</b></h1>}}

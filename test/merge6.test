@@ -25,19 +25,20 @@
 test_setup
 fossil ls
 
-test merge_multi-0 {[normalize_result] eq {}}
+test_eq merge_multi-0 [normalize_result] {}
 
 commit_file f1 "f1 line" "base file"
 fossil ls
 
-test merge_multi-1 {[normalize_result] eq {f1}}
+test_eq merge_multi-1 [normalize_result] {f1}
 
 fossil update trunk
 commit_file f2 "f2 line" "branch for file f2" -b branch_for_f2
 fossil ls
 
-test merge_multi-2 {[normalize_result] eq {f1
-f2}}
+test_eq merge_multi-2 [normalize_result] \
+    {f1
+f2}
 
 fossil update trunk
 write_file f3 "f3 line"
@@ -47,9 +48,10 @@ fossil add f4
 fossil commit -m "branch for files f3 and f4" -b branch_for_f3_f4
 fossil ls
 
-test merge_multi-3 {[normalize_result] eq {f1
+test_eq merge_multi-3 [normalize_result] \
+    {f1
 f3
-f4}}
+f4}
 
 fossil update trunk
 fossil merge branch_for_f2
@@ -57,10 +59,11 @@ fossil merge branch_for_f3_f4
 fossil commit -m "new trunk files f2, f3, and f4 via merge"
 fossil ls
 
-test merge_multi-4 {[normalize_result] eq {f1
+test_eq merge_multi-4 [normalize_result] \
+    {f1
 f2
 f3
-f4}}
+f4}
 
 ###############################################################################
 

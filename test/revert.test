@@ -69,15 +69,11 @@ fossil commit -m "c1"
 
 # Make changes to be reverted
 #
-# Add f0
 write_file f0 "f0"
 fossil add f0
-# Remove f1
 file delete f1
 fossil rm f1
-# Edit f2
 write_file f2 "f2.1"
-# Rename f3 to f3n
 file rename -force f3 f3n
 fossil mv f3 f3n
 
@@ -240,7 +236,7 @@ revert-test 4-4 {d/f4} {
 } -exists {d/f4} -notexists {d/f4new}
 
 ## Commit changes before testing reverting of directory rename,
-## otherwise there're could be sequencing issues
+## otherwise there could be sequencing issues
 fossil redo
 fossil commit -m "4-5:setup"
 
@@ -297,7 +293,7 @@ revert-test 5-2 {f0 d} {
 } -exists {f0 d/f1 d/f2 d/f3}
 
 ## Commit changes before testing the revert of directory rename,
-## otherwise there're could be sequencing issues
+## otherwise there could be sequencing issues
 fossil commit -m "5-3:setup"
 
 fossil changes

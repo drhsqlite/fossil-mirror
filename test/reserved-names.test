@@ -87,33 +87,25 @@ foreach reserved_names_test $reserved_names_tests {
 
   fossil test-is-reserved-name $reserved_name
 
-  test reserved-result-$testNo {
-    [lindex [normalize_result] 0] eq $reserved_result
-  }
+  test_eq reserved-result-$testNo [lindex [normalize_result] 0] $reserved_result
 
-  test reserved-name-$testNo {
-    [lindex [normalize_result] 1] eq $reserved_name
-  }
+  test_eq reserved-name-$testNo [lindex [normalize_result] 1] $reserved_name
 
   fossil test-is-reserved-name [string toupper $reserved_name]
 
-  test reserved-result-upper-$testNo {
-    [lindex [normalize_result] 0] eq $reserved_result
-  }
+  test_eq reserved-result-upper-$testNo [lindex [normalize_result] 0] \
+      $reserved_result
 
-  test reserved-name-upper-$testNo {
-    [lindex [normalize_result] 1] eq [string toupper $reserved_name]
-  }
+  test_eq reserved-name-upper-$testNo [lindex [normalize_result] 1] \
+      [string toupper $reserved_name]
 
   fossil test-is-reserved-name [string tolower $reserved_name]
 
-  test reserved-result-lower-$testNo {
-    [lindex [normalize_result] 0] eq $reserved_result
-  }
+  test_eq reserved-result-lower-$testNo [lindex [normalize_result] 0] \
+      $reserved_result
 
-  test reserved-name-lower-$testNo {
-    [lindex [normalize_result] 1] eq [string tolower $reserved_name]
-  }
+  test_eq reserved-name-lower-$testNo [lindex [normalize_result] 1] \
+      [string tolower $reserved_name]
 }
 
 ###############################################################################

@@ -63,7 +63,8 @@ proc test_result_state {testid cmdArgs expectedOutput args} {
       return
     }
   }
-  test_status_list $testid $result $expectedOutput [knownBug "-result" $knownbugs]
+  test_status_list $testid $result $expectedOutput \
+      [knownBug "-result" $knownbugs]
 
   set statusListTests [list -changes changes -addremove {addremove -n}]
   foreach {key fossilArgs} $statusListTests {
@@ -83,13 +84,12 @@ proc test_result_state {testid cmdArgs expectedOutput args} {
     }
     test $testid$key $passed [knownBug $key $knownbugs]
   }
-
-  #fossil undo
 }
 
 proc stash-test {testid stashArgs expectedStashOutput args} {
   fossil stash {*}$stashArgs
-  return [test_result_state stash-$testid "stash $stashArgs" $expectedStashOutput {*}$args]
+  return [test_result_state stash-$testid "stash $stashArgs" \
+      $expectedStashOutput {*}$args]
 }
 
 require_no_open_checkout
@@ -133,9 +133,6 @@ stash-test 1 {save -m "stash 1"} {
 
 # Confirm there is a stash saved
 fossil stash list
-#protOut "{[normalize_result]}"
-#{1: [21bc64cff8c702] on 2016-02-10 19:48:44
-#       stash 1}
 test stash-1-list-1 {[regexp {^1: \[[0-9a-z]+\] on } [first_data_line]]}
 test stash-1-list-2 {[regexp {^\s+stash 1\s*$} [second_data_line]]}
 
@@ -170,11 +167,6 @@ Index: f0
 # fossil stash show|cat ?STASHID? ?DIFF-OPTIONS?
 # fossil stash [g]diff ?STASHID? ?DIFF-OPTIONS?
 
-#fossil stash show
-#test stash-1-show {[normalize_result] eq $diff_stash_1}
-#fossil stash diff
-#test stash-1-diff {[normalize_result] eq $diff_stash_1} knownBug
-
 ########
 # fossil stash pop
 
@@ -194,7 +186,7 @@ stash-test 2 pop {
 
 # Confirm there is no longer a stash saved
 fossil stash list
-test stash-2-list {[first_data_line] eq "empty stash"}
+test_eq stash-2-list [first_data_line] "empty stash"
 
 
 # Test stashed mv without touching the file system
@@ -208,12 +200,6 @@ test stash-2-list {[first_data_line] eq "empty stash"}
 fossil checkout --force c1
 fossil clean
 fossil mv --soft f1 f1new
-#stash-test WY-1 {-expectError save -m "Reported 2016-02-09"} {
-#  REVERT   f1
-#  DELETE   f1new
-#} -changes {
-#} -addremove {
-#} -exists {f1 f2 f3} -notexists {f1new} -knownbugs {-code -result}
 # TODO: add tests that verify the saved stash is sensible. Possibly
 # by applying it and checking results. But until the SQLITE_CONSTRAINT
 # error is fixed, there is nothing stashed to test.
@@ -259,15 +245,15 @@ stash-test 3-1 {save -m f3} {
 } -addremove {
   ADDED f3
 } -exists {f1 f2 f3} -notexists {}
-#fossil status
 fossil stash show
-test stash-3-1-show {[normalize_result] eq "ADDED f3
+test_eq stash-3-1-show [normalize_result] \
+    "ADDED f3
 Index: f3
 ==================================================================
 --- /dev/null\t
 +++ f3\t
 @@ -0,0 +1,1 @@
-+f3"}
++f3"
 stash-test 3-1-pop {pop} {
   ADDED f3
 } -changes {
@@ -382,9 +368,6 @@ test stash-4-3-show-4 {[regexp {ADDED f0} $RESULT]}
 # fossil stash apply ?STASHID?
 # fossil stash goto ?STASHID?
 # fossil stash rm|drop ?STASHID? ?-a|--all?
-
-#fossil checkout --force c1
-#fossil clean
 
 ###############################################################################
 

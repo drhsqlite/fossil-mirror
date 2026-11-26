@@ -557,7 +557,8 @@ proc utf_looks_like_utf16 {bytes reverse} {
   return $flags
 }
 
-# Predict the dict of output fields for raw BYTES (path used only for size line).
+# Predict the dict of output fields for raw BYTES (path used only for size
+# line).
 proc utf_predict {bytes} {
   set n [string length $bytes]
   set fUtf8 [utf_starts_with_utf8_bom $bytes]
@@ -601,7 +602,8 @@ proc utf_parse_result {text} {
       dict set d bytes $n
     } elseif {[regexp {^Starts with UTF-8 BOM: (yes|no)$} $line -> v]} {
       dict set d utf8_bom $v
-    } elseif {[regexp {^Starts with UTF-16 BOM: (yes|no|reversed)$} $line -> v]} {
+    } elseif {[regexp {^Starts with UTF-16 BOM: (yes|no|reversed)$} $line -> \
+        v]} {
       dict set d utf16_bom $v
     } elseif {[regexp {^Looks like UTF-(8|16): (yes|no)$} $line -> k v]} {
       dict set d looks_kind $k
@@ -613,15 +615,6 @@ proc utf_parse_result {text} {
   return $d
 }
 
-proc utf_expect {name actual expected} {
-  set ok [expr {$actual eq $expected}]
-  if {$ok} {
-    incr ::utfPredMet
-  } else {
-    incr ::utfPredUnmet
-  }
-  test_eq $name $actual $expected
-}
 
 # Compare every predicted field to fossil output (yes and no).
 proc utf_check_cell {label bytes path} {
@@ -634,7 +627,7 @@ proc utf_check_cell {label bytes path} {
       LOOK_LONG LOOK_INVALID LOOK_ODD LOOK_SHORT} {
     set e [dict get $pred $key]
     set a [expr {[dict exists $got $key] ? [dict get $got $key] : ""}]
-    utf_expect utf-$label-$key $a $e
+    test_predict utf utf-$label-$key $a $e
   }
 }
 
