@@ -1,0 +1,155 @@
+#
+# Tests of clone, push, pull and sync, over file: URLs and over HTTP to
+# "fossil server".  After each operation, the repositories must hold the
+# same artifacts, except for private ones, and pass "fossil
+# test-integrity".
+#
+
+require_no_open_checkout
+
+test_setup ""
+set dir [pwd]
+set ::env(FOSSIL_USER) tester
+
+# Returns the hashes of the artifacts in repository REPO that are
+# neither phantoms nor private, in order.
+#
+proc sync_artifacts {repo} {
+  fossil sql -R $repo "SELECT uuid FROM blob WHERE size>=0\
+                       AND rid NOT IN private ORDER BY uuid"
+  return [normalize_result]
+}
+
+# Returns the hashes of the check-ins in repository REPO that are not
+# private, in order.
+#
+proc sync_checkins {repo} {
+  fossil sql -R $repo "SELECT uuid FROM blob JOIN event ON objid=rid\
+                       WHERE type='ci' AND rid NOT IN private\
+                       ORDER BY uuid"
+  return [normalize_result]
+}
+
+# Returns the number of private artifacts in repository REPO.
+#
+proc sync_private_count {repo} {
+  fossil sql -R $repo "SELECT count(*) FROM private"
+  return [normalize_result]
+}
+
+# Test NAME passes when "fossil test-integrity" finds no problems in
+# repository REPO.
+#
+proc sync_test_integrity {name repo} {
+  fossil test-integrity -R $repo
+  test_match $name [normalize_result] {checked: 0 errors}
+}
+
+# Commits a change to FILE in check-out DIR, with the comment COMMENT
+# and the extra commit options in ARGS.
+#
+proc sync_commit {dir file comment args} {
+  write_file [file join $dir $file] "$comment\n"
+  fossil add $file --chdir $dir
+  fossil commit -m $comment --chdir $dir {*}$args
+}
+
+# The origin repository, with three check-ins, a tag and a wiki page.
+fossil new a.fossil
+fossil user capabilities nobody gio -R a.fossil
+file mkdir a
+fossil open ../a.fossil --chdir a
+sync_commit a f1.txt one
+sync_commit a f2.txt two
+sync_commit a f1.txt three --tag release
+write_file wiki.txt "A page"
+fossil wiki create Page wiki.txt -R a.fossil
+
+fossil clone file://[file join $dir a.fossil] b.fossil
+test sync-clone-file {$CODE == 0}
+test_eq sync-clone-file-artifacts [sync_artifacts b.fossil] \
+    [sync_artifacts a.fossil]
+sync_test_integrity sync-clone-file-integrity b.fossil
+fossil clone [file join $dir a.fossil] c.fossil
+test_eq sync-clone-path-artifacts [sync_artifacts c.fossil] \
+    [sync_artifacts a.fossil]
+file delete c.fossil
+
+# Push and pull between file: URLs.
+file mkdir b
+fossil open ../b.fossil --chdir b
+sync_commit b f3.txt four
+fossil push -R b.fossil
+test sync-push-file {$CODE == 0}
+test_eq sync-push-file-checkins [sync_checkins a.fossil] \
+    [sync_checkins b.fossil]
+fossil update --chdir a
+sync_commit a f4.txt five
+fossil pull -R b.fossil
+test_eq sync-pull-file-artifacts [sync_artifacts b.fossil] \
+    [sync_artifacts a.fossil]
+fossil update --chdir b
+
+# A private check-in stays in the repository that made it.
+sync_commit b f5.txt secret --private
+fossil push -R b.fossil
+test sync-private-made {[sync_private_count b.fossil] > 0}
+test_eq sync-private-not-pushed [sync_private_count a.fossil] 0
+test_eq sync-private-artifacts [sync_artifacts a.fossil] \
+    [sync_artifacts b.fossil]
+fossil update trunk --chdir b
+
+if {![loopback_available]} {
+  unset ::env(FOSSIL_USER)
+  test_skip "the tests that run fossil server cannot start a server"
+}
+set server [test_start_server a.fossil stopArg]
+set url http://127.0.0.1:[lindex $server 1]
+
+fossil clone --proxy off $url c.fossil
+test sync-clone-http {$CODE == 0}
+test_eq sync-clone-http-artifacts [sync_artifacts c.fossil] \
+    [sync_artifacts a.fossil]
+sync_test_integrity sync-clone-http-integrity c.fossil
+
+# Two clones commit at once on trunk, then sync with the server.  Both
+# end with both check-ins, as two leaves.
+file mkdir c
+fossil open ../c.fossil --chdir c
+fossil settings autosync off --chdir c
+fossil settings autosync off --chdir b
+fossil remote $url --chdir b
+sync_commit b f6.txt from-b
+sync_commit c f7.txt from-c
+fossil sync --proxy off -R b.fossil
+test sync-http-b {$CODE == 0}
+fossil sync --proxy off -R c.fossil -expectError
+test_match sync-http-c-fork-warning [normalize_result] \
+    {WARNING: a fork has occurred}
+fossil sync --proxy off -R b.fossil -expectError
+test_eq sync-http-same-checkins [sync_checkins c.fossil] \
+    [sync_checkins b.fossil]
+fossil sql -R c.fossil "SELECT count(*) FROM leaf"
+test_eq sync-http-fork [normalize_result] 2
+foreach repo {a b c} {
+  sync_test_integrity sync-http-integrity-$repo $repo.fossil
+}
+
+# An artifact whose content does not match its hash.  test-integrity
+# reports it, and a clone of the repository fails.
+file copy a.fossil d.fossil
+fossil sql -R d.fossil "UPDATE blob SET uuid='[string repeat 0 40]'\
+    WHERE rid=(SELECT fid FROM mlink JOIN filename USING(fnid)\
+               WHERE name='f2.txt' LIMIT 1)"
+fossil test-integrity -R d.fossil -expectError
+test_match sync-bad-hash-integrity [normalize_result] {checked: 1 errors}
+test sync-bad-hash-integrity-status {$CODE != 0} knownBug
+test_stop_server $stopArg [lindex $server 0] [lindex $server 2]
+set server [test_start_server d.fossil stopArg]
+set url http://127.0.0.1:[lindex $server 1]
+fossil clone --proxy off $url e.fossil -expectError
+test sync-bad-hash-clone {$CODE != 0 && ![file exists e.fossil]} knownBug
+test_stop_server $stopArg [lindex $server 0] [lindex $server 2]
+
+test_cleanup
+unset ::env(FOSSIL_USER)

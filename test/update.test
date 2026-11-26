@@ -238,6 +238,19 @@ fossil commit -m "Add $fname"
 fossil up previous
 test_update $testname $message $changes
 
+# "fossil update --dry-run" must not change the check-out, even where the
+# update would overwrite an unmanaged file.
+set testname "dry-run"
+set fname [test_update_setup $testname]
+write_seq_to_file $fname
+fossil add $fname
+fossil commit -m "Add $fname"
+fossil up previous
+write_file $fname "unmanaged\n"
+fossil update --dry-run -expectError
+test_eq update-dry-run-files [glob -nocomplain $fname*] $fname knownBug
+test_eq update-dry-run-content [read_file $fname] "unmanaged\n"
+
 ###############################################################################
 
 test_cleanup

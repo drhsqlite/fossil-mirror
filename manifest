@@ -1,5 +1,5 @@
-C Update\s5\stests\sto\suse\snew\stest\srunner\sprocedures\sespecially\sfossil_raw
-D 2026-11-24T09:52:34.174
+C Add\stests\sfor\soperations\sover\sHTTP\sand\s"file:",\sintegrity,\sand\ssome\sdry\sruns.
+D 2026-11-26T18:29:52.338
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -632,6 +632,9 @@ F test/fileage-test-1.wiki 50661a791a5037d949534b42cfb1c8245687803fa46894f84a1ad
 F test/glob.test 3b2fbff1bd6cc3693251cd4357b482f982620985e57fac614a0134628a2e7209
 F test/graph-test-1.wiki 005464d7086c690588eee46e29f551145178c0eed085f5063f647b0d1231197e
 F test/graph-test-2.md 4dc6143ec96d321846ee7814d762c71d01d76336069074307241bf02ee93546f
+F test/http-relay.py 8d1d701bcb1eeeff7cc984b650458cc6d6990d8115ad8c2f28de581f64517b10
+F test/http.test 05612cb5765c103cc115dccfe38b8c471ed090d080a4d643a1db8b1c09a61f47
+F test/integrity.test d727a10796489019d8e3ce8a8bfb66cba60f5b65f85529f0e9f1248efadd6078
 F test/json.test 7b0ab4cdea7d9365a321a53a730c24b6713cc6766bdcd6c1e9c4aca659b0c201
 F test/link-tester.html 5eada50c341ab46695478e1ada0c0874ed2422b9a394bcd3993c59ef2b3a66e1
 F test/link-tester.js 5fdd6cd4883bfff4710a883481641d845b483e1e8c97160c5d613cb795c4b6d8
@@ -651,7 +654,7 @@ F test/merge6.test e2898937d79b4f8c92a8b88e5a5fc16943e3aa47839c6012fcf43c2e871c4
 F test/merge_exe.test f888647a3305bf2a4ddd77f947e486ae72fced09
 F test/merge_renames.test 19cc7dad5225ba429e5532d9d2af7d05e1d9414045eb9ec897cd4d63b78d382a
 F test/merge_renames_2.test 3397cef8c59ae7ad9986c81b2470d787bccff63c81299929b47c906fb83ea4a0
-F test/merge_warn.test b0ca846c8a999ffc97197f41bbe97ac3736e59da9f95d3415d73cf04a94013ad
+F test/merge_warn.test 7d6d29002bac6067fcc7004c6297d19fe3a4822330e4343e8f324d840e8becc0
 F test/mv-rm.test f7a24674617b1d001812a29f9250c62268497dbf8b4bd70b6cd10b352e732e4a
 F test/powerloss.test fb89df40a4c0f040ae7721327a351713c2c1bc9ecea168843a9d79f0979c17b5
 F test/release-checklist.wiki 53c86f104d43359f2404f08abef5a57b2472646f4200ed93258b0a4ace0708af
@@ -669,6 +672,7 @@ F test/subdir/README.html b73b2bbc042aa2d246733582ac74e96ae57f38360e1f9bf96121ec
 F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec641e374496bcb0
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 38517706363b152452eaa75b141417b29547e46e76490b9ccd2000cc6a59b780
+F test/sync.test 8df3a884e4b34e8698492755895d148049fb065f654f5e87ade2d15591a8b78b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
 F test/tester.tcl ae600d693c2deb19eefae7a0209e36f20492f0f3d99182a0fce48899da9bbdd3
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -692,7 +696,7 @@ F test/unicode-pathnames.test 630b959378ee9850639497d5839801a6d17c19524347f292ca
 F test/unversioned.test 7b016607c4d6fe004193975bb8ac50747f1c580f1a2835ab03750a037c5b6598
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
-F test/update.test 1882a36551b503499625a54e8fc8bd0848d906f2fae5d882617f482ef411faa1
+F test/update.test 59f561eb586c101c3b90f42263695c326727fc727ffa3e7b6872cf7dfa1faf8a
 F test/utf.test 622da39c3def0c6fa56a0f4efa9e028b885fcab79405024c16ac5a4f199f31b9
 F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
@@ -1000,8 +1004,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5862da0a752ef3cc1e84229f4c136a0f32071f6ab26ad46556f65bb250bbbc5d
-R 685e3a0a257eab4977df72d38e94916a
+P 2ef9a4868e8e89f3f5662c3320df7f89fe5dc99c9481c4061688708da082f502
+R 0f32b9295239b1e75b145c9edf464203
 U danshearer
-Z d6ff1a042d1b6bbe015e1f0d732c98b3
+Z 8f8e563c948c4e3140313851f73a7697
 # Remove this line to create a well-formed Fossil manifest.

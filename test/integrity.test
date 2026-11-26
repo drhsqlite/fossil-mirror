@@ -1,0 +1,90 @@
+#
+# Tests that "fossil rebuild" and a "fossil deconstruct" and "fossil
+# reconstruct" round trip keep every artifact, and that "fossil
+# test-integrity" finds an artifact whose content is damaged.
+#
+
+require_no_open_checkout
+
+test_setup ""
+set ::env(FOSSIL_USER) tester
+
+# Returns the hashes of the artifacts in repository REPO that are not
+# phantoms, in order.
+#
+proc integrity_artifacts {repo} {
+  fossil sql -R $repo "SELECT uuid FROM blob WHERE size>=0 ORDER BY uuid"
+  return [normalize_result]
+}
+
+# Returns the check-ins in repository REPO with their parents and
+# comments, in order of hash.
+#
+proc integrity_checkins {repo} {
+  fossil sql -R $repo "SELECT b.uuid, coalesce(p.uuid,''), e.comment\
+      FROM event e JOIN blob b ON b.rid=e.objid\
+      LEFT JOIN plink ON cid=e.objid LEFT JOIN blob p ON p.rid=pid\
+      WHERE e.type='ci' ORDER BY b.uuid"
+  return [normalize_result]
+}
+
+# Test NAME passes when "fossil test-integrity --parse" finds no
+# problems in repository REPO.
+#
+proc integrity_ok {name repo} {
+  fossil test-integrity --parse -R $repo
+  test_match $name [normalize_result] {checked: 0 errors}
+}
+
+fossil new r.fossil
+file mkdir ck
+cd ck
+fossil open ../r.fossil
+foreach {file comment} {a.txt one b.txt two a.txt three c.txt four} {
+  write_file $file "$comment\n[string repeat $comment 200]\n"
+  fossil add $file
+  fossil commit -m $comment
+}
+fossil tag add release current
+write_file ../wiki.txt "A page"
+fossil wiki create Page ../wiki.txt
+fossil close
+cd ..
+set artifacts [integrity_artifacts r.fossil]
+set checkins [integrity_checkins r.fossil]
+integrity_ok integrity-new r.fossil
+
+fossil rebuild r.fossil
+test integrity-rebuild {$CODE == 0}
+test_eq integrity-rebuild-artifacts [integrity_artifacts r.fossil] $artifacts
+test_eq integrity-rebuild-checkins [integrity_checkins r.fossil] $checkins
+integrity_ok integrity-rebuild-check r.fossil
+
+file mkdir artifacts
+fossil deconstruct -R r.fossil artifacts
+test integrity-deconstruct {$CODE == 0}
+fossil reconstruct r2.fossil artifacts
+test integrity-reconstruct {$CODE == 0}
+test_eq integrity-reconstruct-artifacts [integrity_artifacts r2.fossil] \
+    $artifacts
+test_eq integrity-reconstruct-checkins [integrity_checkins r2.fossil] \
+    $checkins
+integrity_ok integrity-reconstruct-check r2.fossil
+
+# Replace the stored content of one file artifact with bytes that do not
+# decompress.
+fossil sql -R r2.fossil "UPDATE blob SET content=x'00000010deadbeef'\
+    WHERE rid=(SELECT fid FROM mlink JOIN filename USING(fnid)\
+               WHERE name='b.txt' LIMIT 1)"
+fossil test-integrity -R r2.fossil -expectError
+test_match integrity-damaged-content [normalize_result] \
+    {wrong hash on artifact \d+}
+# An undamaged artifact is still readable.
+fossil sql -R r2.fossil "SELECT uuid FROM blob JOIN mlink ON fid=rid\
+    JOIN filename USING(fnid) WHERE name='c.txt'"
+fossil artifact [normalize_result] -R r2.fossil
+test_eq integrity-artifact-readable [normalize_result] \
+    "four\n[string repeat four 200]"
+
+test_cleanup
+unset ::env(FOSSIL_USER)

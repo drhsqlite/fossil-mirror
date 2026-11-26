@@ -1,0 +1,640 @@
+#
+# Tests of fossil's HTTP and HTTPS client.  Servers in this file send
+# fossil replies that HTTP/1.1 allows, which must give a complete clone,
+# and malformed replies, which must make the clone fail with a message
+# and not leave a repository behind.  Others close or reset the connection,
+# record the request line fossil sends, or present certificates that
+# fossil must or must not trust.
+#
+# The HTTPS tests need openssl and a fossil built with TLS support.  The
+# tests that reset a connection, and the HTTPS tests that check what
+# fossil does with a reply, need python3 to run http-relay.py.
+#
+
+require_no_open_checkout
+
+if {$::is_windows} {
+  test_skip "http.test stops its servers with kill"
+}
+if {![loopback_available]} {
+  test_skip "the tests need a TCP connection over the loopback interface"
+}
+
+# fossil must not use a proxy or a certificate store from the environment
+# of the test run, so these variables are unset until the end of this
+# file.
+#
+foreach var {http_proxy HTTP_PROXY https_proxy HTTPS_PROXY all_proxy
+             ALL_PROXY SSL_CERT_FILE SSL_CERT_DIR} {
+  if {[info exists env($var)]} {
+    set httpSavedEnv($var) $env($var)
+    unset env($var)
+  }
+}
+test_setup ""
+fossil test-th-eval {hasfeature ssl}
+set haveTls [expr {[normalize_result] eq "1" && [auto_execok openssl] ne ""}]
+set havePython [expr {[auto_execok python3] ne ""}]
+set haveIpv6 [expr {![catch {close [socket -server list -myaddr ::1 0]}]}]
+set httpServers [list]
+set httpPids [list]
+set httpFossilServers [list]
+set httpAnswer ""
+
+# Runs fossil with ARGS and INPUT on its standard input, while the event
+# loop runs the servers in this file.  Sets RESULT to fossil's output and
+# CODE to its exit status, the name of the signal that ended it, or
+# "timeout" if it ran for more than 60 seconds.
+#
+proc http_fossil {input args} {
+  global RESULT CODE LASTCMD
+  set LASTCMD [list $::fossilexe {*}$args]
+  protOut $LASTCMD
+  set chan [open |[concat $LASTCMD [list << $input 2>@1]] r]
+  fconfigure $chan -blocking 0
+  set ::httpOutput ""
+  set ::httpDone 0
+  fileevent $chan readable [list http_fossil_read $chan]
+  set timer [after 60000 {set ::httpDone timeout}]
+  vwait ::httpDone
+  after cancel $timer
+  if {$::httpDone eq "timeout"} {
+    catch {exec kill -KILL {*}[pid $chan]}
+  }
+  fconfigure $chan -blocking 1
+  set CODE 0
+  if {[catch {close $chan} msg options]} {
+    set CODE [lindex [dict get $options -errorcode] 2]
+  }
+  if {$::httpDone eq "timeout"} {set CODE timeout}
+  set RESULT [string trim $::httpOutput]
+}
+
+proc http_fossil_read {chan} {
+  append ::httpOutput [read $chan]
+  if {[eof $chan]} {set ::httpDone 1}
+}
+
+# Clones URL into c.fossil with the options in ARGS, answering fossil's
+# prompts with the lines in httpAnswer.  Returns "cloned" when the clone
+# is a complete copy of r.fossil.  When fossil exits with status 1 and
+# does not leave c.fossil, returns its output, and otherwise says what
+# went wrong.
+#
+proc http_clone {url args} {
+  file delete c.fossil
+  http_fossil $::httpAnswer clone $url c.fossil {*}$args
+  if {$::CODE == 0} {
+    fossil sql -R c.fossil "SELECT count(*) FROM blob"
+    if {$::RESULT == $::httpBlobs} {return cloned}
+    return "cloned $::RESULT of $::httpBlobs blobs"
+  }
+  if {$::CODE ne "1"} {return "exit $::CODE"}
+  if {[file exists c.fossil]} {return "c.fossil is left"}
+  return $::RESULT
+}
+
+# Listens on a port on 127.0.0.1 that the system chooses, and returns
+# the port.  Calls HANDLER with each connection and the request on it,
+# once the whole request has arrived, and then closes the connection.
+#
+proc http_listen {handler} {
+  set server [socket -server [list http_accept $handler] -myaddr 127.0.0.1 0]
+  lappend ::httpServers $server
+  return [lindex [fconfigure $server -sockname] 2]
+}
+
+proc http_accept {handler chan address port} {
+  fconfigure $chan -translation binary -blocking 0
+  set ::httpRequest($chan) ""
+  fileevent $chan readable [list http_receive $handler $chan]
+}
+
+proc http_receive {handler chan} {
+  append ::httpRequest($chan) [read $chan]
+  set request $::httpRequest($chan)
+  set end [string first "\r\n\r\n" $request]
+  set length 0
+  regexp -nocase -line {^content-length:\s*(\d+)} $request -> length
+  if {![eof $chan] &&
+      ($end < 0 || [string length $request] < $end + 4 + $length)} {
+    return
+  }
+  unset ::httpRequest($chan)
+  fileevent $chan readable {}
+  fconfigure $chan -blocking 1
+  if {$end >= 0} {
+    catch {{*}$handler $chan $request}
+  }
+  catch {close $chan}
+}
+
+# Listens like http_listen, and closes each connection as soon as it is
+# accepted.
+#
+proc http_listen_close {} {
+  set server [socket -server {apply {{chan address port} {close $chan}}} \
+                  -myaddr 127.0.0.1 0]
+  lappend ::httpServers $server
+  return [lindex [fconfigure $server -sockname] 2]
+}
+
+# Starts http-relay.py with ARGS and returns the port it listens on.  Its
+# output goes to relay-PORT.log.
+#
+proc http_relay {args} {
+  set log relay-[getSeqNo].log
+  lappend ::httpPids {*}[exec python3 -I \
+      [file join $::testfiledir http-relay.py] {*}$args >& $log &]
+  for {set i 0} {$i < 100} {incr i} {
+    after 100
+    if {[regexp {listening (\d+)} [read_file $log] -> port]} {
+      file rename $log relay-$port.log
+      return $port
+    }
+  }
+  error "http-relay.py did not start: [read_file $log]"
+}
+
+# Returns the TLS server names that clients sent to the relay on PORT
+# since the last call, sorted and without duplicates.
+#
+proc http_server_names {port} {
+  set names [regexp -all -inline -line {^SNI: .*$} \
+                 [read_file relay-$port.log]]
+  set seen 0
+  if {[info exists ::httpNamesSeen($port)]} {set seen $::httpNamesSeen($port)}
+  set ::httpNamesSeen($port) [llength $names]
+  return [join [lsort -unique [lrange $names $seen end]] \n]
+}
+
+# Starts "fossil server" with the options in ARGS on REPOSITORY, and
+# returns the port it listens on.
+#
+proc http_server {repository args} {
+  set server [test_start_server $repository "" {*}$args]
+  lappend ::httpFossilServers $server
+  return [lindex $server 1]
+}
+
+# A repository of eight check-ins, which anyone can clone.  Each check-in
+# adds a file of 20000 random characters, so that a clone takes several
+# round trips and each reply is large enough to split.
+#
+fossil new r.fossil
+fossil user capabilities nobody gio -R r.fossil
+fossil settings backoffice-disable 1 -R r.fossil
+file mkdir co
+cd co
+fossil open ../r.fossil
+for {set i 1} {$i <= 8} {incr i} {
+  write_file f$i.txt [rand_str 20000]
+  fossil add f$i.txt
+  fossil commit -m "check-in $i"
+}
+fossil close
+cd ..
+fossil sql -R r.fossil "SELECT count(*) FROM blob"
+set httpBlobs [normalize_result]
+set upstream [http_server r.fossil]
+set closePort [http_listen_close]
+
+# Writes the reply of the fossil server to REQUEST to CHAN, with its
+# framing changed as the test NAME says.  RFC 9112 sections 6 and 7 say
+# what HTTP/1.1 allows.
+#
+proc http_proxy {name chan request} {
+  set server [socket 127.0.0.1 $::upstream]
+  fconfigure $server -translation binary
+  puts -nonewline $server $request
+  flush $server
+  set reply [read $server]
+  close $server
+  set end [string first "\r\n\r\n" $reply]
+  set header [split [string map {"\r\n" \n} \
+                         [string range $reply 0 [expr {$end - 1}]]] \n]
+  set body [string range $reply [expr {$end + 4}] end]
+  set length [string length $body]
+  set half [expr {$length / 2}]
+  set cl [lsearch -regexp $header {(?i)^content-length:}]
+  set ct [lsearch -regexp $header {(?i)^content-type:}]
+  switch -- $name {
+    trunc {
+      set body [string range $body 0 [string last \n $body $half]]
+    }
+    content-length-negative {lset header $cl "Content-Length: -1"}
+    content-length-no-space {lset header $cl "Content-Length:$length"}
+    content-length-letters {lset header $cl "Content-Length: abc"}
+    content-length-huge {lset header $cl "Content-Length: 99999999999"}
+    content-length-overflow {
+      lset header $cl "Content-Length: 99999999999999999999999"
+    }
+    content-length-two-values {
+      lappend header "Content-Length: [expr {$length + 1}]"
+    }
+    content-length-repeated {lappend header "Content-Length: $length"}
+    content-length-folded {set header [linsert $header $cl+1 " 0"]}
+    content-type-no-space {
+      regexp {:\s*(.*)} [lindex $header $ct] -> type
+      lset header $ct "Content-Type:$type"
+    }
+    bytes-after-reply {
+      append body "HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\njunk\n"
+    }
+  }
+  if {[string match chunk* $name] || $name eq "interim-100-continue" ||
+      $name eq "transfer-encoding-twice"} {
+    lset header $cl "Transfer-Encoding: chunked"
+    if {$name eq "transfer-encoding-twice"} {
+      lappend header "Transfer-Encoding: chunked"
+    }
+    set size $half
+    if {$name eq "chunk-short"} {incr size -1}
+    set first [format %x $size]
+    switch -- $name {
+      chunk-extension-empty {append first ";"}
+      chunk-size-cr {append first "\rX"}
+      chunk-size-nul {append first "\0"}
+    }
+    set last "0\r\n\r\n"
+    if {$name eq "chunk-no-final-crlf"} {set last "0\r\n"}
+    set body [string cat $first \r\n \
+                  [string range $body 0 [expr {$half - 1}]] \r\n \
+                  [format %x [expr {$length - $half}]] \r\n \
+                  [string range $body $half end] \r\n $last]
+  }
+  if {$name eq "interim-100-continue"} {
+    puts -nonewline $chan "HTTP/1.1 100 Continue\r\n\r\n"
+  }
+  puts -nonewline $chan [join $header \r\n]\r\n\r\n$body
+}
+
+foreach {name expected} {
+  pass                       ^cloned$
+  trunc                      {response truncated}
+  content-length-negative    {bad content-length}
+  content-length-no-space    ^cloned$
+  content-length-letters     {bad content-length}
+  content-length-huge        {bad content-length}
+  content-length-overflow    {bad content-length}
+  content-length-two-values  {two different content-length values}
+  content-length-repeated    ^cloned$
+  content-length-folded      {folded header line}
+  content-type-no-space      ^cloned$
+  chunked                    ^cloned$
+  chunk-short                {no line end after chunk data}
+  interim-100-continue       ^cloned$
+  transfer-encoding-twice    {two transfer-encoding headers}
+  chunk-extension-empty      {malformed chunk size line}
+  chunk-size-cr              {malformed chunk size line}
+  chunk-no-final-crlf        ^cloned$
+  bytes-after-reply          ^cloned$
+} {
+  set port [http_listen [list http_proxy $name]]
+  test_match http-proxy-$name [http_clone http://127.0.0.1:$port/] $expected
+}
+set port [http_listen [list http_proxy chunk-size-nul]]
+test_match http-proxy-chunk-size-nul [http_clone http://127.0.0.1:$port/] \
+    {malformed chunk size line} knownBug
+
+# The request line.  RFC 3986 section 2.1 requires a space or a byte
+# outside ASCII in a path to be percent-encoded, and RFC 9112 section
+# 3.2.2 requires the absolute URL in a request sent to a proxy.
+#
+proc http_record_request {chan request} {
+  set ::httpRequestLine [lindex [split $request \r] 0]
+  puts -nonewline $chan "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n"
+}
+set recordPort [http_listen http_record_request]
+
+# Test NAME passes when a clone of URL through the HTTP proxy PROXY sends
+# the request line EXPECTED.
+#
+proc http_request_line {name url expected {proxy off} {constraints ""}} {
+  set ::httpRequestLine ""
+  http_clone $url --proxy $proxy
+  test_eq $name $::httpRequestLine $expected $constraints
+}
+foreach {name path expected} {
+  path-space          {my repo}   {POST /my%20repo HTTP/1.1}
+  path-escaped-space  my%20repo   {POST /my%20repo HTTP/1.1}
+  path-utf8           répo        {POST /r%C3%A9po HTTP/1.1}
+  path-brackets       {a[b]}      {POST /a%5Bb%5D HTTP/1.1}
+  path-bad-escape     a%zz        {POST /a%25zz HTTP/1.1}
+  path-fragment       a#frag      {POST /a HTTP/1.1}
+} {
+  http_request_line http-rfc-$name http://127.0.0.1:$recordPort/$path \
+      $expected
+}
+set proxy http://127.0.0.1:$recordPort
+http_request_line http-rfc-proxy-path http://localhost:9/plain \
+    {POST http://localhost:9/plain HTTP/1.1} $proxy
+http_request_line http-rfc-proxy-path-space {http://localhost:9/my repo} \
+    {POST http://localhost:9/my%20repo HTTP/1.1} $proxy knownBug
+http_request_line http-rfc-proxy-path-utf8 http://localhost:9/répo \
+    {POST http://localhost:9/r%C3%A9po HTTP/1.1} $proxy knownBug
+
+# URLs with an upper-case scheme or host, a percent-encoded host, and a
+# file: URL with a space.
+#
+file copy r.fossil "my repo.fossil"
+foreach {name url} [list \
+    file-url-escaped-space file://[pwd]/my%20repo.fossil \
+    file-url-space "file://[pwd]/my repo.fossil" \
+    upper-case-scheme HTTP://127.0.0.1:$upstream/ \
+    upper-case-host http://LOCALHOST:$upstream/ \
+    percent-encoded-host http://loc%61lhost:$upstream/] {
+  test_eq http-rfc-$name [http_clone $url] cloned
+}
+
+# A redirect to a relative reference, which RFC 9110 section 10.2.2
+# allows in Location.
+#
+proc http_redirect {chan request} {
+  if {[string match "* /old *" [lindex [split $request \r] 0]]} {
+    puts -nonewline $chan "HTTP/1.1 302 Found\r\nLocation: /new\r\n"
+    puts -nonewline $chan "Content-Length: 0\r\nConnection: close\r\n\r\n"
+  } else {
+    puts -nonewline $chan "HTTP/1.1 200 OK\r\nContent-Length: 3\r\n"
+    puts -nonewline $chan "Connection: close\r\n\r\nnew"
+  }
+}
+set port [http_listen http_redirect]
+http_fossil "" test-httpmsg http://127.0.0.1:$port/old --out new.txt
+test_eq http-rfc-relative-redirect \
+    [expr {[file exists new.txt] ? [read_file new.txt] : ""}] new knownBug
+
+# xfer lines with more tokens than any card has.  The clone must fail
+# with "unknown command" and not crash.
+#
+proc http_xfer_reply {body chan request} {
+  puts -nonewline $chan "HTTP/1.1 200 OK\r\n"
+  puts -nonewline $chan "Content-Type: application/x-fossil-uncompressed\r\n"
+  puts -nonewline $chan "Content-Length: [string length $body]\r\n\r\n$body"
+}
+foreach {name body} [list eight-tokens "a b c d e f g h\n" \
+                         many-tokens "[string repeat {x } 100000]\n"] {
+  set port [http_listen [list http_xfer_reply $body]]
+  test_match http-tokens-$name [http_clone http://127.0.0.1:$port/] \
+      {unknown command}
+}
+
+# Servers that close or reset the connection at once.  fossil must fail
+# with a message, not end on a signal such as SIGPIPE.  Each clone runs
+# three times.
+#
+if {$havePython} {
+  set resetPort [http_relay 127.0.0.1 reset]
+}
+for {set i 1} {$i <= 3} {incr i} {
+  test_match http-sigpipe-http-close-$i \
+      [http_clone http://127.0.0.1:$closePort/] {server did not reply}
+  if {$havePython} {
+    test_match http-sigpipe-http-reset-$i \
+        [http_clone http://127.0.0.1:$resetPort/] {server did not reply}
+  }
+  if {$haveTls} {
+    test_match http-sigpipe-https-close-$i \
+        [http_clone https://127.0.0.1:$closePort/] \
+        {Error establishing SSL connection}
+  }
+  if {$haveTls && $havePython} {
+    test_match http-sigpipe-https-reset-$i \
+        [http_clone https://127.0.0.1:$resetPort/] \
+        {Error establishing SSL connection}
+  }
+}
+if {$haveTls && $havePython} {
+  # The message for a reset during the TLS handshake includes the reason.
+  set output [http_clone https://127.0.0.1:$resetPort/]
+  test http-sigpipe-https-reset-reason \
+      {![string match "*SSL connection*()*" $output]} knownBug
+}
+test_eq http-sigpipe-clone-after-failures \
+    [http_clone http://127.0.0.1:$upstream/] cloned
+
+# Users and passwords in the URL, in raw UTF-8 and percent-encoded, with
+# "fossil server --repolist", for a repository anonymous users cannot
+# read.
+#
+file mkdir repos
+file copy r.fossil repos/répo.fossil
+set repo repos/répo.fossil
+fossil user capabilities nobody "" -R $repo
+fossil user capabilities anonymous "" -R $repo
+fossil user new jérôme "" pässwörd -R $repo
+fossil user capabilities jérôme gio -R $repo
+fossil user new a@b:c "" p@ss:w/rd -R $repo
+fossil user capabilities a@b:c gio -R $repo
+set schemes [list http [http_server repos --repolist]]
+
+# Certificates signed by a private CA: for localhost, for another host,
+# for 127.0.0.1, for ::1, and for all of localhost, 127.0.0.1 and ::1.
+#
+if {$haveTls} {
+  if {[catch {
+    exec openssl req -x509 -newkey rsa:2048 -nodes -days 2 -subj /CN=TestCA \
+        -keyout ca.key -out ca.pem >& /dev/null
+    foreach {cert names} {
+      localhost DNS:localhost
+      otherhost DNS:otherhost
+      ip IP:127.0.0.1
+      ip6 IP:::1
+      all DNS:localhost,IP:127.0.0.1,IP:::1
+    } {
+      write_file $cert.ext subjectAltName=$names\n
+      exec openssl req -newkey rsa:2048 -nodes -subj /CN=$cert \
+          -keyout $cert.key -out $cert.csr >& /dev/null
+      exec openssl x509 -req -in $cert.csr -CA ca.pem -CAkey ca.key \
+          -CAcreateserial -days 2 -extfile $cert.ext -out $cert.pem \
+          >& /dev/null
+    }
+  } msg]} {
+    protOut "SKIPPED the HTTPS tests: openssl failed: $msg" 1
+    set haveTls 0
+  }
+}
+if {$haveTls} {
+  set ca [file join [pwd] ca.pem]
+  lappend schemes https [http_server repos --repolist --cert all.pem \
+                             --pkey all.key]
+}
+
+# Test NAME passes when a clone of URL gives EXPECTED: "cloned", or
+# "failed" when fossil fails without leaving a repository.
+#
+proc http_expect {name url expected} {
+  set result [http_clone $url]
+  if {$result ne "cloned" && $::CODE == 1 && ![file exists c.fossil]} {
+    set result failed
+  }
+  test_eq $name $result $expected
+}
+if {$haveTls} {set env(SSL_CERT_FILE) $ca}
+foreach {scheme port} $schemes {
+  set host localhost:$port
+  http_expect http-userinfo-$scheme-raw-utf8 \
+      $scheme://jérôme:pässwörd@$host/répo cloned
+  http_expect http-userinfo-$scheme-percent-encoded-utf8 \
+      $scheme://j%C3%A9r%C3%B4me:p%C3%A4ssw%C3%B6rd@$host/répo cloned
+  http_expect http-userinfo-$scheme-percent-encoded-delimiters \
+      $scheme://a%40b%3Ac:p%40ss%3Aw%2Frd@$host/répo cloned
+  http_expect http-userinfo-$scheme-percent-encoded-path \
+      $scheme://jérôme:pässwörd@$host/r%C3%A9po cloned
+  http_expect http-userinfo-$scheme-wrong-password \
+      $scheme://jérôme:wrong@$host/répo failed
+  http_expect http-userinfo-$scheme-no-password \
+      $scheme://jérôme@$host/répo failed
+}
+unset -nocomplain env(SSL_CERT_FILE)
+
+# Returns the SHA-256 fingerprint of the certificate in the file CERT, as
+# fossil stores it.
+#
+proc http_fingerprint {cert} {
+  set line [exec openssl x509 -in $cert -noout -fingerprint -sha256]
+  return [string tolower [string map {: ""} [lindex [split $line =] 1]]]
+}
+
+# Makes fossil remember the certificate with FINGERPRINT as one it may
+# trust for HOST, or forget the certificate for HOST when FINGERPRINT is
+# empty.  fossil keeps it as the global setting cert:HOST.
+#
+proc http_remember {host fingerprint} {
+  set config [file join $::env(FOSSIL_HOME) .fossil]
+  if {$fingerprint eq ""} {
+    fossil sqlite3 --no-repository $config \
+        "DELETE FROM global_config WHERE name='cert:$host'"
+  } else {
+    fossil sqlite3 --no-repository $config \
+        "REPLACE INTO global_config VALUES('cert:$host','$fingerprint')"
+  }
+}
+
+# Which certificates fossil trusts: an untrusted CA, a certificate for
+# another host, a CA trusted through SSL_CERT_FILE, SSL_CERT_DIR or the
+# ssl-ca-location setting, IP addresses in the certificate, a remembered
+# exception, an answer to the certificate prompt, and --accept-any-cert.
+#
+if {$haveTls} {
+  set localhostPort [http_server r.fossil --cert localhost.pem \
+                         --pkey localhost.key]
+  set otherhostPort [http_server r.fossil --cert otherhost.pem \
+                         --pkey otherhost.key]
+  set ipPort [http_server r.fossil --cert ip.pem --pkey ip.key]
+  set ip6Port [http_server r.fossil --cert ip6.pem --pkey ip6.key]
+  set localhost https://localhost:$localhostPort/
+  set otherhost https://localhost:$otherhostPort/
+  set declined {SSL cert declined}
+  test_match http-tls-ca-untrusted [http_clone $localhost] $declined
+  test_match http-tls-wrong-host [http_clone $otherhost] $declined
+  set env(SSL_CERT_FILE) $ca
+  test_eq http-tls-ssl-cert-file [http_clone $localhost] cloned
+  test_match http-tls-ssl-cert-file-wrong-host [http_clone $otherhost] \
+      $declined
+  test_eq http-tls-ip-in-certificate [http_clone https://127.0.0.1:$ipPort/] \
+      cloned
+  test_match http-tls-ip-not-in-certificate \
+      [http_clone https://127.0.0.1:$localhostPort/] $declined
+  if {$haveIpv6} {
+    test_eq http-tls-ipv6-in-certificate \
+        [http_clone https://\[::1\]:$ip6Port/] cloned
+  }
+  unset env(SSL_CERT_FILE)
+
+  file mkdir certdir
+  file copy ca.pem certdir
+  if {![catch {exec openssl rehash certdir >& /dev/null}]} {
+    set env(SSL_CERT_DIR) [file join [pwd] certdir]
+    test_eq http-tls-ssl-cert-dir [http_clone $localhost] cloned
+    unset env(SSL_CERT_DIR)
+  }
+  fossil settings -g ssl-ca-location $ca
+  test_eq http-tls-ssl-ca-location [http_clone $localhost] cloned
+  fossil unset -g ssl-ca-location
+
+  # A certificate that fossil has remembered does not need a CA.
+  set fingerprint [http_fingerprint localhost.pem]
+  http_remember localhost $fingerprint
+  test_eq http-tls-remembered-exception [http_clone $localhost] cloned
+  http_remember localhost 00$fingerprint
+  test_match http-tls-exception-wrong-fingerprint [http_clone $localhost] \
+      $declined
+  http_remember localhost ""
+  if {$haveIpv6} {
+    http_remember ::1 [http_fingerprint ip6.pem]
+    test_eq http-tls-remembered-exception-ipv6 \
+        [http_clone https://\[::1\]:$ip6Port/] cloned
+    http_remember ::1 ""
+  }
+
+  # The certificate prompt: accept once, accept and remember, and a
+  # fingerprint that is not the certificate's.
+  set httpAnswer "y\nn\n"
+  test_eq http-tls-prompt-yes [http_clone $localhost] cloned
+  set httpAnswer "$fingerprint\ny\n"
+  test_eq http-tls-prompt-fingerprint-remembered [http_clone $localhost] \
+      cloned
+  fossil sqlite3 --no-repository [file join $env(FOSSIL_HOME) .fossil] \
+      "SELECT value FROM global_config WHERE name='cert:localhost'"
+  test_eq http-tls-prompt-fingerprint-stored [normalize_result] $fingerprint
+  http_remember localhost ""
+  set httpAnswer "00$fingerprint\n"
+  test_match http-tls-prompt-wrong-fingerprint [http_clone $localhost] \
+      $declined
+  set httpAnswer ""
+  test_eq http-tls-accept-any-cert \
+      [http_clone $localhost --accept-any-cert] cloned
+}
+
+# HTTPS through http-relay.py, which ends the TLS session with or
+# without close_notify, and records the TLS server name fossil sends.
+# RFC 6066 section 3 requires the name without a trailing dot, and no
+# name for an IP address.
+#
+if {$haveTls && $havePython} {
+  set env(SSL_CERT_FILE) $ca
+  set pass [http_listen [list http_proxy pass]]
+  set relay [http_relay 127.0.0.1 $pass all.pem all.key]
+  test_eq http-proxy-tls-ipv4-literal [http_clone https://127.0.0.1:$relay/] \
+      cloned
+  test_eq http-proxy-tls-host-name [http_clone https://localhost:$relay/] \
+      cloned
+  set notify [http_relay 127.0.0.1 $pass all.pem all.key notify]
+  test_eq http-proxy-tls-close-notify \
+      [http_clone https://localhost:$notify/] cloned
+  if {$haveIpv6} {
+    set relay6 [http_relay ::1 $pass all.pem all.key]
+    test_eq http-proxy-tls-ipv6-literal \
+        [http_clone https://\[::1\]:$relay6/] cloned
+  }
+  set trunc [http_relay 127.0.0.1 [http_listen [list http_proxy trunc]] \
+                 all.pem all.key]
+  test_match http-proxy-tls-trunc [http_clone https://localhost:$trunc/] \
+      {response truncated}
+  set closed [http_relay 127.0.0.1 $closePort all.pem all.key]
+  test_match http-proxy-tls-close-after-handshake \
+      [http_clone https://localhost:$closed/] {did not reply}
+
+  http_server_names $relay
+  foreach {name host expected} {
+    https-trailing-dot-proxy  localhost.  {SNI: localhost}
+    https-mixed-case-host     LocalHost   {SNI: localhost}
+    https-ip-literal          127.0.0.1   {SNI: None}
+  } {
+    test_eq http-rfc-$name [http_clone https://$host:$relay/] cloned
+    test_eq http-rfc-$name-server-name [http_server_names $relay] $expected
+  }
+  set tlsPort [http_server r.fossil --cert all.pem --pkey all.key]
+  test_eq http-rfc-https-trailing-dot \
+      [http_clone https://localhost.:$tlsPort/] cloned
+  unset env(SSL_CERT_FILE)
+}
+
+foreach server $httpServers {close $server}
+foreach pid $httpPids {catch {exec kill $pid}}
+foreach server $httpFossilServers {
+  test_stop_server [lindex $server 0] [lindex $server 0] [lindex $server 2]
+}
+array set env [array get httpSavedEnv]
+test_cleanup
