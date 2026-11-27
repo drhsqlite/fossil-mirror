@@ -97,6 +97,7 @@ Tests are skipped when their requirements are missing:
 | `python3` | the tests in `http` that run `http-relay.py` |
 | a C compiler (`cc`, or `CC`), `LD_PRELOAD`, `tools/powerloss/powerloss.c` from the source tree, and a Fossil that isn't statically linked | `powerloss` |
 | a Unix shell | `ssh`, `xfer-client`, and the no-reply and merge-tool tests in `sync` and `regress` |
+| `git` | `git-export` |
 | `configure --json` | `json` |
 | `configure --with-th1-docs` | `th1-docs` |
 | `configure --with-th1-hooks` | `th1-hooks` |
@@ -119,6 +120,7 @@ means every run, and `ci` means `ci` and `stress`.
 | Merges, cherrypicks, backouts, and annotate and blame after them | `merge1` to `merge6`, `merge-history`, `merge_exe`, `merge_renames`, `merge_renames_2`, `merge_warn` | `smoke` |
 | HTTP and HTTPS client | `http` | `smoke` |
 | Commands interrupted by a power loss or a killed process | `powerloss` | `ci` |
+| Git export and import, bundles, patches, ZIP and tarball archives | `roundtrip`, `git-export` | `smoke` |
 | Diffs and deltas | `delta1`, `diff` | `smoke` |
 | Settings | `settings`, `settings-repo`, `set-manifest` | `smoke` |
 | Wiki, attachments and unversioned files | `wiki`, `unversioned` | `smoke` |
@@ -128,7 +130,8 @@ means every run, and `ci` means `ci` and `stress`.
 
 ## Fuzz inputs and run-time checking
 
-| Git export and import, bundles, patches, ZIP and tarball archives | `roundtrip` |
+
+A build with ASan and UBSan reports memory errors and undefined behavior that a normal build does not detect. `tools/testbuild.sh asan DIR` makes such a build in `DIR`, and `make test` there runs the whole suite against it. `tools/testbuild.sh cov DIR` makes a build that records coverage, and `tools/testbuild.sh report DIR` then prints the branch coverage of each source file.
 
 ## Writing new tests
 
@@ -163,6 +166,7 @@ test_cleanup
 * If the file needs something the system might not have, call `test_skip` near the top so the summary shows it.
 * `fossil ARGS` counts output on standard error as a failure and can't tell a crash from an error. If your test expects either, reads the output as bytes, gives `fossil` input or needs a time limit, use `fossil_raw ARGS`, which sets `CODE` to the exit status, `crash` or `timeout`. Don't call `exec $::fossilexe` yourself.
 * Read a file with `read_file` and write one with `write_file`.
+* If a test needs a program to stand in for a server, `ssh` or a merge tool, look in `standin/` before writing another script inside a Tcl string. `test_standin NAME DESTINATION` copies one into the test's directory.
 * Keep lines within 80 columns.
 
 A command that fails under `fossil_raw` isn't reported as an error, so

@@ -1,9 +1,9 @@
 #
 # What fossil puts on an ssh command line.  Nothing here connects to
-# another machine: "ssh" is a script that writes down the arguments it
-# is given and exits.  The script is named by --ssh-command where a
-# command takes that option, and is first on the PATH for the commands
-# that do not.
+# another machine: "ssh" is a copy of standin/log-args.sh, which writes
+# down its arguments and exits.  A command that has the --ssh-command
+# option is given the script with it.  The other commands find the
+# script first on the PATH.
 #
 # Whatever follows the host on an ssh command line is joined into one
 # string by ssh and parsed again by the login shell on the server, so
@@ -22,11 +22,9 @@ test_setup
 
 set sshDir [file join [pwd] ssh-standin]
 file mkdir $sshDir
-set sshStub [file join $sshDir ssh]
+set sshStub [test_standin log-args.sh [file join $sshDir ssh]]
 set sshLog [file join [pwd] ssh-args.txt]
-write_file $sshStub "#!/bin/sh\nfor a in \"\$@\"; do printf '<%s>\\n' \"\$a\"; done >> \"\$SSHTESTLOG\"\nexit 1\n"
-file attributes $sshStub -permissions 0755
-set ::env(SSHTESTLOG) $sshLog
+set ::env(ARGS_LOG) $sshLog
 set sshSavedPath $::env(PATH)
 set ::env(PATH) "$sshDir:$::env(PATH)"
 
@@ -38,18 +36,16 @@ if {[lindex [auto_execok ssh] 0] ne $sshStub} {
   test_skip "cannot put a stand-in for ssh first on the PATH"
 }
 
-# Run fossil with the arguments given.  Sets sshOut to everything it
+# Run fossil with the arguments given.  Sets RESULT to everything it
 # printed and sshArgs to the arguments the stand-in was given, one per
 # line inside <>, or to an empty string if it was not run.
 proc ssh_run {args} {
-  global sshOut sshArgs sshLog
+  global sshArgs sshLog
   file delete $sshLog
-  catch {exec $::fossilexe {*}$args < /dev/null 2>@1} sshOut
+  fossil_raw {*}$args
   set sshArgs ""
   if {[file exists $sshLog]} {
-    set sshFd [open $sshLog r]
-    set sshArgs [read $sshFd]
-    close $sshFd
+    set sshArgs [read_file $sshLog]
   }
 }
 proc ssh_clone {url} {
@@ -62,11 +58,12 @@ proc ssh_clone {url} {
 # argument.
 
 ssh_clone ssh://hh/dir/repo.fossil
-test ssh-clone-plain {[string first "<-->\n<hh>\n" $sshArgs] >= 0
-                      && [string first "<test-http>\n<dir/repo.fossil>" $sshArgs] >= 0}
+test ssh-clone-plain \
+    {[holds_strings $sshArgs \
+        [list "<-->\n<hh>\n" "<test-http>\n<dir/repo.fossil>"]]}
 ssh_clone ssh://uu@hh:2222/dir/repo.fossil
-test ssh-clone-user-port {[string first "<-p>\n<2222>\n" $sshArgs] >= 0
-                          && [string first "<-->\n<uu@hh>\n" $sshArgs] >= 0}
+test ssh-clone-user-port \
+    {[holds_strings $sshArgs [list "<-p>\n<2222>\n" "<-->\n<uu@hh>\n"]]}
 ssh_clone "ssh://hh/dir/a-b_c.d,e=f@g/repo.fossil"
 test ssh-clone-punctuation \
     {[string first "<dir/a-b_c.d,e=f@g/repo.fossil>" $sshArgs] >= 0}
@@ -74,8 +71,8 @@ ssh_clone "ssh://hh/repo.fossil?fossil=/opt/bin/fossil"
 test ssh-clone-fossil-parameter \
     {[string first "<hh>\n</opt/bin/fossil>\n<test-http>" $sshArgs] >= 0}
 
-# A path that begins with "~" is for the server to expand.  It used to be
-# expanded on the local machine.
+# A path that begins with "~" is for the server to expand.  It was
+# previously expanded on the local machine.
 ssh_clone ssh://hh/~/repo.fossil
 test ssh-clone-tilde {[string first "<~/repo.fossil>" $sshArgs] >= 0}
 
@@ -95,7 +92,7 @@ foreach {sshName sshUrl} {
 } {
   ssh_clone $sshUrl
   test ssh-clone-refused-$sshName \
-      {$sshArgs eq "" && [string first "special to the shell" $sshOut] >= 0}
+      {$sshArgs eq "" && [string first "special to the shell" $RESULT] >= 0}
 }
 foreach {sshName sshUrl} {
   semicolon   ssh://hh/repo.fossil?fossil=a;b/fossil
@@ -104,7 +101,7 @@ foreach {sshName sshUrl} {
 } {
   ssh_clone $sshUrl
   test ssh-clone-fossil-refused-$sshName \
-      {$sshArgs eq "" && [string first "unsafe command" $sshOut] >= 0}
+      {$sshArgs eq "" && [string first "unsafe command" $RESULT] >= 0}
 }
 
 ###############################################################################
@@ -116,10 +113,10 @@ test ssh-ui-plain {[string first "<-->\n<hh>\n" $sshArgs] >= 0
                    && [string first "<dir/repo.fossil>" $sshArgs] >= 0}
 ssh_run ui --nobrowser "hh:dir/a;b.fossil"
 test ssh-ui-refused-semicolon \
-    {$sshArgs eq "" && [string first "special to the shell" $sshOut] >= 0}
+    {$sshArgs eq "" && [string first "special to the shell" $RESULT] >= 0}
 ssh_run ui --nobrowser "hh:dir/a b.fossil"
 test ssh-ui-refused-space \
-    {$sshArgs eq "" && [string first "special to the shell" $sshOut] >= 0}
+    {$sshArgs eq "" && [string first "special to the shell" $RESULT] >= 0}
 ssh_run ui --nobrowser -- "-x@hh:dir/repo.fossil"
 test ssh-ui-user-with-dash {[string first "<-->\n<-x@hh>\n" $sshArgs] >= 0}
 
@@ -129,20 +126,22 @@ test ssh-ui-user-with-dash {[string first "<-->\n<-x@hh>\n" $sshArgs] >= 0}
 write_file ssh-file.txt "one\n"
 fossil add ssh-file.txt
 ssh_run patch push -- "-x@hh:dir"
-test ssh-patch-push-user-with-dash {[string first "<-->\n<-x@hh>\n" $sshArgs] >= 0}
+test ssh-patch-push-user-with-dash \
+    {[string first "<-->\n<-x@hh>\n" $sshArgs] >= 0}
 ssh_run patch pull -- "-x@hh:dir"
-test ssh-patch-pull-user-with-dash {[string first "<-->\n<-x@hh>\n" $sshArgs] >= 0}
+test ssh-patch-pull-user-with-dash \
+    {[string first "<-->\n<-x@hh>\n" $sshArgs] >= 0}
 
 ###############################################################################
 # An argument that begins with "~" is quoted, so that the shell does not
 # replace it with a home directory.
 
 ssh_run test-escaped-arg ~ ~root/x
-test ssh-escaped-tilde {[string first {argv[2] = [~]} $sshOut] >= 0
-                        && [string first {argv[2] = [~root/x]} $sshOut] >= 0}
+test ssh-escaped-tilde {[string first {argv[2] = [~]} $RESULT] >= 0
+                        && [string first {argv[2] = [~root/x]} $RESULT] >= 0}
 
 ###############################################################################
 
 set ::env(PATH) $sshSavedPath
-unset ::env(SSHTESTLOG)
+unset ::env(ARGS_LOG)
 test_cleanup

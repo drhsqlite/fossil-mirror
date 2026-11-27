@@ -16,13 +16,17 @@ require_no_open_checkout
 test_setup ""
 set ::env(FOSSIL_USER) tester
 
-# The hashes of the artifacts in REPO that are not phantoms, in order.
+# Returns the hashes of the artifacts in repository REPO that are not
+# phantoms, in order.
+#
 proc integrity_artifacts {repo} {
   fossil sql -R $repo "SELECT uuid FROM blob WHERE size>=0 ORDER BY uuid"
   return [normalize_result]
 }
 
-# The check-ins in REPO with their parents and comments, in order of hash.
+# Returns the check-ins in repository REPO with their parents and
+# comments, in order of hash.
+#
 proc integrity_checkins {repo} {
   fossil sql -R $repo "SELECT b.uuid, coalesce(p.uuid,''), e.comment\
       FROM event e JOIN blob b ON b.rid=e.objid\
@@ -31,14 +35,17 @@ proc integrity_checkins {repo} {
   return [normalize_result]
 }
 
-# Test NAME passes when "fossil test-integrity --parse" finds no problems.
+# Test NAME passes when "fossil test-integrity --parse" finds no
+# problems in repository REPO.
+#
 proc integrity_ok {name repo} {
   fossil test-integrity --parse -R $repo
   test_match $name [normalize_result] {checked: 0 errors}
 }
 
-# The derived tables of REPO as text that does not depend on record
-# numbers.  See derived.sql.
+# Returns the derived tables of repository REPO as text that does not
+# depend on record numbers.  See derived.sql.
+#
 proc integrity_derived {repo} {
   fossil sql -R $repo ".read [file join $::testfiledir derived.sql]"
   return $::RESULT
@@ -52,7 +59,8 @@ cd ck
 fossil open ../r.fossil
 foreach {integrityFile integrityComment} \
     {a.txt one b.txt two a.txt three c.txt four} {
-  write_file $integrityFile "$integrityComment\n[string repeat $integrityComment 200]\n"
+  write_file $integrityFile \
+      "$integrityComment\n[string repeat $integrityComment 200]\n"
   fossil add $integrityFile
   fossil commit -m $integrityComment
 }
@@ -79,8 +87,10 @@ fossil deconstruct -R r.fossil artifacts
 test integrity-deconstruct {$CODE == 0}
 fossil reconstruct r2.fossil artifacts
 test integrity-reconstruct {$CODE == 0}
-test_eq integrity-reconstruct-artifacts [integrity_artifacts r2.fossil] $artifacts
-test_eq integrity-reconstruct-checkins [integrity_checkins r2.fossil] $checkins
+test_eq integrity-reconstruct-artifacts [integrity_artifacts r2.fossil] \
+    $artifacts
+test_eq integrity-reconstruct-checkins [integrity_checkins r2.fossil] \
+    $checkins
 integrity_ok integrity-reconstruct-check r2.fossil
 
 # A file artifact whose stored content does not decompress.
@@ -88,12 +98,14 @@ fossil sql -R r2.fossil "UPDATE blob SET content=x'00000010deadbeef'\
     WHERE rid=(SELECT fid FROM mlink JOIN filename USING(fnid)\
                WHERE name='b.txt' LIMIT 1)"
 fossil test-integrity -R r2.fossil -expectError
-test_match integrity-damaged-content [normalize_result] {wrong hash on artifact \d+}
+test_match integrity-damaged-content [normalize_result] \
+    {wrong hash on artifact \d+}
 # An undamaged artifact is still readable.
 fossil sql -R r2.fossil "SELECT uuid FROM blob JOIN mlink ON fid=rid\
     JOIN filename USING(fnid) WHERE name='c.txt'"
 fossil artifact [normalize_result] -R r2.fossil
-test_eq integrity-artifact-readable [normalize_result] "four\n[string repeat four 200]"
+test_eq integrity-artifact-readable [normalize_result] \
+    "four\n[string repeat four 200]"
 file delete r2.fossil
 
 ###############################################################################
@@ -121,7 +133,8 @@ foreach {integrityName integritySql integrityCmd} [list \
     test-integrity \
   hash-does-not-match-content \
     "UPDATE blob SET uuid=substr(uuid,1,length(uuid)-1) ||\
-     CASE substr(uuid,-1) WHEN '0' THEN '1' ELSE '0' END WHERE rid=$integrityOneFile" \
+     CASE substr(uuid,-1) WHEN '0' THEN '1' ELSE '0' END\
+     WHERE rid=$integrityOneFile" \
     test-integrity \
   delta-is-its-own-source \
     "UPDATE delta SET srcid=rid WHERE rid=(SELECT rid FROM delta LIMIT 1)" \
@@ -133,7 +146,8 @@ foreach {integrityName integritySql integrityCmd} [list \
     "INSERT INTO private SELECT srcid FROM delta LIMIT 1" \
     test-integrity \
   checkin-is-not-a-manifest \
-    "UPDATE blob SET content=(SELECT content FROM blob WHERE rid=$integrityOneFile)\
+    "UPDATE blob\
+     SET content=(SELECT content FROM blob WHERE rid=$integrityOneFile)\
      WHERE rid=(SELECT max(objid) FROM event WHERE type='ci')" \
     {test-integrity --parse} \
   file-gone \
@@ -166,7 +180,8 @@ fossil sql -R $integrityDamaged \
 test integrity-missing-parent-link-shows \
   {[integrity_derived $integrityDamaged] ne $integrityBefore}
 fossil rebuild $integrityDamaged
-test_eq integrity-rebuild-repairs [integrity_derived $integrityDamaged] $integrityBefore
+test_eq integrity-rebuild-repairs [integrity_derived $integrityDamaged] \
+    $integrityBefore
 file delete $integrityDamaged
 
 test_cleanup

@@ -1,13 +1,12 @@
 #
-# Hand the client side of the sync protocol replies that a server would
-# not normally give, and require that each is answered as documented and
-# without a crash.  No server is involved: "fossil pull" and "fossil push"
-# are given a --transport-command, a script that saves each request and
-# answers with a reply prepared by the test.  When the prepared replies
-# run out it answers with a bare timestamp, which ends the sync.
+# Replies that a server would not normally give, sent to the client side
+# of the sync protocol.  The client must handle each as documented and
+# must not crash.  There is no server: "fossil pull" and "fossil push"
+# get standin/transport.sh as their --transport-command.  It saves each
+# request and answers with a reply that the test wrote, or with a bare
+# timestamp, which ends the sync.
 #
-# This complements xfer-cards.test and xfer-server.test, which do the
-# same for the server side through "fossil test-xfer".
+# xfer-cards.test and xfer-server.test test the server side.
 #
 
 require_no_open_checkout
@@ -21,89 +20,61 @@ test_setup
 write_file a.txt "hello world\n"
 fossil add a.txt
 fossil commit -m one --no-warnings
-fossil sql "SELECT b.uuid FROM blob b JOIN mlink m ON m.fid=b.rid\
-   JOIN filename f USING(fnid) WHERE f.name='a.txt'"
-set xferclientFile [string trim $::RESULT]
+fossil sha3sum a.txt
+set xferclientFile [lindex $RESULT 0]
 set xferclientAbsent [string repeat 0123456789abcdef 4]
 
 set xferclientDir [file join [pwd] xferclient-wire]
 file mkdir $xferclientDir
-set xferclientWire [file join $xferclientDir wire.sh]
-write_file $xferclientWire {#!/bin/sh
-# Called as: wire.sh URL REQUESTFILE REPLYFILE
-n=`cat "$XFERCLIENT_DIR/count" 2>/dev/null || echo 0`
-n=`expr $n + 1`
-echo $n > "$XFERCLIENT_DIR/count"
-cp "$2" "$XFERCLIENT_DIR/request.$n"
-if test $n -gt 20; then exit 1; fi
-if test -f "$XFERCLIENT_DIR/reply.$n"; then
-  cp "$XFERCLIENT_DIR/reply.$n" "$3"
-else
-  printf '# timestamp %s errors 0\n' "`date -u +%Y-%m-%dT%H:%M:%S`" > "$3"
-fi
-}
-file attributes $xferclientWire -permissions 0755
-set ::env(XFERCLIENT_DIR) $xferclientDir
+set xferclientWire \
+    [test_standin transport.sh [file join $xferclientDir transport.sh]]
+set ::env(TRANSPORT_DIR) $xferclientDir
 
-# Run "fossil VERB" against the stand-in, which answers the first request
-# with REPLY.  Further arguments are options for the command.  Sets
-# xferclientRc to the exit status (0, or 1 for any failure that is not a
-# crash), xferclientOut to what fossil printed, xferclientRounds to the
-# number of requests made, and xferclientSecond to the second request, or
-# an empty string if there was only one.
+# Run "fossil VERB" against the stand-in, which answers request N with
+# item N of the list REPLIES.  Further arguments are options for the
+# command.  Sets xferclientCode to the exit status, or to "crash", and
+# xferclientOut to what fossil printed.
+proc xferclient_sync {verb replies args} {
+  global xferclientDir xferclientWire xferclientCode xferclientOut
+  file delete {*}[glob -nocomplain -directory $xferclientDir \
+                      reply.* request.* count]
+  set number 0
+  foreach reply $replies {
+    write_file [file join $xferclientDir reply.[incr number]] $reply
+  }
+  fossil_raw $verb http://localhost/x --once \
+      --transport-command $xferclientWire {*}$args
+  set xferclientCode $::CODE
+  set xferclientOut $::RESULT
+}
+
 proc xferclient_run {verb reply args} {
-  global xferclientDir xferclientWire xferclientRc xferclientOut
-  global xferclientRounds xferclientSecond
-  foreach xferclientF [glob -nocomplain -directory $xferclientDir \
-                           reply.* request.* count] {
-    file delete $xferclientF
-  }
-  write_file [file join $xferclientDir reply.1] $reply
-  set xferclientRc 0
-  if {[catch {exec $::fossilexe $verb http://localhost/x --once \
-                  --transport-command $xferclientWire {*}$args \
-                  < /dev/null 2>@1} xferclientOut]} {
-    set xferclientRc 1
-    if {[lindex $::errorCode 0] ne "CHILDSTATUS"
-        || [lindex $::errorCode 2] != 1} {
-      set xferclientRc crash
-    }
-  }
-  set xferclientRounds 0
-  set xferclientSecond ""
-  set xferclientF [file join $xferclientDir count]
-  if {[file exists $xferclientF]} {
-    set xferclientFd [open $xferclientF r]
-    set xferclientRounds [string trim [read $xferclientFd]]
-    close $xferclientFd
-  }
-  set xferclientF [file join $xferclientDir request.2]
-  if {[file exists $xferclientF]} {
-    set xferclientFd [open $xferclientF rb]
-    set xferclientSecond [read $xferclientFd]
-    close $xferclientFd
-  }
+  xferclient_sync $verb [list $reply] {*}$args
 }
 
-# Run one case and require an exit status and, in the output, each of the
-# strings given.  A string that begins with "!" must be absent.
-proc xferclient_expect {name verb reply rc opts args} {
-  global xferclientRc xferclientOut xferclientRounds
-  xferclient_run $verb $reply {*}$opts
-  set xferclientGood [expr {$xferclientRc eq $rc && $xferclientRounds <= 20}]
-  foreach xferclientWant $args {
-    if {[string index $xferclientWant 0] eq "!"} {
-      if {[string first [string range $xferclientWant 1 end] \
-             $xferclientOut] >= 0} {set xferclientGood 0}
-    } elseif {[string first $xferclientWant $xferclientOut] < 0} {
-      set xferclientGood 0
-    }
+# Returns request NUMBER of the last run, or an empty string if fossil
+# made fewer requests.
+proc xferclient_request {number} {
+  set file [file join $::xferclientDir request.$number]
+  if {![file exists $file]} {
+    return ""
   }
-  if {!$xferclientGood} {
-    puts "  $name: status $xferclientRc after $xferclientRounds requests:\
-          $xferclientOut"
-  }
-  test xfer-client-$name {$xferclientGood}
+  return [read_file $file]
+}
+
+proc xferclient_requests {} {
+  return [llength [glob -nocomplain -directory $::xferclientDir request.*]]
+}
+
+# Run one case.  Test NAME passes when the exit status is CODE and the
+# output holds each of the strings given.  A string that begins with "!"
+# must be absent.
+proc xferclient_expect {name verb reply code options args} {
+  global xferclientCode xferclientOut
+  xferclient_run $verb $reply {*}$options
+  test xfer-client-$name {$xferclientCode eq $code
+                          && [xferclient_requests] <= 20
+                          && [holds_strings $xferclientOut $args]}
 }
 
 ###############################################################################
@@ -117,22 +88,22 @@ xferclient_expect pull-only-message push \
     "message pull\\sonly\\s-\\snot\\sauthorized\\sto\\spush\n" 0 {}
 xferclient_expect error pull "error something\\sfailed\n" 1 {} \
     "Error: something failed"
-xferclient_expect html-reply pull "<html><body>Not found</body></html>\n" 1 {} \
-    "server replies with HTML"
+xferclient_expect html-reply pull \
+    "<html><body>Not found</body></html>\n" 1 {} "server replies with HTML"
 xferclient_expect unknown-card pull "frobnicate 1 2\n" 1 {} "unknown command"
 xferclient_expect push-card-outside-clone pull \
     "push $xferclientAbsent $xferclientAbsent\n" 1 {} "unknown command"
 xferclient_expect empty-reply pull "" 1 {}
 
 ###############################################################################
-# Pragmas, cookies and other cards that carry no content.
+# Pragmas, cookies and other cards without content.
 
-xferclient_expect server-version pull \
-    "pragma server-version 22900 20261110 124827\n" 0 {}
+xferclient_expect server-version pull $SERVER_VERSION_CARD 0 {}
 xferclient_expect server-version-short pull "pragma server-version 22900\n" 0 {}
 xferclient_expect uv-pull-only pull "pragma uv-pull-only\n" 0 {}
 xferclient_expect uv-push-ok pull "pragma uv-push-ok\n" 0 {}
-xferclient_expect avoid-delta-manifests pull "pragma avoid-delta-manifests\n" 0 {}
+xferclient_expect avoid-delta-manifests pull \
+    "pragma avoid-delta-manifests\n" 0 {}
 xferclient_expect unknown-pragma pull "pragma no-such-pragma 1 2\n" 0 {}
 xferclient_expect pragma-alone pull "pragma\n" 1 {} "unknown command"
 xferclient_expect ci-lock-fail pull \
@@ -141,7 +112,8 @@ xferclient_expect ci-lock-fail pull \
 xferclient_expect ci-lock-fail-negative-time pull \
     "pragma ci-lock-fail someone -5\n" 0 {} "Parent check-in locked by someone"
 xferclient_expect ci-lock-fail-bad-time pull \
-    "pragma ci-lock-fail someone notint\n" 0 {} "Parent check-in locked by someone"
+    "pragma ci-lock-fail someone notint\n" 0 {} \
+    "Parent check-in locked by someone"
 xferclient_expect link pull \
     "pragma link http://example.org/z {} 1790000000\n" 0 {--share-links}
 xferclient_expect link-not-asked-for pull \
@@ -167,39 +139,41 @@ xferclient_expect clock-unreadable pull "# timestamp garbage errors 0\n" 0 {}
 
 xferclient_run pull "igot $xferclientAbsent\n"
 test xfer-client-igot-asks-for-it \
-    {$xferclientRc eq 0
-     && [string first "gimme $xferclientAbsent" $xferclientSecond] >= 0}
-set xferclientAbsent2 [string repeat fedcba9876543210 4]
-xferclient_run pull "igot $xferclientAbsent2 1\n"
+    {$xferclientCode == 0
+     && [string first "gimme $xferclientAbsent" [xferclient_request 2]] >= 0}
+# A hash that the client hears of only as private, or only in a push.
+set xferclientPrivate [string repeat fedcba9876543210 4]
+xferclient_run pull "igot $xferclientPrivate 1\n"
 test xfer-client-igot-private-not-asked-for \
-    {$xferclientRc eq 0
-     && [string first "gimme $xferclientAbsent2" $xferclientSecond] < 0}
+    {$xferclientCode == 0
+     && [string first "gimme $xferclientPrivate" [xferclient_request 2]] < 0}
 xferclient_run pull "igot $xferclientFile\n"
 test xfer-client-igot-held-not-asked-for \
-    {$xferclientRc eq 0
-     && [string first "gimme $xferclientFile" $xferclientSecond] < 0}
-xferclient_run push "igot $xferclientAbsent2\n"
+    {$xferclientCode == 0
+     && [string first "gimme $xferclientFile" [xferclient_request 2]] < 0}
+xferclient_run push "igot $xferclientPrivate\n"
 test xfer-client-igot-on-push-not-asked-for \
-    {$xferclientRc eq 0
-     && [string first "gimme $xferclientAbsent2" $xferclientSecond] < 0}
+    {$xferclientCode == 0
+     && [string first "gimme $xferclientPrivate" [xferclient_request 2]] < 0}
 xferclient_expect igot-not-a-hash pull "igot nothash\n" 1 {} "unknown command"
 xferclient_expect igot-alone pull "igot\n" 1 {} "unknown command"
 
 xferclient_run push "gimme $xferclientFile\n"
 test xfer-client-gimme-sends-it \
-    {$xferclientRc eq 0
-     && [string first "file $xferclientFile" $xferclientSecond] >= 0}
+    {$xferclientCode == 0
+     && [string first "file $xferclientFile" [xferclient_request 2]] >= 0}
 xferclient_run pull "gimme $xferclientFile\n"
 test xfer-client-gimme-on-pull-sends-nothing \
-    {$xferclientRc eq 0
-     && [string first "file $xferclientFile" $xferclientSecond] < 0}
+    {$xferclientCode == 0
+     && [string first "file $xferclientFile" [xferclient_request 2]] < 0}
 xferclient_expect gimme-absent push "gimme $xferclientAbsent\n" 0 {}
-xferclient_expect gimme-not-a-hash push "gimme nothash\n" 1 {} "unknown command"
+xferclient_expect gimme-not-a-hash push "gimme nothash\n" 1 {} \
+    "unknown command"
 
 ###############################################################################
 # An igot card can say that an artifact is private.  The client marks its
 # own copy private only in a sync of private content.  In an ordinary
-# pull a server used to be able to make a public check-in private, after
+# pull a server could previously make a public check-in private, after
 # which the client sent it to nobody.
 
 fossil sql "SELECT uuid FROM blob WHERE rid=(SELECT max(objid) FROM event\
@@ -208,45 +182,32 @@ set xferclientCkin [string trim $::RESULT]
 xferclient_run pull "igot $xferclientCkin 1\n"
 fossil sql "SELECT count(*) FROM private"
 test xfer-client-igot-private-in-pull-marks-nothing \
-    {$xferclientRc eq 0 && [string trim $RESULT] == 0}
+    {$xferclientCode == 0 && [string trim $RESULT] == 0}
 xferclient_run pull "igot $xferclientCkin 1\n" --private
 fossil sql "SELECT count(*) FROM private"
 test xfer-client-igot-private-in-private-pull-marks-it \
-    {$xferclientRc eq 0 && [string trim $RESULT] == 1}
+    {$xferclientCode == 0 && [string trim $RESULT] == 1}
 xferclient_run pull "igot $xferclientCkin\n"
 fossil sql "SELECT count(*) FROM private"
 test xfer-client-igot-public-unmarks-it \
-    {$xferclientRc eq 0 && [string trim $RESULT] == 0}
+    {$xferclientCode == 0 && [string trim $RESULT] == 0}
 
 # An artifact that the client has asked for and does not hold yet is still
 # marked: the server says it is private, and the client stops asking.
-set xferclientAbsent3 [string repeat 00112233445566778899aabbccddeeff 2]
-proc xferclient_run_two {verb reply1 reply2} {
-  global xferclientDir xferclientWire xferclientRc
-  foreach xferclientF [glob -nocomplain -directory $xferclientDir \
-                           reply.* request.* count] {
-    file delete $xferclientF
-  }
-  write_file [file join $xferclientDir reply.1] $reply1
-  write_file [file join $xferclientDir reply.2] $reply2
-  set xferclientRc [catch {exec $::fossilexe $verb http://localhost/x --once \
-                    --transport-command $xferclientWire < /dev/null 2>@1}]
-}
-xferclient_run_two pull "igot $xferclientAbsent3\n" "igot $xferclientAbsent3 1\n"
+set xferclientPhantom [string repeat 00112233445566778899aabbccddeeff 2]
+xferclient_sync pull \
+    [list "igot $xferclientPhantom\n" "igot $xferclientPhantom 1\n"]
 fossil sql "SELECT count(*) FROM private p, blob b\
-   WHERE b.rid=p.rid AND b.uuid='$xferclientAbsent3'"
+   WHERE b.rid=p.rid AND b.uuid='$xferclientPhantom'"
 test xfer-client-igot-private-marks-a-phantom \
-    {$xferclientRc == 0 && [string trim $RESULT] == 1}
+    {$xferclientCode == 0 && [string trim $RESULT] == 1}
 xferclient_run pull "# nothing\n"
-set xferclientFd [open [file join $xferclientDir request.1] rb]
-set xferclientFirst [read $xferclientFd]
-close $xferclientFd
 test xfer-client-private-phantom-not-asked-for-again \
-    {[string first "gimme $xferclientAbsent3" $xferclientFirst] < 0}
+    {[string first "gimme $xferclientPhantom" [xferclient_request 1]] < 0}
 
 ###############################################################################
-# Artifacts are accepted only in a sync that pulls.  A server used to be
-# able to add one to the client in answer to a push.  The hash is that of
+# Artifacts are accepted only in a sync that pulls.  A server could
+# previously add one to the client in answer to a push.  The hash is that of
 # the five bytes "hello" under SHA3-256.
 
 set xferclientHello \
@@ -263,24 +224,26 @@ test xfer-client-file-in-push-stores-nothing \
 xferclient_run pull "file $xferclientHello 5\nhello\n"
 fossil sql "SELECT count(*) FROM blob WHERE uuid='$xferclientHello'"
 test xfer-client-file-in-pull-stored \
-    {$xferclientRc eq 0 && [string trim $RESULT] == 1}
+    {$xferclientCode == 0 && [string trim $RESULT] == 1}
 
 ###############################################################################
 # Content that does not match its card is refused and nothing is stored.
 
-xferclient_expect file-wrong-hash pull "file $xferclientAbsent 5\nhello\n" 1 {} \
-    "wrong hash on received artifact"
-fossil sql "SELECT count(*) FROM blob WHERE uuid='$xferclientAbsent' AND size>=0"
+xferclient_expect file-wrong-hash pull \
+    "file $xferclientAbsent 5\nhello\n" 1 {} "wrong hash on received artifact"
+fossil sql \
+    "SELECT count(*) FROM blob WHERE uuid='$xferclientAbsent' AND size>=0"
 test xfer-client-file-wrong-hash-not-stored {[string trim $RESULT] == 0}
-xferclient_expect file-size-past-end pull "file $xferclientAbsent 99\nhello\n" 1 {}
+xferclient_expect file-size-past-end pull \
+    "file $xferclientAbsent 99\nhello\n" 1 {}
 xferclient_expect file-too-few-tokens pull "file $xferclientAbsent\n" 1 {}
 xferclient_expect file-size-not-a-number pull \
     "file $xferclientAbsent notint\nhello\n" 1 {}
 xferclient_expect cfile-size-past-end pull \
     "cfile $xferclientAbsent 5 99\nxx\n" 1 {}
 xferclient_expect config-not-asked-for pull "config /project 0\n\n" 0 {}
-xferclient_expect config-size-not-a-number pull "config /project notint\n" 1 {} \
-    "unknown command"
+xferclient_expect config-size-not-a-number pull \
+    "config /project notint\n" 1 {} "unknown command"
 
 ###############################################################################
 # Unversioned files.  The cards for them are acted on only in a sync of
@@ -309,7 +272,8 @@ test xfer-client-uvfile-in-pull-changes-nothing \
 xferclient_expect uvigot-bad-mtime pull \
     "uvigot note.txt notint $xferclientUvHash 3\n" 1 {} "unknown command"
 xferclient_expect uvigot-bad-size pull \
-    "uvigot note.txt 1700000000 $xferclientUvHash notint\n" 1 {} "unknown command"
+    "uvigot note.txt 1700000000 $xferclientUvHash notint\n" 1 {} \
+    "unknown command"
 xferclient_expect uvigot-bad-hash pull \
     "uvigot note.txt 1700000000 nothash 3\n" 1 {} "unknown command"
 xferclient_expect uvigot-bad-name pull \
@@ -317,5 +281,5 @@ xferclient_expect uvigot-bad-name pull \
 
 ###############################################################################
 
-unset ::env(XFERCLIENT_DIR)
+unset ::env(TRANSPORT_DIR)
 test_cleanup

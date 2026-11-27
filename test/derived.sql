@@ -2,8 +2,7 @@
 -- artifacts, with each record number replaced by the hash or name it
 -- stands for and the rows in a fixed order.  Two repositories that hold
 -- the same artifacts should print the same text, and so should one
--- repository before and after "fossil rebuild".  Used by integrity.test
--- and sync.test:
+-- repository before and after "fossil rebuild".  integrity.test runs it:
 --
 --     fossil sql -R REPOSITORY <test/derived.sql
 --

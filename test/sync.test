@@ -30,8 +30,6 @@ proc sync_checkins {repo} {
   return [normalize_result]
 }
 
-# Returns the number of private artifacts in repository REPO.
-#
 proc sync_private_count {repo} {
   fossil sql -R $repo "SELECT count(*) FROM private"
   return [normalize_result]
@@ -54,13 +52,15 @@ proc sync_commit {dir file comment args} {
   fossil commit -m $comment --chdir $dir {*}$args
 }
 
-# N bytes of deterministic pseudo-random binary data.
-proc sync_random_bytes {n} {
-  set s ""
-  for {set syncI 0} {$syncI < $n} {incr syncI 4} {
-    append s [binary format i [expr {int(rand()*4294967296)}]]
+# Returns COUNT bytes of pseudo-random binary data, the same bytes for
+# the same seed given to srand().
+#
+proc sync_random_bytes {count} {
+  set bytes ""
+  while {[string length $bytes] < $count} {
+    append bytes [binary format i [expr {int(rand()*4294967296)}]]
   }
-  return [string range $s 0 [expr {$n-1}]]
+  return [string range $bytes 0 [expr {$count-1}]]
 }
 
 # The origin repository, with three check-ins, a tag and a wiki page.
@@ -168,13 +168,17 @@ if {$::tcl_platform(platform) ne "windows"} {
   file mkdir nr
   fossil open ../nr.fossil --chdir nr
   sync_commit nr nf.txt one
-  set syncWrapper [file join $dir no-reply.sh]
-  write_file $syncWrapper "#!/bin/sh\n: >\"\$3\"\n"
-  file attributes $syncWrapper -permissions 0755
+  set syncWire [file join $dir no-reply]
+  file mkdir $syncWire
+  write_file [file join $syncWire reply.1] ""
+  set ::env(TRANSPORT_DIR) $syncWire
+  set syncWrapper \
+      [test_standin transport.sh [file join $syncWire transport.sh]]
   fossil sync http://sync-test.invalid/x --once \
       --transport-command $syncWrapper --chdir nr -expectError
   test sync-no-reply-fails {$CODE != 0}
   test_match sync-no-reply-message [normalize_result] {empty reply}
+  unset ::env(TRANSPORT_DIR)
   fossil close --chdir nr
 }
 

@@ -408,6 +408,16 @@ test wiki-56 {[get_mime_type tcltest-plain-short] == "text/plain"}
 fossil wiki create tcltest-x-random-short f1 -mimetype random
 test wiki-57 {[get_mime_type tcltest-x-random-short] == "text/x-fossil-wiki"}
 
+###############################################################################
+# A wiki tag with an unrecognized attribute whose value is not quoted took
+# the text after the tag as attributes of the tag, and the scan could run
+# past the end of the text.
+
+write_file wiki-attr.wiki "x <span foo=bar>id=zz title=yy more</span> end\n"
+fossil test-wiki-render wiki-attr.wiki
+test wiki-ignored-attribute \
+     {$CODE == 0
+      && [string first {<span>id=zz title=yy more</span>} $RESULT] >= 0}
 
 ###############################################################################
 test_cleanup

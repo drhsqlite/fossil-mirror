@@ -23,7 +23,7 @@ test regress-dir-list-missing {$CODE == 0}
 ###############################################################################
 # "fossil test-xfer" used to print a robot captcha and then crash.
 
-write_file request.txt "pragma client-version 22900 20261110 124827\n"
+write_file request.txt $CLIENT_VERSION_CARD
 fossil test-xfer request.txt
 test regress-test-xfer {$CODE == 0}
 test_match regress-test-xfer-reply $RESULT {# timestamp}
@@ -38,20 +38,6 @@ test regress-short-branch-name {$CODE == 0}
 fossil update trunk
 
 ###############################################################################
-# A delta for a target of 2^24 bytes or more that has nothing in common
-# with its source overflowed its buffer by a byte or two.  This shows
-# only in a build with run-time checking.
-
-write_file tiny.txt "x\n"
-write_file big.txt [string repeat "0123456789abcde\n" 1048576]
-fossil test-delta-create tiny.txt big.txt big.delta
-test regress-large-delta-create {$CODE == 0}
-fossil test-delta-apply tiny.txt big.delta big.out
-test regress-large-delta-apply {$CODE == 0}
-test regress-large-delta-same {[same_file big.txt big.out]}
-file delete big.txt big.out big.delta
-
-###############################################################################
 # An HTML comment or an HR tag followed by spaces and no newline made the
 # Markdown translator copy one byte from past the end of its input into
 # the output.  That byte was a NUL.
@@ -62,15 +48,9 @@ foreach {regressName regressText} {
   quoted   "> <hr>  "
 } {
   write_file md-$regressName.md $regressText
-  # The output goes to a file and is read back as bytes, so that a NUL
-  # in it is seen as one.
-  set regressRc [catch {exec $::fossilexe test-markdown-render \
-                          md-$regressName.md > md-$regressName.out}]
-  set regressFd [open md-$regressName.out rb]
-  set regressOut [read $regressFd]
-  close $regressFd
+  fossil_raw test-markdown-render md-$regressName.md
   test regress-markdown-html-block-$regressName \
-       {$regressRc == 0 && [string first \x00 $regressOut] < 0}
+       {$CODE == 0 && [string first \x00 $RESULT] < 0}
 }
 
 ###############################################################################
@@ -79,42 +59,23 @@ foreach {regressName regressText} {
 # read before its start, a negative length made the import run for ever,
 # and an oversized one read and wrote outside the block.
 
-proc regress_svn_rev {regressN regressProps} {
-  set regressLen [string length $regressProps]
-  return "Revision-number: $regressN\nProp-content-length: $regressLen\nContent-length: $regressLen\n\n$regressProps\n"
+proc regress_svn_rev {number props} {
+  set length [string length $props]
+  set head "Revision-number: $number\nProp-content-length: $length\n"
+  return "${head}Content-length: $length\n\n$props\n"
 }
-# Run fossil with the arguments given and a time limit in seconds, because
-# one of these faults was an endless loop.  The result is the exit status,
-# or -1 if the limit ran out, followed by the output.
-proc regress_read {regressFd} {
-  append ::regressOutput [read $regressFd]
-  if {[eof $regressFd]} {set ::regressState done}
-}
-proc regress_limited {regressSeconds args} {
-  set ::regressOutput ""
-  set ::regressState running
-  set regressFd [open "|[linsert $args 0 $::fossilexe] 2>@1" r]
-  fconfigure $regressFd -blocking 0
-  fileevent $regressFd readable [list regress_read $regressFd]
-  set regressTimer [after [expr {$regressSeconds*1000}] \
-                       {set ::regressState late}]
-  vwait ::regressState
-  after cancel $regressTimer
-  if {$::regressState eq "late"} {
-    foreach regressPid [pid $regressFd] {
-      if {$::tcl_platform(platform) eq "windows"} {
-        catch {exec taskkill /F /PID $regressPid}
-      } else {
-        catch {exec kill -9 $regressPid}
-      }
-    }
-    catch {close $regressFd}
-    return [list -1 $::regressOutput]
+
+proc regress_svn_props {props} {
+  set block ""
+  foreach {name value} $props {
+    append block "K [string length $name]\n$name\n"
+    append block "V [string length $value]\n$value\n"
   }
-  fconfigure $regressFd -blocking 1
-  set regressRc [catch {close $regressFd}]
-  return [list $regressRc $::regressOutput]
+  return "${block}PROPS-END\n"
 }
+
+# Each import has a time limit of 60 seconds, because one of these faults
+# was an endless loop.
 set regressSvnHead "SVN-fs-dump-format-version: 2\n\nUUID: 0\n\n"
 foreach {regressName regressProps} {
   short-block     "abcd\n"
@@ -125,17 +86,19 @@ foreach {regressName regressProps} {
 } {
   write_file svn-$regressName.dump \
       $regressSvnHead[regress_svn_rev 0 $regressProps]
-  set regressRes [regress_limited 60 import --svn svn-$regressName.fossil \
-                      svn-$regressName.dump]
+  fossil_raw -seconds 60 import --svn svn-$regressName.fossil \
+      svn-$regressName.dump
   test regress-svn-import-$regressName \
-       {[lindex $regressRes 0] == 1
-        && [string match "*svn-dump data*" [lindex $regressRes 1]]}
+       {$CODE == 1 && [string match "*svn-dump data*" $RESULT]}
   file delete svn-$regressName.fossil
 }
-# A sound dump of one revision with three properties is still accepted.
-write_file svn-sound.dump $regressSvnHead[regress_svn_rev 0 \
-    "K 8\nsvn:date\nV 27\n2026-01-01T00:00:00.000000Z\nPROPS-END\n"][regress_svn_rev 1 \
-    "K 7\nsvn:log\nV 5\nfirst\nK 10\nsvn:author\nV 3\ndan\nK 8\nsvn:date\nV 27\n2026-01-01T00:00:00.000000Z\nPROPS-END\n"]
+
+set regressSvnDate {svn:date 2026-01-01T00:00:00.000000Z}
+set regressSvnSound $regressSvnHead
+append regressSvnSound [regress_svn_rev 0 [regress_svn_props $regressSvnDate]]
+append regressSvnSound [regress_svn_rev 1 [regress_svn_props \
+    [concat {svn:log first svn:author dan} $regressSvnDate]]]
+write_file svn-sound.dump $regressSvnSound
 fossil import --svn svn-sound.fossil svn-sound.dump
 test regress-svn-import-sound {$CODE == 0}
 file delete svn-sound.fossil
@@ -148,27 +111,16 @@ file delete svn-sound.fossil
 
 write_file svn-nul-in-block.dump \
     $regressSvnHead[regress_svn_rev 0 "K\x00\x00\x00PROPS-END\n"]
-write_file svn-negative-block.dump \
-    "${regressSvnHead}Revision-number: 0\nProp-content-length: -5\nContent-length: 10\n\nPROPS-END\n\n"
+set regressSvnNegative "Revision-number: 0\nProp-content-length: -5\n"
+append regressSvnNegative "Content-length: 10\n\nPROPS-END\n\n"
+write_file svn-negative-block.dump $regressSvnHead$regressSvnNegative
 foreach regressName {nul-in-block negative-block} {
-  set regressRes [regress_limited 60 import --svn svn-$regressName.fossil \
-                      svn-$regressName.dump]
+  fossil_raw -seconds 60 import --svn svn-$regressName.fossil \
+      svn-$regressName.dump
   test regress-svn-import-$regressName \
-       {[lindex $regressRes 0] == 1
-        && [string match "*svn-dump data format broken*" [lindex $regressRes 1]]}
+       {$CODE == 1 && [string match "*svn-dump data format broken*" $RESULT]}
   file delete svn-$regressName.fossil
 }
-
-###############################################################################
-# A wiki tag with an unrecognised attribute whose value is not quoted took
-# the text after the tag as attributes of the tag, and the scan could run
-# past the end of the text.
-
-write_file wiki-attr.wiki "x <span foo=bar>id=zz title=yy more</span> end\n"
-fossil test-wiki-render wiki-attr.wiki
-test regress-wiki-ignored-attribute \
-     {$CODE == 0
-      && [string first {<span>id=zz title=yy more</span>} $RESULT] >= 0}
 
 ###############################################################################
 # A Markdown header that holds an HTML comment was read past its end when
@@ -199,16 +151,14 @@ test regress-relative-name-sibling-slash \
 # has around them.  A name with a double quote reached the merge tool as
 # several arguments, and one with a dollar sign or a backquote stopped the
 # merge.  For such a name the tool is now left out, with a warning, and
-# the conflict stays marked in the file.  The merge tool here is a script
-# that counts its arguments and resolves nothing.
+# the conflict stays marked in the file.  The merge tool here is
+# standin/log-args.sh, which records its arguments and resolves nothing.
 
 if {$::tcl_platform(platform) ne "windows"} {
   set regressTop [pwd]
-  set regressTool [file join $regressTop gmerge-standin.sh]
+  set regressTool [test_standin log-args.sh [file join $regressTop gmerge.sh]]
   set regressToolLog [file join $regressTop gmerge-args.txt]
-  write_file $regressTool \
-      "#!/bin/sh\nfor a in \"\$@\"; do echo arg; done >> \"$regressToolLog\"\nexit 1\n"
-  file attributes $regressTool -permissions 0755
+  set ::env(ARGS_LOG) $regressToolLog
   foreach {regressName regressFile regressRuns} {
     plain      plain.txt    1
     space      {sp ace.txt} 1
@@ -231,61 +181,23 @@ if {$::tcl_platform(platform) ne "windows"} {
     fossil settings gmerge-command \
         "$regressTool \"%baseline\" \"%original\" \"%merge\" \"%output\""
     file delete $regressToolLog
-    set regressRc [catch {exec $::fossilexe merge br 2>@1} regressOut]
+    fossil_raw merge br
     set regressArgs 0
     if {[file exists $regressToolLog]} {
-      set regressFd [open $regressToolLog r]
-      set regressArgs [llength [split [string trim [read $regressFd]] \n]]
-      close $regressFd
+      set regressArgs \
+          [llength [split [string trim [read_file $regressToolLog]] \n]]
     }
-    set regressFd [open $regressFile r]
-    set regressText [read $regressFd]
-    close $regressFd
-    set regressMarked [expr {[string first "<<<<<<<" $regressText] >= 0}]
+    set regressMarked \
+        [expr {[string first "<<<<<<<" [read_file $regressFile]] >= 0}]
     set regressWarned \
-        [expr {[string first "not running the gmerge-command" $regressOut] >= 0}]
-    if {$regressRuns} {
-      test regress-gmerge-$regressName \
-           {$regressRc == 0 && $regressArgs == 4 && !$regressWarned
-            && $regressMarked}
-    } else {
-      test regress-gmerge-$regressName \
-           {$regressRc == 0 && $regressArgs == 0 && $regressWarned
-            && $regressMarked}
-    }
+        [expr {[string first "not running the gmerge-command" $RESULT] >= 0}]
+    test regress-gmerge-$regressName \
+         {$CODE == 0 && $regressMarked && $regressArgs == 4*$regressRuns
+          && $regressWarned != $regressRuns}
     fossil close --force
     cd $regressTop
   }
-}
-
-###############################################################################
-# "fossil git export" left out, with exit status 0, a check-in that holds
-# a shunned file.  The file is to be exported as an empty file.  This
-# test changes the repository, so it comes last.  It needs git.
-
-if {[catch {exec git --version}]} {
-  puts "regress-git-export-shunned skipped: no git"
-} else {
-  write_file keep.txt "keep\n"
-  write_file shun.txt "first version\n"
-  fossil add keep.txt shun.txt
-  fossil commit -m "regress-c2"
-  write_file shun.txt "second version, to be shunned\n"
-  fossil commit -m "regress-c3"
-  fossil sql "INSERT OR IGNORE INTO shun(uuid,mtime) SELECT b.uuid, 0 FROM blob b, mlink m, filename f WHERE m.fid=b.rid AND f.fnid=m.fnid AND f.name='shun.txt' AND m.mid=(SELECT max(mid) FROM mlink)"
-  fossil rebuild
-  # git writes progress to standard error, which the "fossil" command of
-  # this test suite counts as a failure, so run it directly.
-  set regressRc [catch {exec $::fossilexe git export regress-mirror 2>@1}]
-  test regress-git-export-shunned-status {$regressRc == 0}
-  set regressLog [exec git -C regress-mirror log --format=%s]
-  test regress-git-export-shunned-checkin \
-       {[string first regress-c3 $regressLog] >= 0}
-  set regressSize [string length \
-       [exec git -C regress-mirror cat-file -p HEAD:shun.txt]]
-  test regress-git-export-shunned-empty {$regressSize == 0}
-  set regressOld [exec git -C regress-mirror cat-file -p HEAD~1:shun.txt]
-  test regress-git-export-shunned-older {$regressOld eq "first version"}
+  unset ::env(ARGS_LOG)
 }
 
 ###############################################################################

@@ -1,0 +1,38 @@
+#
+# "fossil git export" of a check-in that holds a shunned file.  The
+# file is to be exported as an empty file.  An earlier fossil left the
+# check-in out of the export and exited with status 0.
+#
+
+require_no_open_checkout
+
+if {[catch {exec git --version}]} {
+  test_skip "git is not installed"
+}
+
+test_setup
+
+write_file keep.txt "keep\n"
+write_file shun.txt "first version\n"
+fossil add keep.txt shun.txt
+fossil commit -m "first"
+write_file shun.txt "second version, to be shunned\n"
+fossil commit -m "second"
+fossil sql "INSERT OR IGNORE INTO shun(uuid,mtime)\
+    SELECT b.uuid, 0 FROM blob b, mlink m, filename f\
+    WHERE m.fid=b.rid AND f.fnid=m.fnid AND f.name='shun.txt'\
+    AND m.mid=(SELECT max(mid) FROM mlink)"
+fossil rebuild
+
+# git writes progress to standard error, which the "fossil" procedure
+# counts as a failure.
+fossil_raw git export git-mirror
+test git-export-shunned-status {$CODE == 0}
+set gitexportLog [exec git -C git-mirror log --format=%s]
+test git-export-shunned-checkin {[string first second $gitexportLog] >= 0}
+set gitexportNew [exec git -C git-mirror cat-file -p HEAD:shun.txt]
+test git-export-shunned-empty {[string length $gitexportNew] == 0}
+set gitexportOld [exec git -C git-mirror cat-file -p HEAD~1:shun.txt]
+test git-export-shunned-older {$gitexportOld eq "first version"}
+
+test_cleanup

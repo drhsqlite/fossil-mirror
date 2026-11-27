@@ -77,6 +77,19 @@ foreach {f1 f2} $empties {
   fossil test-delta t1 t2
   test delta-empty-$i {[normalize_result]=="ok"}
 }
+
+# A delta for a target of 2^24 bytes or more that has nothing in common
+# with its source overflowed its buffer by a byte or two.  This shows
+# only in a build with run-time checking.
+#
+write_file tiny.txt "x\n"
+write_file big.txt [string repeat "0123456789abcde\n" 1048576]
+fossil test-delta-create tiny.txt big.txt big.delta
+test delta-large-create {$CODE == 0}
+fossil test-delta-apply tiny.txt big.delta big.out
+test delta-large-apply {$CODE == 0}
+test delta-large-same {[same_file big.txt big.out]}
+file delete tiny.txt big.txt big.out big.delta
 ###############################################################################
 
 test_cleanup
