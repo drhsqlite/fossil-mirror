@@ -1,5 +1,5 @@
-C Add\sthe\stransport\sand\slog-args\sstand-ins,\sand\snew\stest\sgit-export.\sMove\sthree\stests\sfrom\nregress.test\sinto\sdelta1,\swiki\sand\sgit-export,\sand\suse\sthe\sstand-ins.
-D 2026-11-27T15:52:50.033
+C Extend\sthe\scoverage\stests\sin\sregress,\sssh,\ssync,\sintegrity,\sxfer-client\sand\sxfer-server,\sand\sremove\sderived.sql,\swhich\sthey\sno\slonger\suse.
+D 2026-11-27T15:55:29.978
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -631,7 +631,6 @@ F test/coverage-marks.txt d9ccd070f8e24fe28e272df72f2cf1f9d39a4b61b5f0ab5162e6d0
 F test/crosslink.test 6bf8953185ef58cdb0313f987d7e7a8f03cae2bff4b7119f1e1b71cad86ff598
 F test/csp1.html ed027b1032cccad2f2a2bcae4364922ba11f4b5ed648dbe71493c6de9de0ffb6
 F test/delta1.test fd2170d04277a07668dd5069d26b87984bb1b3dd2691af8a93c361877f61645e
-F test/derived.sql d28390093b378e9f439fe910238725ccadf3510dc4e1067aaf36ef906528a72a
 F test/diff-test-1.wiki c62f7a5c91ad0fd43254091f748118a84d689b4d87755d0bc1ee0b006df7a24f
 F test/diff.test d46a4a32a75571f62543d4e92d9a113377bdb433d18e46d9dfccd9b6be120885
 F test/fake-editor.tcl 54099e49aa13204e5c9c72a9d32c3a46eb689be5ce4e8dd0e41a8f2754cb6dc6
@@ -646,7 +645,7 @@ F test/graph-test-2.md 4dc6143ec96d321846ee7814d762c71d01d76336069074307241bf02e
 F test/http-relay.py 8d1d701bcb1eeeff7cc984b650458cc6d6990d8115ad8c2f28de581f64517b10
 F test/http.test 28d05890a1d6f390c775a0914dfc50a0659bc4a360c0b61cb44f28ad6e8e7fc2
 F test/import.test d82efa810977228f4c39f4fab10da601a88f10dae4851a43a1fd328740ebaa6b
-F test/integrity.test 76d63c1a0d9a16c5723f8176bbdcd389dae9dbb5b679bd380824c76e785e8293
+F test/integrity.test 5ffc3edbe4eeacf304003a0a3b1e9e5b68a29196079330fca3d87ca371ffa7ee
 F test/json.test e1bb5a8152ef48d8220b8245c88c0d6fe9b89ce2af4a3d221651086bcd3f631d
 F test/link-tester.html 5eada50c341ab46695478e1ada0c0874ed2422b9a394bcd3993c59ef2b3a66e1
 F test/link-tester.js 5fdd6cd4883bfff4710a883481641d845b483e1e8c97160c5d613cb795c4b6d8
@@ -674,7 +673,7 @@ F test/name.test bd7f50a4d47fa3a7514465a51ca2cdc5482336b1c482376ca2dcae2ab38e821
 F test/powerloss.test fb89df40a4c0f040ae7721327a351713c2c1bc9ecea168843a9d79f0979c17b5
 F test/purge.test 5e8e8c63cc64956729fa5c78c0727e6684d98eb3b30ce2bf6ca9a9b1803eb8ee
 F test/rebuild.test 1946c1849d5ec579a871586c7a7ba295c1aeef8619a25370f84fee10afdb362d
-F test/regress.test 2035e9daabd90b0d87a0da4f2ddb0c4081b6c64205b9bd1117d59acf4bf8eabb
+F test/regress.test e5962f2a6bd6ed8fc40f306e22d78509571b17191145ed1993f195970d2fa788
 F test/release-checklist.wiki 53c86f104d43359f2404f08abef5a57b2472646f4200ed93258b0a4ace0708af
 F test/reserved-names.test 6499084da75e1c3f22aa530a4185dfb79a3b016415838cec17e18be345d364fd
 F test/revert.test 1d4530572952c66b49c9feebfce3b22131c0e3c255dcdb62d93f6151de55a91c
@@ -684,7 +683,7 @@ F test/scenario.test 3324850a53353f99d0f4f7e3c907666029ff7a832324671913d68a9ccf6
 F test/set-manifest.test e6fc0aa0e5b0ffdc0a4c6f8535395d4a41c0a0a47381f8d655f80fd78e257aca
 F test/settings-repo.test c319324e9b4c7ae1a35eb849113a206a38e3a47d6d2aeff567441a1023b4cd74
 F test/settings.test e500c410d0def6a8c9bcecddb6ed75a095906ddae8739723a718b500e4a563a1
-F test/ssh.test ea853c97f440bc7800ebe61fac821fb65ba6cab038d545e15200de93e1489e4d
+F test/ssh.test 4776a4ebe85acb131400c458a57e553e64fd7af428ea65ee542870534c81f552
 F test/standin/log-args.sh 3fb7205691d5582b006872338b787221a13ba04dfe85089d39d4453c75c0ff43
 F test/standin/scenario-wire.tcl 35aa244eb41f9cd9a6501c0f459e1525df865f7e24f603046d214fdba9fbf5ee
 F test/standin/transport.sh 14bc07dfd14384f136bcc6fcaac75ce1f7977bd888f4d6ee3261537ce0c67e10
@@ -695,7 +694,7 @@ F test/subdir/README.html b73b2bbc042aa2d246733582ac74e96ae57f38360e1f9bf96121ec
 F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec641e374496bcb0
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 37ead5db7d686ff6a06ef5446959c1efdf07e4d85d53570a2d2cd780d428574d
-F test/sync.test 6aea9fd347c6ecd0f5339feef478854512f0925e57157d0360fb4da2ed1b6461
+F test/sync.test 6d10dd3bf39e700f1984cdde3ed7da03d985294af59bf8732ff6844cd07c92b1
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
 F test/tester.tcl 7930d665a37db079a88e554025e4799b2b7b24aa51657434e0279d5fd01f2bc2
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -728,8 +727,8 @@ F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
 F test/utf8-comment.txt 0964b79ef7d4065702dd6c304b44d26a796409e2e5a3e5eb31d64300df58b165
 F test/valgrind-www.tcl b298cdae985190042a1cf83782af99ec28875b03
 F test/wiki.test 90718b87f3f503f39d1a15d9143913e102f1cb0aa4d126108d6af35121da8e01
-F test/xfer-client.test 55819116f45104492a5bd6ff9341e42cffc842a2ca45ccee98815f64c197a674
-F test/xfer-server.test 4c6f21bd343422568a7d7f6f4644cf8b3ac27ef4bb7368f56836426216ca15aa
+F test/xfer-client.test 17e7ead2d130b9fdfae0b61003c0c527605605a9a6b5ec7ae8a99c9468b07613
+F test/xfer-server.test 40ebb74e1ff73a21f3abd7f61949ed7dbe4e15e96343369d9722848a073de7e8
 F tools/co-rsync.tcl bcc9d6d68374f0d03cb4db5a06b0680015df8ed1d185c235939e7a0b0b966e17 x
 F tools/codecheck1.c 6d1bc50e8e3273640f681d8dab370ba05de8ca1ad1e7b4af0714e1f1d25990ac
 F tools/cvs2fossil/changeset 1c99ad8ca9b2f049266d63e0bcc5f26196c72627
@@ -1032,8 +1031,10 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki c8009e65011b6a508e42ce0ef6df07e36626a2c47892e31a5d5f60dae477300f
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 94cb804bbdb3c242af0d8b87187ba6210c886bb4077be7d9f45be8053a7fe6ab
-R 0672e5135f9e9e4122d650680101023a
-U danshearer
-Z 79bca470a01b13055c985f6dccdf82a5
+P add095ba10ab2d10b5eb84f1215ef4add8360364a13a2dc4cfb9a35f528376fc
+R 809bdfdd2117ac55a004021bc68404aa
+T *branch * test-suite-new
+T *sym-test-suite-new *
+U dmestas
+Z ff1a06f829e4c3a23aa004dd011fbff0
 # Remove this line to create a well-formed Fossil manifest.

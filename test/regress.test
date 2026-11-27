@@ -2,6 +2,11 @@
 # Tests for faults that have been fixed, which have no better home.
 #
 
+# These tests run only in a long pass: -assurance stress.
+if {[test_assurance] ne "stress"} {
+  test_skip "runs only with -assurance stress"
+}
+
 require_no_open_checkout
 
 test_setup
@@ -12,7 +17,7 @@ fossil commit -m "regress-c1"
 
 ###############################################################################
 # "fossil test-dir-list" on an empty directory, and on one that does not
-# exist, used to crash.
+# exist.
 
 file mkdir empty-directory
 fossil test-dir-list empty-directory
@@ -21,7 +26,7 @@ fossil test-dir-list no-such-directory
 test regress-dir-list-missing {$CODE == 0}
 
 ###############################################################################
-# "fossil test-xfer" used to print a robot captcha and then crash.
+# "fossil test-xfer" answers a request, with no robot captcha.
 
 write_file request.txt $CLIENT_VERSION_CARD
 fossil test-xfer request.txt
@@ -29,8 +34,8 @@ test regress-test-xfer {$CODE == 0}
 test_match regress-test-xfer-reply $RESULT {# timestamp}
 
 ###############################################################################
-# A branch name shorter than "date:" was read past its end when it was
-# looked up.  This shows only in a build with run-time checking.
+# A branch name shorter than "date:" is looked up without reading past its
+# end.  A fault here shows only in a build with run-time checking.
 
 fossil branch new br trunk
 fossil update br
@@ -74,8 +79,8 @@ proc regress_svn_props {props} {
   return "${block}PROPS-END\n"
 }
 
-# Each import has a time limit of 60 seconds, because one of these faults
-# was an endless loop.
+# Each import has a time limit of 60 seconds, so that an endless loop
+# fails the test.
 set regressSvnHead "SVN-fs-dump-format-version: 2\n\nUUID: 0\n\n"
 foreach {regressName regressProps} {
   short-block     "abcd\n"
@@ -104,10 +109,8 @@ test regress-svn-import-sound {$CODE == 0}
 file delete svn-sound.fossil
 
 ###############################################################################
-# Two more faults in the property block of "fossil import --svn".  A NUL
-# byte in the block made the search for the end of a line fail, which
-# crashed the import.  A negative length for the block itself was passed
-# on as the size of an allocation.
+# Two more malformed property blocks for "fossil import --svn": one with a
+# NUL byte in it, and one whose length is negative.  Each is refused.
 
 write_file svn-nul-in-block.dump \
     $regressSvnHead[regress_svn_rev 0 "K\x00\x00\x00PROPS-END\n"]
@@ -123,8 +126,9 @@ foreach regressName {nul-in-block negative-block} {
 }
 
 ###############################################################################
-# A Markdown header that holds an HTML comment was read past its end when
-# its id was made.  This shows only in a build with run-time checking.
+# A Markdown header that holds an HTML comment is read within its bounds
+# when its id is made.  A fault here shows only in a build with run-time
+# checking.
 
 write_file md-header.md "intro\n\n# a <!-- -->\n"
 fossil test-markdown-render md-header.md
@@ -133,8 +137,7 @@ test regress-markdown-header-comment \
 
 ###############################################################################
 # The name of a file in a sibling directory, relative to the current
-# directory, was copied with the length of the wrong string.  This shows
-# only in a build with run-time checking.
+# directory.  A fault here shows only in a build with run-time checking.
 
 file mkdir rel/b rel/c-with-a-longer-name/sub
 fossil test-relative-name --chdir rel/b ../c-with-a-longer-name/sub/file.txt
@@ -148,10 +151,9 @@ test regress-relative-name-sibling-slash \
 ###############################################################################
 # The names of the files in a merge conflict are put into the
 # gmerge-command as they are, inside the double quotes that the setting
-# has around them.  A name with a double quote reached the merge tool as
-# several arguments, and one with a dollar sign or a backquote stopped the
-# merge.  For such a name the tool is now left out, with a warning, and
-# the conflict stays marked in the file.  The merge tool here is
+# has around them.  For a name with a double quote, a dollar sign or a
+# backquote the tool is left out, with a warning, and the conflict stays
+# marked in the file.  The merge tool here is
 # standin/log-args.sh, which records its arguments and resolves nothing.
 
 if {$::tcl_platform(platform) ne "windows"} {
@@ -198,6 +200,84 @@ if {$::tcl_platform(platform) ne "windows"} {
     cd $regressTop
   }
   unset ::env(ARGS_LOG)
+}
+
+###############################################################################
+# A port number above 65535 in a URL is refused with an error.
+
+fossil remote http://example.invalid:99999999999/x -expectError
+test regress-url-port-too-large {$CODE != 0
+    && [string match "*port number too large*" $RESULT]}
+fossil remote http://example.invalid:65535/x
+test regress-url-port-largest {$CODE == 0}
+fossil remote off
+
+###############################################################################
+# "fossil ticket add" and "ticket set" with plain fields, a field to
+# append to, and a private field.  The change artifact lists the cards that
+# append before the cards that assign, and the private value is stored
+# concealed.
+
+fossil ticket add title "A ticket" status Open comment first
+test regress-ticket-add {$CODE == 0}
+fossil sql "SELECT tkt_uuid FROM ticket WHERE title='A ticket'"
+set regressTkt [string trim $RESULT]
+fossil ticket set $regressTkt status Closed +comment " second" \
+    private_contact someone@example.org
+test regress-ticket-set {$CODE == 0}
+fossil sql "SELECT status, comment FROM ticket WHERE tkt_uuid='$regressTkt'"
+test_eq regress-ticket-set-fields [string trim $RESULT] "Closed|first second"
+fossil sql "SELECT private_contact FROM ticket WHERE tkt_uuid='$regressTkt'"
+test regress-ticket-private-concealed \
+    {[string trim $RESULT] ne "" && ![string match "*someone*" $RESULT]}
+fossil sql "SELECT uuid FROM blob, event WHERE objid=rid AND type='t'
+            ORDER BY mtime DESC LIMIT 1"
+fossil artifact [string trim $RESULT]
+set regressTktCards [regexp -all -inline -line {^J \+?\S+} $RESULT]
+test regress-ticket-append-first \
+    {[lindex $regressTktCards 0] eq "J +comment"
+     && "J status" in $regressTktCards
+     && "J private_contact" in $regressTktCards}
+
+###############################################################################
+# A push into a clone that already holds a wiki attachment succeeds, and
+# the clone keeps one attachment row for it.
+
+write_file attach.txt "attached\n"
+write_file wiki.txt "wiki\n"
+fossil wiki create AttachPage wiki.txt
+fossil attachment add AttachPage attach.txt
+fossil clone .rep.fossil regress-attach-clone.fossil
+fossil push regress-attach-clone.fossil --once
+test regress-push-held-attachment {$CODE == 0
+    && ![string match "*UNIQUE constraint*" $RESULT]}
+fossil sql -R regress-attach-clone.fossil \
+    "SELECT count(*) FROM attachment WHERE target='AttachPage'"
+test_eq regress-push-held-attachment-rows [string trim $RESULT] 1
+file delete regress-attach-clone.fossil
+
+###############################################################################
+# The TH1 command styleHeader run from the command line writes the page
+# header, whatever the robot-restrict setting.
+
+foreach {regressName regressRobot} {unset {} list timelineX,diff all *} {
+  fossil settings robot-restrict $regressRobot
+  fossil_raw test-th-eval --open-config {styleHeader {Page Title}}
+  test regress-styleheader-cli-$regressName \
+      {$CODE == 0 && [string match "*<title>*: Page Title</title>*" $RESULT]}
+}
+fossil settings robot-restrict ""
+
+###############################################################################
+# A base URL given with --baseurl and no path, with or without a slash after
+# the host, serves pages at the root.  A fault here shows only in a build
+# with run-time checking.
+
+write_file baseurl-req.txt "GET /robots.txt HTTP/1.1\r\nHost: x\r\n\r\n"
+foreach {regressName regressUrl} {bare https://x slash https://x/} {
+  fossil_raw http .rep.fossil --in baseurl-req.txt --baseurl $regressUrl
+  test regress-baseurl-no-path-$regressName \
+      {$CODE == 0 && [string match "HTTP/1.0 200*" $RESULT]}
 }
 
 ###############################################################################

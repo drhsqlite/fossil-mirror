@@ -5,6 +5,11 @@
 # test-integrity".
 #
 
+# These tests run only in a long pass: -assurance stress.
+if {[test_assurance] ne "stress"} {
+  test_skip "runs only with -assurance stress"
+}
+
 require_no_open_checkout
 
 test_setup ""
@@ -107,6 +112,453 @@ test_eq sync-private-not-pushed [sync_private_count a.fossil] 0
 test_eq sync-private-artifacts [sync_artifacts a.fossil] \
     [sync_artifacts b.fossil]
 fossil update trunk --chdir b
+
+# The sections below that were written for a checkout of their own each
+# run in a directory of their own, with a repository of their own and
+# without the user name that the sections above set.
+proc sync_enter {name} {
+  global dir
+  file mkdir [file join $dir $name]
+  cd [file join $dir $name]
+  set ::syncUser $::env(FOSSIL_USER)
+  unset ::env(FOSSIL_USER)
+  fossil new .rep.fossil
+  fossil open .rep.fossil
+  fossil set mtime-changes off
+}
+proc sync_leave {} {
+  global dir
+  cd $dir
+  set ::env(FOSSIL_USER) $::syncUser
+}
+
+###############################################################################
+# Whole syncs between repositories on one machine.  A push, pull or sync
+# with a repository named by its file starts "fossil http" on that file,
+# so both sides speak the sync protocol in full, and the other side
+# grants every permission.  Where the other side has to check
+# permissions, the messages go through standin/scenario-wire.tcl.
+
+sync_enter xfer-sync
+
+set syncXferDir [pwd]
+set syncXferSrv [file join $syncXferDir srv.fossil]
+
+proc sync_sql {repo sql} {
+  fossil sql -R $repo $sql
+  return [string trim $::RESULT]
+}
+
+# How many timeline entries of REPO have the comment COMMENT.
+proc sync_has {repo comment} {
+  return [sync_sql $repo "SELECT count(*) FROM event
+      WHERE comment='$comment'"]
+}
+
+# The artifacts REPO holds that are neither phantoms nor private.
+proc sync_public {repo} {
+  return [sync_sql $repo "SELECT group_concat(uuid, ' ') FROM (SELECT uuid
+      FROM blob WHERE size>=0 AND rid NOT IN private ORDER BY uuid)"]
+}
+proc sync_private_held {repo} {
+  return [sync_sql $repo "SELECT count(*) FROM private, blob
+      WHERE private.rid=blob.rid AND size>=0"]
+}
+proc sync_integrity {name repo} {
+  fossil test-integrity -R $repo
+  test $name {$::CODE == 0}
+}
+
+# Commit FILE with CONTENT in the checkout and return the check-in's hash.
+proc sync_checkin {file content comment args} {
+  set new [expr {![file exists $file]}]
+  write_file $file $content
+  if {$new} {fossil add $file}
+  fossil commit -m $comment --no-warnings {*}$args
+  return [sync_sql .rep.fossil "SELECT uuid FROM blob, event
+      WHERE objid=rid AND comment='$comment'"]
+}
+
+set syncXferText ""
+for {set syncXferI 0} {$syncXferI < 60} {incr syncXferI} {
+  append syncXferText "line $syncXferI of a file that is kept in versions\n"
+}
+fossil settings autosync off
+sync_checkin a.txt $syncXferText xfersync-first
+file copy .rep.fossil srv.fossil
+file copy .rep.fossil c2.fossil
+file copy .rep.fossil c3.fossil
+
+###############################################################################
+# A check-in that was private and is made public, while its file is still
+# stored as a delta from a private one.  Neither a push nor a clone may
+# hand out the delta: the other side lacks what it was made from.
+
+set syncXferG1 [sync_checkin big.txt "${syncXferText}first\n" \
+    xfersync-g1 --private]
+set syncXferG2 [sync_checkin big.txt "${syncXferText}first\nsecond\n" \
+    xfersync-g2]
+fossil publish $syncXferG1
+test xfer-sync-publish {$CODE == 0}
+test xfer-sync-public-delta-from-private {[sync_sql .rep.fossil "SELECT
+    count(*) FROM delta WHERE rid NOT IN private AND srcid IN private"] > 0}
+
+fossil push $syncXferSrv
+test xfer-sync-push {$CODE == 0}
+test_eq xfer-sync-push-published [sync_has srv.fossil xfersync-g1] 1
+test_eq xfer-sync-push-not-private [sync_has srv.fossil xfersync-g2] 0
+test_eq xfer-sync-push-no-private-artifacts [sync_private_held srv.fossil] 0
+test_eq xfer-sync-push-artifacts [sync_public srv.fossil] \
+    [sync_public .rep.fossil]
+fossil cat big.txt -R srv.fossil -r $syncXferG1
+test_eq xfer-sync-push-content $RESULT "${syncXferText}first"
+sync_integrity xfer-sync-push-integrity srv.fossil
+
+set syncXferWire [file join $syncXferDir wire.tcl]
+file copy [file join $::testfiledir standin scenario-wire.tcl] $syncXferWire
+set syncXferWire "\"[info nameofexecutable]\" \"$syncXferWire\""
+set ::env(SCN_EXE) $::fossilexe
+set ::env(SCN_REPO) [file join $syncXferDir .rep.fossil]
+set ::env(SCN_FAULT) 0
+fossil_raw -seconds 120 clone http://xfersync.invalid/x c4.fossil \
+    --transport-command $syncXferWire --no-open
+test xfer-sync-clone {$CODE == 0}
+test_eq xfer-sync-clone-artifacts [sync_public c4.fossil] \
+    [sync_public .rep.fossil]
+test_eq xfer-sync-clone-no-private [sync_has c4.fossil xfersync-g2] 0
+fossil cat big.txt -R c4.fossil -r $syncXferG1
+test_eq xfer-sync-clone-content $RESULT "${syncXferText}first"
+sync_integrity xfer-sync-clone-integrity c4.fossil
+
+###############################################################################
+# Private check-ins go only when asked for, and stay private where they
+# arrive.
+
+fossil push --private $syncXferSrv
+test xfer-sync-push-private {$CODE == 0}
+test_eq xfer-sync-push-private-arrived [sync_has srv.fossil xfersync-g2] 1
+test xfer-sync-push-private-marked {[sync_private_held srv.fossil] > 0}
+test_eq xfer-sync-push-private-count [sync_private_held srv.fossil] \
+    [sync_private_held .rep.fossil]
+
+fossil pull $syncXferSrv -R c2.fossil
+test xfer-sync-pull {$CODE == 0}
+test_eq xfer-sync-pull-no-private [sync_has c2.fossil xfersync-g2] 0
+test_eq xfer-sync-pull-artifacts [sync_public c2.fossil] \
+    [sync_public srv.fossil]
+fossil pull --private $syncXferSrv -R c2.fossil
+test xfer-sync-pull-private {$CODE == 0}
+test_eq xfer-sync-pull-private-arrived [sync_has c2.fossil xfersync-g2] 1
+test_eq xfer-sync-pull-private-count [sync_private_held c2.fossil] \
+    [sync_private_held srv.fossil]
+fossil cat big.txt -R c2.fossil -r $syncXferG2
+test_eq xfer-sync-pull-private-content $RESULT "${syncXferText}first\nsecond"
+sync_integrity xfer-sync-pull-private-integrity c2.fossil
+
+# With --verily each side lists everything it holds.  The result is the
+# same.  The options that change only what is printed do not change it
+# either.
+fossil pull --verily $syncXferSrv -R c3.fossil
+test xfer-sync-pull-verily {$CODE == 0}
+test_eq xfer-sync-pull-verily-artifacts [sync_public c3.fossil] \
+    [sync_public srv.fossil]
+fossil sync --verily --private $syncXferSrv -R c3.fossil
+test xfer-sync-sync-verily {$CODE == 0}
+test_eq xfer-sync-sync-verily-private [sync_private_held c3.fossil] \
+    [sync_private_held srv.fossil]
+fossil sync -v -v --no-http-compression $syncXferSrv -R c3.fossil
+test xfer-sync-verbose {$CODE == 0 && [string first "Sent:" $RESULT] >= 0}
+fossil sync --quiet $syncXferSrv -R c3.fossil
+test xfer-sync-quiet {$CODE == 0}
+sync_integrity xfer-sync-verily-integrity c3.fossil
+
+###############################################################################
+# Unversioned files.  The newer of two versions wins, whichever side has
+# it; a removal is a version like any other.
+
+proc sync_uv {repo name} {
+  return [sync_sql $repo "SELECT ifnull(hash,'removed') || ' ' || mtime
+      FROM unversioned WHERE name='$name'"]
+}
+proc sync_uvtime {text} {
+  return [sync_sql .rep.fossil "SELECT strftime('%s','$text')"]
+}
+
+write_file one.txt "the first version of one\n"
+fossil uv add one.txt --mtime 2026-01-01T00:00:00
+fossil uv sync $syncXferSrv
+test xfer-sync-uv-push {$CODE == 0}
+test_eq xfer-sync-uv-push-arrived [sync_uv srv.fossil one.txt] \
+    [sync_uv .rep.fossil one.txt]
+fossil uv cat one.txt -R srv.fossil
+test_eq xfer-sync-uv-push-content $RESULT "the first version of one"
+
+write_file two.txt "a file added on the other side\n"
+fossil uv add two.txt -R srv.fossil --mtime 2026-01-02T00:00:00
+fossil uv sync -v $syncXferSrv
+test xfer-sync-uv-pull {$CODE == 0}
+test xfer-sync-uv-pull-said {[string first "UV-PULL: two.txt" $RESULT] >= 0
+    && [string first "Unversioned-file received: two.txt" $RESULT] >= 0}
+fossil uv cat two.txt
+test_eq xfer-sync-uv-pull-content $RESULT "a file added on the other side"
+
+# A trial run says what would go and sends nothing.
+write_file one.txt "the second version of one\n"
+fossil uv add one.txt --mtime 2026-01-03T00:00:00
+fossil uv sync -n $syncXferSrv
+test xfer-sync-uv-dry-run {$CODE == 0 &&
+    [string first "UV-PUSH: one.txt" $RESULT] >= 0}
+fossil uv cat one.txt -R srv.fossil
+test_eq xfer-sync-uv-dry-run-sent-nothing $RESULT "the first version of one"
+
+# A revert takes the other side's version although it is older.
+fossil uv revert $syncXferSrv
+test xfer-sync-uv-revert {$CODE == 0}
+fossil uv cat one.txt
+test_eq xfer-sync-uv-revert-content $RESULT "the first version of one"
+
+write_file one.txt "the second version of one\n"
+fossil uv add one.txt --mtime 2026-01-03T00:00:00
+fossil uv sync -v $syncXferSrv
+test xfer-sync-uv-push-newer {$CODE == 0}
+test xfer-sync-uv-push-newer-said \
+    {[string first "UV-PUSH: one.txt" $RESULT] >= 0
+    && [string first "Unversioned-file sent: one.txt" $RESULT] >= 0}
+fossil uv cat one.txt -R srv.fossil
+test_eq xfer-sync-uv-push-newer-content $RESULT "the second version of one"
+
+# A removal on the other side.
+fossil uv rm two.txt -R srv.fossil --mtime 2026-01-04T00:00:00
+fossil uv sync -v $syncXferSrv
+test xfer-sync-uv-removal {$CODE == 0}
+test_eq xfer-sync-uv-removal-arrived [sync_uv .rep.fossil two.txt] \
+    "removed [sync_uvtime 2026-01-04T00:00:00]"
+
+# The same content with a newer time, first there and then here.
+fossil uv touch one.txt -R srv.fossil --mtime 2026-01-05T00:00:00
+fossil uv sync -v $syncXferSrv
+test xfer-sync-uv-time-pulled {$CODE == 0 &&
+    [string first "UV-PULL-MTIME-ONLY: one.txt" $RESULT] >= 0}
+test_eq xfer-sync-uv-time-pulled-value \
+    [lindex [sync_uv .rep.fossil one.txt] 1] \
+    [sync_uvtime 2026-01-05T00:00:00]
+fossil uv touch one.txt --mtime 2026-01-06T00:00:00
+fossil uv sync -v $syncXferSrv
+test xfer-sync-uv-time-pushed {$CODE == 0 &&
+    [string first "UV-PUSH-MTIME-ONLY: one.txt" $RESULT] >= 0}
+test_eq xfer-sync-uv-time-pushed-value \
+    [lindex [sync_uv srv.fossil one.txt] 1] \
+    [sync_uvtime 2026-01-06T00:00:00]
+test_eq xfer-sync-uv-same-at-end [sync_uv srv.fossil one.txt] \
+    [sync_uv .rep.fossil one.txt]
+
+# A user who may read and not write unversioned files is told so, and
+# what was to be sent stays here.
+set ::env(SCN_REPO) $syncXferSrv
+set ::env(SCN_AUTH) 1
+fossil sql -R srv.fossil \
+    "UPDATE user SET cap='o' WHERE login IN ('nobody','anonymous')"
+fossil uv touch one.txt --mtime 2026-01-07T00:00:00
+fossil_raw -seconds 120 uv sync -v http://xfersync.invalid/x \
+    --transport-command $syncXferWire
+test xfer-sync-uv-pull-only {[string first "uv-pull-only" $RESULT] >= 0}
+test_eq xfer-sync-uv-pull-only-not-sent \
+    [lindex [sync_uv srv.fossil one.txt] 1] \
+    [sync_uvtime 2026-01-06T00:00:00]
+
+# The same for a file that the other side has never held.
+fossil uv touch one.txt --mtime 2026-01-06T00:00:00
+write_file three.txt "a file the other side will not take\n"
+fossil uv add three.txt --mtime 2026-01-07T00:00:00
+fossil_raw -seconds 120 uv sync -v http://xfersync.invalid/x \
+    --transport-command $syncXferWire
+set syncXferSaid $RESULT
+test_eq xfer-sync-uv-pull-only-new-not-sent [sync_uv srv.fossil three.txt] ""
+test xfer-sync-uv-pull-only-new-said \
+    {[string first "uv-pull-only" $syncXferSaid] >= 0}
+test xfer-sync-uv-pull-only-new-kept {[sync_uv .rep.fossil three.txt] ne ""}
+
+# A revert from such a server still makes this side match it: the file
+# the server never had goes, and nothing is said about pushing.
+fossil_raw -seconds 120 uv revert http://xfersync.invalid/x \
+    --transport-command $syncXferWire
+test xfer-sync-uv-pull-only-revert {$CODE == 0 &&
+    [string first "uv-pull-only" $RESULT] < 0}
+test_eq xfer-sync-uv-pull-only-revert-removed [sync_uv .rep.fossil three.txt] ""
+unset ::env(SCN_EXE) ::env(SCN_REPO) ::env(SCN_FAULT) ::env(SCN_AUTH)
+
+###############################################################################
+# A project that was split off pulls from the project it came from only
+# when it says that it means to.
+
+file copy srv.fossil child2.fossil
+fossil sql -R srv.fossil "REPLACE INTO config(name,value,mtime)
+    VALUES('project-name','xfersync parent',now())"
+file copy srv.fossil child.fossil
+fossil_raw -input "y\n" detach child.fossil
+test xfer-sync-detach {$CODE == 0}
+test xfer-sync-detach-new-code {[sync_sql child.fossil "SELECT value
+    FROM config WHERE name='project-code'"] ne [sync_sql srv.fossil "SELECT
+    value FROM config WHERE name='project-code'"]}
+sync_checkin a.txt "${syncXferText}more\n" xfersync-after-split
+fossil push --private $syncXferSrv
+test_eq xfer-sync-parent-has-new [sync_has srv.fossil xfersync-after-split] 1
+fossil pull $syncXferSrv -R child.fossil -expectError
+test xfer-sync-child-plain-pull-refused {$CODE != 0}
+test_eq xfer-sync-child-plain-pull-nothing \
+    [sync_has child.fossil xfersync-after-split] 0
+# The new check-in follows a private one, so it is private too.
+fossil pull --from-parent-project $syncXferSrv -R child.fossil
+test xfer-sync-child-parent-pull-public-only {$CODE == 0 &&
+    [sync_has child.fossil xfersync-after-split] == 0}
+fossil pull --private --from-parent-project $syncXferSrv -R child.fossil
+test xfer-sync-child-parent-pull {$CODE == 0}
+test_eq xfer-sync-child-parent-pull-arrived \
+    [sync_has child.fossil xfersync-after-split] 1
+sync_integrity xfer-sync-child-integrity child.fossil
+
+# The same when the project it came from has no name.
+fossil_raw -input "y\n" detach child2.fossil
+fossil_raw pull --from-parent-project $syncXferSrv -R child2.fossil
+test xfer-sync-unnamed-parent-pull {$CODE == 0}
+test_eq xfer-sync-unnamed-parent-pull-arrived [sync_public child2.fossil] \
+    [sync_public srv.fossil]
+
+sync_leave
+
+###############################################################################
+# A clone made over the sync protocol.  "fossil clone" of a file on the
+# same machine copies the file and never speaks the protocol, so here a
+# real client clones from a real server through
+# standin/scenario-wire.tcl, which hands each request to "fossil http"
+# on the server's repository.
+
+sync_enter xfer-clone
+
+# The server: several versions of one file, so that it stores deltas, an
+# empty file, a branch, a tag, a wiki page and an unversioned file.
+set syncCloneText ""
+for {set syncCloneI 0} {$syncCloneI < 40} {incr syncCloneI} {
+  append syncCloneText "line $syncCloneI of a file with several versions\n"
+}
+write_file empty.txt ""
+fossil add empty.txt
+foreach syncCloneI {1 2 3 4 5} {
+  append syncCloneText "version $syncCloneI\n"
+  write_file a.txt $syncCloneText
+  if {$syncCloneI == 1} {fossil add a.txt}
+  fossil commit -m "xferclone-v$syncCloneI" --no-warnings
+}
+fossil branch new side trunk
+fossil tag add marked trunk
+write_file page.txt "a wiki page\n"
+fossil wiki create ClonePage page.txt
+write_file note.txt "an unversioned note\n"
+fossil unversioned add note.txt
+file copy .rep.fossil srv.fossil
+
+set syncCloneWire [file join [pwd] wire.tcl]
+file copy [file join $::testfiledir standin scenario-wire.tcl] $syncCloneWire
+set syncCloneWire "\"[info nameofexecutable]\" \"$syncCloneWire\""
+set ::env(SCN_EXE) $::fossilexe
+set ::env(SCN_REPO) [file join [pwd] srv.fossil]
+set ::env(SCN_FAULT) 0
+
+# Clone the server into the repository file NAME, with any more
+# arguments for "fossil clone".
+#
+proc sync_clone_wire {name args} {
+  global syncCloneWire
+  fossil_raw -seconds 120 clone http://xferclone.invalid/x $name \
+      --transport-command $syncCloneWire --no-open {*}$args
+}
+
+# What a repository holds: the artifacts with content, the timeline, the
+# branches and tags, and the unversioned files.
+#
+proc sync_holds {repo} {
+  fossil sql -R $repo "SELECT group_concat(uuid, ' ') FROM (SELECT uuid
+      FROM blob WHERE size>=0 AND rid NOT IN private ORDER BY uuid);
+    SELECT group_concat(x, ' ') FROM (SELECT type || comment AS x
+      FROM event ORDER BY mtime, objid);
+    SELECT group_concat(x, ' ') FROM (SELECT tagname || tagtype AS x
+      FROM tagxref, tag WHERE tag.tagid=tagxref.tagid AND tagname LIKE 'sym-%'
+      ORDER BY 1)"
+  return [string trim $::RESULT]
+}
+proc sync_uv_files {repo} {
+  fossil sql -R $repo "SELECT group_concat(name || '/' || hash, ' ')
+      FROM unversioned WHERE hash IS NOT NULL"
+  return [string trim $::RESULT]
+}
+
+set syncCloneWant [sync_holds srv.fossil]
+
+###############################################################################
+# An ordinary clone holds what the server holds, and is sound.
+
+sync_clone_wire c1.fossil
+test xfer-clone {$CODE == 0}
+test_eq xfer-clone-holds [sync_holds c1.fossil] $syncCloneWant
+fossil test-integrity -R c1.fossil
+test xfer-clone-integrity {$CODE == 0}
+fossil sql -R c1.fossil "SELECT value FROM config WHERE name='project-code'"
+set syncCloneCode [string trim $RESULT]
+fossil sql -R srv.fossil "SELECT value FROM config WHERE name='project-code'"
+test_eq xfer-clone-project-code $syncCloneCode [string trim $RESULT]
+
+# The files of the newest and of the first check-in can be read from it.
+fossil cat a.txt -R c1.fossil -r trunk
+test_eq xfer-clone-newest-file [string trim $RESULT] \
+    [string trim $syncCloneText]
+fossil cat empty.txt -R c1.fossil -r trunk
+test_eq xfer-clone-empty-file $RESULT ""
+
+# Unversioned files come only when they are asked for.
+fossil sql -R c1.fossil "SELECT count(*) FROM sqlite_schema
+    WHERE name='unversioned'"
+set syncCloneHasUv [string trim $RESULT]
+test xfer-clone-without-unversioned \
+    {!$syncCloneHasUv || [sync_uv_files c1.fossil] eq ""}
+sync_clone_wire c2.fossil --unversioned
+test xfer-clone-unversioned {$CODE == 0}
+test_eq xfer-clone-unversioned-files [sync_uv_files c2.fossil] \
+    [sync_uv_files srv.fossil]
+test_eq xfer-clone-unversioned-holds [sync_holds c2.fossil] $syncCloneWant
+
+# With small messages the clone takes many round trips and ends the same.
+fossil sql -R srv.fossil "REPLACE INTO config(name,value,mtime)
+    VALUES('max-download',2000,now())"
+sync_clone_wire c3.fossil
+test xfer-clone-small-replies {$CODE == 0}
+test_eq xfer-clone-small-replies-holds [sync_holds c3.fossil] \
+    $syncCloneWant
+fossil test-integrity -R c3.fossil
+test xfer-clone-small-replies-integrity {$CODE == 0}
+fossil sql -R srv.fossil "DELETE FROM config WHERE name='max-download'"
+
+###############################################################################
+# A server that checks permissions refuses a clone to a user without the
+# permission, and no repository is left behind.
+
+set ::env(SCN_AUTH) 1
+fossil sql -R srv.fossil \
+    "UPDATE user SET cap='o' WHERE login IN ('nobody','anonymous')"
+sync_clone_wire c4.fossil
+test xfer-clone-refused \
+    {$CODE != 0 && [string first "not authorized to clone" $RESULT] >= 0}
+test xfer-clone-refused-leaves-nothing {![file exists c4.fossil]}
+fossil sql -R srv.fossil \
+    "UPDATE user SET cap='go' WHERE login IN ('nobody','anonymous')"
+sync_clone_wire c5.fossil
+test xfer-clone-permitted {$CODE == 0}
+test_eq xfer-clone-permitted-holds [sync_holds c5.fossil] $syncCloneWant
+
+unset ::env(SCN_EXE) ::env(SCN_REPO) ::env(SCN_FAULT) ::env(SCN_AUTH)
+
+sync_leave
+
+###############################################################################
 
 if {![loopback_available]} {
   unset ::env(FOSSIL_USER)

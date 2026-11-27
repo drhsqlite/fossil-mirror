@@ -6,8 +6,13 @@
 # request and answers with a reply that the test wrote, or with a bare
 # timestamp, which ends the sync.
 #
-# xfer-cards.test and xfer-server.test test the server side.
+# xfer-server.test tests the server side.
 #
+
+# These tests run only in a long pass: -assurance stress.
+if {[test_assurance] ne "stress"} {
+  test_skip "runs only with -assurance stress"
+}
 
 require_no_open_checkout
 
@@ -44,6 +49,20 @@ proc xferclient_sync {verb replies args} {
   }
   fossil_raw $verb http://localhost/x --once \
       --transport-command $xferclientWire {*}$args
+  set xferclientCode $::CODE
+  set xferclientOut $::RESULT
+}
+
+# Like xferclient_sync, for the server at URL.
+proc xferclient_sync_url {verb url replies args} {
+  global xferclientDir xferclientWire xferclientCode xferclientOut
+  file delete {*}[glob -nocomplain -directory $xferclientDir \
+                      reply.* request.* count]
+  set number 0
+  foreach reply $replies {
+    write_file [file join $xferclientDir reply.[incr number]] $reply
+  }
+  fossil_raw $verb $url --once --transport-command $xferclientWire {*}$args
   set xferclientCode $::CODE
   set xferclientOut $::RESULT
 }
@@ -134,6 +153,58 @@ xferclient_expect clock-ahead pull \
 xferclient_expect clock-unreadable pull "# timestamp garbage errors 0\n" 0 {}
 
 ###############################################################################
+# Settings and options of the client that change what it sends.
+
+# With dont-push, a push is refused and a sync only pulls.
+fossil settings dont-push 1
+xferclient_sync push {}
+test xfer-client-dont-push {$xferclientCode != 0
+    && [string match "*pushing is prohibited*" $xferclientOut]
+    && [xferclient_requests] == 0}
+xferclient_sync sync {}
+test xfer-client-dont-push-sync {$xferclientCode == 0
+    && [string match "*\npull *" "\n[xferclient_request 1]"]
+    && ![string match "*\npush *" "\n[xferclient_request 1]"]}
+fossil settings dont-push 0
+
+# A repository with a public URL tells the server where it is.
+fossil settings email-url https://client.example
+fossil sql "REPLACE INTO config(name,value,mtime)
+            VALUES('baseurl:https://client.example',1,now())"
+xferclient_sync pull {}
+test xfer-client-client-url \
+    {[string match "*pragma client-url https://client.example\n*" \
+          [xferclient_request 1]]}
+fossil unset email-url
+
+# --from-parent-project needs the code of the parent project, and a code
+# that is the repository's own is not taken for a parent's.
+xferclient_sync pull {} --from-parent-project
+test xfer-client-no-parent-project {$xferclientCode != 0
+    && [string match "*no parent project*" $xferclientOut]
+    && [xferclient_requests] == 0}
+fossil sql "REPLACE INTO config(name,value,mtime) SELECT 'parent-project-code',
+            value, now() FROM config WHERE name='project-code'"
+xferclient_sync pull {} --from-parent-project
+test xfer-client-own-code-as-parent {$xferclientCode == 0
+    && [xferclient_requests] >= 1}
+# A repository with no project code of its own asks for the project of its
+# parent.
+fossil sql "SELECT value FROM config WHERE name='project-code'"
+set xferclientOwnCode [string trim $RESULT]
+set xferclientParentCode [string repeat 0123abcd 5]
+fossil sql "DELETE FROM config WHERE name='project-code';
+            REPLACE INTO config(name,value,mtime)
+            VALUES('parent-project-code','$xferclientParentCode',now())"
+xferclient_sync pull {} --from-parent-project
+test xfer-client-parent-of-project-without-code {$xferclientCode == 0
+    && [regexp -line "^pull \\S+ $xferclientParentCode\$" \
+            [xferclient_request 1]]}
+fossil sql "REPLACE INTO config(name,value,mtime)
+            VALUES('project-code','$xferclientOwnCode',now())"
+fossil sql "DELETE FROM config WHERE name='parent-project-code'"
+
+###############################################################################
 # igot and gimme.  What the client asks for, or sends, shows in its
 # second request.
 
@@ -172,9 +243,8 @@ xferclient_expect gimme-not-a-hash push "gimme nothash\n" 1 {} \
 
 ###############################################################################
 # An igot card can say that an artifact is private.  The client marks its
-# own copy private only in a sync of private content.  In an ordinary
-# pull a server could previously make a public check-in private, after
-# which the client sent it to nobody.
+# own copy private only in a sync of private content, so in an ordinary
+# pull a server cannot make a public check-in private.
 
 fossil sql "SELECT uuid FROM blob WHERE rid=(SELECT max(objid) FROM event\
    WHERE type='ci')"
@@ -206,9 +276,9 @@ test xfer-client-private-phantom-not-asked-for-again \
     {[string first "gimme $xferclientPhantom" [xferclient_request 1]] < 0}
 
 ###############################################################################
-# Artifacts are accepted only in a sync that pulls.  A server could
-# previously add one to the client in answer to a push.  The hash is that of
-# the five bytes "hello" under SHA3-256.
+# Artifacts are accepted only in a sync that pulls, so a server cannot add
+# one to the client in answer to a push.  The hash is that of the five
+# bytes "hello" under SHA3-256.
 
 set xferclientHello \
     3338be694f50c5f338814986cdf0686453a888b84f424d792af4b9202398f392
@@ -278,6 +348,531 @@ xferclient_expect uvigot-bad-hash pull \
     "uvigot note.txt 1700000000 nothash 3\n" 1 {} "unknown command"
 xferclient_expect uvigot-bad-name pull \
     "uvigot ../x 1700000000 $xferclientUvHash 3\n" 1 {} "unknown command"
+
+###############################################################################
+# Each card that has a fixed number of words, and each word that selects a
+# card, decides alone whether the card is acted on.  A card of the wrong
+# number of words, or with a first word that has the length of a card name
+# but is not it, is an unknown command and ends the sync with an error.
+
+foreach {xferclientName xferclientCard} [list \
+  gimme-no-argument        "gimme\n" \
+  gimme-two-arguments      "gimme $xferclientAbsent x\n" \
+  config-no-size           "config /project\n" \
+  config-extra-argument    "config /project 0 x\n" \
+  clone-seqno-no-argument  "clone_seqno\n" \
+  clone-seqno-two-numbers  "clone_seqno 1 2\n" \
+  clone-seqno-other-word   "clone_seqnx 1\n" \
+  message-no-text          "message\n" \
+  message-two-words        "message a b\n" \
+  message-other-word       "messagf hi\n" \
+  error-two-words          "error a b\n" \
+] {
+  xferclient_expect mcdc-shape-$xferclientName pull $xferclientCard 1 {} \
+      "unknown command"
+}
+
+# An igot card names the artifact and may add the flag 1 for private.  Any
+# other third word, of any length, is not that flag: the artifact is
+# public and the client asks for it.
+set xferclientFlagHash(other-digit) [string repeat 1111222233334444 4]
+set xferclientFlagHash(long-flag) [string repeat 5555666677778888 4]
+set xferclientFlagHash(letter) [string repeat 9999aaaabbbbcccc 4]
+foreach {xferclientName xferclientFlag} {
+  other-digit   2
+  long-flag     11
+  letter        x
+} {
+  set xferclientHash $xferclientFlagHash($xferclientName)
+  xferclient_run pull "igot $xferclientHash $xferclientFlag\n"
+  test xfer-client-mcdc-igot-flag-$xferclientName \
+      {$xferclientCode == 0
+       && [string first "gimme $xferclientHash" [xferclient_request 2]] >= 0}
+}
+
+# A message in a push that does not begin with "pull only" is shown, and an
+# empty message is not.
+xferclient_expect mcdc-message-in-push push "message hi\n" 0 {} \
+    "Server says: hi"
+xferclient_expect mcdc-message-empty pull "message \\0\n" 0 {} \
+    "!Server says"
+
+# A pragma with the wrong number of words, or with a name of the length
+# of a known one, does nothing.
+foreach {xferclientName xferclientCard} [list \
+  ci-lock-fail-two-words   "pragma ci-lock-fail someone\n" \
+  ci-lock-fail-four-words  "pragma ci-lock-fail someone 1700000000 x\n" \
+] {
+  xferclient_expect mcdc-pragma-$xferclientName pull $xferclientCard 0 {} \
+      "!Parent check-in locked"
+}
+xferclient_expect mcdc-ci-lock-fail-future pull \
+    "pragma ci-lock-fail someone 99999999999\n" 0 {} \
+    "Parent check-in locked by someone\n" "!ago"
+
+# Links from the server are kept only with --share-links, for a URL of the
+# http or https kind and a time above zero.
+foreach {xferclientName xferclientCard xferclientKept} [list \
+  http          "pragma link http://example.org/a {} 1790000000\n"  1 \
+  https         "pragma link https://example.org/b {} 1790000000\n" 1 \
+  ssh           "pragma link ssh://example.org/c {} 1790000000\n"   0 \
+  ftp           "pragma link ftp://example.org/h {} 1790000000\n"   0 \
+  no-scheme     "pragma link example.org/i {} 1790000000\n"         0 \
+  zero-time     "pragma link http://example.org/e {} 0\n"           0 \
+  four-words    "pragma link http://example.org/f {}\n"             0 \
+  other-name    "pragma lonk http://example.org/g {} 1790000000\n"  0 \
+] {
+  fossil sql "DELETE FROM config WHERE name LIKE 'link:%'"
+  xferclient_run pull $xferclientCard --share-links
+  fossil sql "SELECT count(*) FROM config WHERE name LIKE 'link:%'"
+  test_eq xfer-client-mcdc-link-$xferclientName \
+      "$xferclientCode [string trim $RESULT]" "0 $xferclientKept"
+}
+fossil sql "DELETE FROM config WHERE name LIKE 'link:%'"
+
+###############################################################################
+# A "private" card makes the next file private.  A client that does not sync
+# private content ignores that file, whatever its content; one that does
+# keeps it and marks it private.
+
+write_file world.txt "world\n"
+fossil sha3sum world.txt
+set xferclientWorld [lindex $RESULT 0]
+fossil sql "SELECT count(*) FROM blob WHERE uuid='$xferclientWorld'"
+set xferclientBefore [string trim $RESULT]
+xferclient_run pull "private\nfile $xferclientWorld 6\nworld\n"
+fossil sql "SELECT count(*) FROM blob WHERE uuid='$xferclientWorld'"
+test xfer-client-mcdc-private-file-ignored \
+    {$xferclientCode == 0 && [string trim $RESULT] == $xferclientBefore}
+xferclient_run pull "private\ncfile $xferclientWorld 6 0\n"
+fossil sql "SELECT count(*) FROM blob WHERE uuid='$xferclientWorld'"
+test xfer-client-mcdc-private-cfile-ignored \
+    {$xferclientCode == 0 && [string trim $RESULT] == $xferclientBefore}
+xferclient_run pull "private\nfile $xferclientWorld 6\nworld\n" --private
+fossil sql "SELECT count(*) FROM blob b, private p
+            WHERE b.rid=p.rid AND b.uuid='$xferclientWorld' AND b.size>=0"
+test xfer-client-mcdc-private-file-kept-in-private-pull \
+    {$xferclientCode == 0 && [string trim $RESULT] == 1}
+
+###############################################################################
+# How many rounds a sync makes.
+
+# A pull asks for every phantom in every round, so the cases below start
+# with none.
+proc xferclient_no_phantoms {name} {
+  fossil sql "DELETE FROM private WHERE rid IN (SELECT rid FROM phantom);
+              DELETE FROM unclustered WHERE rid IN (SELECT rid FROM phantom);
+              DELETE FROM blob WHERE rid IN (SELECT rid FROM phantom);
+              DELETE FROM phantom"
+  fossil sql "SELECT count(*) FROM phantom"
+  test_eq xfer-client-mcdc-no-phantoms-$name [string trim $::RESULT] 0
+}
+xferclient_no_phantoms before-resync
+
+# A resync asks for the catalog of the server in its first request only.  A
+# pull asks for the clusters of the server in the third request, because it
+# asks for artifacts in it, and not in the first two.
+set xferclientPhantomB [string repeat 0a1b2c3d4e5f6a7b 4]
+set xferclientPhantomA [string repeat f0e1d2c3b4a59687 4]
+xferclient_sync pull \
+    [list "igot $xferclientPhantomA\n" "igot $xferclientPhantomB\n"] --verily
+test xfer-client-mcdc-resync-catalog {$xferclientCode == 0
+    && [xferclient_requests] == 3
+    && [string first "pragma send-catalog" [xferclient_request 1]] >= 0
+    && [string first "pragma send-catalog" [xferclient_request 2]] < 0
+    && [string first "pragma send-catalog" [xferclient_request 3]] < 0}
+test xfer-client-mcdc-req-clusters-third-request {
+    [string first "pragma req-clusters" [xferclient_request 1]] < 0
+    && [string first "pragma req-clusters" [xferclient_request 2]] < 0
+    && [string first "pragma req-clusters" [xferclient_request 3]] >= 0}
+
+# A sync that sends a file in each round and is asked for one again in the
+# third asks for no artifact there, so it does not ask for clusters.
+xferclient_no_phantoms before-sync
+xferclient_sync sync [list "gimme $xferclientFile\n" "gimme $xferclientFile\n"]
+test xfer-client-mcdc-no-req-clusters-without-phantoms {$xferclientCode == 0
+    && [xferclient_requests] >= 3
+    && [string first "pragma req-clusters" [xferclient_request 3]] < 0}
+
+# A server that asks for a private artifact in a push that is not of private
+# content is told that the artifact exists and is private, and the client
+# goes on for a second round.  It goes on only once: a server that asks
+# again in the second round gets the same answer and no third round.
+write_file private.txt "a private file\n"
+fossil add private.txt
+fossil commit -m private --private --no-warnings
+fossil sql "SELECT uuid FROM blob WHERE rid IN (SELECT rid FROM private)
+            AND size>0 LIMIT 1"
+set xferclientPrivate [string trim $RESULT]
+set xferclientAsk "${SERVER_VERSION_CARD}gimme $xferclientPrivate\n"
+xferclient_sync push [list $xferclientAsk $xferclientAsk $xferclientAsk]
+test xfer-client-mcdc-private-igot-one-more-round {$xferclientCode == 0
+    && [xferclient_requests] == 2
+    && [string first "igot $xferclientPrivate 1" [xferclient_request 2]] >= 0
+    && [string first "file $xferclientPrivate" [xferclient_request 2]] < 0}
+xferclient_sync push {}
+test xfer-client-mcdc-no-private-igot-one-round {$xferclientCode == 0
+    && [xferclient_requests] == 1}
+
+# A pull asks for at most 200 of the artifacts that a server has announced
+# in one request.
+xferclient_no_phantoms before-limit
+set xferclientMany ""
+for {set xferclientI 0} {$xferclientI < 250} {incr xferclientI} {
+  append xferclientMany "igot [format %064x [expr {$xferclientI + 1}]]\n"
+}
+xferclient_run pull $xferclientMany
+test xfer-client-mcdc-asks-for-200 {$xferclientCode == 0
+    && [llength [regexp -all -inline {gimme } [xferclient_request 2]]] == 200}
+xferclient_no_phantoms after-limit
+
+# A reply with no card at all, only an empty line, is accepted.
+xferclient_expect mcdc-reply-empty-line pull "\n" 0 {-v}
+
+# The repository records the address of a server that is not on the local
+# host, for the http and https kinds of address and not for others.
+foreach {xferclientName xferclientUrl xferclientKept} {
+  https-other  https://example.org/x  1
+  http-other   http://example.org/y   1
+  local        http://localhost/z     0
+} {
+  fossil sql "DELETE FROM config WHERE name GLOB 'syncwith:*'"
+  xferclient_sync_url pull $xferclientUrl {}
+  fossil sql "SELECT count(*) FROM config WHERE name GLOB 'syncwith:*'"
+  test_eq xfer-client-mcdc-syncwith-$xferclientName \
+      "$xferclientCode [string trim $RESULT]" "0 $xferclientKept"
+}
+fossil sql "DELETE FROM config WHERE name GLOB 'syncwith:*'"
+
+###############################################################################
+# Unversioned files: the server announces a file of that name with a card,
+# and the client asks for it.  Each word of the card decides alone whether it
+# is accepted.
+
+set xferclientUvCards [list \
+  uvigot-ok       "uvigot new.txt 2000000000 $xferclientAbcHash 3\n" gimme \
+  uvigot-delete   "uvigot new.txt 2000000000 - 0\n"                  quiet \
+  bad-name        "uvigot ../x 2000000000 $xferclientAbcHash 3\n"    refused \
+  bad-mtime       "uvigot new.txt notint $xferclientAbcHash 3\n"     refused \
+  bad-size        "uvigot new.txt 2000000000 $xferclientAbcHash x\n" refused \
+  hash-too-short  "uvigot new.txt 2000000000 abc 3\n"                refused \
+  hash-one-letter "uvigot new.txt 2000000000 x 3\n"                  refused \
+  four-words      "uvigot new.txt 2000000000 $xferclientAbcHash\n"   refused \
+  six-words       "uvigot new.txt 2000000000 $xferclientAbcHash 3 x\n" refused \
+  short-name      "uvigo new.txt 2000000000 $xferclientAbcHash 3\n"  refused \
+  other-name      "uvigoz new.txt 2000000000 $xferclientAbcHash 3\n" refused \
+]
+# "gimme": the client asks for the file.  "quiet": the card is accepted and
+# nothing is asked.  "refused": the card is an unknown command.
+foreach {xferclientName xferclientCard xferclientOutcome} $xferclientUvCards {
+  xferclient_run sync $xferclientCard -u
+  set xferclientAsked [expr {
+      [string first "uvgimme new.txt" [xferclient_request 2]] >= 0}]
+  set xferclientRefused [expr {$xferclientCode == 1
+      && [string first "unknown command" $xferclientOut] >= 0}]
+  test xfer-client-mcdc-uv-$xferclientName {
+    ($xferclientOutcome eq "gimme" && $xferclientCode == 0 && $xferclientAsked)
+    || ($xferclientOutcome eq "quiet" && $xferclientCode == 0
+        && !$xferclientAsked)
+    || ($xferclientOutcome eq "refused" && $xferclientRefused)}
+}
+
+# The server announces a file in every round and sends none: the client
+# asks for it in three rounds and then stops.
+set xferclientUvAgain "uvigot new.txt 2000000000 $xferclientAbcHash 3\n"
+xferclient_sync sync [list $xferclientUvAgain $xferclientUvAgain \
+    $xferclientUvAgain $xferclientUvAgain $xferclientUvAgain] -u
+test xfer-client-mcdc-uv-asks-in-three-rounds {$xferclientCode == 0
+    && [xferclient_requests] == 3}
+# While a file arrives in each round and another is announced, the client
+# goes on asking, and stops after the reply that announces the last one.
+proc xferclient_uvfile {name} {
+  return "uvfile $name 2000000000 $::xferclientAbcHash 3 0\nabc\n"
+}
+proc xferclient_uvigot {name} {
+  return "uvigot $name 2000000000 $::xferclientAbcHash 3\n"
+}
+xferclient_sync sync [list [xferclient_uvigot n1.txt] \
+    "[xferclient_uvfile n1.txt][xferclient_uvigot n2.txt]" \
+    "[xferclient_uvfile n2.txt][xferclient_uvigot n3.txt]" \
+    "[xferclient_uvfile n3.txt][xferclient_uvigot n4.txt]" \
+    "[xferclient_uvfile n4.txt][xferclient_uvigot n5.txt]" \
+    "[xferclient_uvfile n5.txt][xferclient_uvigot n6.txt]"] -u
+test xfer-client-mcdc-uv-goes-on-while-files-arrive {$xferclientCode == 0
+    && [xferclient_requests] == 7}
+
+# A server that takes unversioned content is sent every file that it has not
+# announced, whole.
+xferclient_sync sync [list "pragma uv-push-ok\n"] -u
+test xfer-client-mcdc-uv-push-sends-file {$xferclientCode == 0
+    && [string first "uvfile note.txt " [xferclient_request 2]] >= 0
+    && [string first "uvigot" [xferclient_request 2]] < 0}
+
+# A server that takes no unversioned content, and a client with none to
+# send, makes no warning.
+fossil sql "DELETE FROM unversioned"
+xferclient_expect mcdc-uv-pull-only-nothing-to-send sync \
+    "pragma uv-pull-only\n" 0 {-u} "!unversioned"
+
+###############################################################################
+# A repository that cannot be written to can pull from a server that has
+# nothing new.  It does not record the address of the server.
+
+set xferclientMode [file attributes .rep.fossil -permissions]
+file attributes .rep.fossil -permissions 0444
+xferclient_sync_url pull http://example.org/readonly {}
+file attributes .rep.fossil -permissions $xferclientMode
+fossil sql "SELECT count(*) FROM config WHERE name GLOB 'syncwith:*'"
+test_eq xfer-client-mcdc-pull-into-read-only \
+    "$xferclientCode [xferclient_requests] [string trim $RESULT]" "0 1 0"
+
+###############################################################################
+# Clones.  The stand-in answers a clone as it answers a pull, so each clone
+# here gets the replies that the test wrote and then bare timestamps.
+
+fossil sql "SELECT uuid FROM blob WHERE rid=(SELECT min(objid) FROM event
+            WHERE type='ci')"
+set xferclientFirst [string trim $RESULT]
+fossil artifact $xferclientFirst first-manifest.out
+set xferclientManifest [read_file first-manifest.out]
+set xferclientPush "push $xferclientOwnCode $xferclientOwnCode\n"
+
+# Clone into clone.fossil from a server that gives the replies REPLIES.
+# Sets xferclientCode and xferclientOut as xferclient_sync does.
+proc xferclient_clone {replies} {
+  global xferclientDir xferclientWire xferclientCode xferclientOut
+  file delete clone.fossil
+  file delete {*}[glob -nocomplain -directory $xferclientDir \
+                      reply.* request.* count]
+  set number 0
+  foreach reply $replies {
+    write_file [file join $xferclientDir reply.[incr number]] $reply
+  }
+  fossil_raw clone http://localhost/x clone.fossil --no-open \
+      --transport-command $xferclientWire
+  set xferclientCode $::CODE
+  set xferclientOut $::RESULT
+}
+
+# The number of the artifacts HASHES that clone.fossil holds.
+proc xferclient_clone_holds {hashes} {
+  fossil sql -R clone.fossil "SELECT count(*) FROM blob WHERE size>=0
+      AND uuid IN ('[join $hashes ',']')"
+  return [string trim $::RESULT]
+}
+
+# A server of the first version of the protocol lists what it has in
+# "igot" cards and sends each artifact, in a "file" card, when it is asked
+# for it.  The clone asks in every round and never asks for clusters.
+xferclient_clone [list \
+    "${xferclientPush}igot $xferclientFirst\nigot $xferclientFile\n" \
+    "file $xferclientFirst [string length $xferclientManifest]\n\
+$xferclientManifest" \
+    "file $xferclientFile 12\nhello world\n"]
+test xfer-client-mcdc-clone-by-igot {$xferclientCode == 0
+    && [xferclient_requests] == 4
+    && [string first "gimme $xferclientFirst" [xferclient_request 2]] >= 0
+    && [string first "gimme $xferclientFile" [xferclient_request 3]] >= 0
+    && [string first "pragma req-clusters" [xferclient_request 3]] < 0}
+test_eq xfer-client-mcdc-clone-by-igot-holds \
+    [xferclient_clone_holds [list $xferclientFirst $xferclientFile]] 2
+fossil sql -R clone.fossil "SELECT value FROM config WHERE name='project-code'"
+test_eq xfer-client-mcdc-clone-project-code [string trim $RESULT] \
+    $xferclientOwnCode
+
+# The card that gives a clone its project code has three words, the third
+# a hash.  Any other card that begins with "push" ends the clone with an
+# error and leaves no repository.
+foreach {xferclientName xferclientCard} [list \
+  two-words      "push $xferclientOwnCode\n" \
+  not-a-hash     "push $xferclientOwnCode nothash\n" \
+] {
+  xferclient_clone [list $xferclientCard]
+  test xfer-client-mcdc-clone-push-$xferclientName {$xferclientCode == 1
+      && [string first "unknown command" $xferclientOut] >= 0
+      && ![file exists clone.fossil]}
+}
+
+# An error in the first reply ends the clone, unless it says that the
+# login failed or that the client is not authorized: the first request of
+# a clone has no login card, so those are expected and the clone goes on.
+foreach {xferclientName xferclientError xferclientGoesOn} {
+  other-error     {something\sfailed}        0
+  login-failed    {login\sfailed}            1
+  not-authorized  {not\sauthorized\sto\sclone} 1
+} {
+  xferclient_clone [list "${xferclientPush}error $xferclientError\n"]
+  test xfer-client-mcdc-clone-first-error-$xferclientName {
+    $xferclientGoesOn
+      ? ($xferclientCode == 0 && [xferclient_requests] == 2
+         && [file exists clone.fossil])
+      : ($xferclientCode == 1
+         && [string first "Error: something failed" $xferclientOut] >= 0
+         && ![file exists clone.fossil])}
+}
+
+# A clone goes on asking while the server says that it has more to send
+# and something arrives, here an unversioned file.  It stops after a reply
+# in which nothing arrives.
+xferclient_clone [list "clone_seqno 2\n$xferclientPush" \
+    "[xferclient_uvfile cloned.txt]clone_seqno 3\n$xferclientPush" \
+    "clone_seqno 4\n$xferclientPush"]
+test xfer-client-mcdc-clone-goes-on-while-content-arrives \
+    {$xferclientCode == 0 && [xferclient_requests] == 3
+     && [string first "clone 3 3" [xferclient_request 3]] >= 0}
+fossil unversioned cat cloned.txt -R clone.fossil
+test_eq xfer-client-mcdc-clone-unversioned-arrived $RESULT abc
+xferclient_clone [list "clone_seqno 2\n$xferclientPush" \
+    "clone_seqno 3\n$xferclientPush" "clone_seqno 4\n$xferclientPush"]
+test xfer-client-mcdc-clone-stops-when-nothing-arrives \
+    {$xferclientCode == 0 && [xferclient_requests] == 2}
+file delete clone.fossil
+
+###############################################################################
+# What a sync with -v says at its end about the server.  A server that
+# could not be reached is named as the URL names it, with no address.  The
+# URLs here have no host; the one for ssh is given standin/log-args.sh as
+# its ssh command, which exits at once.
+
+fossil_raw pull -v --once --proxy off http:///x
+test xfer-client-mcdc-remote-no-host {$CODE == 1
+    && [string first "Pull done," $RESULT] >= 0
+    && [string first "remote: \n" $RESULT] >= 0}
+set xferclientSsh \
+    [test_standin log-args.sh [file join $xferclientDir ssh-standin.sh]]
+set ::env(ARGS_LOG) [file join $xferclientDir ssh-args.txt]
+fossil_raw pull -v --once --ssh-command $xferclientSsh ssh:///x
+test xfer-client-mcdc-remote-ssh-no-host {$CODE == 1
+    && [file exists $::env(ARGS_LOG)]
+    && [string first "Pull done," $RESULT] >= 0
+    && [string first "remote: \n" $RESULT] >= 0}
+unset ::env(ARGS_LOG)
+
+###############################################################################
+# What shows only when the client speaks HTTP.  The server is made here: it
+# answers request N with item N of the list xferclientHttpReplies, or with
+# a bare timestamp where that is empty, and keeps the header and the cards
+# of each request in the list xferclientHttpRequests.
+
+proc xferclient_http_accept {chan address port} {
+  fconfigure $chan -translation binary -blocking 0
+  set ::xferclientHttpBuf($chan) ""
+  fileevent $chan readable [list xferclient_http_read $chan]
+}
+proc xferclient_http_read {chan} {
+  global xferclientHttpBuf xferclientHttpRequests xferclientHttpReplies
+  append xferclientHttpBuf($chan) [read $chan]
+  set request $xferclientHttpBuf($chan)
+  set end [string first "\r\n\r\n" $request]
+  set length 0
+  regexp -nocase -line {^content-length:\s*(\d+)} $request -> length
+  if {![eof $chan] &&
+      ($end < 0 || [string length $request] < $end + 4 + $length)} {
+    return
+  }
+  unset xferclientHttpBuf($chan)
+  fileevent $chan readable {}
+  fconfigure $chan -blocking 1
+  # The cards follow four bytes of size when they are compressed.
+  set header [string range $request 0 $end+1]
+  set cards [string range $request $end+4 end]
+  catch {set cards [zlib decompress [string range $cards 4 end]]}
+  set reply [lindex $xferclientHttpReplies [llength $xferclientHttpRequests]]
+  lappend xferclientHttpRequests [list $header $cards]
+  if {$reply eq ""} {
+    set reply "# timestamp [clock format [clock seconds] -gmt 1 \
+        -format %Y-%m-%dT%H:%M:%S] errors 0\n"
+  }
+  catch {
+    puts -nonewline $chan "HTTP/1.0 200 OK\r\nContent-Type:\
+        application/x-fossil-uncompressed\r\nContent-Length:\
+        [string length $reply]\r\n\r\n$reply"
+    close $chan
+  }
+}
+
+# Run fossil with the arguments ARGS while the server gives the replies
+# REPLIES.  Sets xferclientCode and xferclientOut as xferclient_sync does.
+proc xferclient_http_run {replies args} {
+  global xferclientHttpReplies xferclientHttpRequests
+  global xferclientCode xferclientOut
+  set xferclientHttpReplies $replies
+  set xferclientHttpRequests {}
+  fossil_raw -seconds 60 {*}$args
+  set xferclientCode $::CODE
+  set xferclientOut $::RESULT
+}
+
+if {[loopback_available]} {
+  set xferclientHttpServer \
+      [socket -server xferclient_http_accept -myaddr 127.0.0.1 0]
+  set xferclientHttpPort [lindex [fconfigure $xferclientHttpServer -sockname] 2]
+
+  # The login card goes in front of the cards of a request.  Once the
+  # server has said that it is of version 2.27 or later and was built at or
+  # after 11:05:00 on 2025-07-27, the card goes in a cookie instead.  The
+  # second request shows where the client puts it.
+  foreach {xferclientName xferclientVersion xferclientWhere} {
+    older-version  "22699 20260101 120000"  cards
+    day-before     "22700 20250726 235959"  cards
+    second-before  "22700 20250727 110459"  cards
+    same-second    "22700 20250727 110500"  cookie
+    day-after      "22700 20250728 0"       cookie
+  } {
+    xferclient_no_phantoms login-card-$xferclientName
+    xferclient_http_run [list \
+        "pragma server-version $xferclientVersion\nigot $xferclientAbsent\n"] \
+        pull http://tester:secret@127.0.0.1:$xferclientHttpPort/x --once \
+        --proxy off --no-http-compression
+    lassign [lindex $xferclientHttpRequests 1] xferclientHeader xferclientCards
+    set xferclientInCookie [regexp -nocase -line \
+        {^Cookie: x-f-l-c=login.tester} $xferclientHeader]
+    set xferclientInCards [regexp -line {^login tester } $xferclientCards]
+    test_eq xfer-client-mcdc-login-card-$xferclientName \
+        "$xferclientCode [llength $xferclientHttpRequests]\
+         $xferclientInCookie $xferclientInCards" \
+        "0 2 [expr {$xferclientWhere eq "cookie" ? "1 0" : "0 1"}]"
+  }
+  xferclient_no_phantoms after-login-card
+
+  # A sync with -v names the server at its end, and adds the address that
+  # it connected to when that is not what the URL has.
+  xferclient_http_run {} pull -v --once --proxy off \
+      http://127.0.0.1:$xferclientHttpPort/x
+  test xfer-client-mcdc-remote-by-address {$xferclientCode == 0
+      && [string first "remote: 127.0.0.1\n" $xferclientOut] >= 0}
+  xferclient_http_run {} pull -v --once --proxy off \
+      http://localhost:$xferclientHttpPort/x
+  test xfer-client-mcdc-remote-by-name {$xferclientCode == 0
+      && [string first "remote: localhost (127.0.0.1)\n" $xferclientOut] >= 0}
+
+  # A commit pushes when it is done.  A server that says the user may not
+  # write does not make the commit fail: the user is told that the check-in
+  # is kept here.  Any other error from the server is reported as it is.
+  fossil update $xferclientCkin
+  fossil settings proxy off
+  fossil settings autosync on
+  fossil remote http://127.0.0.1:$xferclientHttpPort/auto
+  foreach {xferclientName xferclientError xferclientSaid} {
+    not-authorized  {not\sauthorized\sto\swrite}
+        {"not authorized to push the changes" "!Autosync failed" "!Error:"}
+    other-error     {something\sfailed}
+        {"Error: something failed" "Autosync failed" "!not authorized to push"}
+  } {
+    write_file auto-$xferclientName.txt "$xferclientName\n"
+    fossil add auto-$xferclientName.txt
+    xferclient_http_run [list "" "error $xferclientError\n"] \
+        commit -m auto-$xferclientName --no-warnings --allow-fork
+    fossil sql "SELECT count(*) FROM event WHERE comment='auto-$xferclientName'"
+    test xfer-client-mcdc-autopush-$xferclientName {$xferclientCode == 0
+        && [string trim $RESULT] == 1
+        && [llength $xferclientHttpRequests] == 2
+        && [holds_strings $xferclientOut $xferclientSaid]}
+  }
+  fossil remote off
+  fossil settings autosync off
+  close $xferclientHttpServer
+}
 
 ###############################################################################
 

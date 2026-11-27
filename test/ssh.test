@@ -12,6 +12,11 @@
 # and that ordinary values reach it unchanged.
 #
 
+# These tests run only in a long pass: -assurance stress.
+if {[test_assurance] ne "stress"} {
+  test_skip "runs only with -assurance stress"
+}
+
 require_no_open_checkout
 
 if {$::tcl_platform(platform) eq "windows"} {
@@ -71,8 +76,8 @@ ssh_clone "ssh://hh/repo.fossil?fossil=/opt/bin/fossil"
 test ssh-clone-fossil-parameter \
     {[string first "<hh>\n</opt/bin/fossil>\n<test-http>" $sshArgs] >= 0}
 
-# A path that begins with "~" is for the server to expand.  It was
-# previously expanded on the local machine.
+# A path that begins with "~" is for the server to expand, so it goes to
+# the server as it is.
 ssh_clone ssh://hh/~/repo.fossil
 test ssh-clone-tilde {[string first "<~/repo.fossil>" $sshArgs] >= 0}
 
