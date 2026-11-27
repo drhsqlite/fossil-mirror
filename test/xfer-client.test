@@ -18,7 +18,6 @@ if {$::tcl_platform(platform) eq "windows"} {
 }
 
 test_setup
-source [file join $::testfiledir trunk-fixes.tcl]
 
 write_file a.txt "hello world\n"
 fossil add a.txt
@@ -413,8 +412,7 @@ foreach {xferclientName xferclientCard xferclientKept} [list \
   xferclient_run pull $xferclientCard --share-links
   fossil sql "SELECT count(*) FROM config WHERE name LIKE 'link:%'"
   test_eq xfer-client-mcdc-link-$xferclientName \
-      "$xferclientCode [string trim $RESULT]" "0 $xferclientKept" \
-      [trunk_mark $xferclientName {ftp no-scheme}]
+      "$xferclientCode [string trim $RESULT]" "0 $xferclientKept"
 }
 
 ###############################################################################

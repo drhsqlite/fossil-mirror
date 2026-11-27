@@ -19,7 +19,6 @@ if {$::tcl_platform(platform) eq "windows"} {
 }
 
 test_setup
-source [file join $::testfiledir trunk-fixes.tcl]
 
 set sshDir [file join [pwd] ssh-standin]
 file mkdir $sshDir

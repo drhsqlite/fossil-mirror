@@ -14,7 +14,6 @@
 require_no_open_checkout
 
 test_setup
-source [file join $::testfiledir trunk-fixes.tcl]
 
 write_file a.txt "hello world\n"
 fossil add a.txt
@@ -204,10 +203,9 @@ test xfer-server-write-client-url-recorded \
 # A client URL that is not http or https is ignored and the request goes
 # on; it is not read as a path on the server.
 foreach {xferserverName xferserverUrl} {ftp ftp://example.org/y path /} {
-  xferserver_send "${xferserverPush}pragma client-url $xferserverUrl\n"
-  test xfer-server-write-client-url-$xferserverName {$::CODE == 0 &&
-      [holds_strings $::RESULT {{!unknown repository} {errors 0}}]} \
-      $::trunkMark
+  xferserver_expect write-client-url-$xferserverName \
+      "${xferserverPush}pragma client-url $xferserverUrl\n" \
+      "!unknown repository" "errors 0"
 }
 
 # A first word that has the length of a card name and is not it selects no
@@ -442,12 +440,12 @@ xferserver_set gitpush:git@git.example.org:someone/other.git "{}"
 xferserver_set gitpush:httpd@git.example.org:someone/other.git "{}"
 xferserver_send "${xferserverPull}pragma req-links\n"
 test xfer-server-read-req-links-git-address \
-    {$CODE == 0 && [string first "errors 0" $RESULT] >= 0} $::trunkMark
+    {$CODE == 0 && [string first "errors 0" $RESULT] >= 0}
 test xfer-server-read-req-links-git-https \
     {[string match "*pragma link https://git.example.org/someone/mirror.git*" \
-        $RESULT]} $::trunkMark
+        $RESULT]}
 test xfer-server-read-req-links-git-other-left-out \
-    {![string match "*other.git*" $RESULT]} $::trunkMark
+    {![string match "*other.git*" $RESULT]}
 xferserver_unset gitpush:*
 
 # The address configuration is given only to a client that may read

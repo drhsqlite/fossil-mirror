@@ -15,7 +15,6 @@
 require_no_open_checkout
 
 test_setup
-source [file join $::testfiledir trunk-fixes.tcl]
 
 set crosslinkSeq 0
 
@@ -634,9 +633,7 @@ foreach {crosslinkName crosslinkValue} [list \
 T +parent $crosslinkM3 $crosslinkValue
 U alice
 "]
-  test crosslink-reparent-$crosslinkName {$CODE == 0 && $crosslinkG ne ""} \
-      [sanitizer_trunk_mark $crosslinkName \
-          {two-sha3-short one-sha3-short one-sha1-short}]
+  test crosslink-reparent-$crosslinkName {$CODE == 0 && $crosslinkG ne ""}
   test_eq crosslink-reparent-$crosslinkName-ignored [fossil_sql "SELECT
       uuid FROM plink, blob WHERE pid=rid AND isprim AND cid=(SELECT rid
       FROM blob WHERE uuid='$crosslinkM3')"] $crosslinkM2
@@ -688,8 +685,7 @@ foreach {crosslinkKind crosslinkHash crosslinkWant} [list \
   }
   fossil test-artifact-to-json $crosslinkHash
   test crosslink-json-$crosslinkKind {$CODE == 0}
-  crosslink_match crosslink-json-$crosslinkKind-text $RESULT $crosslinkWant \
-      [sanitizer_trunk_mark $crosslinkKind tag]
+  crosslink_match crosslink-json-$crosslinkKind-text $RESULT $crosslinkWant
 }
 # Every artifact that the repository shows in its timeline has a JSON
 # form.
@@ -1316,14 +1312,13 @@ crosslink_match crosslink-mcdc-agree-signed $RESULT \
 fossil test-parse-manifest $crosslinkEmptyP
 crosslink_match crosslink-mcdc-agree-empty-p-parses $RESULT \
     {*manifest_parse() worked*}
-test crosslink-mcdc-agree-empty-p {![string match *disagree* $RESULT]} \
-    $::trunkMark
+test crosslink-mcdc-agree-empty-p {![string match *disagree* $RESULT]}
 
 fossil test-parse-manifest wf-signed-no-newline.txt
 crosslink_match crosslink-mcdc-agree-signed-no-newline-refused $RESULT \
     {*ERROR: not terminated*}
 test crosslink-mcdc-agree-signed-no-newline \
-    {![string match *disagree* $RESULT]} $::trunkMark
+    {![string match *disagree* $RESULT]}
 
 # The same for content held by a repository.
 fossil init wf.fossil
@@ -1334,7 +1329,7 @@ fossil test-parse-all-blobs --wellformed -R wf.fossil
 test crosslink-mcdc-agree-stored-checked \
     {$CODE == 0 && [regexp {(\d+) tests with} $RESULT all n] && $n >= 3}
 crosslink_match crosslink-mcdc-agree-stored-no-errors $RESULT \
-    {*tests with 0 errors*} $::trunkMark
+    {*tests with 0 errors*}
 
 ###############################################################################
 # More values of the "parent" tag.  A value that ends in a space names the

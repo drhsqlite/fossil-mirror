@@ -10,7 +10,6 @@
 require_no_open_checkout
 
 test_setup
-source [file join $::testfiledir trunk-fixes.tcl]
 
 proc purge_sql {sql {repo .rep.fossil}} {
   return [fossil_sql $sql $repo]
@@ -429,8 +428,7 @@ foreach {purgeName purgeDamage purgeArgs purgeMessage} [list \
   set purgeBefore [repository_state damaged.fossil]
   fossil_raw purge {*}$purgeArgs -R damaged.fossil
   test purge-damage-$purgeName {$CODE == 1 &&
-      [string match $purgeMessage $RESULT]} \
-      [trunk_mark $purgeName cat-source-loop]
+      [string match $purgeMessage $RESULT]}
   test_eq purge-damage-$purgeName-no-change [repository_state damaged.fossil] \
       $purgeBefore
   test_eq purge-damage-$purgeName-event-kept \

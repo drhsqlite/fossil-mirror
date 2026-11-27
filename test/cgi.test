@@ -8,7 +8,6 @@
 #
 
 test_setup
-source [file join $::testfiledir trunk-fixes.tcl]
 
 write_file a.txt "an unversioned file\n"
 fossil uv add a.txt
@@ -491,27 +490,25 @@ foreach {cgiName cgiRange} {
 set cgiReply [cgi_range bytes=15-2147483646]
 test_eq cgi-range-past-end [reply_body $cgiReply] fghij
 test_eq cgi-range-past-end-header [reply_header $cgiReply Content-Range] \
-    "bytes 15-19/20" $::trunkMark
-test_eq cgi-range-past-end-length [reply_header $cgiReply Content-Length] 5 \
-    $::trunkMark
+    "bytes 15-19/20"
+test_eq cgi-range-past-end-length [reply_header $cgiReply Content-Length] 5
 # A range that starts at or after the end gets 416 and no content.
 foreach {cgiName cgiRange} {at-end bytes=20-20 after-end bytes=25-30} {
   set cgiReply [cgi_range $cgiRange]
   test cgi-range-unsatisfiable-$cgiName {
       [reply_status $cgiReply] eq "HTTP/1.0 416 Range Not Satisfiable"
       && [reply_header $cgiReply Content-Range] eq "bytes */20"
-      && [reply_header $cgiReply Content-Length] eq "0"} $::trunkMark
+      && [reply_header $cgiReply Content-Length] eq "0"}
 }
 # A number too large for an int is not taken as a smaller one.
 set cgiReply [cgi_range bytes=0-4294967299]
-test_eq cgi-range-too-large [reply_status $cgiReply] "HTTP/1.0 200 OK" \
-    $::trunkMark
+test_eq cgi-range-too-large [reply_status $cgiReply] "HTTP/1.0 200 OK"
 # A reply other than 206 is sent whole, whatever range was asked for.
 set cgiReply [cgi_send [request_get /uv/nosuch.css [list "Range: bytes=3-9"]] \
     --ipaddr 127.0.0.1]
 test cgi-range-not-found {
     [string match "HTTP/1.0 404 *" [reply_status $cgiReply]]
-    && [string match "<!DOCTYPE*" [reply_body $cgiReply]]} $::trunkMark
+    && [string match "<!DOCTYPE*" [reply_body $cgiReply]]}
 
 ###############################################################################
 # More shapes of form data in several parts.
@@ -583,7 +580,7 @@ write_file request.txt [cgi_post $cgiType $cgiBody]
 file delete reply.txt
 fossil_raw -seconds 15 http $cgiRepo --in request.txt --out reply.txt \
     --ipaddr 127.0.0.1 --localauth
-test cgi-multipart-lone-quote {$CODE == 0} $::trunkMark
+test cgi-multipart-lone-quote {$CODE == 0}
 
 # Only the first 49 words of a header line are read.
 set cgiWords ""
@@ -604,7 +601,7 @@ set cgiReply [cgi_form \
         "--XB\r\nContent-Disposition: form-data; name= \"\r\n\r\n" \
         "v\r\n[cgi_part after ok]--XB--\r\n"] ""]]
 test {cgi-multipart-quote-alone} {[reply_status $cgiReply] eq "HTTP/1.0 200 OK"
-    && [cgi_param $cgiReply after] eq "ok"} $::trunkMark
+    && [cgi_param $cgiReply after] eq "ok"}
 
 # Content that begins with a zero byte has no parts.
 set cgiReply [cgi_form "\000--XB\r\n[cgi_part a v]--XB--\r\n"]
@@ -739,8 +736,7 @@ test cgi-csrf-user-created \
 set cgiBody "id=0&login=cgighost&csrf=$cgiToken"
 cgi_admin [cgi_post_from http://x/setup_uedit /setup_uedit $cgiBody]
 test cgi-all-needs-every-field \
-    {[fossil sql "SELECT count(*) FROM user WHERE login='cgighost'"] == 0} \
-    $::trunkMark
+    {[fossil sql "SELECT count(*) FROM user WHERE login='cgighost'"] == 0}
 
 ###############################################################################
 # Request methods and the same reader over ssh.
@@ -975,8 +971,7 @@ proc cgi_cookie_delete {base} {
 }
 set cgiReply [cgi_cookie_delete http://x]
 test cgi-cookie-delete {[string match \
-    "*Set-Cookie: fossil_display_settings=null;*max-age=-1;*" $cgiReply]} \
-    [sanitizer_trunk_mark]
+    "*Set-Cookie: fossil_display_settings=null;*max-age=-1;*" $cgiReply]}
 set cgiReply [cgi_cookie_delete https://x/d]
 test cgi-cookie-delete-secure {[string match "*max-age=-1;*secure;*" $cgiReply]
     || [string match "*max-age=-1;* secure*" $cgiReply]}
@@ -1046,7 +1041,7 @@ test cgi-range-ignored-no-dash {[reply_status $cgiReply] eq "HTTP/1.0 200 OK"
 set cgiReply [cgi_send [request_get /raw/$cgiArt?m=application/x-fossil \
     [list "Range: bytes=1-3"]] --ipaddr 127.0.0.1 --localauth]
 test cgi-range-sync-type {[reply_status $cgiReply] eq "HTTP/1.0 200 OK"
-    && [reply_header $cgiReply Content-Range] eq "-"} $::trunkMark
+    && [reply_header $cgiReply Content-Range] eq "-"}
 set cgiReply [cgi_send [request_get /raw/$cgiFile?m=text/plain \
     [list "Range: bytes=4-8"]] --ipaddr 9.9.9.9]
 test_eq cgi-range-artifact [reply_body $cgiReply] quick
@@ -1114,7 +1109,7 @@ foreach cgiLog $cgiLogs {
 }
 test cgi-httptrace-post-content {[string match "*body=sent" $cgiLogText]}
 test cgi-httptrace-post-header \
-    {[string match "POST /test-env HTTP/1.1*" $cgiLogText]} $::trunkMark
+    {[string match "POST /test-env HTTP/1.1*" $cgiLogText]}
 write_file request.txt [request_get /test-env?traced=2]
 if {$::tcl_platform(platform) eq "unix"} {
   set cgiHere [pwd]
@@ -1387,7 +1382,7 @@ if {[normalize_result] eq "1"} {
     set cgiReply [cgi_admin [cgi_post application/json $cgiBody /json/version]]
     test cgi-json-post-$cgiName-exit {$CODE == 0}
     test cgi-json-post-$cgiName-reply \
-        {[string match "*FOSSIL-1101*" $cgiReply]} $::trunkMark
+        {[string match "*FOSSIL-1101*" $cgiReply]}
   }
   set cgiReply [cgi_admin [cgi_post text/x-other {[1]} /json/version]]
   test cgi-json-post-other-type {[reply_status $cgiReply] eq "HTTP/1.0 200 OK"
@@ -1417,14 +1412,9 @@ set cgiReply [cgi_send \
         "$cgiFirst\n\nfossil\nGET /test-env?second=2 HTTP/1.1\r\n" \
         "Host: x\r\nContent-Length: 0\r\nContent-Type: text/plain\r\n" \
         "X-Fossil-Transport: ssh\r\n\r\n"] ""] --localauth]
-if {$::sanitizerBuild} {
-  test_skip_part "cgi-ssh-flip: a sanitizer reports a read of the\
-      Content-Length of a later request from memory that is reused"
-} else {
-  test cgi-ssh-flip {[string match "test1\n*" $cgiReply]
-      && [string match "*HTTP_USER_AGENT = First*first = 1*second = 2*" \
-          $cgiReply]}
-}
+test cgi-ssh-flip {[string match "test1\n*" $cgiReply]
+    && [string match "*HTTP_USER_AGENT = First*first = 1*second = 2*" \
+        $cgiReply]}
 foreach {cgiName cgiMore cgiError} [list \
     cut-short     "\n"              "incorrect transport_flip" \
     not-blank     "\nxyz\n"         "transport_flip failed" \
@@ -1670,7 +1660,7 @@ fossil sql "DELETE FROM config WHERE name='header'"
 foreach {cgiName cgiUrl} {path /stat url http://other.example/x} {
   fossil_raw test-th-eval "redirect $cgiUrl"
   test cgi-th1-redirect-no-request-$cgiName {$CODE == 0 && [string match \
-      "*redirect is only allowed in a web request*" $RESULT]} $::trunkMark
+      "*redirect is only allowed in a web request*" $RESULT]}
 }
 # With --http the command line makes a reply, and a redirect to a full
 # URL is sent as "302".
@@ -1955,7 +1945,7 @@ if {$::tcl_platform(platform) eq "unix" && [loopback_available]} {
           $cgiPrinted eq "Listening for HTTP requests on unix socket sock2"
           && [reply_status $cgiReply] eq "HTTP/1.0 200 OK"
           && [format %o [expr {[file attributes sock2 -permissions] & 0o777}]]
-              eq $cgiMode} $::trunkMark
+              eq $cgiMode}
     }
     fossil_raw -seconds 30 server --socket-mode rw --socket-name sock3 $cgiRepo
     test cgi-server-unix-mode-not-a-number {$CODE == 1 && [string match \

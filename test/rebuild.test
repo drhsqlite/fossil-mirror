@@ -12,7 +12,6 @@
 require_no_open_checkout
 
 test_setup
-source [file join $::testfiledir trunk-fixes.tcl]
 
 proc rebuild_sql {sql {repo .rep.fossil}} {
   return [fossil_sql $sql $repo]
@@ -420,9 +419,9 @@ test rebuild-index-search {[string match "*rebuild-side-1*" $RESULT]}
 # again.
 fossil sql -R fts.fossil "DELETE FROM ftsdocs"
 fossil rebuild fts.fossil --compress-only --index
-test rebuild-index-compress-only-index {$CODE == 0} $::trunkMark
+test rebuild-index-compress-only-index {$CODE == 0}
 test_eq rebuild-index-compress-only-index-filled \
-    [rebuild_indexed fts.fossil] $rebuildDocs $::trunkMark
+    [rebuild_indexed fts.fossil] $rebuildDocs
 fossil rebuild fts.fossil --noindex
 test rebuild-noindex {$CODE == 0}
 test_eq rebuild-noindex-gone [rebuild_indexed fts.fossil] none
@@ -584,10 +583,7 @@ test_eq rebuild-reconstruct-keep-private \
     [rebuild_hashes r-keep.fossil "rid IN private"] $rebuildPrivate
 test_eq rebuild-reconstruct-keep-state \
     [repository_state_diff $rebuildStart [repository_state r-keep.fossil]] ""
-fossil test-integrity -R r-keep.fossil
-test rebuild-reconstruct-keep-integrity {$CODE == 0} $::trunkMark
-fossil test-missing -R r-keep.fossil
-test rebuild-reconstruct-keep-missing {$CODE == 0}
+repository_sound rebuild-reconstruct-keep r-keep.fossil
 
 # Without -P every artifact in the directory becomes public.
 fossil reconstruct r-private.fossil d-private
@@ -641,9 +637,9 @@ test_eq rebuild-deconstruct-refused-wrote-nothing [rebuild_files d-none] ""
 write_file d-file.txt "a file, not a directory\n"
 fossil deconstruct -R full.fossil d-file.txt -expectError
 test rebuild-deconstruct-file-destination {$CODE != 0 &&
-    [string match "*is not a directory*" $RESULT]} $::trunkMark
+    [string match "*is not a directory*" $RESULT]}
 test rebuild-deconstruct-file-destination-kept \
-    {[file isfile d-file.txt]} $::trunkMark
+    {[file isfile d-file.txt]}
 
 # A destination that cannot be written to, where the system can make one.
 catch {file attributes d-none -permissions 0555}

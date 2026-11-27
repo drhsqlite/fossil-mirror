@@ -5,7 +5,6 @@
 require_no_open_checkout
 
 test_setup
-source [file join $::testfiledir trunk-fixes.tcl]
 
 write_file a.txt "a\n"
 fossil add a.txt
@@ -200,7 +199,7 @@ if {$::tcl_platform(platform) ne "windows"} {
 
 fossil remote http://example.invalid:99999999999/x -expectError
 test regress-url-port-too-large {$CODE != 0
-    && [string match "*port number too large*" $RESULT]} $::trunkMark
+    && [string match "*port number too large*" $RESULT]}
 fossil remote http://example.invalid:65535/x
 test regress-url-port-largest {$CODE == 0}
 fossil remote off
@@ -243,7 +242,7 @@ fossil attachment add AttachPage attach.txt
 fossil clone .rep.fossil regress-attach-clone.fossil
 fossil push regress-attach-clone.fossil --once
 test regress-push-held-attachment {$CODE == 0
-    && ![string match "*UNIQUE constraint*" $RESULT]} $::trunkMark
+    && ![string match "*UNIQUE constraint*" $RESULT]}
 fossil sql -R regress-attach-clone.fossil \
     "SELECT count(*) FROM attachment WHERE target='AttachPage'"
 test_eq regress-push-held-attachment-rows [string trim $RESULT] 1
@@ -256,8 +255,7 @@ foreach {regressName regressRobot} {unset {} list timelineX,diff all *} {
   fossil settings robot-restrict $regressRobot
   fossil_raw test-th-eval --open-config {styleHeader {Page Title}}
   test regress-styleheader-cli-$regressName \
-      {$CODE == 0 && [string match "*<title>*: Page Title</title>*" $RESULT]} \
-    $::trunkMark
+      {$CODE == 0 && [string match "*<title>*: Page Title</title>*" $RESULT]}
 }
 fossil settings robot-restrict ""
 
@@ -270,8 +268,7 @@ write_file baseurl-req.txt "GET /robots.txt HTTP/1.1\r\nHost: x\r\n\r\n"
 foreach {regressName regressUrl} {bare https://x slash https://x/} {
   fossil_raw http .rep.fossil --in baseurl-req.txt --baseurl $regressUrl
   test regress-baseurl-no-path-$regressName \
-      {$CODE == 0 && [string match "HTTP/1.0 200*" $RESULT]} \
-      [sanitizer_trunk_mark $regressName {bare slash}]
+      {$CODE == 0 && [string match "HTTP/1.0 200*" $RESULT]}
 }
 
 test_cleanup
