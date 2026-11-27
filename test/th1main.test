@@ -5,11 +5,8 @@
 # that holds TH1 is asked for through "fossil http --in".
 #
 
-# These tests run only in a long pass: -assurance stress.
-if {[test_assurance] ne "stress"} {
-  test_skip "runs only with -assurance stress"
-}
-
+# The first sections run at every level, and the rest need
+# -assurance stress.
 test_setup
 
 write_file a.txt "hello\n"
@@ -99,8 +96,10 @@ foreach {th1mainName th1mainCall th1mainUsage} {
   anycap-many      {anycap a b}             {anycap STRING}
   combobox-few     {combobox a b}           {combobox NAME TEXT-LIST NUMLINES}
   combobox-many    {combobox a b 1 d}       {combobox NAME TEXT-LIST NUMLINES}
-  copybtn-few      {copybtn a 0}            {copybtn TARGETID FLIPPED TEXT ?COPYLENGTH?}
-  copybtn-many     {copybtn a 0 c 1 e}      {copybtn TARGETID FLIPPED TEXT ?COPYLENGTH?}
+  copybtn-few      {copybtn a 0}
+  {copybtn TARGETID FLIPPED TEXT ?COPYLENGTH?}
+  copybtn-many     {copybtn a 0 c 1 e}
+  {copybtn TARGETID FLIPPED TEXT ?COPYLENGTH?}
   linecount-few    {linecount a 1}          {linecount STRING MAX MIN}
   linecount-many   {linecount a 1 2 3}      {linecount STRING MAX MIN}
   repository-many  {repository 1 2}         {repository ?BOOLEAN?}
@@ -146,22 +145,33 @@ foreach {th1mainName th1mainCall th1mainUsage} {
   setting-many     {setting a b c d}        {setting ?-strict? ?--? name}
   setting-two      {setting -- a b}         {setting ?-strict? ?--? name}
   setting-strict-two {setting -strict -- a b} {setting ?-strict? ?--? name}
-  glob-few         {glob_match a}           {glob_match ?-one? ?--? patternList string}
-  glob-many        {glob_match -one -- a b c} {glob_match ?-one? ?--? patternList string}
-  glob-three       {glob_match a b c}       {glob_match ?-one? ?--? patternList string}
+  glob-few         {glob_match a}
+  {glob_match ?-one? ?--? patternList string}
+  glob-many        {glob_match -one -- a b c}
+  {glob_match ?-one? ?--? patternList string}
+  glob-three       {glob_match a b c}
+  {glob_match ?-one? ?--? patternList string}
   regexp-few       {regexp a}               {regexp ?-nocase? ?--? exp string}
   regexp-many      {regexp -nocase -- a b c} {regexp ?-nocase? ?--? exp string}
   regexp-three     {regexp -- a b c}        {regexp ?-nocase? ?--? exp string}
   regexp-one       {regexp -nocase -- a}    {regexp ?-nocase? ?--? exp string}
-  http-few         {http}                   {http ?-asynchronous? ?--? url ?payload?}
-  http-many        {http -asynchronous -- a b c} {http ?-asynchronous? ?--? url ?payload?}
-  http-none        {http --}                {http ?-asynchronous? ?--? url ?payload?}
-  http-three       {http -- a b c}          {http ?-asynchronous? ?--? url ?payload?}
+  http-few         {http}
+  {http ?-asynchronous? ?--? url ?payload?}
+  http-many        {http -asynchronous -- a b c}
+  {http ?-asynchronous? ?--? url ?payload?}
+  http-none        {http --}
+  {http ?-asynchronous? ?--? url ?payload?}
+  http-three       {http -- a b c}
+  {http ?-asynchronous? ?--? url ?payload?}
   capture-few      {captureTh1}             {captureTh1 STRING}
   capture-many     {captureTh1 a b}         {captureTh1 STRING}
 } {
   test_eq th1main-args-$th1mainName [th1main_eval $th1mainCall] \
       "TH_ERROR: wrong # args: should be \"$th1mainUsage\""
+}
+
+if {[test_assurance] ne "stress"} {
+  test_skip "the tests after the first sections need -assurance stress"
 }
 
 ###############################################################################
@@ -488,8 +498,10 @@ foreach {th1mainName th1mainOption} {
 fossil settings timeline-utc 0
 set th1mainSavedTz [expr {[info exists env(TZ)] ? $env(TZ) : ""}]
 set env(TZ) XXX-5
-set th1mainDates [split [th1main_eval {puts "[date]|[date -local]"; set x {}}] |]
-if {$th1mainSavedTz eq ""} { unset env(TZ) } else { set env(TZ) $th1mainSavedTz }
+set th1mainDates [split [th1main_eval {puts "[date]|[date -local]"; set x {}}] \
+    |]
+if {$th1mainSavedTz eq ""} { unset env(TZ) } else \
+    { set env(TZ) $th1mainSavedTz }
 fossil settings timeline-utc 1
 set th1mainDiff [expr {[clock scan [lindex $th1mainDates 1] -gmt 1]
     - [clock scan [lindex $th1mainDates 0] -gmt 1]}]
@@ -553,7 +565,8 @@ test_eq th1main-dir-ambiguous [th1main_eval "dir $th1mainPrefix"] {}
 # option, and "http" with an empty first argument, give a script error.
 foreach {th1mainName th1mainCall th1mainUsage} {
   setting-strict-alone {setting -strict} {setting ?-strict? ?--? name}
-  http-option-alone {http -asynchronous} {http ?-asynchronous? ?--? url ?payload?}
+  http-option-alone {http -asynchronous}
+  {http ?-asynchronous? ?--? url ?payload?}
   http-empty {http {}} {http ?-asynchronous? ?--? url ?payload?}
 } {
   set th1mainGot [th1main_eval $th1mainCall]
@@ -572,9 +585,12 @@ foreach {th1mainName th1mainSql} {
   space {SELECT 1 AS a; }
 } {
   fossil_raw -seconds 10 test-th-eval \
-      "set n 0; query {$th1mainSql} {set n \[expr {\$n+1}\]; if {\$n>50} {error endless}}; set n"
+      [join [list \
+          "set n 0; query {$th1mainSql} {set n \[expr {\$n+1}\]; if " \
+          "{\$n>50} {error endless}}; set n"] ""]
   test th1main-query-statements-$th1mainName \
-      {$CODE == 0 && [string trim $RESULT] eq [dict get {two 2 space 1} $th1mainName]}
+      {$CODE == 0 && [string trim $RESULT] eq [dict get {two 2 space 1} \
+          $th1mainName]}
 }
 
 # builtin_request_js with a name that is not a built-in file gives a
@@ -593,7 +609,8 @@ test th1main-http-not-url \
     {$CODE == 0 && [string match "TH_ERROR: *" $th1mainGot]}
 
 # A phantom: an artifact whose content the repository does not hold.
-set th1mainPhantom abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789
+set th1mainPhantom \
+    abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789
 fossil sql "INSERT INTO blob(rcvid,size,uuid) VALUES(0,-1,'$th1mainPhantom');
             INSERT INTO phantom SELECT rid FROM blob WHERE size=-1;"
 test_match th1main-artifact-phantom \
@@ -661,7 +678,9 @@ if {![loopback_available]} {
       "User-Agent: " "!Content-Length" "!Authorization"]]}
 
   set th1mainGot [th1main_http \
-      "http -asynchronous -- http://$th1mainUrl/post {some payload}; set x sent"]
+      [join [list \
+          "http -asynchronous -- http://$th1mainUrl/post {some " \
+          "payload}; set x sent"] ""]]
   test_eq th1main-http-post $th1mainGot sent
   test th1main-http-post-request {[holds_strings $th1mainHeard [list \
       "POST /post HTTP/1.0\r\n" "Content-Length: 12\r\n\r\nsome payload" \
@@ -689,7 +708,6 @@ if {![loopback_available]} {
   set th1mainGot [th1main_eval "http -asynchronous http://$th1mainUrl/x"]
   test_match th1main-http-refused $th1mainGot {^TH_ERROR: .}
 }
-fossil unset th1-uri-regexp
 
 ###############################################################################
 # Tracing: --th-trace prints a log of what the commands did.
@@ -744,7 +762,8 @@ foreach {th1mainName th1mainText th1mainExpected} [list \
   script-upper {<TH1>puts 1</TH1><Th1>puts 2</tH1><tH1>puts 3</Th1>} 123 \
   script-unclosed {a<th1>puts b} ab \
   script-empty-unclosed {a<th1>} a \
-  script-half-closed {a<th1></th1} "a${th1mainErr}no such command:  &lt;/th1</p>" \
+  script-half-closed {a<th1></th1} \
+  "a${th1mainErr}no such command:  &lt;/th1</p>" \
   not-tags {<t><th><th1 ><th2>x</t></th></th1 ></th2></th1x<xh1><tx1>} \
       {<t><th><th1 ><th2>x</t></th></th1 ></th2></th1x<xh1><tx1>} \
   end-tag-alone {a</th1>b} {a</th1>b} \
@@ -754,19 +773,25 @@ foreach {th1mainName th1mainText th1mainExpected} [list \
   dollar-bracket-end {a$<} {a$<} \
   dollar-bracket-unclosed {a$<v b} {a$<v b} \
   dollar-digit {a$1 $_ $: $:: $::1 $<1> ${v}} {a$1 $_ $: $:: $::1 $<1> ${v}} \
-  variables {<th1>set v {<b>&}; set ::g G; set v_2 two</th1>[$v][$<v>][$::g][$<::g>][$v_2]} \
+  variables \
+  {<th1>set v {<b>&}; set ::g G; set v_2 two</th1>[$v][$<v>][$::g][$<::g>][$v_2]} \
       {[<b>&][&lt;b&gt;&amp;][G][G][two]} \
   variable-then-text {<th1>set v 1</th1>$v.$v-$<v>x} {1.1-1x} \
-  variable-unknown {a$nosuch b} "a${th1mainNoVar}nosuch${th1mainErr}no such variable: nosuch</p>" \
-  variable-unknown-escaped {a$<nosuch>b} "a${th1mainNoVar}nosuch${th1mainErr}no such variable: nosuch</p>" \
-  variable-unknown-then-known {<th1>set v 1</th1>a$nosuch b$v c} "a${th1mainNoVar}nosuch b1 c" \
-  variable-tainted {<th1>set t [taint <i>]</th1>[$t][$<t>]end} {[][&lt;i&gt;]end} \
-  error {a<th1>error boom</th1>after} "a${th1mainErr}boom</p>" \
+  variable-unknown {a$nosuch b} \
+  "a${th1mainNoVar}nosuch${th1mainErr}no such variable: nosuch</p>" \
+  variable-unknown-escaped {a$<nosuch>b} \
+  "a${th1mainNoVar}nosuch${th1mainErr}no such variable: nosuch</p>" \
+  variable-unknown-then-known {<th1>set v 1</th1>a$nosuch b$v c} \
+  "a${th1mainNoVar}nosuch b1 c" \
+  variable-tainted {<th1>set t [taint <i>]</th1>[$t][$<t>]end} \
+  {[][&lt;i&gt;]end} \
+  error-plain {a<th1>error boom</th1>after} "a${th1mainErr}boom</p>" \
   error-escaped {<th1>error <b></th1>} "${th1mainErr}&lt;b&gt;</p>" \
   nested {<th1>set v 2; render {b$<v>|}; render {c$v}</th1>d} {b2|c2d} \
   nested-error {<th1>render {b$<v>|}; puts never</th1>d} \
       "b${th1mainNoVar}v${th1mainErr}no such variable: v</p>${th1mainErr}</p>" \
-  output-off {<th1>enable_output 0</th1>hidden $<v><th1>enable_output 1</th1>shown} shown \
+  output-off \
+  {<th1>enable_output 0</th1>hidden $<v><th1>enable_output 1</th1>shown} shown \
 ] {
   test_eq th1main-render-$th1mainName [th1main_render $th1mainText] \
       $th1mainExpected
@@ -802,7 +827,8 @@ test_eq th1main-render-anon-caps \
 set env(TH1_TEST_USER_CAPS) o
 set env(TH1_TEST_ANON_CAPS) h
 test_eq th1main-render-caps-from-environment \
-    [th1main_render {<th1>puts [hascap o][hascap s][anoncap h][anoncap s]</th1>} \
+    [th1main_render \
+        {<th1>puts [hascap o][hascap s][anoncap h][anoncap s]</th1>} \
          --set-user-caps --set-anon-caps] 1010
 test_eq th1main-eval-caps-from-environment \
     [th1main_eval {puts [hascap o][hascap s][anoncap h][anoncap s]; set x {}} \
@@ -833,7 +859,8 @@ test_eq th1main-source-no-database \
     [th1main_source {query {SELECT 1 AS a} {puts $a}}] \
     {TH_ERROR: database is not open }
 test_eq th1main-source-no-database-quiet \
-    [th1main_source {query -nocomplain {SELECT 1 AS a} {puts $a}; set x quiet}] \
+    [th1main_source \
+        {query -nocomplain {SELECT 1 AS a} {puts $a}; set x quiet}] \
     quiet
 test_eq th1main-source-no-repository [th1main_source {repository}] {}
 test_match th1main-source-repository [th1main_source {repository 1}] \
@@ -850,7 +877,8 @@ test_eq th1main-source-anon-caps \
 set env(TH1_TEST_USER_CAPS) o
 set env(TH1_TEST_ANON_CAPS) h
 test_eq th1main-source-caps-from-environment \
-    [th1main_source {puts [hascap o][hascap s][anoncap h][anoncap s]; set x {}} \
+    [th1main_source \
+        {puts [hascap o][hascap s][anoncap h][anoncap s]; set x {}} \
          --set-user-caps --set-anon-caps] 1010
 unset env(TH1_TEST_USER_CAPS) env(TH1_TEST_ANON_CAPS)
 set th1mainGot [th1main_source {puts hello; set x {}} --cgi]
@@ -909,8 +937,7 @@ proc th1main_request {script request args} {
 
 # The same for a GET of /tktnew with the query string QUERY.
 proc th1main_page {script {query ""} args} {
-  return [th1main_request $script \
-      "GET /tktnew$query HTTP/1.1\r\nHost: x\r\n\r\n" {*}$args]
+  return [th1main_request $script [request_get /tktnew$query] {*}$args]
 }
 
 fossil fts-config enable cdtw
@@ -1089,7 +1116,9 @@ fossil unset vuln-report
 set th1mainGot [th1main_page {B=$title|C=$<title>|END} $th1mainTaintQuery]
 test th1main-taint-block-inline {[holds_strings $th1mainGot \
     {{B=|C=&lt;u&gt;|END}}]}
-set th1mainGot [th1main_page {<th1>query "SELECT 1 AS n /* [getParameter p] */" {puts n=$n}</th1>END} $th1mainTaintQuery]
+set th1mainGot [th1main_page \
+    {<th1>query "SELECT 1 AS n /* [getParameter p] */" {puts n=$n}</th1>END} \
+    $th1mainTaintQuery]
 test th1main-taint-block-query {[holds_strings $th1mainGot \
     {{ERROR: tainted query SQL: &quot;SELECT 1 AS n /* &lt;i&gt; */&quot;} !n=1}]}
 set th1mainGot [th1main_page {<th1>redirect [getParameter u]</th1>END} \
@@ -1102,7 +1131,6 @@ set th1mainGot [th1main_page {<th1>redirect [getParameter u]</th1>END} \
     "?u=/elsewhere"]
 test th1main-taint-off-redirect {[holds_strings $th1mainGot [list \
     "HTTP/1.0 302 " "\r\nLocation: http://x/elsewhere\r\n"]]}
-fossil unset vuln-report
 
 ###############################################################################
 # With no check-out and no repository.

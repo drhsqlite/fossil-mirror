@@ -7,11 +7,6 @@
 # scenario.test.
 #
 
-# These tests run only in a long pass: -assurance stress.
-if {[test_assurance] ne "stress"} {
-  test_skip "runs only with -assurance stress"
-}
-
 require_no_open_checkout
 
 test_setup
@@ -30,7 +25,8 @@ foreach fuzzDir [lsort [glob -nocomplain -types d [file join corpus *]]] {
 }
 
 foreach {fuzzType fuzzGlob} {wiki *.wiki markdown *.md wiki2 *.md} {
-  foreach fuzzF [lsort [glob -nocomplain [file join $::testfiledir $fuzzGlob]]] {
+  foreach fuzzF [lsort [glob \
+      -nocomplain [file join $::testfiledir $fuzzGlob]]] {
     fossil test-fuzz --fuzztype $fuzzType $fuzzF
     test fuzz-$fuzzType-[file tail $fuzzF] {$CODE == 0}
   }
@@ -75,7 +71,5 @@ file mkdir not-a-fuzz-type
 write_file [file join not-a-fuzz-type x] "x\n"
 fossil test-fuzz not-a-fuzz-type -expectError
 test fuzz-misnamed-directory {$CODE != 0}
-
-###############################################################################
 
 test_cleanup

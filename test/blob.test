@@ -9,11 +9,8 @@
 # another encoding.
 #
 
-# These tests run only in a long pass: -assurance stress.
-if {[test_assurance] ne "stress"} {
-  test_skip "runs only with -assurance stress"
-}
-
+# The first sections run at every level, and the rest need
+# -assurance stress.
 require_no_open_checkout
 
 test_setup
@@ -35,7 +32,7 @@ proc blob_hex {bytes} {
 # test-isspace checks fossil_isspace() against every byte value.
 
 fossil test-isspace
-test blob-isspace-1 {[string trim $RESULT] eq "All 256 characters OK"}
+test_eq blob-isspace-1 [string trim $RESULT] "All 256 characters OK"
 
 ###############################################################################
 # test-atoi prints, for each argument, whether it is a non-negative
@@ -149,9 +146,11 @@ foreach blobWidth {0 -5 x} {
 
 # The command takes exactly one file.
 fossil_raw test-strip-comment-lines
-test blob-strip-usage-none {$CODE == 1 && [string match "Usage:*INPUTFILE*" $RESULT]}
+test blob-strip-usage-none \
+    {$CODE == 1 && [string match "Usage:*INPUTFILE*" $RESULT]}
 fossil_raw test-strip-comment-lines strip-sbs.txt strip-sbs.txt
-test blob-strip-usage-two {$CODE == 1 && [string match "Usage:*INPUTFILE*" $RESULT]}
+test blob-strip-usage-two {$CODE == 1 && [string match "Usage:*INPUTFILE*" \
+    $RESULT]}
 
 ###############################################################################
 # Reading a file.  A file that is not there and a file that cannot be
@@ -270,9 +269,12 @@ foreach {blobName blobCommand blobUsage} {
   compress-0    {test-compress}                   "INPUTFILE OUTPUTFILE"
   compress-1    {test-compress z-text.in}         "INPUTFILE OUTPUTFILE"
   compress-3    {test-compress z-text.in a b}     "INPUTFILE OUTPUTFILE"
-  compress2-0   {test-compress-2}                 "INPUTFILE1 INPUTFILE2 OUTPUTFILE"
-  compress2-2   {test-compress-2 z-text.in a}     "INPUTFILE1 INPUTFILE2 OUTPUTFILE"
-  compress2-4   {test-compress-2 z-text.in a b c} "INPUTFILE1 INPUTFILE2 OUTPUTFILE"
+  compress2-0   {test-compress-2}
+  "INPUTFILE1 INPUTFILE2 OUTPUTFILE"
+  compress2-2   {test-compress-2 z-text.in a}
+  "INPUTFILE1 INPUTFILE2 OUTPUTFILE"
+  compress2-4   {test-compress-2 z-text.in a b c}
+  "INPUTFILE1 INPUTFILE2 OUTPUTFILE"
   uncompress-0  {test-uncompress}                 "INPUTFILE OUTPUTFILE"
   uncompress-1  {test-uncompress z-text.z}        "INPUTFILE OUTPUTFILE"
   uncompress-3  {test-uncompress z-text.z a b}    "INPUTFILE OUTPUTFILE"
@@ -291,7 +293,8 @@ foreach {blobName blobCommand blobUsage} {
 fossil_raw test-compress z-text.in -
 test blob-write-stdout-dash {$CODE == 0 && $RESULT eq [read_file z-text.z]}
 fossil_raw test-compress z-text.in {}
-test blob-write-stdout-empty-name {$CODE == 0 && $RESULT eq [read_file z-text.z]}
+test blob-write-stdout-empty-name \
+    {$CODE == 0 && $RESULT eq [read_file z-text.z]}
 fossil_raw test-uncompress z-empty.z -
 test blob-write-stdout-nothing {$CODE == 0 && $RESULT eq ""}
 fossil_raw test-uncompress z-empty.z write-empty.out
@@ -315,6 +318,10 @@ if {$::tcl_platform(platform) eq "unix" && $::tcl_platform(user) ne "root"} {
       [string match "*unable to open file \"write-closed/out.z\" for writing*" \
           $RESULT]}
   file attributes write-closed -permissions 0755
+}
+
+if {[test_assurance] ne "stress"} {
+  test_skip "the tests after the first sections need -assurance stress"
 }
 
 ###############################################################################
@@ -366,7 +373,8 @@ if {$::tcl_platform(platform) eq "unix"} {
     dash-two-byte  2dc3a9        {'./-<c3a9>'}   {'-<c3a9>'}
   } {
     set blobArg [blob_bytes $blobArgHex]
-    foreach {blobKind blobFlag blobQuoted} [list file 1 $blobFile other 0 $blobOther] {
+    foreach {blobKind blobFlag blobQuoted} \
+        [list file 1 $blobFile other 0 $blobOther] {
       while {[regexp {<([0-9a-f]+)>} $blobQuoted -> blobPart]} {
         regsub {<[0-9a-f]+>} $blobQuoted [blob_bytes $blobPart] blobQuoted
       }
@@ -376,8 +384,8 @@ if {$::tcl_platform(platform) eq "unix"} {
       }
       blob_escaped $blobFlag $blobArgHex
       test blob-escaped-$blobName-$blobKind {$CODE == 0 &&
-          [string first " test-echo $blobQuoted\n" $RESULT] >= 0 &&
-          [string first "argv\[2\] = \[$blobArrives\]\n" $RESULT] >= 0}
+          [holds_strings $RESULT [list " test-echo $blobQuoted\n" \
+              "argv\[2\] = \[$blobArrives\]\n"]]}
     }
   }
 }
@@ -416,8 +424,7 @@ foreach {blobName blobArgHex blobWhy} {
   foreach blobFlag {1 0} {
     blob_escaped $blobFlag $blobArgHex
     test blob-escaped-refused-$blobName-$blobFlag {$CODE == 1 &&
-        [string first $blobWhy $RESULT] >= 0 &&
-        [string first "argv\[" $RESULT] < 0}
+        [holds_strings $RESULT [list $blobWhy "!argv\["]]}
   }
 }
 
@@ -429,9 +436,8 @@ if {$::tcl_platform(platform) eq "unix"} {
   fossil_raw test-escaped-arg -a --filename-args no -b --filename-args yes -c \
       --filename-args
   test blob-escaped-several {$CODE == 0 &&
-      [string first "argv\[2\] = \[./-a\]" $RESULT] >= 0 &&
-      [string first "argv\[2\] = \[-b\]" $RESULT] >= 0 &&
-      [string first "argv\[2\] = \[./-c\]" $RESULT] >= 0 &&
+      [holds_strings $RESULT [list "argv\[2\] = \[./-a\]" \
+          "argv\[2\] = \[-b\]" "argv\[2\] = \[./-c\]"]] &&
       [regexp -line {^  2 \[-a\]: } $RESULT] &&
       [regexp -line {^  5 \[-b\]: } $RESULT] &&
       [regexp -line {^  8 \[-c\]: } $RESULT] &&
@@ -446,8 +452,8 @@ if {$::tcl_platform(platform) eq "unix"} {
   }
   fossil_raw test-escaped-arg --compare 61
   test blob-escaped-bare--compare {$CODE == 0 &&
-      [string first "argv\[2\] = \[./--compare\]" $RESULT] >= 0 &&
-      [string first "argv\[2\] = \[61\]" $RESULT] >= 0}
+      [holds_strings $RESULT [list "argv\[2\] = \[./--compare\]" \
+          "argv\[2\] = \[61\]"]]}
 }
 
 # --hex takes up to 196 digits.
@@ -465,7 +471,8 @@ test blob-escaped-hex-too-long {$CODE == 1 &&
 set blobDot [expr {$::tcl_platform(platform) eq "windows" ? ".\\" : "./"}]
 foreach {blobName blobHex blobText blobCode blobSays} {
   same           616263   abc    0 {}
-  differs        616263   abd    1 "argument disagree: \"abc\" (616263) versus \"abd\""
+  differs        616263   abd    1
+  "argument disagree: \"abc\" (616263) versus \"abd\""
   shorter        616263   ab     1 "argument disagree"
   dash-prefixed  2d61     ./-a   0 {}
   dash-bare      2d61     -a     1 "filename argument \"-a\" begins with \"-\""
@@ -515,11 +522,15 @@ foreach {blobName blobLineHex blobJson blobTcl} {
   backspace   610862     {"a\bb"}           {"a<08>b"}
   formfeed    610c62     {"a\fb"}           {"a<0c>b"}
   ctl-01      0161       {"\u0001a"}        {"<01>a"}
-  ctl-02-07   020304050607 {"\u0002\u0003\u0004\u0005\u0006\u0007"} {"<020304050607>"}
+  ctl-02-07   020304050607 {"\u0002\u0003\u0004\u0005\u0006\u0007"}
+  {"<020304050607>"}
   ctl-0b      0b         {"\u000b"}         {"<0b>"}
   ctl-0e-0f   0e0f       {"\u000e\u000f"}   {"<0e0f>"}
-  ctl-10-19   10111213141516171819 {"\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019"} {"<10111213141516171819>"}
-  ctl-1a-1f   1a1b1c1d1e1f {"\u001a\u001b\u001c\u001d\u001e\u001f"} {"<1a1b1c1d1e1f>"}
+  ctl-10-19   10111213141516171819
+  {"\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019"}
+  {"<10111213141516171819>"}
+  ctl-1a-1f   1a1b1c1d1e1f {"\u001a\u001b\u001c\u001d\u001e\u001f"}
+  {"<1a1b1c1d1e1f>"}
   delete      7f         {"<7f>"}           {"<7f>"}
   two-byte    c3a9       {"<c3a9>"}         {"<c3a9>"}
   empty       {}         {""}               {""}
@@ -548,15 +559,14 @@ test blob-tcl-literal-filenames {$CODE == 0 &&
 
 # In a checkout "diff --tcl" prints the same literals without collecting
 # them first.
-write_file lit-checkout.txt "first\n"
-fossil add lit-checkout.txt
-fossil commit -m "lit checkout" --no-warnings lit-checkout.txt
+commit_file lit-checkout.txt "first\n" "lit checkout" --no-warnings \
+    lit-checkout.txt
 write_file lit-checkout.txt "\[second\] \$x\n"
 fossil_raw diff --tcl lit-checkout.txt
 test blob-tcl-literal-checkout {$CODE == 0 &&
-    [string first "FILE \"lit-checkout.txt\" \"lit-checkout.txt\"\n" \
-        $RESULT] >= 0 &&
-    [string first {EDIT "" "first" "\[second\] \$x"} $RESULT] >= 0}
+    [holds_strings $RESULT [list \
+        "FILE \"lit-checkout.txt\" \"lit-checkout.txt\"\n" \
+        {EDIT "" "first" "\[second\] \$x"}]]}
 fossil revert lit-checkout.txt
 
 # "diff --webpage" without --side-by-side builds four columns at once:
@@ -575,9 +585,7 @@ test blob-webpage-diff-columns {$CODE == 0 && [regexp \
 # the version before.  Each row: the option, the content before, the
 # content given, and the content that must be checked in.
 
-write_file eol.txt "start\n"
-fossil add eol.txt
-fossil commit -m "eol start" --no-warnings
+commit_file eol.txt "start\n" "eol start" --no-warnings
 
 # Check in eol.txt with the content $before, then with $given and the
 # option $option.  Returns the content of eol.txt in the last check-in.
@@ -607,14 +615,15 @@ foreach {blobName blobOption blobBefore blobGiven blobStored} {
                                                    "x\r\ny\r\nz\r\n"
   inherit-same       --convert-eol-inherit "p\nq\n" "x\ny\n"  "x\ny\n"
 } {
-  test blob-eol-$blobName \
-      {[blob_eol $blobBefore $blobGiven $blobOption] eq $blobStored}
+  test_eq blob-eol-$blobName [blob_eol $blobBefore $blobGiven $blobOption] \
+      $blobStored
 }
 
 # Content with a zero byte after its lines keeps the bytes that follow
 # the zero byte.
-test blob-eol-to-unix-nul {[blob_eol "s\n" "x\r\ny\r\n\x00tail\r\nmore\r\n" \
-    --convert-eol-unix] eq "x\ny\n\x00tail\nmore\n"} knownBug
+test_eq blob-eol-to-unix-nul [blob_eol "s\n" "x\r\ny\r\n\x00tail\r\nmore\r\n" \
+    --convert-eol-unix] \
+    "x\ny\n\x00tail\nmore\n" knownBug
 
 # test-ci-mini leaves the checkout as it was.
 fossil revert eol.txt
@@ -639,7 +648,8 @@ foreach {blobName blobBefore blobAfter} {
   utf16-be        feff006800e9000d000a20ac000a   efbbbf68c3a90ae282ac0a
   utf16-le-short  fffe6800                       efbbbf68
   utf16-be-short  feff0068                       efbbbf68
-  cp1252          63e920802081209920a020ff0d0a61 63c3a920e282ac20c28120e284a220c2a020c3bf0a61
+  cp1252          63e920802081209920a020ff0d0a61
+  63c3a920e282ac20c28120e284a220c2a020c3bf0a61
   cp1252-9f       9f8a0a                         c5b8c5a00a
   cp1252-plain    e90a                           c3a90a
   cp1252-long     __long__                       __long__
@@ -666,9 +676,8 @@ foreach {blobName blobBefore blobAfter} {
 # bytes of the file and the bytes of the comment that must be stored,
 # both in hexadecimal.
 
-write_file comment-subject.txt "0\n"
-fossil add comment-subject.txt
-fossil commit -m "comment subject" --no-warnings comment-subject.txt
+commit_file comment-subject.txt "0\n" "comment subject" --no-warnings \
+    comment-subject.txt
 foreach {blobName blobFile blobComment} {
   ascii         706c61696e                 706c61696e
   utf8          636166c3a920e282ac         636166c3a920e282ac
@@ -685,14 +694,13 @@ foreach {blobName blobFile blobComment} {
       --no-verify-comment comment-subject.txt
   fossil sql "SELECT lower(hex(comment)) FROM event
       ORDER BY mtime DESC, objid DESC LIMIT 1"
-  test blob-comment-file-$blobName {[string trim $RESULT] eq $blobComment}
+  test_eq blob-comment-file-$blobName [string trim $RESULT] $blobComment
 }
 
 # A comment typed in an editor is converted in the same way, after it
 # is cut at a row of ten "#".  The editor here is a script that writes
 # the given bytes as the comment.
-fossil settings editor "[info nameofexecutable]\
-    [file join $::testfiledir fake-editor.tcl]"
+fossil settings editor [fake_editor_command]
 foreach {blobName blobTyped blobComment} {
   utf8          636166c3a90a                       636166c3a9
   cp1252        636166e920800a                     636166c3a920e282ac
@@ -705,7 +713,7 @@ foreach {blobName blobTyped blobComment} {
   unset ::env(FAKE_EDITOR_SCRIPT)
   fossil sql "SELECT lower(hex(comment)) FROM event
       ORDER BY mtime DESC, objid DESC LIMIT 1"
-  test blob-comment-editor-$blobName {[string trim $RESULT] eq $blobComment}
+  test_eq blob-comment-editor-$blobName [string trim $RESULT] $blobComment
 }
 fossil unset editor
 
@@ -715,9 +723,7 @@ fossil unset editor
 # file is "one" and "two" on two lines, and the diff must say that "2"
 # replaces the second line.
 
-write_file bom-plain.txt "one\ntwo\n"
-fossil add bom-plain.txt
-fossil commit -m "bom plain" --no-warnings bom-plain.txt
+commit_file bom-plain.txt "one\ntwo\n" "bom plain" --no-warnings bom-plain.txt
 foreach {blobName blobSecond} {
   none          6f6e650a320a
   utf8          efbbbf6f6e650a320a
@@ -757,14 +763,8 @@ test blob-bom-diff-nul {$CODE == 0 &&
 # by a local administrator with the header lines in HEADERS.
 
 proc blob_page {path {headers {}}} {
-  set text "GET $path HTTP/1.1\r\nHost: x\r\n"
-  foreach line $headers { append text $line "\r\n" }
-  write_file page-request.txt "$text\r\n"
-  file delete page-reply.txt
-  fossil_raw http .rep.fossil --in page-request.txt --out page-reply.txt \
-      --ipaddr 127.0.0.1 --localauth
-  if {[file exists page-reply.txt]} { return [read_file page-reply.txt] }
-  return ""
+  return [fossil_http .rep.fossil [request_get $path $headers] \
+      --ipaddr 127.0.0.1 --localauth]
 }
 
 # /test-bgcolor takes a colour as "#" and three or six hexadecimal
@@ -826,7 +826,8 @@ test blob-xdigit-cookie-name-g {$CODE == 0 &&
 
 # A request that announces more content than a buffer may hold is ended
 # with "out of memory" before any of the content is read.
-write_file page-request.txt "POST /test-env HTTP/1.1\r\nHost: x\r\nContent-Type:\
+write_file page-request.txt \
+    "POST /test-env HTTP/1.1\r\nHost: x\r\nContent-Type:\
     text/plain\r\nContent-Length: 2147483647\r\n\r\nabc"
 file delete page-reply.txt
 fossil_raw -seconds 60 http .rep.fossil --in page-request.txt \
@@ -889,7 +890,6 @@ proc blob_clean {answer} {
   file delete clean-1.tmp clean-2.tmp
   return $left
 }
-fossil_raw clean --help
 foreach {blobName blobAnswer blobLeft} {
   lower-n    n     {clean-1.tmp clean-2.tmp}
   upper-n    N     {clean-1.tmp clean-2.tmp}
@@ -916,8 +916,8 @@ foreach {blobName blobAnswer} {
   tilde      ~
   letter-q   q
 } {
-  test blob-clean-prompt-$blobName \
-      {[blob_clean $blobAnswer] eq {clean-1.tmp clean-2.tmp}} knownBug
+  test_eq blob-clean-prompt-$blobName [blob_clean $blobAnswer] \
+      {clean-1.tmp clean-2.tmp} knownBug
 }
 
 ###############################################################################
@@ -975,8 +975,9 @@ test blob-merge-no-final-newline-conflict {$CODE == 0 &&
 
 # One side changes a line and the other adds a line after the last one,
 # which had no line end.  The added line is a line of its own.
-test blob-merge-no-final-newline-append \
-    {[blob_merge "a\nb\nc" "a\nB\nc" "a\nb\nc\nd"] eq "a\nB\nc\nd"} knownBug
+test_eq blob-merge-no-final-newline-append \
+    [blob_merge "a\nb\nc" "a\nB\nc" "a\nb\nc\nd"] \
+    "a\nB\nc\nd" knownBug
 
 ###############################################################################
 # With the allow-symlinks setting on, a symbolic link is checked in as the

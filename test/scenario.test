@@ -28,11 +28,7 @@
 # a minute.
 #
 
-# These tests run only in a long pass: -assurance stress.
-if {[test_assurance] ne "stress"} {
-  test_skip "runs only with -assurance stress"
-}
-
+# One input runs at every level, and the rest need -assurance stress.
 require_no_open_checkout
 
 test_setup ""
@@ -197,7 +193,8 @@ proc scenario_run {name data} {
   # The last three commands and the end of what each printed go into the
   # report; the directory does not last.
   foreach {cmd out} [lrange $scenarioLog end-5 end] {
-    append msg \n$cmd\n[join [lrange [split [string trim $out] \n] end-5 end] \n]
+    append msg \n$cmd\n[join [lrange [split [string trim $out] \n] end-5 \
+        end] \n]
   }
   return $msg
 }
@@ -395,9 +392,15 @@ proc scenario_steps {data} {
 }
 
 source [file join $::testfiledir corpus.tcl]
-corpus_unpack [file join $::testfiledir corpus corpus.pack] [file join [pwd] corpus]
-foreach scenarioF [lsort [glob -nocomplain \
-                  [file join [pwd] corpus scenario *]]] {
+corpus_unpack [file join $::testfiledir corpus corpus.pack] \
+    [file join [pwd] corpus]
+set scenarioFiles [lsort [glob -nocomplain \
+                  [file join [pwd] corpus scenario *]]]
+if {[test_assurance] ne "stress"} {
+  test_skip_part "all but one scenario input need -assurance stress"
+  set scenarioFiles [lrange $scenarioFiles 0 0]
+}
+foreach scenarioF $scenarioFiles {
   set scenarioFd [open $scenarioF rb]
   set scenarioData [read $scenarioFd]
   close $scenarioFd
@@ -433,7 +436,5 @@ foreach scenarioVar {ASAN_OPTIONS UBSAN_OPTIONS USER} {
     unset ::env($scenarioVar)
   }
 }
-
-###############################################################################
 
 test_cleanup

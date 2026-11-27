@@ -8,35 +8,14 @@
 # found.  This file covers what is left.
 #
 
-# These tests run only in a long pass: -assurance stress.
-if {[test_assurance] ne "stress"} {
-  test_skip "runs only with -assurance stress"
-}
-
 require_no_open_checkout
 
 test_setup
 
-# The answer of one SQL statement, trimmed.
-#
-proc content_sql {sql} {
-  global RESULT
-  fossil sql $sql
-  return [string trim $RESULT]
-}
-
 # The record number of the artifact with the given hash.
 #
 proc content_rid {hash} {
-  return [content_sql "SELECT rid FROM blob WHERE uuid='$hash'"]
-}
-
-# The hash that Fossil gives the content of a file.
-#
-proc content_hash {filename} {
-  global RESULT
-  fossil sha3sum $filename
-  return [lindex $RESULT 0]
+  return [fossil_sql "SELECT rid FROM blob WHERE uuid='$hash'"]
 }
 
 # Write a file that holds the cards $body and the Z card for them.
@@ -69,16 +48,16 @@ for {set contentI 1} {$contentI <= 30} {incr contentI} {
   fossil commit -m "content-v$contentI" --no-warnings
   lappend contentVersions $contentText
 }
-set contentFirst [content_sql "SELECT uuid FROM blob, mlink, event
+set contentFirst [fossil_sql "SELECT uuid FROM blob, mlink, event
     WHERE blob.rid=mlink.fid AND mlink.mid=event.objid
       AND event.comment='content-v1'"]
-set contentLast [content_sql "SELECT uuid FROM blob, mlink, event
+set contentLast [fossil_sql "SELECT uuid FROM blob, mlink, event
     WHERE blob.rid=mlink.fid AND mlink.mid=event.objid
       AND event.comment='content-v30'"]
 test content-setup {$contentFirst ne "" && $contentLast ne ""}
 
 proc content_chain {rid} {
-  return [content_sql "WITH RECURSIVE c(rid,n) AS (SELECT $rid, 0
+  return [fossil_sql "WITH RECURSIVE c(rid,n) AS (SELECT $rid, 0
       UNION ALL SELECT srcid, n+1 FROM delta, c WHERE delta.rid=c.rid)
       SELECT max(n) FROM c"]
 }
@@ -112,7 +91,7 @@ test content-rawget-usage {$CODE != 0}
 
 fossil test-content-undelta $contentRid
 test content-undelta {$CODE == 0}
-test_eq content-undelta-no-delta-row [content_sql \
+test_eq content-undelta-no-delta-row [fossil_sql \
     "SELECT count(*) FROM delta WHERE rid=$contentRid"] 0
 fossil test-content-rawget $contentFirst raw.out
 test_eq content-undelta-stored-whole [read_file raw.out] \
@@ -125,10 +104,10 @@ test content-undelta-usage {$CODE != 0}
 ###############################################################################
 # Turning content into a delta.
 
-set contentSecond [content_sql "SELECT blob.rid FROM blob, mlink, event
+set contentSecond [fossil_sql "SELECT blob.rid FROM blob, mlink, event
     WHERE blob.rid=mlink.fid AND mlink.mid=event.objid
       AND event.comment='content-v2'"]
-set contentThird [content_sql "SELECT blob.rid FROM blob, mlink, event
+set contentThird [fossil_sql "SELECT blob.rid FROM blob, mlink, event
     WHERE blob.rid=mlink.fid AND mlink.mid=event.objid
       AND event.comment='content-v3'"]
 set contentLastRid [content_rid $contentLast]
@@ -138,19 +117,19 @@ set contentLastRid [content_rid $contentLast]
 fossil test-content-deltify $contentRid $contentRid $contentLastRid \
     $contentSecond
 test content-deltify {$CODE == 0}
-test content-deltify-source {[content_sql "SELECT srcid FROM delta
+test content-deltify-source {[fossil_sql "SELECT srcid FROM delta
     WHERE rid=$contentRid"] in [list $contentLastRid $contentSecond]}
 fossil artifact $contentFirst first.out
 test_eq content-deltify-same-content [read_file first.out] \
     [lindex $contentVersions 0]
 
 # Already a delta: left alone without --force, done again with it.
-set contentSrc [content_sql "SELECT srcid FROM delta WHERE rid=$contentRid"]
+set contentSrc [fossil_sql "SELECT srcid FROM delta WHERE rid=$contentRid"]
 fossil test-content-deltify $contentRid $contentThird
-test_eq content-deltify-not-forced [content_sql "SELECT srcid FROM delta
+test_eq content-deltify-not-forced [fossil_sql "SELECT srcid FROM delta
     WHERE rid=$contentRid"] $contentSrc
 fossil test-content-deltify --force $contentRid $contentThird
-test_eq content-deltify-forced [content_sql "SELECT srcid FROM delta
+test_eq content-deltify-forced [fossil_sql "SELECT srcid FROM delta
     WHERE rid=$contentRid"] $contentThird
 fossil artifact $contentFirst first.out
 test_eq content-deltify-forced-same-content [read_file first.out] \
@@ -170,34 +149,34 @@ test_eq content-deltify-no-loop-content [read_file first.out] \
 write_file small.txt "small\n"
 write_file small2.txt "small too\n"
 fossil test-content-put small.txt small2.txt
-set contentSmall [content_rid [content_hash small.txt]]
-set contentSmall2 [content_rid [content_hash small2.txt]]
+set contentSmall [content_rid [sha3_file small.txt]]
+set contentSmall2 [content_rid [sha3_file small2.txt]]
 fossil test-content-deltify $contentSmall $contentSmall2
-test_eq content-deltify-small [content_sql "SELECT count(*) FROM delta
+test_eq content-deltify-small [fossil_sql "SELECT count(*) FROM delta
     WHERE rid=$contentSmall"] 0
 fossil test-content-undelta $contentRid
 fossil test-content-deltify $contentRid $contentSmall
-test_eq content-deltify-small-source [content_sql "SELECT count(*) FROM delta
+test_eq content-deltify-small-source [fossil_sql "SELECT count(*) FROM delta
     WHERE rid=$contentRid"] 0
 
 # Unrelated content is not worth a delta.
 write_file other.txt [string repeat "nothing in common with the file\n" 40]
 fossil test-content-put other.txt
-fossil test-content-deltify $contentRid [content_rid [content_hash other.txt]]
-test_eq content-deltify-unrelated [content_sql "SELECT count(*) FROM delta
+fossil test-content-deltify $contentRid [content_rid [sha3_file other.txt]]
+test_eq content-deltify-unrelated [fossil_sql "SELECT count(*) FROM delta
     WHERE rid=$contentRid"] 0
 
 # Public content is not made a delta from private content.
 write_file private.txt "${contentText}and one private line\n"
 fossil test-content-put private.txt
-set contentPrivate [content_rid [content_hash private.txt]]
+set contentPrivate [content_rid [sha3_file private.txt]]
 fossil sql "INSERT INTO private(rid) VALUES($contentPrivate)"
 fossil test-content-deltify $contentRid $contentPrivate
-test_eq content-deltify-private-source [content_sql "SELECT count(*) FROM delta
+test_eq content-deltify-private-source [fossil_sql "SELECT count(*) FROM delta
     WHERE rid=$contentRid"] 0
 fossil sql "DELETE FROM private WHERE rid=$contentPrivate"
 fossil test-content-deltify $contentRid $contentPrivate
-test_eq content-deltify-once-public [content_sql "SELECT srcid FROM delta
+test_eq content-deltify-once-public [fossil_sql "SELECT srcid FROM delta
     WHERE rid=$contentRid"] $contentPrivate
 fossil test-content-undelta $contentRid
 
@@ -212,19 +191,19 @@ write_file two-near.txt "${contentBase}one more line\n"
 write_file two-far.txt "[string range $contentBase 0 1500][string repeat \
     "a line that the target does not have\n" 30]"
 fossil test-content-put two-target.txt two-near.txt two-far.txt
-set contentTarget [content_rid [content_hash two-target.txt]]
-set contentNear [content_rid [content_hash two-near.txt]]
-set contentFar [content_rid [content_hash two-far.txt]]
+set contentTarget [content_rid [sha3_file two-target.txt]]
+set contentNear [content_rid [sha3_file two-near.txt]]
+set contentFar [content_rid [sha3_file two-far.txt]]
 fossil test-content-deltify $contentTarget $contentFar $contentNear
-test_eq content-deltify-better-source-last [content_sql "SELECT srcid
+test_eq content-deltify-better-source-last [fossil_sql "SELECT srcid
     FROM delta WHERE rid=$contentTarget"] $contentNear
 fossil test-content-undelta $contentTarget
 fossil test-content-deltify $contentTarget $contentNear $contentFar
-test_eq content-deltify-better-source-first [content_sql "SELECT srcid
+test_eq content-deltify-better-source-first [fossil_sql "SELECT srcid
     FROM delta WHERE rid=$contentTarget"] $contentNear
 fossil test-content-undelta $contentTarget
 fossil test-content-deltify $contentTarget $contentFar
-test_eq content-deltify-far-source-alone [content_sql "SELECT srcid
+test_eq content-deltify-far-source-alone [fossil_sql "SELECT srcid
     FROM delta WHERE rid=$contentTarget"] $contentFar
 fossil test-content-undelta $contentTarget
 
@@ -232,7 +211,7 @@ fossil test-content-undelta $contentTarget
 fossil sql "INSERT OR IGNORE INTO private(rid) VALUES($contentPrivate)"
 fossil sql "INSERT OR IGNORE INTO private(rid) VALUES($contentRid)"
 fossil test-content-deltify $contentRid $contentPrivate
-test_eq content-deltify-private-from-private [content_sql "SELECT srcid
+test_eq content-deltify-private-from-private [fossil_sql "SELECT srcid
     FROM delta WHERE rid=$contentRid"] $contentPrivate
 fossil test-content-undelta $contentRid
 fossil sql "DELETE FROM private WHERE rid IN ($contentPrivate,$contentRid)"
@@ -249,8 +228,8 @@ test content-integrity-after-deltify {$CODE == 0}
 write_file moderated.txt "content awaiting moderation\n"
 fossil test-content-put --moderate moderated.txt
 test content-put-moderate {$CODE == 0}
-test_eq content-put-moderate-row [content_sql "SELECT count(*) FROM modreq
-    WHERE objid=[content_rid [content_hash moderated.txt]]"] 1
+test_eq content-put-moderate-row [fossil_sql "SELECT count(*) FROM modreq
+    WHERE objid=[content_rid [sha3_file moderated.txt]]"] 1
 
 ###############################################################################
 # Content that arrives after it was asked for.  A check-in names a file
@@ -259,19 +238,19 @@ test_eq content-put-moderate-row [content_sql "SELECT count(*) FROM modreq
 # baseline arrives, the delta manifest becomes a check-in.
 
 write_file late.txt "this file arrives late\n"
-set contentLate [content_hash late.txt]
+set contentLate [sha3_file late.txt]
 content_artifact ci-late.txt "C content-late
 D 2026-03-01T10:00:00.000
 F late.txt $contentLate
 U alice
 "
 fossil test-content-put --crosslink ci-late.txt
-test_eq content-phantom-made [content_sql "SELECT size FROM blob
+test_eq content-phantom-made [fossil_sql "SELECT size FROM blob
     WHERE uuid='$contentLate'"] -1
 fossil artifact $contentLate
 test content-phantom-has-no-content {$CODE == 0 && $RESULT eq ""}
 fossil test-content-put late.txt
-test_eq content-phantom-filled [content_sql "SELECT size FROM blob
+test_eq content-phantom-filled [fossil_sql "SELECT size FROM blob
     WHERE uuid='$contentLate'"] [file size late.txt]
 fossil artifact $contentLate late.out
 test content-phantom-filled-content {[same_file late.txt late.out]}
@@ -282,7 +261,7 @@ F a.txt $contentLate
 F b.txt $contentLate
 U alice
 "
-set contentBase [content_hash ci-base.txt]
+set contentBase [sha3_file ci-base.txt]
 content_artifact ci-delta.txt "B $contentBase
 C content-delta
 D 2026-03-02T11:00:00.000
@@ -292,15 +271,15 @@ P $contentBase
 U alice
 "
 fossil test-content-put --crosslink ci-delta.txt
-test_eq content-orphan-not-a-checkin [content_sql "SELECT count(*) FROM event
+test_eq content-orphan-not-a-checkin [fossil_sql "SELECT count(*) FROM event
     WHERE comment='content-delta'"] 0
-test_eq content-orphan-recorded [content_sql "SELECT count(*) FROM orphan"] 1
+test_eq content-orphan-recorded [fossil_sql "SELECT count(*) FROM orphan"] 1
 fossil test-content-put --crosslink ci-base.txt
 test content-orphan-baseline-arrives {$CODE == 0}
-test_eq content-orphan-now-a-checkin [content_sql "SELECT count(*) FROM event
+test_eq content-orphan-now-a-checkin [fossil_sql "SELECT count(*) FROM event
     WHERE comment IN ('content-delta','content-base')"] 2
-test_eq content-orphan-cleared [content_sql "SELECT count(*) FROM orphan"] 0
-fossil ls -r [content_hash ci-delta.txt]
+test_eq content-orphan-cleared [fossil_sql "SELECT count(*) FROM orphan"] 0
+fossil ls -r [sha3_file ci-delta.txt]
 test_eq content-orphan-files [normalize_result] "a.txt\nc.txt"
 
 ###############################################################################
@@ -321,18 +300,20 @@ write_file looks5.txt "D 2026-03-03T10:00:00.000\nno newline at the end"
 # holds a zero byte, and content whose first line is very long.
 write_file looks6.txt "1 begins with a digit, which no card does\n"
 write_file looks7.txt "AB has no space after its first letter\n"
-write_file looks8.txt "C a first line\x00with a zero byte in it\nand a second line\n"
+write_file looks8.txt \
+    "C a first line\x00with a zero byte in it\nand a second line\n"
 write_file looks9.txt "C [string repeat x 500]\nand a second line\n"
 # Content that is the first line of a signed message and nothing more,
 # with no end of line.
 write_file looks10.txt "-----BEGIN PGP SIGNED MESSAGE-----"
 fossil test-content-put looks1.txt looks2.txt looks3.txt looks4.txt looks5.txt \
     looks6.txt looks7.txt looks8.txt looks9.txt looks10.txt
-set contentLooks10 [content_hash looks10.txt]
+set contentLooks10 [sha3_file looks10.txt]
 fossil test-integrity --parse
 test content-integrity-parse {$CODE == 0}
 test content-integrity-parse-counts \
-    {[regexp {(\d+) control artifacts failed to parse} $RESULT all n] && $n == 6}
+    {[regexp {(\d+) control artifacts failed to parse} $RESULT all n] && $n ==
+    6}
 test content-integrity-parse-one-line-signed \
     {[string first "manifest_parse failed for $contentLooks10:" $RESULT] >= 0}
 test content-integrity-parse-first-line \
@@ -341,11 +322,11 @@ test content-integrity-parse-first-line \
 # The same content is an error once the repository has it down as a
 # wiki page.
 fossil sql "INSERT INTO event(type,mtime,objid,user,comment)
-    VALUES('w',2461000.5,[content_rid [content_hash looks1.txt]],'alice','+x')"
+    VALUES('w',2461000.5,[content_rid [sha3_file looks1.txt]],'alice','+x')"
 fossil test-integrity --parse -expectError
 test content-integrity-parse-listed-artifact {$CODE != 0}
 fossil sql "DELETE FROM event
-    WHERE objid=[content_rid [content_hash looks1.txt]]"
+    WHERE objid=[content_rid [sha3_file looks1.txt]]"
 
 ###############################################################################
 # test-orphans lists content that nothing refers to.
@@ -355,7 +336,7 @@ test content-orphans {$CODE == 0}
 test content-orphans-count \
     {[regexp {(\d+) orphans} $RESULT all n] && $n >= 9}
 test content-orphans-lists-one \
-    {[string first [content_hash other.txt] $RESULT] >= 0}
+    {[string first [sha3_file other.txt] $RESULT] >= 0}
 
 ###############################################################################
 # test-missing reports each kind of reference to content that is not
@@ -370,28 +351,48 @@ test_eq content-missing-none-quiet [string trim $RESULT] ""
 
 set contentGone  [string repeat 0123456789 4]
 set contentGone2 [string repeat 9876543210 4]
-set contentCi [content_sql "SELECT uuid FROM blob, event
+set contentCi [fossil_sql "SELECT uuid FROM blob, event
     WHERE rid=objid AND comment='content-v30'"]
-foreach {contentName contentBody contentWant} [list \
-  file "C content-missing-file\nD 2026-03-04T10:00:00.000\nF gone.txt $contentGone\nU alice\n" \
+foreach {contentName contentCount contentBody contentWant} [list \
+  file 1 \
+  [join [list \
+      "C content-missing-file\nD 2026-03-04T10:00:00.000\n" \
+      "F gone.txt $contentGone\nU alice\n"] ""] \
       "MISSING: $contentGone\n*file of check-in *\n*gone.txt" \
-  parent "D 2026-03-04T11:00:00.000\nL Missing\\sparent\nP $contentGone\nU alice\nW 1\nx\n" \
+  parent 2 \
+  [join [list \
+      "D 2026-03-04T11:00:00.000\nL Missing\\sparent\n" \
+      "P $contentGone\nU alice\nW 1\nx\n"] ""] \
       "MISSING: $contentGone\n*parent of wiki *" \
-  cherrypick "C content-missing-pick\nD 2026-03-04T12:00:00.000\nP $contentCi\nQ +$contentGone $contentGone2\nU alice\n" \
-      "MISSING: $contentGone\n*cherry-pick target of check-in *MISSING: $contentGone2\n*cherry-pick baseline of check-in *" \
-  technote "D 2026-03-04T12:30:00.000\nE 2026-03-04T09:00:00 [string repeat ab 20]\nP $contentGone\nU alice\nW 1\nx\n" \
+  cherrypick 4 \
+  [join [list \
+      "C content-missing-pick\nD 2026-03-04T12:00:00.000\n" \
+      "P $contentCi\nQ +$contentGone $contentGone2\nU alice\n"] ""] \
+      [join [list \
+          "MISSING: $contentGone\n" \
+          "*cherry-pick target of check-in *MISSING: $contentGone2\n" \
+          "*cherry-pick baseline of check-in *"] ""] \
+  technote 5 \
+  [join [list \
+      "D 2026-03-04T12:30:00.000\n" \
+      "E 2026-03-04T09:00:00 [string repeat ab 20]\nP $contentGone\n" \
+      "U alice\nW 1\nx\n"] ""] \
       "MISSING: $contentGone\n*parent of event *" \
-  tag "D 2026-03-04T13:00:00.000\nT +sym-missing $contentGone\nU alice\n" \
+  tag 6 "D 2026-03-04T13:00:00.000\nT +sym-missing $contentGone\nU alice\n" \
       "MISSING: $contentGone\n*target of tag *" \
-  attachment "A f.txt Missing\\sparent $contentGone\nD 2026-03-04T14:00:00.000\nU alice\n" \
+  attachment 7 \
+  [join [list \
+      "A f.txt Missing\\sparent $contentGone\n" \
+      "D 2026-03-04T14:00:00.000\nU alice\n"] ""] \
       "MISSING: $contentGone\n*file of attachment *" \
-  cluster "M $contentGone\nM $contentGone2\n" \
+  cluster 9 "M $contentGone\nM $contentGone2\n" \
       "MISSING: $contentGone\n*in cluster *" \
 ] {
   content_artifact missing-$contentName.txt $contentBody
   fossil test-content-put --crosslink missing-$contentName.txt
   fossil test-missing -expectError
-  test content-missing-$contentName {$CODE != 0}
+  test content-missing-$contentName {$CODE != 0 && [string match \
+      "*\n$contentCount missing or shunned references *" $RESULT]}
   test content-missing-$contentName-text \
       {[string match "*$contentWant*" $RESULT]}
 }
@@ -410,9 +411,8 @@ test content-missing-quiet-still-reports \
 fossil sql "INSERT INTO shun(uuid,mtime) VALUES('$contentGone',0),
     ('$contentGone2',0)"
 fossil test-missing -expectError
-test content-missing-shunned \
-    {$CODE != 0 && [string first "SHUNNED: $contentGone" $RESULT] >= 0
-     && [string first MISSING $RESULT] < 0}
+test content-missing-shunned {$CODE != 0 &&
+    [holds_strings $RESULT [list "SHUNNED: $contentGone" !MISSING]]}
 fossil test-missing --notshunned
 test content-missing-notshunned {$CODE == 0}
 test_match content-missing-notshunned-text $RESULT \
@@ -425,25 +425,25 @@ fossil sql "DELETE FROM shun"
 
 fossil test-content-undelta $contentRid
 fossil test-content-deltify --force $contentThird $contentRid
-test_eq content-erase-setup [content_sql "SELECT count(*) FROM delta
+test_eq content-erase-setup [fossil_sql "SELECT count(*) FROM delta
     WHERE srcid=$contentRid"] 1
 fossil_raw -input "n\n" test-content-erase $contentRid
-test_eq content-erase-declined [content_sql "SELECT count(*) FROM blob
+test_eq content-erase-declined [fossil_sql "SELECT count(*) FROM blob
     WHERE rid=$contentRid"] 1
 fossil_raw -input "Y\n" test-content-erase $contentRid
 test content-erase {$CODE == 0}
-test_eq content-erase-gone [content_sql "SELECT count(*) FROM blob
+test_eq content-erase-gone [fossil_sql "SELECT count(*) FROM blob
     WHERE rid=$contentRid"] 0
-test_eq content-erase-no-delta-left [content_sql "SELECT count(*) FROM delta
+test_eq content-erase-no-delta-left [fossil_sql "SELECT count(*) FROM delta
     WHERE srcid=$contentRid OR rid=$contentRid"] 0
-fossil artifact [content_sql "SELECT uuid FROM blob WHERE rid=$contentThird"] \
+fossil artifact [fossil_sql "SELECT uuid FROM blob WHERE rid=$contentThird"] \
     third.out
 test_eq content-erase-dependent-still-whole [read_file third.out] \
     [lindex $contentVersions 2]
 
 # The answer may be in either case.
 fossil_raw -input "y\n" test-content-erase $contentSmall
-test_eq content-erase-lower-case-answer [content_sql "SELECT count(*) FROM blob
+test_eq content-erase-lower-case-answer [fossil_sql "SELECT count(*) FROM blob
     WHERE rid=$contentSmall"] 0
 
 ###############################################################################
@@ -456,18 +456,18 @@ F late.txt $contentLate
 U alice
 "
 fossil test-content-put --crosslink ci-private.txt
-set contentPriv [content_hash ci-private.txt]
+set contentPriv [sha3_file ci-private.txt]
 fossil sql "INSERT INTO private(rid) VALUES([content_rid $contentPriv])"
 set contentAbsent [string repeat 4d 20]
 fossil tag add --raw parent $contentPriv $contentAbsent
 test content-private-placeholder-tag {$CODE == 0}
-test_eq content-private-placeholder [content_sql "SELECT count(*)
+test_eq content-private-placeholder [fossil_sql "SELECT count(*)
     FROM private, blob WHERE private.rid=blob.rid AND uuid='$contentAbsent'
      AND size<0"] 1
-test_eq content-private-placeholder-not-unclustered [content_sql "SELECT count(*)
+test_eq content-private-placeholder-not-unclustered [fossil_sql "SELECT count(*)
     FROM unclustered, blob WHERE unclustered.rid=blob.rid
      AND uuid='$contentAbsent'"] 0
-test_eq content-private-placeholder-is-parent [content_sql "SELECT count(*)
+test_eq content-private-placeholder-is-parent [fossil_sql "SELECT count(*)
     FROM plink WHERE cid=[content_rid $contentPriv]
      AND pid=[content_rid $contentAbsent]"] 1
 
@@ -492,11 +492,6 @@ proc content_x {sql} {
   fossil sql -R x.fossil $sql
   return [string trim $::RESULT]
 }
-proc content_sha1 {text} {
-  write_file sha1-me.txt $text
-  fossil sha1sum sha1-me.txt
-  return [lindex $::RESULT 0]
-}
 proc content_sha3 {text} {
   write_file sha3-me.txt $text
   fossil sha3sum sha3-me.txt
@@ -517,12 +512,13 @@ proc content_push_y {body} {
   fossil_raw test-xfer -R y.fossil msg.txt
 }
 set contentA "an artifact with a SHA1 name\n"
-content_push_y "file [content_sha1 $contentA] [string length $contentA]\n$contentA"
+content_push_y "file [sha1_text $contentA] [string length $contentA]\n$contentA"
 test content-policy-sha1-name-accepted {$CODE == 0}
 fossil hash-policy -R y.fossil
 test_eq content-policy-still-auto [string trim $RESULT] auto
 set contentB "an artifact with a SHA3 name\n"
-content_push_y "file [content_sha3 $contentB] [string length $contentB]\n$contentB"
+content_push_y \
+    "file [content_sha3 $contentB] [string length $contentB]\n$contentB"
 fossil hash-policy -R y.fossil
 test_eq content-policy-now-sha3 [string trim $RESULT] sha3
 
@@ -556,7 +552,8 @@ test_eq content-sync-phantom-filled-content [read_file tgt.out] $contentTgt
 set contentP "content that arrives marked private\n"
 set contentPHash [content_sha3 $contentP]
 content_push "igot $contentPHash\n"
-content_push "private\nfile $contentPHash [string length $contentP]\n$contentP" \
+content_push \
+    "private\nfile $contentPHash [string length $contentP]\n$contentP" \
     "login tester 0 0\n"
 test content-sync-private-fill {$CODE == 0}
 test_eq content-sync-private-fill-marked [content_x "SELECT count(*)
@@ -614,90 +611,76 @@ test content-sync-integrity {$CODE == 0}
 
 ###############################################################################
 # The cache of reconstructed artifacts keeps every eighth artifact along a
-# delta chain and drops the oldest entry once it holds more than 2,000.
-# A chain of 18,000 deltas is stored and read back in one process, so the
-# cache fills and entries are dropped while the chain is read; each version
-# read afterwards, through dropped and kept entries, must still be right.
+# delta chain.  It drops its oldest entry once it holds more than 2,000
+# entries, and its oldest entries, as many as it takes, while it holds
+# more than 256 MB.  Both limits are constants in content.c, so a test
+# has to store enough to exceed them.  If Fossil gets a setting for the
+# size of this cache, set it far lower here, at least for -assurance
+# smoke, and run these tests at every level.
 
-fossil new cache.fossil
-fossil sql -R cache.fossil {
-  CREATE TEMP TABLE v(k INTEGER PRIMARY KEY, t BLOB);
-  WITH RECURSIVE c(k) AS (SELECT 0 UNION ALL SELECT k+1 FROM c WHERE k<17999)
-  INSERT INTO v SELECT k, CAST(printf('common text%.100c version %d', '.', k)
-                               AS BLOB) FROM c;
-  INSERT INTO blob(rid,rcvid,size,uuid,content)
-    SELECT 100000+k, 0, length(t), printf('%064d', k),
-           compress(CASE WHEN k=0 THEN t
-                    ELSE delta_create((SELECT t FROM v p WHERE p.k=v.k-1), t) END)
-      FROM v;
-  INSERT INTO delta(rid,srcid) SELECT 100000+k, 100000+k-1 FROM v WHERE k>0;
-  SELECT content('rid:117999')=(SELECT t FROM v WHERE k=17999);
-  SELECT count(*) FROM v WHERE k%997=0 AND content('rid:'||(100000+k))=t;
+if {[test_assurance] eq "smoke"} {
+  test_skip_part "the content cache limits need -assurance ci or stress"
+} else {
+  # A chain of 18,000 deltas is stored and read back in one process, so
+  # the cache holds more than 2,000 entries and drops the oldest while
+  # the chain is read; each version read afterwards, through dropped and
+  # kept entries, must still be right.
+  fossil new cache.fossil
+  fossil sql -R cache.fossil {
+    CREATE TEMP TABLE v(k INTEGER PRIMARY KEY, t BLOB);
+    WITH RECURSIVE c(k) AS (SELECT 0 UNION ALL SELECT k+1 FROM c WHERE k<17999)
+    INSERT INTO v SELECT k, CAST(printf('common text%.100c version %d', '.', k)
+                                 AS BLOB) FROM c;
+    INSERT INTO blob(rid,rcvid,size,uuid,content)
+      SELECT 100000+k, 0, length(t), printf('%064d', k),
+             compress(CASE WHEN k=0 THEN t
+                      ELSE delta_create((SELECT t FROM v p WHERE p.k=v.k-1), t)
+                      END)
+        FROM v;
+    INSERT INTO delta(rid,srcid) SELECT 100000+k, 100000+k-1 FROM v WHERE k>0;
+    SELECT content('rid:117999')=(SELECT t FROM v WHERE k=17999);
+    SELECT count(*) FROM v WHERE k%997=0 AND content('rid:'||(100000+k))=t;
+  }
+  test content-cache-expire {$CODE == 0}
+  test_eq content-cache-expire-reads [string trim $RESULT] "1\n19"
+
+  # A chain of 104 versions takes the cache over 256 MB.  Only every
+  # eighth version is cached, so those are 30 MB each and the versions
+  # between them are a few bytes, which makes the chain quick to store
+  # and to read.  The two oldest cached versions are small (version 7)
+  # and empty (version 15).  When the cache first exceeds the limit,
+  # dropping version 7 is not enough, and dropping version 15 frees
+  # nothing, which leaves the cache over the limit.  The next entry
+  # drops two 30 MB versions.  Each version read afterwards must still
+  # be right.
+  fossil new cache-size.fossil
+  fossil sql -R cache-size.fossil {
+    CREATE TEMP TABLE c(kind INTEGER PRIMARY KEY, t BLOB);
+    INSERT INTO c VALUES(0, CAST('a small version' AS BLOB)),
+                        (1, zeroblob(30000000)), (2, x'');
+    CREATE TEMP TABLE d(src, dst, z BLOB, PRIMARY KEY(src, dst));
+    INSERT INTO d SELECT a.kind, b.kind, compress(delta_create(a.t, b.t))
+                    FROM c a, c b WHERE a.kind=0 OR b.kind=0;
+    CREATE TEMP TABLE n(k INTEGER PRIMARY KEY, kind);
+    WITH RECURSIVE s(k) AS (SELECT 0 UNION ALL SELECT k+1 FROM s WHERE k<103)
+    INSERT INTO n SELECT k, CASE WHEN k=15 THEN 2 WHEN k%8=7 AND k>15 THEN 1
+                                 ELSE 0 END FROM s;
+    INSERT INTO blob(rid,rcvid,size,uuid,content)
+      SELECT 200000+k, 0, (SELECT length(t) FROM c WHERE c.kind=n.kind),
+             printf('%064d', k),
+             CASE WHEN k=0 THEN (SELECT compress(t) FROM c WHERE c.kind=n.kind)
+                  ELSE (SELECT z FROM d WHERE dst=n.kind
+                           AND src=(SELECT kind FROM n p WHERE p.k=n.k-1)) END
+        FROM n;
+    INSERT INTO delta(rid,srcid) SELECT 200000+k, 200000+k-1 FROM n WHERE k>0;
+    SELECT content('rid:200103')=(SELECT t FROM c WHERE kind=1);
+    SELECT length(content('rid:200015'));
+    SELECT count(*) FROM n WHERE k IN (0,7,14,16,23,31,39,95,102,103)
+       AND content('rid:'||(200000+k))=(SELECT t FROM c WHERE c.kind=n.kind);
+  }
+  test content-cache-size {$CODE == 0}
+  test_eq content-cache-size-reads [string trim $RESULT] "1\n0\n10"
 }
-test content-cache-expire {$CODE == 0}
-test_eq content-cache-expire-reads [string trim $RESULT] "1\n19"
-
-# The cache also drops its oldest entries while it holds more than 256 MB,
-# as many as it takes.  Each version here is a longer prefix of one random
-# text, up to 18 MB, so the oldest entries are the smallest and dropping
-# one is not always enough.
-
-fossil new cache-size.fossil
-fossil sql -R cache-size.fossil {
-  CREATE TEMP TABLE r(x BLOB);
-  INSERT INTO r VALUES(hex(randomblob(9000000)));
-  CREATE TEMP TABLE n(k INTEGER PRIMARY KEY);
-  WITH RECURSIVE c(k) AS (SELECT 0 UNION ALL SELECT k+1 FROM c WHERE k<299)
-  INSERT INTO n SELECT k FROM c;
-  INSERT INTO blob(rid,rcvid,size,uuid,content)
-    SELECT 200000+k, 0, (k+1)*60000, printf('%064d', k),
-           compress(CASE WHEN k=0 THEN substr((SELECT x FROM r), 1, 60000)
-                    ELSE delta_create(substr((SELECT x FROM r), 1, k*60000),
-                                      substr((SELECT x FROM r), 1, (k+1)*60000))
-                    END)
-      FROM n;
-  INSERT INTO delta(rid,srcid) SELECT 200000+k, 200000+k-1 FROM n WHERE k>0;
-  SELECT content('rid:200299')
-         =CAST(substr((SELECT x FROM r), 1, 300*60000) AS BLOB);
-  SELECT count(*) FROM n WHERE k%37=0 AND content('rid:'||(200000+k))
-         =CAST(substr((SELECT x FROM r), 1, (k+1)*60000) AS BLOB);
-}
-test content-cache-size {$CODE == 0}
-test_eq content-cache-size-reads [string trim $RESULT] "1\n9"
-file delete cache-size.fossil
-
-# When the oldest entry is an artifact of no bytes, dropping it frees
-# nothing and the cache stays over 256 MB for one more entry.  Version 7
-# of this chain is empty and every other version is the same 30 MB; each
-# version read afterwards must still be right.
-
-fossil new cache-empty.fossil
-fossil sql -R cache-empty.fossil {
-  CREATE TEMP TABLE r(x BLOB);
-  INSERT INTO r VALUES(CAST(hex(randomblob(15000000)) AS BLOB));
-  CREATE TEMP TABLE d(same BLOB, toempty BLOB, fromempty BLOB);
-  INSERT INTO d SELECT delta_create(x, x), delta_create(x, x''),
-                       delta_create(x'', x) FROM r;
-  CREATE TEMP TABLE n(k INTEGER PRIMARY KEY);
-  WITH RECURSIVE c(k) AS (SELECT 0 UNION ALL SELECT k+1 FROM c WHERE k<88)
-  INSERT INTO n SELECT k FROM c;
-  INSERT INTO blob(rid,rcvid,size,uuid,content)
-    SELECT 300000+k, 0, CASE WHEN k=7 THEN 0 ELSE 30000000 END,
-           printf('%064d', k),
-           compress(CASE WHEN k=0 THEN (SELECT x FROM r)
-                         WHEN k=7 THEN (SELECT toempty FROM d)
-                         WHEN k=8 THEN (SELECT fromempty FROM d)
-                         ELSE (SELECT same FROM d) END)
-      FROM n;
-  INSERT INTO delta(rid,srcid) SELECT 300000+k, 300000+k-1 FROM n WHERE k>0;
-  SELECT content('rid:300088')=(SELECT x FROM r);
-  SELECT length(content('rid:300007'));
-  SELECT count(*) FROM n WHERE k IN (6,8,15,50,87)
-     AND content('rid:'||(300000+k))=(SELECT x FROM r);
-}
-test content-cache-empty-oldest {$CODE == 0}
-test_eq content-cache-empty-oldest-reads [string trim $RESULT] "1\n0\n5"
-file delete cache-empty.fossil
 
 ###############################################################################
 

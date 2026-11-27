@@ -5,78 +5,14 @@
 # was removed.
 #
 
-# These tests run only in a long pass: -assurance stress.
-if {[test_assurance] ne "stress"} {
-  test_skip "runs only with -assurance stress"
-}
-
+# The first sections run at every level, and the rest need
+# -assurance stress.
 require_no_open_checkout
 
 test_setup
 
 proc purge_sql {sql {repo .rep.fossil}} {
-  fossil sql -R $repo $sql
-  return [string trim $::RESULT]
-}
-
-# What a repository holds, by hash rather than by record number, so that
-# two states can be compared after an undo has stored content again:
-# the artifacts with their private flag, the timeline, the parent links,
-# the files of each check-in, the leaves and the tags.
-#
-proc purge_state {{repo .rep.fossil}} {
-  return [purge_sql {
-    SELECT 'blob', uuid, rid IN private FROM blob WHERE size>=0
-    UNION ALL
-    SELECT 'event', b.uuid, e.type || ' ' || ifnull(e.comment,'')
-      FROM event e JOIN blob b ON b.rid=e.objid
-    UNION ALL
-    SELECT 'plink', p.uuid, c.uuid FROM plink
-      JOIN blob p ON p.rid=plink.pid JOIN blob c ON c.rid=plink.cid
-    UNION ALL
-    SELECT 'mlink', m.uuid, f.uuid || ' ' || fn.name FROM mlink
-      JOIN blob m ON m.rid=mlink.mid JOIN blob f ON f.rid=mlink.fid
-      JOIN filename fn ON fn.fnid=mlink.fnid
-    UNION ALL
-    SELECT 'leaf', uuid, '' FROM leaf JOIN blob USING(rid)
-    UNION ALL
-    SELECT 'tag', b.uuid, t.tagname || '=' || ifnull(x.value,'')
-      FROM tagxref x JOIN tag t USING(tagid) JOIN blob b ON b.rid=x.rid
-     WHERE x.tagtype>0
-    ORDER BY 1, 2, 3
-  } $repo]
-}
-
-# The rows that are in one state and not in the other, marked "-" for
-# the first and "+" for the second.  Empty when the two are the same.
-#
-proc purge_diff {a b} {
-  set la [split $a \n]
-  set lb [split $b \n]
-  set out {}
-  foreach x $la { if {[lsearch -exact $lb $x] < 0} { lappend out "- $x" } }
-  foreach x $lb { if {[lsearch -exact $la $x] < 0} { lappend out "+ $x" } }
-  return [join $out \n]
-}
-
-proc purge_sound {name {repo .rep.fossil}} {
-  fossil test-integrity -R $repo
-  test $name-integrity {$::CODE == 0}
-  fossil test-missing -R $repo
-  test $name-missing {$::CODE == 0}
-}
-
-proc purge_hash {comment} {
-  return [purge_sql "SELECT uuid FROM blob, event
-      WHERE objid=rid AND comment='$comment'"]
-}
-
-# The hash of the version of FILE in check-in CHECKIN.
-proc purge_file_hash {checkin file} {
-  return [purge_sql "SELECT f.uuid FROM mlink
-      JOIN blob m ON m.rid=mlink.mid JOIN blob f ON f.rid=mlink.fid
-      JOIN filename fn ON fn.fnid=mlink.fnid
-     WHERE m.uuid='$checkin' AND fn.name='$file'"]
+  return [fossil_sql $sql $repo]
 }
 
 proc purge_commit {file content comment args} {
@@ -84,7 +20,7 @@ proc purge_commit {file content comment args} {
   write_file $file $content
   if {$new} {fossil add $file}
   fossil commit -m $comment --no-warnings {*}$args
-  return [purge_hash $comment]
+  return [checkin_hash $comment]
 }
 
 # The number of the newest purge event.
@@ -98,7 +34,7 @@ proc purge_has {repo hash} {
 }
 
 # The number of file and parent links whose artifact is not in the
-# repository at all.  purge_state compares the links by hash, which also
+# repository at all.  repository_state compares the links by hash, which also
 # shows a link to the wrong artifact.
 proc purge_dangling {repo} {
   return [purge_sql "SELECT (SELECT count(*) FROM mlink
@@ -130,11 +66,11 @@ fossil update side
 set purgeSide1 [purge_commit a.txt "${purgeTrunkText(3)}on the side\n" \
     purge-side-1]
 set purgeSide2 [purge_commit b.txt "a file only the branch has\n" purge-side-2]
-set purgeSideB [purge_file_hash $purgeSide2 b.txt]
+set purgeSideB [checkin_file_hash $purgeSide2 b.txt]
 fossil update trunk
 
-purge_sound purge-start
-set purgeStart [purge_state]
+repository_sound purge-start
+set purgeStart [repository_state]
 file copy .rep.fossil full.fossil
 
 ###############################################################################
@@ -142,9 +78,9 @@ file copy .rep.fossil full.fossil
 
 fossil purge checkins side --explain
 test purge-explain {$CODE == 0}
-test_eq purge-explain-no-change [purge_state] $purgeStart
+test_eq purge-explain-no-change [repository_state] $purgeStart
 fossil purge checkins side --dry-run
-test_eq purge-dry-run-no-change [purge_state] $purgeStart
+test_eq purge-dry-run-no-change [repository_state] $purgeStart
 
 # Either option may be given twice, or both together, with the same result.
 foreach {purgeName purgeArgs} {
@@ -155,7 +91,7 @@ foreach {purgeName purgeArgs} {
   fossil_raw purge checkins side {*}$purgeArgs
   test purge-$purgeName {$CODE == 0 &&
       [string match "*check-in to side*file b.txt*" $RESULT]}
-  test_eq purge-$purgeName-no-change [purge_state] $purgeStart
+  test_eq purge-$purgeName-no-change [repository_state] $purgeStart
 }
 fossil purge list
 test_eq purge-explain-no-graveyard [string trim $RESULT] ""
@@ -173,7 +109,7 @@ test_eq purge-checkins-no-event [purge_sql "SELECT count(*) FROM event
     WHERE comment LIKE 'purge-side-%'"] 0
 test_eq purge-checkins-trunk-kept [purge_sql "SELECT count(*) FROM event
     WHERE comment LIKE 'purge-trunk-%'"] 5
-purge_sound purge-checkins
+repository_sound purge-checkins
 for {set purgeI 1} {$purgeI <= 5} {incr purgeI} {
   fossil cat a.txt -r [lindex $purgeTrunk [expr {$purgeI-1}]]
   test_eq purge-checkins-trunk-$purgeI "$RESULT\n" $purgeTrunkText($purgeI)
@@ -196,10 +132,10 @@ fossil purge cat [purge_sql "SELECT uuid FROM purgeitem
 test purge-cat-delta {$CODE == 0}
 
 # A trial run of the undo restores nothing and keeps the purge.
-set purgeBefore [purge_state]
+set purgeBefore [repository_state]
 fossil purge undo $purgeEvent --explain
 test purge-undo-explain {$CODE == 0}
-test_eq purge-undo-explain-no-change [purge_state] $purgeBefore
+test_eq purge-undo-explain-no-change [repository_state] $purgeBefore
 test_eq purge-undo-explain-event-kept [purge_last_event] $purgeEvent
 fossil purge undo $purgeEvent --dry-run
 test_eq purge-undo-dry-run-event-kept [purge_last_event] $purgeEvent
@@ -207,8 +143,9 @@ test_eq purge-undo-dry-run-event-kept [purge_last_event] $purgeEvent
 # Undo gives back exactly what was there.
 fossil purge undo $purgeEvent
 test purge-undo {$CODE == 0}
-test_eq purge-undo-state [purge_diff $purgeStart [purge_state]] ""
-purge_sound purge-undo
+test_eq purge-undo-state [repository_state_diff $purgeStart \
+    [repository_state]] ""
+repository_sound purge-undo
 fossil purge list
 test_eq purge-undo-graveyard-empty [string trim $RESULT] ""
 fossil cat b.txt -r $purgeSide2
@@ -267,7 +204,7 @@ if {$::tcl_platform(platform) eq "unix"} {
   file delete link.fossil
 }
 fossil update trunk
-test_eq purge-current-checkout-no-change [purge_state] $purgeStart
+test_eq purge-current-checkout-no-change [repository_state] $purgeStart
 
 fossil purge cat [string repeat 0 40] -expectError
 test purge-cat-missing {$CODE != 0}
@@ -291,15 +228,19 @@ foreach {purgeName purgeArgs} {
   test purge-usage-$purgeName {$CODE != 0 &&
       [string match "*Usage:*" $RESULT]}
 }
-test_eq purge-usage-no-change [purge_state] $purgeStart
+test_eq purge-usage-no-change [repository_state] $purgeStart
+
+if {[test_assurance] ne "stress"} {
+  test_skip "the tests after the first sections need -assurance stress"
+}
 
 ###############################################################################
 # Purging one file version that a kept version is a delta of, on a copy.
 # The kept version is stored whole first and can still be read.
 
 file copy full.fossil p1.fossil
-set purgeV2 [purge_file_hash [lindex $purgeTrunk 1] a.txt]
-set purgeV3 [purge_file_hash [lindex $purgeTrunk 2] a.txt]
+set purgeV2 [checkin_file_hash [lindex $purgeTrunk 1] a.txt]
+set purgeV3 [checkin_file_hash [lindex $purgeTrunk 2] a.txt]
 test purge-delta-setup {[purge_sql "SELECT count(*) FROM delta
     WHERE srcid=(SELECT rid FROM blob WHERE uuid='$purgeV3')" p1.fossil] > 0}
 fossil purge artifacts $purgeV3 -R p1.fossil
@@ -321,11 +262,11 @@ test purge-artifact-undo {$CODE == 0}
 test_eq purge-artifact-undo-back [purge_has p1.fossil $purgeV3] 1
 test_eq purge-artifact-undo-links [purge_dangling p1.fossil] 0
 test_eq purge-artifact-undo-state \
-    [purge_diff $purgeStart [purge_state p1.fossil]] ""
-purge_sound purge-artifact-undo p1.fossil
+    [repository_state_diff $purgeStart [repository_state p1.fossil]] ""
+repository_sound purge-artifact-undo p1.fossil
 fossil rebuild p1.fossil
 test_eq purge-artifact-rebuild-state \
-    [purge_diff $purgeStart [purge_state p1.fossil]] ""
+    [repository_state_diff $purgeStart [repository_state p1.fossil]] ""
 
 # Every version of a file, by name, on another copy.
 file copy full.fossil p2.fossil
@@ -340,7 +281,7 @@ test_eq purge-files-undo-back [purge_sql "SELECT count(*) FROM blob
 test_eq purge-files-undo-links [purge_dangling p2.fossil] 0
 fossil rebuild p2.fossil
 test_eq purge-files-rebuild-state \
-    [purge_diff $purgeStart [purge_state p2.fossil]] ""
+    [repository_state_diff $purgeStart [repository_state p2.fossil]] ""
 
 # Purging check-ins takes a repository named with -R, as every command
 # can.
@@ -377,8 +318,8 @@ test purge-middle-timeline {$CODE == 0 &&
 fossil purge undo [purge_last_event p4.fossil] -R p4.fossil
 test purge-middle-undo {$CODE == 0}
 test_eq purge-middle-undo-state \
-    [purge_diff $purgeStart [purge_state p4.fossil]] ""
-purge_sound purge-middle-undo p4.fossil
+    [repository_state_diff $purgeStart [repository_state p4.fossil]] ""
+repository_sound purge-middle-undo p4.fossil
 
 # A ticket change.  The ticket goes with its only change and comes back
 # with the undo.
@@ -387,7 +328,7 @@ set purgeTicket [purge_sql "SELECT uuid FROM blob
     WHERE rid=(SELECT tkt_rid FROM ticketchng)" p4.fossil]
 test purge-ticket-setup {[purge_sql "SELECT count(*) FROM ticket
     WHERE title='a ticket to purge'" p4.fossil] == 1}
-set purgeBefore [purge_state p4.fossil]
+set purgeBefore [repository_state p4.fossil]
 fossil purge artifacts $purgeTicket -R p4.fossil
 test purge-ticket {$CODE == 0}
 test_eq purge-ticket-gone [purge_sql "SELECT (SELECT count(*) FROM ticket)
@@ -397,7 +338,7 @@ test purge-ticket-undo {$CODE == 0}
 test_eq purge-ticket-undo-back [purge_sql "SELECT count(*) FROM ticket
     WHERE title='a ticket to purge'" p4.fossil] 1
 test_eq purge-ticket-undo-state \
-    [purge_diff $purgeBefore [purge_state p4.fossil]] ""
+    [repository_state_diff $purgeBefore [repository_state p4.fossil]] ""
 
 # A repository whose plink table has no baseid column, as one made before
 # the 2014-11-28 schema change that was never rebuilt; the column is
@@ -414,8 +355,8 @@ fossil purge undo [purge_last_event p6.fossil] -R p6.fossil
 test purge-old-plink-undo {$CODE == 0}
 test_eq purge-old-plink-undo-back [purge_has p6.fossil $purgeMiddle] 1
 test_eq purge-old-plink-undo-state \
-    [purge_diff $purgeStart [purge_state p6.fossil]] ""
-purge_sound purge-old-plink-undo p6.fossil
+    [repository_state_diff $purgeStart [repository_state p6.fossil]] ""
+repository_sound purge-old-plink-undo p6.fossil
 
 # "fossil bundle purge" removes the check-ins of a bundle without a
 # graveyard: there is no purge event, nothing is said about an undo, and
@@ -435,7 +376,7 @@ test purge-bundle-integrity {$CODE == 0}
 fossil bundle import side.bundle --publish -R p7.fossil
 test purge-bundle-import {$CODE == 0}
 test_eq purge-bundle-import-state \
-    [purge_diff $purgeStart [purge_state p7.fossil]] ""
+    [repository_state_diff $purgeStart [repository_state p7.fossil]] ""
 
 ###############################################################################
 # A graveyard that has been damaged with SQL.  Each command stops with a
@@ -484,11 +425,11 @@ foreach {purgeName purgeDamage purgeArgs purgeMessage} [list \
 ] {
   file copy -force p8.fossil damaged.fossil
   fossil sql -R damaged.fossil $purgeDamage
-  set purgeBefore [purge_state damaged.fossil]
+  set purgeBefore [repository_state damaged.fossil]
   fossil_raw purge {*}$purgeArgs -R damaged.fossil
   test purge-damage-$purgeName {$CODE == 1 &&
       [string match $purgeMessage $RESULT]}
-  test_eq purge-damage-$purgeName-no-change [purge_state damaged.fossil] \
+  test_eq purge-damage-$purgeName-no-change [repository_state damaged.fossil] \
       $purgeBefore
   test_eq purge-damage-$purgeName-event-kept \
       [purge_last_event damaged.fossil] $purgeEvent8
@@ -501,8 +442,8 @@ fossil purge undo $purgeEvent8 -R damaged.fossil
 test purge-undo-no-record-number {$CODE == 0}
 fossil rebuild damaged.fossil
 test_eq purge-undo-no-record-number-state \
-    [purge_diff $purgeStart [purge_state damaged.fossil]] ""
-purge_sound purge-undo-no-record-number damaged.fossil
+    [repository_state_diff $purgeStart [repository_state damaged.fossil]] ""
+repository_sound purge-undo-no-record-number damaged.fossil
 
 # A check-in is purged and its child, which is kept, then loses its
 # content.  The undo restores the purged check-in and does not link the
@@ -517,7 +458,6 @@ test_eq purge-undo-child-without-content-back \
     [purge_has damaged.fossil $purgeP] 1
 test_eq purge-undo-child-without-content-not-linked \
     [purge_parent_of damaged.fossil $purgeC] ""
-file delete damaged.fossil
 
 ###############################################################################
 # Obliterate.  Asked first, unless --force; afterwards the purge cannot
@@ -534,7 +474,7 @@ test purge-cat-second-missing-named \
     {[string first [string repeat 0 40] $RESULT] >= 0}
 
 fossil_raw -input "n\n" purge obliterate $purgeEvent
-test purge-obliterate-declined {$CODE != 0}
+test purge-obliterate-declined {$CODE == 1}
 test_eq purge-obliterate-declined-kept [purge_last_event] $purgeEvent
 fossil_raw -input "y\n" purge obliterate $purgeEvent
 test purge-obliterate {$CODE == 0}
@@ -549,14 +489,14 @@ test_eq purge-obliterate-capital-gone [purge_sql "SELECT count(*)
 fossil purge obliterate $purgeEvent --force -expectError
 test purge-obliterate-again {$CODE != 0 &&
     [string match "*no such purge event*" $RESULT]}
-purge_sound purge-obliterate
+repository_sound purge-obliterate
 
 # An undo of a purge that does not exist is refused, as an obliterate of
 # one is.
-set purgeBefore [purge_state]
+set purgeBefore [repository_state]
 fossil_raw purge undo $purgeEvent
-test purge-undo-missing-event {$CODE != 0}
-test_eq purge-undo-missing-event-no-change [purge_state] $purgeBefore
+test purge-undo-missing-event {$CODE == 1}
+test_eq purge-undo-missing-event-no-change [repository_state] $purgeBefore
 
 # A repository that has never had a purge has no graveyard tables.  Undo
 # and obliterate are refused there as for any unknown purge, the list is
@@ -588,8 +528,9 @@ test_eq purge-clone-lacks [purge_sql "SELECT count(*) FROM blob
     WHERE uuid='$purgeSide2'" c1.fossil] 0
 fossil pull [file join [pwd] full.fossil]
 test purge-pull-back {$CODE == 0}
-test_eq purge-pull-back-state [purge_diff $purgeStart [purge_state]] ""
-purge_sound purge-pull-back
+test_eq purge-pull-back-state \
+    [repository_state_diff $purgeStart [repository_state]] ""
+repository_sound purge-pull-back
 
 ###############################################################################
 # Scrub.  A private branch, a password and a purge in the graveyard, then
@@ -601,10 +542,9 @@ for {set purgeI 0} {$purgeI < 60} {incr purgeI} {
 }
 set purgeSecret [purge_commit secret.txt $purgeSecretText purge-secret \
     --private --branch secret]
-set purgeSecretFile [purge_file_hash $purgeSecret secret.txt]
+set purgeSecretFile [checkin_file_hash $purgeSecret secret.txt]
 fossil update trunk
 fossil user new scrubuser scrub@example.invalid hunter2
-fossil user password scrubuser hunter2
 set purgePublic [purge_sql "SELECT group_concat(uuid,' ') FROM (SELECT uuid
     FROM blob WHERE size>=0 AND rid NOT IN private ORDER BY uuid)"]
 foreach purgeCopy {s1 s2 s3 s4 s5 s7} {
@@ -614,24 +554,21 @@ proc purge_public {repo} {
   return [purge_sql "SELECT group_concat(uuid,' ') FROM (SELECT uuid
       FROM blob WHERE size>=0 AND rid NOT IN private ORDER BY uuid)" $repo]
 }
-proc purge_pw {repo} {
-  return [purge_sql "SELECT count(*) FROM user WHERE pw<>''" $repo]
-}
-test purge-scrub-setup {[purge_pw s1.fossil] > 0 &&
+test purge-scrub-setup {[password_count s1.fossil] > 0 &&
     [purge_has s1.fossil $purgeSecret] == 1}
 
 # Asked first; "n" changes nothing.
 fossil_raw -input "n\n" scrub s1.fossil
-test purge-scrub-declined {$CODE != 0}
-test purge-scrub-declined-kept {[purge_pw s1.fossil] > 0}
+test purge-scrub-declined {$CODE == 1}
+test purge-scrub-declined-kept {[password_count s1.fossil] > 0}
 
 # By default only passwords go.
 fossil scrub --force s1.fossil
 test purge-scrub {$CODE == 0}
-test_eq purge-scrub-passwords [purge_pw s1.fossil] 0
+test_eq purge-scrub-passwords [password_count s1.fossil] 0
 test_eq purge-scrub-keeps-private [purge_has s1.fossil $purgeSecret] 1
 test_eq purge-scrub-keeps-public [purge_public s1.fossil] $purgePublic
-purge_sound purge-scrub s1.fossil
+repository_sound purge-scrub s1.fossil
 
 # --private removes the private branch and nothing else.
 fossil scrub --private --force s2.fossil
@@ -643,8 +580,8 @@ test_eq purge-scrub-private-none-left [purge_sql "SELECT count(*)
 test_eq purge-scrub-private-no-event [purge_sql "SELECT count(*) FROM event
     WHERE comment='purge-secret'" s2.fossil] 0
 test_eq purge-scrub-private-keeps-public [purge_public s2.fossil] $purgePublic
-test purge-scrub-private-keeps-passwords {[purge_pw s2.fossil] > 0}
-purge_sound purge-scrub-private s2.fossil
+test purge-scrub-private-keeps-passwords {[password_count s2.fossil] > 0}
+repository_sound purge-scrub-private s2.fossil
 
 # A private branch that was purged before the scrub is in the graveyard.
 fossil purge artifacts $purgeSecret $purgeSecretFile -R s3.fossil
@@ -659,11 +596,12 @@ file copy s3.fossil s8.fossil
 fossil purge undo [purge_last_event s8.fossil] -R s8.fossil
 test purge-undo-private {$CODE == 0}
 test_eq purge-undo-private-state \
-    [purge_diff [purge_state s7.fossil] [purge_state s8.fossil]] ""
+    [repository_state_diff [repository_state s7.fossil] \
+        [repository_state s8.fossil]] ""
 test_eq purge-undo-private-still-private [purge_sql "SELECT count(*)
     FROM private JOIN blob USING(rid)
    WHERE uuid IN ('$purgeSecret','$purgeSecretFile')" s8.fossil] 2
-purge_sound purge-undo-private s8.fossil
+repository_sound purge-undo-private s8.fossil
 fossil scrub --private --force s3.fossil
 test purge-scrub-graveyard {$CODE == 0}
 # The private branch does not survive in the graveyard, so neither
@@ -671,7 +609,7 @@ test purge-scrub-graveyard {$CODE == 0}
 test_eq purge-scrub-private-graveyard [purge_sql "SELECT count(*)
     FROM purgeitem WHERE isPrivate" s3.fossil] 0
 fossil_raw purge cat $purgeSecretFile -R s3.fossil
-test purge-scrub-private-graveyard-cat {$CODE != 0}
+test purge-scrub-private-graveyard-cat {$CODE == 1}
 
 # A public item in the graveyard that is stored as a delta from a private
 # one is kept and can still be read.  "fossil publish" leaves such deltas:
@@ -680,7 +618,7 @@ test purge-scrub-private-graveyard-cat {$CODE != 0}
 fossil update secret
 set purgeSecret2 [purge_commit secret.txt "${purgeSecretText}one more\n" \
     purge-secret-2]
-set purgeSecretFile2 [purge_file_hash $purgeSecret2 secret.txt]
+set purgeSecretFile2 [checkin_file_hash $purgeSecret2 secret.txt]
 fossil update trunk
 file copy .rep.fossil s6.fossil
 fossil publish $purgeSecret -R s6.fossil
@@ -706,9 +644,9 @@ fossil scrub --verily --force s4.fossil
 test purge-scrub-verily {$CODE == 0}
 test_eq purge-scrub-verily-no-graveyard [purge_sql "SELECT count(*)
     FROM sqlite_schema WHERE name='purgeitem'" s4.fossil] 0
-test_eq purge-scrub-verily-passwords [purge_pw s4.fossil] 0
+test_eq purge-scrub-verily-passwords [password_count s4.fossil] 0
 test_eq purge-scrub-verily-keeps-public [purge_public s4.fossil] $purgePublic
-purge_sound purge-scrub-verily s4.fossil
+repository_sound purge-scrub-verily s4.fossil
 
 # A scrubbed repository still clones.
 fossil clone s2.fossil c2.fossil
@@ -720,10 +658,12 @@ test_eq purge-scrub-clone-public [purge_public c2.fossil] $purgePublic
 
 fossil repack s5.fossil
 test purge-repack {$CODE == 0}
-test_eq purge-repack-same [purge_state s5.fossil] [purge_state s5.fossil]
+test_eq purge-repack-same \
+    [repository_state_diff [repository_state s7.fossil] \
+        [repository_state s5.fossil]] ""
 test_eq purge-repack-public [purge_public s5.fossil] $purgePublic
 test_eq purge-repack-private [purge_has s5.fossil $purgeSecret] 1
-purge_sound purge-repack s5.fossil
+repository_sound purge-repack s5.fossil
 
 ###############################################################################
 # A delta manifest names its baseline.  A purge of the baseline alone is
@@ -738,19 +678,20 @@ test purge-baseline-setup {[purge_sql "SELECT count(*) FROM plink
     WHERE cid=(SELECT rid FROM blob WHERE uuid='$purgeDeltaM')
       AND baseid=(SELECT rid FROM blob WHERE uuid='$purgeBase')"] == 1}
 fossil update [lindex $purgeTrunk 3]
-set purgeBefore [purge_state]
+set purgeBefore [repository_state]
 fossil_raw purge artifacts $purgeBase
 test purge-baseline-alone-refused {$CODE ne "0" &&
     [string match "*attempt to purge a baseline manifest*" $RESULT]}
-test_eq purge-baseline-alone-no-change [purge_state] $purgeBefore
+test_eq purge-baseline-alone-no-change [repository_state] $purgeBefore
 fossil purge artifacts $purgeBase $purgeDeltaM
 test purge-baseline-with-delta {$CODE == 0}
 test_eq purge-baseline-with-delta-gone [purge_sql "SELECT count(*) FROM blob
     WHERE uuid IN ('$purgeBase','$purgeDeltaM')"] 0
 fossil purge undo [purge_last_event]
 test purge-baseline-undo {$CODE == 0}
-test_eq purge-baseline-undo-state [purge_diff $purgeBefore [purge_state]] ""
-purge_sound purge-baseline-undo
+test_eq purge-baseline-undo-state \
+    [repository_state_diff $purgeBefore [repository_state]] ""
+repository_sound purge-baseline-undo
 
 ###############################################################################
 

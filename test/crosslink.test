@@ -10,11 +10,8 @@
 # baseline is missing.
 #
 
-# These tests run only in a long pass: -assurance stress.
-if {[test_assurance] ne "stress"} {
-  test_skip "runs only with -assurance stress"
-}
-
+# The first sections run at every level, and the rest need
+# -assurance stress.
 require_no_open_checkout
 
 test_setup
@@ -42,14 +39,10 @@ proc crosslink_file {body} {
 # its hash, or an empty string if it was not stored.  CODE and RESULT are
 # those of test-content-put.
 #
-proc crosslink_put {body {options --crosslink}} {
+proc crosslink_put {body} {
   global RESULT CODE
   set fn [crosslink_file $body]
-  if {$options eq ""} {
-    fossil test-content-put $fn
-  } else {
-    fossil test-content-put $options $fn
-  }
+  fossil test-content-put --crosslink $fn
   set code $CODE
   set result $RESULT
   set hash ""
@@ -75,18 +68,10 @@ proc crosslink_match {name actual pattern {constraints ""}} {
   test_eq $name $actual $pattern $constraints
 }
 
-# The answer of one SQL statement, trimmed.
-#
-proc crosslink_sql {sql} {
-  global RESULT
-  fossil sql $sql
-  return [string trim $RESULT]
-}
-
 # The timeline text of the artifact with the given hash.
 #
 proc crosslink_event {hash} {
-  return [crosslink_sql "SELECT type || ' ' || comment FROM event, blob\
+  return [fossil_sql "SELECT type || ' ' || comment FROM event, blob\
      WHERE objid=rid AND uuid='$hash'"]
 }
 
@@ -103,7 +88,7 @@ U alice
 test crosslink-wiki-new {$CODE == 0 && $crosslinkW1 ne ""}
 test_eq crosslink-wiki-new-event [crosslink_event $crosslinkW1] \
     {w +Crosslink Page}
-test_eq crosslink-wiki-new-tag [crosslink_sql "SELECT value FROM tagxref, tag
+test_eq crosslink-wiki-new-tag [fossil_sql "SELECT value FROM tagxref, tag
     WHERE tag.tagid=tagxref.tagid AND tagname='wiki-Crosslink Page'"] {10}
 
 set crosslinkW2 [crosslink_put "D 2026-01-01T11:00:00.000
@@ -114,7 +99,7 @@ U alice
 [crosslink_w {second text}]"]
 test_eq crosslink-wiki-edit-event [crosslink_event $crosslinkW2] \
     {w :Crosslink Page}
-test_eq crosslink-wiki-edit-plink [crosslink_sql "SELECT count(*) FROM plink
+test_eq crosslink-wiki-edit-plink [fossil_sql "SELECT count(*) FROM plink
     WHERE cid=(SELECT rid FROM blob WHERE uuid='$crosslinkW2')
       AND pid=(SELECT rid FROM blob WHERE uuid='$crosslinkW1')"] 1
 
@@ -149,7 +134,7 @@ T +sym-noted *
 U alice
 [crosslink_w {note}]"]
 test crosslink-technote-new {$CODE == 0 && $crosslinkE1 ne ""}
-test_eq crosslink-technote-new-event [crosslink_sql "SELECT type, comment,
+test_eq crosslink-technote-new-event [fossil_sql "SELECT type, comment,
     bgcolor FROM event, blob WHERE objid=rid AND uuid='$crosslinkE1'"] \
     {e|First note|#abcdef}
 
@@ -159,15 +144,15 @@ E 2026-01-02T09:00:00 $crosslinkEid
 P $crosslinkE1
 U alice
 [crosslink_w {note2}]"]
-test_eq crosslink-technote-edit-only-latest [crosslink_sql "SELECT comment
+test_eq crosslink-technote-edit-only-latest [fossil_sql "SELECT comment
     FROM event WHERE type='e'"] {Second note}
 
-set crosslinkE0 [crosslink_put "C Earlier\\snote
+crosslink_put "C Earlier\\snote
 D 2026-01-02T08:00:00.000
 E 2026-01-02T09:00:00 $crosslinkEid
 U alice
-[crosslink_w {note0}]"]
-test_eq crosslink-technote-older-arrives-last [crosslink_sql "SELECT comment
+[crosslink_w {note0}]"
+test_eq crosslink-technote-older-arrives-last [fossil_sql "SELECT comment
     FROM event WHERE type='e'"] {Second note}
 
 ###############################################################################
@@ -184,7 +169,7 @@ U alice
 test crosslink-ticket-new {$CODE == 0 && $crosslinkT1 ne ""}
 crosslink_match crosslink-ticket-new-event [crosslink_event $crosslinkT1] \
     {t New ticket *Crosslink ticket*}
-test_eq crosslink-ticket-new-row [crosslink_sql "SELECT status, title
+test_eq crosslink-ticket-new-row [fossil_sql "SELECT status, title
     FROM ticket WHERE tkt_uuid='$crosslinkTkt'"] {Open|Crosslink ticket}
 
 set crosslinkT2 [crosslink_put "D 2026-01-03T11:00:00.000
@@ -194,7 +179,8 @@ J status Fixed
 K $crosslinkTkt
 U alice
 "]
-crosslink_match crosslink-ticket-status-plus-two [crosslink_event $crosslinkT2] \
+crosslink_match crosslink-ticket-status-plus-two \
+    [crosslink_event $crosslinkT2] \
     {t Fixed ticket * plus 2 other changes}
 
 set crosslinkT3 [crosslink_put "D 2026-01-03T12:00:00.000
@@ -203,7 +189,8 @@ J status Closed
 K $crosslinkTkt
 U alice
 "]
-crosslink_match crosslink-ticket-status-plus-one [crosslink_event $crosslinkT3] \
+crosslink_match crosslink-ticket-status-plus-one \
+    [crosslink_event $crosslinkT3] \
     {t Closed ticket * plus 1 other change}
 
 set crosslinkT4 [crosslink_put "D 2026-01-03T13:00:00.000
@@ -232,7 +219,7 @@ crosslink_match crosslink-ticket-status-only [crosslink_event $crosslinkT6] \
     {t Verified ticket *}
 test {crosslink-ticket-status-only-no-plus} \
     {![string match *plus* [crosslink_event $crosslinkT6]]}
-test_eq crosslink-ticket-events [crosslink_sql "SELECT count(*) FROM event
+test_eq crosslink-ticket-events [fossil_sql "SELECT count(*) FROM event
     WHERE type='t'"] 6
 
 ###############################################################################
@@ -248,7 +235,7 @@ U alice
 test crosslink-forum-post {$CODE == 0 && $crosslinkF1 ne ""}
 test_eq crosslink-forum-post-event [crosslink_event $crosslinkF1] \
     {f Post: Crosslink thread}
-test_eq crosslink-forum-post-backlink [crosslink_sql "SELECT count(*)
+test_eq crosslink-forum-post-backlink [fossil_sql "SELECT count(*)
     FROM backlink WHERE srctype=4
      AND srcid=(SELECT rid FROM blob WHERE uuid='$crosslinkF1')"] 1
 
@@ -260,7 +247,7 @@ U bob
 [crosslink_w {reply}]"]
 test_eq crosslink-forum-reply-event [crosslink_event $crosslinkF2] \
     {f Reply: Crosslink thread}
-test_eq crosslink-forum-reply-row [crosslink_sql "SELECT
+test_eq crosslink-forum-reply-row [fossil_sql "SELECT
     froot=(SELECT rid FROM blob WHERE uuid='$crosslinkF1'),
     firt=(SELECT rid FROM blob WHERE uuid='$crosslinkF1'), fprev IS NULL
     FROM forumpost WHERE fpid=(SELECT rid FROM blob
@@ -326,6 +313,10 @@ U bob
 test_eq crosslink-forum-reply-unknown-thread [crosslink_event $crosslinkF8] \
     {f Reply: <i>Unknown</i>}
 
+if {[test_assurance] ne "stress"} {
+  test_skip "the tests after the first sections need -assurance stress"
+}
+
 ###############################################################################
 # Attachments, added to and deleted from each kind of target.
 
@@ -357,31 +348,31 @@ U alice
   set crosslinkEv [crosslink_event $crosslinkA]
   crosslink_match crosslink-attach-$crosslinkKind-delete-event $crosslinkEv \
       "$crosslinkType Delete attachment $crosslinkDel"
-  test_eq crosslink-attach-$crosslinkKind-latest [crosslink_sql "SELECT
+  test_eq crosslink-attach-$crosslinkKind-latest [fossil_sql "SELECT
       group_concat(isLatest,'') FROM (SELECT isLatest FROM attachment
       WHERE target='[string map {\\s { }} $crosslinkTarget]' ORDER BY mtime)"] \
       {01}
 }
-test_eq crosslink-attach-rows [crosslink_sql \
+test_eq crosslink-attach-rows [fossil_sql \
     "SELECT count(*) FROM attachment"] 10
 
 # A later change to a ticket or a tech note rewrites the timeline text of
 # its attachments.
-set crosslinkT7 [crosslink_put "D 2026-01-05T12:00:00.000
+crosslink_put "D 2026-01-05T12:00:00.000
 J status Open
 K $crosslinkTkt
 U alice
-"]
-test_eq crosslink-ticket-rewrites-attachments [crosslink_sql "SELECT count(*)
+"
+test_eq crosslink-ticket-rewrites-attachments [fossil_sql "SELECT count(*)
     FROM event WHERE type='t' AND (comment LIKE 'Add attachment % to ticket %'
     OR comment LIKE 'Delete attachment % from ticket %')"] 2
-set crosslinkE3 [crosslink_put "C Third\\snote
+crosslink_put "C Third\\snote
 D 2026-01-05T12:00:00.000
 E 2026-01-02T09:00:00 $crosslinkEid
 P $crosslinkE2
 U alice
-[crosslink_w {note3}]"]
-test_eq crosslink-technote-rewrites-attachments [crosslink_sql "SELECT
+[crosslink_w {note3}]"
+test_eq crosslink-technote-rewrites-attachments [fossil_sql "SELECT
     count(*) FROM event WHERE type='e'
      AND (comment LIKE 'Add attachment % to tech note %'
        OR comment LIKE 'Delete attachment % from tech note %')"] 2
@@ -393,13 +384,13 @@ write_file a.txt "a\n"
 write_file b.txt "b\n"
 fossil add a.txt b.txt
 fossil commit -m "crosslink-c1" --no-warnings
-set crosslinkC1 [crosslink_sql "SELECT uuid FROM blob, event
+set crosslinkC1 [fossil_sql "SELECT uuid FROM blob, event
     WHERE rid=objid AND comment='crosslink-c1'"]
 set crosslinkC1 [string trim $crosslinkC1 ']
-set crosslinkFa [string trim [crosslink_sql "SELECT uuid FROM blob, mlink,
+set crosslinkFa [string trim [fossil_sql "SELECT uuid FROM blob, mlink,
     filename WHERE blob.rid=mlink.fid AND mlink.fnid=filename.fnid
     AND name='a.txt'"] ']
-set crosslinkFb [string trim [crosslink_sql "SELECT uuid FROM blob, mlink,
+set crosslinkFb [string trim [fossil_sql "SELECT uuid FROM blob, mlink,
     filename WHERE blob.rid=mlink.fid AND mlink.fnid=filename.fnid
     AND name='b.txt'"] ']
 test crosslink-setup-checkin \
@@ -408,14 +399,18 @@ test crosslink-setup-checkin \
 # Every kind of tag that has its own wording in the timeline.
 foreach {crosslinkName crosslinkCard crosslinkWant} [list \
   branch        "*branch * other"         {*Move to branch*other*} \
-  bgcolor-prop  "*bgcolor * #112233"      {*Change branch background color to "#112233".*} \
-  bgcolor       "+bgcolor * #445566"      {*Change background color to "#445566".*} \
+  bgcolor-prop  "*bgcolor * #112233" \
+  {*Change branch background color to "#112233".*} \
+  bgcolor       "+bgcolor * #445566" \
+  {*Change background color to "#445566".*} \
   bgcolor-off   "-bgcolor *"              {*Cancel background color.*} \
   comment       "+comment * new\\stext"   {*Edit check-in comment.*} \
   user          "+user * carol"           {*Change user to "carol".*} \
-  date          "+date * 2026-01-06\\s09:00:00" {*Timestamp 2026-01-06 09:00:00.*} \
+  date          "+date * 2026-01-06\\s09:00:00" \
+  {*Timestamp 2026-01-06 09:00:00.*} \
   sym-add       "+sym-one *"              {*Add tag "one".*} \
-  sym-add-note  "+sym-two * a\\snote"     {*Add tag "two" with note "a note".*} \
+  sym-add-note  "+sym-two * a\\snote" \
+  {*Add tag "two" with note "a note".*} \
   sym-prop      "*sym-three *"            {*Add propagating tag "three".*} \
   sym-cancel    "-sym-one *"              {*Cancel tag "one".*} \
   closed        "+closed *"               {*Mark "Closed".*} \
@@ -438,12 +433,11 @@ U alice
   crosslink_match crosslink-tag-$crosslinkName-event \
       [crosslink_event $crosslinkG] "g Edit *:$crosslinkWant"
 }
-test_eq crosslink-tag-comment-applied [crosslink_sql "SELECT ecomment, euser
+test_eq crosslink-tag-comment-applied [fossil_sql "SELECT ecomment, euser
     FROM event WHERE objid=(SELECT rid FROM blob WHERE uuid='$crosslinkC1')"] \
     {new text|carol}
 
 # A branch move with its symbolic tags says only that the branch moved.
-# Tags for two check-ins in one artifact are listed for each.
 set crosslinkG [crosslink_put "D 2026-01-06T11:00:00.000
 T *branch $crosslinkC1 moved
 T *sym-moved $crosslinkC1
@@ -492,12 +486,12 @@ U alice
 test crosslink-checkin {$CODE == 0 && $crosslinkM1 ne ""}
 test_eq crosslink-checkin-event [crosslink_event $crosslinkM1] \
     {ci crosslink-c2}
-test_eq crosslink-checkin-mlink [crosslink_sql "SELECT group_concat(
+test_eq crosslink-checkin-mlink [fossil_sql "SELECT group_concat(
     name || ':' || mperm || ':' || (pfnid>0), ' ') FROM (SELECT name, mperm,
     pfnid FROM mlink, filename WHERE mlink.fnid=filename.fnid
     AND mid=(SELECT rid FROM blob WHERE uuid='$crosslinkM1')
     ORDER BY name)"] {a.txt:1:0 b.txt:0:0 c.txt:0:1 l.txt:2:0}
-test_eq crosslink-checkin-cherrypick [crosslink_sql "SELECT count(*)
+test_eq crosslink-checkin-cherrypick [fossil_sql "SELECT count(*)
     FROM cherrypick WHERE childid=(SELECT rid FROM blob
     WHERE uuid='$crosslinkM1')"] 1
 
@@ -513,12 +507,12 @@ P $crosslinkM1
 U alice
 "]
 test crosslink-delta-checkin {$CODE == 0 && $crosslinkM2 ne ""}
-test_eq crosslink-delta-checkin-mlink [crosslink_sql "SELECT group_concat(
+test_eq crosslink-delta-checkin-mlink [fossil_sql "SELECT group_concat(
     name || ':' || (fid>0), ' ') FROM (SELECT name, fid FROM mlink, filename
     WHERE mlink.fnid=filename.fnid
     AND mid=(SELECT rid FROM blob WHERE uuid='$crosslinkM2')
     ORDER BY name)"] {a.txt:0 d.txt:1}
-test_eq crosslink-delta-seen [crosslink_sql "SELECT value FROM config
+test_eq crosslink-delta-seen [fossil_sql "SELECT value FROM config
     WHERE name='seen-delta-manifest'"] 1
 
 set crosslinkM3 [crosslink_put "B $crosslinkM1
@@ -530,7 +524,7 @@ F e.txt $crosslinkFa
 P $crosslinkM2
 U alice
 "]
-test_eq crosslink-delta-to-delta-mlink [crosslink_sql "SELECT group_concat(
+test_eq crosslink-delta-to-delta-mlink [fossil_sql "SELECT group_concat(
     name || ':' || (fid>0), ' ') FROM (SELECT name, fid FROM mlink, filename
     WHERE mlink.fnid=filename.fnid
     AND mid=(SELECT rid FROM blob WHERE uuid='$crosslinkM3')
@@ -543,7 +537,7 @@ F e.txt $crosslinkFb
 P $crosslinkM3
 U alice
 "]
-test_eq crosslink-full-after-delta-mlink [crosslink_sql "SELECT group_concat(
+test_eq crosslink-full-after-delta-mlink [fossil_sql "SELECT group_concat(
     name || ':' || (fid>0), ' ') FROM (SELECT name, fid FROM mlink, filename
     WHERE mlink.fnid=filename.fnid
     AND mid=(SELECT rid FROM blob WHERE uuid='$crosslinkM4')
@@ -586,7 +580,7 @@ P $crosslinkM1
 U alice
 "]
 test crosslink-missing-baseline {$CODE == 0 && $crosslinkBad ne ""}
-test_eq crosslink-missing-baseline-no-event [crosslink_sql "SELECT count(*)
+test_eq crosslink-missing-baseline-no-event [fossil_sql "SELECT count(*)
     FROM event WHERE comment='crosslink-no-baseline'"] 0
 
 # A check-in whose parent is that one is still shown; its files cannot be
@@ -601,29 +595,29 @@ test_eq crosslink-child-of-missing-baseline [crosslink_event $crosslinkM6] \
     {ci crosslink-child-of-no-baseline}
 
 write_file not-an-artifact.txt "This is a file.\n"
-set crosslinkEvents [crosslink_sql "SELECT count(*) FROM event"]
+set crosslinkEvents [fossil_sql "SELECT count(*) FROM event"]
 fossil test-content-put --crosslink not-an-artifact.txt
 test crosslink-not-an-artifact {$CODE == 0}
 test_eq crosslink-not-an-artifact-no-event \
-    [crosslink_sql "SELECT count(*) FROM event"] $crosslinkEvents
+    [fossil_sql "SELECT count(*) FROM event"] $crosslinkEvents
 
 ###############################################################################
 # The "parent" tag gives a check-in other parents; a bad value is ignored.
 
 fossil reparent $crosslinkM4 $crosslinkC1 $crosslinkM2
 test crosslink-reparent {$CODE == 0}
-test_eq crosslink-reparent-plink [crosslink_sql "SELECT count(*) FROM plink
+test_eq crosslink-reparent-plink [fossil_sql "SELECT count(*) FROM plink
     WHERE cid=(SELECT rid FROM blob WHERE uuid='$crosslinkM4')"] 2
-test_eq crosslink-reparent-primary [crosslink_sql "SELECT uuid FROM plink,
+test_eq crosslink-reparent-primary [fossil_sql "SELECT uuid FROM plink,
     blob WHERE pid=rid AND isprim AND cid=(SELECT rid FROM blob
     WHERE uuid='$crosslinkM4')"] $crosslinkC1
 
-set crosslinkG [crosslink_put "D 2026-01-08T10:00:00.000
+crosslink_put "D 2026-01-08T10:00:00.000
 T +parent $crosslinkM3 not-a-hash
 U alice
-"]
+"
 test crosslink-reparent-bad-value {$CODE == 0}
-test_eq crosslink-reparent-bad-value-ignored [crosslink_sql "SELECT uuid
+test_eq crosslink-reparent-bad-value-ignored [fossil_sql "SELECT uuid
     FROM plink, blob WHERE pid=rid AND isprim AND cid=(SELECT rid FROM blob
     WHERE uuid='$crosslinkM3')"] $crosslinkM2
 
@@ -640,50 +634,53 @@ T +parent $crosslinkM3 $crosslinkValue
 U alice
 "]
   test crosslink-reparent-$crosslinkName {$CODE == 0 && $crosslinkG ne ""}
-  test_eq crosslink-reparent-$crosslinkName-ignored [crosslink_sql "SELECT
+  test_eq crosslink-reparent-$crosslinkName-ignored [fossil_sql "SELECT
       uuid FROM plink, blob WHERE pid=rid AND isprim AND cid=(SELECT rid
       FROM blob WHERE uuid='$crosslinkM3')"] $crosslinkM2
 }
 fossil rebuild
 test crosslink-reparent-short-rebuild {$CODE == 0}
-test_eq crosslink-reparent-short-rebuild-ignored [crosslink_sql "SELECT uuid
+test_eq crosslink-reparent-short-rebuild-ignored [fossil_sql "SELECT uuid
     FROM plink, blob WHERE pid=rid AND isprim AND cid=(SELECT rid FROM blob
     WHERE uuid='$crosslinkM3')"] $crosslinkM2
 
 ###############################################################################
 # A cluster removes its members from the list of unclustered artifacts.
 
-set crosslinkBefore [crosslink_sql "SELECT count(*) FROM unclustered"]
+set crosslinkBefore [fossil_sql "SELECT count(*) FROM unclustered"]
 set crosslinkCl ""
 foreach crosslinkHash [lsort [list $crosslinkC1 $crosslinkM1 $crosslinkNone2]] {
   append crosslinkCl "M $crosslinkHash\n"
 }
 set crosslinkCl [crosslink_put $crosslinkCl]
 test crosslink-cluster {$CODE == 0 && $crosslinkCl ne ""}
-test_eq crosslink-cluster-tag [crosslink_sql "SELECT count(*) FROM tagxref
+test_eq crosslink-cluster-tag [fossil_sql "SELECT count(*) FROM tagxref
     WHERE tagid=(SELECT tagid FROM tag WHERE tagname='cluster')
     AND rid=(SELECT rid FROM blob WHERE uuid='$crosslinkCl')"] 1
 test crosslink-cluster-unclustered \
-    {[crosslink_sql "SELECT count(*) FROM unclustered"] == $crosslinkBefore - 1}
+    {[fossil_sql "SELECT count(*) FROM unclustered"] == $crosslinkBefore - 1}
 
 ###############################################################################
 # The JSON form of each kind of artifact.
 
 foreach {crosslinkKind crosslinkHash crosslinkWant} [list \
-  wiki       $crosslinkW2 {*"type":"wiki"*"L":"Crosslink Page"*"N":"text/x-markdown"*"P":*"W":*} \
-  technote   $crosslinkE1 {*"type":"technote"*"C":"First note"*"E":*"T":*"W":*} \
+  wiki       $crosslinkW2 \
+  {*"type":"wiki"*"L":"Crosslink Page"*"N":"text/x-markdown"*"P":*"W":*} \
+  technote   $crosslinkE1 \
+  {*"type":"technote"*"C":"First note"*"E":*"T":*"W":*} \
   ticket     $crosslinkT5 {*"type":"ticket"*"J":*"append":true*"K":*} \
   ticket2    $crosslinkT2 {*"type":"ticket"*"J":*"append":false*} \
   forum      $crosslinkF3 {*"type":"forumpost"*"G":*"I":*"P":*"W":*} \
   forum2     $crosslinkF5 {*"type":"forumpost"*"H":"New title"*} \
   attachment "" {*"type":"attachment"*"A":*} \
   tag        $crosslinkG  {*"type":"tag"*"T":*} \
-  checkin    $crosslinkM1 {*"type":"checkin"*"C":"crosslink-c2"*"F":*"perm":"x"*"P":*"Q":*"T":*"U":"alice"*} \
+  checkin    $crosslinkM1 \
+  {*"type":"checkin"*"C":"crosslink-c2"*"F":*"perm":"x"*"P":*"Q":*"T":*"U":"alice"*} \
   delta      $crosslinkM2 {*"type":"checkin"*"B":*"F":*} \
   cluster    $crosslinkCl {*"type":"cluster"*"M":*} \
 ] {
   if {$crosslinkHash eq ""} {
-    set crosslinkHash [string trim [crosslink_sql "SELECT uuid FROM blob,
+    set crosslinkHash [string trim [fossil_sql "SELECT uuid FROM blob,
         attachment WHERE rid=attachid ORDER BY rid LIMIT 1"] ']
   }
   fossil test-artifact-to-json $crosslinkHash
@@ -705,11 +702,11 @@ test crosslink-json-not-artifact {$CODE != 0}
 
 # The same through SQL: by hash, by record number, and with arguments
 # that name nothing.
-crosslink_match crosslink-json-sql-name [crosslink_sql \
+crosslink_match crosslink-json-sql-name [fossil_sql \
     "SELECT artifact_to_json('$crosslinkW1')"] {*"type":"wiki"*}
-crosslink_match crosslink-json-sql-rid [crosslink_sql "SELECT artifact_to_json(
+crosslink_match crosslink-json-sql-rid [fossil_sql "SELECT artifact_to_json(
     (SELECT rid FROM blob WHERE uuid='$crosslinkW1'))"] {*"type":"wiki"*}
-test_eq crosslink-json-sql-data [crosslink_sql \
+test_eq crosslink-json-sql-data [fossil_sql \
     "SELECT artifact_to_json('$crosslinkFa') IS NULL"] 1
 fossil sql "SELECT artifact_to_json(NULL)" -expectError
 test crosslink-json-sql-null {$CODE != 0}
@@ -717,7 +714,7 @@ crosslink_match crosslink-json-sql-null-message $RESULT \
     {*Expecting one argument*}
 fossil sql "SELECT artifact_to_json(1.5)" -expectError
 test crosslink-json-sql-float {$CODE != 0}
-test_eq crosslink-json-sql-zero [crosslink_sql \
+test_eq crosslink-json-sql-zero [fossil_sql \
     "SELECT artifact_to_json(0) IS NULL"] 1
 fossil sql "SELECT artifact_to_json()" -expectError
 test crosslink-json-sql-no-argument {$CODE != 0}
@@ -736,16 +733,26 @@ foreach {crosslinkName crosslinkBody crosslinkWant} [list \
   control-tags-itself "D 2026-02-01T10:00:00.000\nT +sym-x *\nU alice\n" \
       {*self-referential T-card in control artifact*} \
   technote-tags-another \
-      "D 2026-02-01T10:00:00.000\nE 2026-02-01T09:00:00 $crosslinkH40\nT +sym-x $crosslinkH40\nU alice\nW 1\nx\n" \
+      [join [list \
+          "D 2026-02-01T10:00:00.000\n" \
+          "E 2026-02-01T09:00:00 $crosslinkH40\n" \
+          "T +sym-x $crosslinkH40\nU alice\nW 1\nx\n"] ""] \
       {*non-self-referential T-card in technote*} \
   technote-propagating-tag \
-      "D 2026-02-01T10:00:00.000\nE 2026-02-01T09:00:00 $crosslinkH40\nT *sym-x *\nU alice\nW 1\nx\n" \
+      [join [list \
+          "D 2026-02-01T10:00:00.000\n" \
+          "E 2026-02-01T09:00:00 $crosslinkH40\nT *sym-x *\nU alice\n" \
+          "W 1\nx\n"] ""] \
       {*T-card with '\*' or '-' in technote*} \
   forum-title-on-reply \
-      "D 2026-02-01T10:00:00.000\nG $crosslinkH40\nH title\nI $crosslinkH40\nU alice\nW 1\nx\n" \
+      [join [list \
+          "D 2026-02-01T10:00:00.000\nG $crosslinkH40\nH title\n" \
+          "I $crosslinkH40\nU alice\nW 1\nx\n"] ""] \
       {*cannot have I-card and H-card in a forum post*} \
   forum-two-parents \
-      "D 2026-02-01T10:00:00.000\nG $crosslinkH40\nP $crosslinkH40 $crosslinkNone\nU alice\nW 1\nx\n" \
+      [join [list \
+          "D 2026-02-01T10:00:00.000\nG $crosslinkH40\n" \
+          "P $crosslinkH40 $crosslinkNone\nU alice\nW 1\nx\n"] ""] \
       {*too many arguments to P-card*} \
 ] {
   fossil test-parse-manifest [crosslink_file $crosslinkBody]
@@ -777,10 +784,15 @@ crosslink_match crosslink-files-without-comment $RESULT \
 # A tech note may have its N card after its P card, as old versions of
 # Fossil wrote it.  A file with a reserved name in a check-in is left out.
 fossil test-parse-manifest [crosslink_file \
-    "D 2026-02-01T10:00:00.000\nE 2026-02-01T09:00:00 $crosslinkH40\nP $crosslinkH40\nN text/plain\nU alice\nW 1\nx\n"]
+    [join [list \
+        "D 2026-02-01T10:00:00.000\n" \
+        "E 2026-02-01T09:00:00 $crosslinkH40\nP $crosslinkH40\n" \
+        "N text/plain\nU alice\nW 1\nx\n"] ""]]
 crosslink_match crosslink-technote-n-after-p $RESULT {*manifest_parse() worked*}
 fossil test-parse-manifest [crosslink_file \
-    "C reserved\nD 2026-02-01T10:00:00.000\nF _FOSSIL_ $crosslinkH40\nF a.txt $crosslinkH40\nU alice\n"] 2
+    [join [list \
+        "C reserved\nD 2026-02-01T10:00:00.000\n" \
+        "F _FOSSIL_ $crosslinkH40\nF a.txt $crosslinkH40\nU alice\n"] ""]] 2
 crosslink_match crosslink-reserved-name-ignored $RESULT \
     {*manifest_parse() worked*}
 
@@ -794,7 +806,7 @@ foreach {crosslinkName crosslinkText} [list \
   short          "D\n" \
   second-lower   "D 2026-02-01T10:00:00.000\nlower case\n" \
   second-earlier "D 2026-02-01T10:00:00.000\nC comment\nmore text here\n" \
-  no-space       "D 2026-02-01T10:00:00.000\nUalice and more\n" \
+  second-no-space "D 2026-02-01T10:00:00.000\nUalice and more\n" \
   late-letter    "N text/plain\nU alice and more\n" \
 ] {
   write_file wf-$crosslinkName.txt $crosslinkText
@@ -812,19 +824,19 @@ crosslink_match crosslink-wiki-is-not-a-checkin-message $RESULT \
 
 # Wiki text and a tech note that begin with blank space, and crosslinking
 # with SQL tracing on.
-set crosslinkW5 [crosslink_put "D 2026-02-02T10:00:00.000
+crosslink_put "D 2026-02-02T10:00:00.000
 L Indented
 U alice
-[crosslink_w "\n\n  indented"]"]
-test_eq crosslink-wiki-leading-space-length [crosslink_sql "SELECT value
+[crosslink_w "\n\n  indented"]"
+test_eq crosslink-wiki-leading-space-length [fossil_sql "SELECT value
     FROM tagxref, tag WHERE tag.tagid=tagxref.tagid
      AND tagname='wiki-Indented'"] 8
-set crosslinkE4 [crosslink_put "C Indented\\snote
+crosslink_put "C Indented\\snote
 D 2026-02-02T11:00:00.000
 E 2026-02-02T09:00:00 [string repeat 12 20]
 U alice
-[crosslink_w "\n  note"]"]
-test_eq crosslink-technote-leading-space-length [crosslink_sql "SELECT value
+[crosslink_w "\n  note"]"
+test_eq crosslink-technote-leading-space-length [fossil_sql "SELECT value
     FROM tagxref, tag WHERE tag.tagid=tagxref.tagid
      AND tagname='event-[string repeat 12 20]'"] 4
 fossil_raw test-crosslink $crosslinkW1 --sqltrace
@@ -855,15 +867,16 @@ fossil test-parse-all-blobs --limit 3
 crosslink_match crosslink-parse-all-limit $RESULT {*3 tests with 0 errors*}
 fossil test-parse-all-blobs --wellformed
 test crosslink-parse-all-wellformed {$CODE == 0}
-crosslink_match crosslink-parse-all-wellformed-text $RESULT {*tests with 0 errors*}
+crosslink_match crosslink-parse-all-wellformed-text $RESULT \
+    {*tests with 0 errors*}
 
 # Crosslinking an artifact a second time changes nothing.
-set crosslinkEvents [crosslink_sql "SELECT count(*) FROM event"]
+set crosslinkEvents [fossil_sql "SELECT count(*) FROM event"]
 fossil test-crosslink $crosslinkM1
 test crosslink-again {$CODE == 0}
 fossil test-crosslink $crosslinkW1
 test crosslink-again-wiki {$CODE == 0}
-test_eq crosslink-again-events [crosslink_sql "SELECT count(*) FROM event"] \
+test_eq crosslink-again-events [fossil_sql "SELECT count(*) FROM event"] \
     $crosslinkEvents
 fossil test-crosslink -expectError
 test crosslink-usage {$CODE != 0}
@@ -877,14 +890,14 @@ set crosslinkState {SELECT (SELECT count(*) FROM event) || ' ' ||
     (SELECT count(*) FROM plink) || ' ' ||
     (SELECT count(*) FROM mlink) || ' ' ||
     (SELECT count(*) FROM ticket)}
-set crosslinkBefore [crosslink_sql $crosslinkState]
-set crosslinkText [crosslink_sql "SELECT group_concat(x, char(10)) FROM
+set crosslinkBefore [fossil_sql $crosslinkState]
+set crosslinkText [fossil_sql "SELECT group_concat(x, char(10)) FROM
     (SELECT type || ' ' || comment AS x FROM event ORDER BY type, objid)"]
 fossil rebuild
 test crosslink-rebuild {$CODE == 0}
-test_eq crosslink-rebuild-same-counts [crosslink_sql $crosslinkState] \
+test_eq crosslink-rebuild-same-counts [fossil_sql $crosslinkState] \
     $crosslinkBefore
-test_eq crosslink-rebuild-same-events [crosslink_sql "SELECT
+test_eq crosslink-rebuild-same-events [fossil_sql "SELECT
     group_concat(x, char(10)) FROM (SELECT type || ' ' || comment AS x
     FROM event ORDER BY type, objid)"] $crosslinkText
 fossil test-integrity
@@ -905,7 +918,7 @@ foreach {crosslinkName crosslinkBody crosslinkKind} [list \
 ] {
   set crosslinkHash [crosslink_put $crosslinkBody]
   test crosslink-mcdc-kind-$crosslinkName {$CODE == 0 && $crosslinkHash ne ""}
-  test_eq crosslink-mcdc-kind-$crosslinkName-event [crosslink_sql "SELECT
+  test_eq crosslink-mcdc-kind-$crosslinkName-event [fossil_sql "SELECT
       count(*) FROM event, blob WHERE objid=rid AND uuid='$crosslinkHash'
       AND type='ci'"] [expr {$crosslinkKind eq "ci" ? 1 : 0}]
   fossil test-parse-manifest [crosslink_file $crosslinkBody]
@@ -922,21 +935,25 @@ foreach {crosslinkName crosslinkBody crosslinkKind} [list \
 
 # The hash a check-in with the cards BODY will have, without storing it.
 proc crosslink_hash {body} {
-  global RESULT
-  fossil sha3sum [crosslink_file $body]
-  return [lindex $RESULT 0]
+  return [sha3_file [crosslink_file $body]]
 }
 
 # The number of file links that join the check-in CHILD to its parent
 # PARENT.
 proc crosslink_links {child parent} {
-  return [crosslink_sql "SELECT count(*) FROM mlink WHERE
+  return [fossil_sql "SELECT count(*) FROM mlink WHERE
       mid=(SELECT rid FROM blob WHERE uuid='$child')
       AND pmid=(SELECT rid FROM blob WHERE uuid='$parent')"]
 }
 
-set crosslinkPA [crosslink_hash "C first\\sparent\nD 2026-03-02T10:00:00.000\nF a.txt $crosslinkFa\nU alice\n"]
-set crosslinkPB [crosslink_hash "C second\\sparent\nD 2026-03-02T10:01:00.000\nF a.txt $crosslinkFb\nU alice\n"]
+set crosslinkPA [crosslink_hash \
+    [join [list \
+        "C first\\sparent\nD 2026-03-02T10:00:00.000\n" \
+        "F a.txt $crosslinkFa\nU alice\n"] ""]]
+set crosslinkPB [crosslink_hash \
+    [join [list \
+        "C second\\sparent\nD 2026-03-02T10:01:00.000\n" \
+        "F a.txt $crosslinkFb\nU alice\n"] ""]]
 set crosslinkKid [crosslink_put "C merge\\skid
 D 2026-03-02T11:00:00.000
 F a.txt $crosslinkNone
@@ -969,8 +986,14 @@ test_eq crosslink-mcdc-merge-parent-second-links \
           [crosslink_links $crosslinkKid $crosslinkPB]] {1 1}
 
 # The first parent present, the second arriving later.
-set crosslinkQA [crosslink_hash "C other\\sfirst\nD 2026-03-02T12:00:00.000\nF a.txt $crosslinkFa\nU alice\n"]
-set crosslinkQB [crosslink_hash "C other\\ssecond\nD 2026-03-02T12:01:00.000\nF a.txt $crosslinkFb\nU alice\n"]
+set crosslinkQA [crosslink_hash \
+    [join [list \
+        "C other\\sfirst\nD 2026-03-02T12:00:00.000\n" \
+        "F a.txt $crosslinkFa\nU alice\n"] ""]]
+set crosslinkQB [crosslink_hash \
+    [join [list \
+        "C other\\ssecond\nD 2026-03-02T12:01:00.000\n" \
+        "F a.txt $crosslinkFb\nU alice\n"] ""]]
 crosslink_put "C other\\sfirst
 D 2026-03-02T12:00:00.000
 F a.txt $crosslinkFa
@@ -1000,11 +1023,13 @@ test_eq crosslink-mcdc-merge-second-arrives-links \
 # differs from the one before in a single card.
 
 foreach {crosslinkName crosslinkBody crosslinkWant crosslinkJson} [list \
-  title "D 2026-03-03T10:00:00.000\nH Some\\stitle\nU alice\n[crosslink_w {x}]" \
+  title \
+  "D 2026-03-03T10:00:00.000\nH Some\\stitle\nU alice\n[crosslink_w {x}]" \
       {f Post: Some title} {*"H":"Some title"*"W":"x"*} \
   empty-title "D 2026-03-03T10:01:00.000\nH \nU alice\n[crosslink_w {x}]" \
       {f Post: (Deleted)} {*"H":null*"W":"x"*} \
-  empty-text "D 2026-03-03T10:02:00.000\nH Some\\stitle\nU alice\n[crosslink_w {}]" \
+  empty-text \
+  "D 2026-03-03T10:02:00.000\nH Some\\stitle\nU alice\n[crosslink_w {}]" \
       {f Post: Some title} {*"H":"Some title"*"W":null*} \
 ] {
   set crosslinkHash [crosslink_put $crosslinkBody]
@@ -1018,7 +1043,8 @@ foreach {crosslinkName crosslinkBody crosslinkWant crosslinkJson} [list \
 
 # A wiki page with no text has a null W card in JSON.
 fossil test-artifact-to-json $crosslinkW3
-crosslink_match crosslink-mcdc-json-empty-wiki $RESULT {*"type":"wiki"*"W":null*}
+crosslink_match crosslink-mcdc-json-empty-wiki $RESULT \
+    {*"type":"wiki"*"W":null*}
 
 ###############################################################################
 # A tag card whose value is empty reads like one with no value.
@@ -1057,7 +1083,7 @@ U alice
   test_eq crosslink-mcdc-cherry-$crosslinkName-event \
       [crosslink_event $crosslinkHash] "ci cherry-$crosslinkName"
 }
-test_eq crosslink-mcdc-cherry-unseen-not-stored [crosslink_sql "SELECT count(*)
+test_eq crosslink-mcdc-cherry-unseen-not-stored [fossil_sql "SELECT count(*)
     FROM blob WHERE uuid='$crosslinkUnseen'"] 0
 
 ###############################################################################
@@ -1066,12 +1092,8 @@ test_eq crosslink-mcdc-cherry-unseen-not-stored [crosslink_sql "SELECT count(*)
 # a hash that names nothing.
 
 proc crosslink_get {path} {
-  write_file request.txt "GET $path HTTP/1.1\r\nHost: x\r\n\r\n"
-  file delete reply.txt
-  fossil_raw http [file join [pwd] .rep.fossil] --in request.txt \
-      --out reply.txt --ipaddr 127.0.0.1 --localauth
-  if {[file exists reply.txt]} { return [read_file reply.txt] }
-  return ""
+  return [fossil_http [file join [pwd] .rep.fossil] [request_get $path] \
+      --ipaddr 127.0.0.1 --localauth]
 }
 
 foreach {crosslinkName crosslinkHash crosslinkIs} [list \
@@ -1104,7 +1126,7 @@ P $crosslinkM2
 U alice
 "]
 test crosslink-mcdc-back-after-delta {$CODE == 0 && $crosslinkBack ne ""}
-test_eq crosslink-mcdc-back-after-delta-mlink [crosslink_sql "SELECT
+test_eq crosslink-mcdc-back-after-delta-mlink [fossil_sql "SELECT
     group_concat(name || ':' || (pid>0) || ':' || (fid>0), ' ') FROM (SELECT name,
     pid, fid FROM mlink, filename WHERE mlink.fnid=filename.fnid
     AND mid=(SELECT rid FROM blob WHERE uuid='$crosslinkBack')
@@ -1131,7 +1153,7 @@ F a.txt $crosslinkFa x
 P $crosslinkGhost
 U alice
 "]
-test_eq crosslink-mcdc-delta-removes-unknown-child-mlink [crosslink_sql "SELECT
+test_eq crosslink-mcdc-delta-removes-unknown-child-mlink [fossil_sql "SELECT
     group_concat(name || ':' || (pid>0) || ':' || (fid>0), ' ') FROM (SELECT name,
     pid, fid FROM mlink, filename WHERE mlink.fnid=filename.fnid
     AND mid=(SELECT rid FROM blob WHERE uuid='$crosslinkHash')
@@ -1157,7 +1179,7 @@ T +parent $crosslinkKid3 $crosslinkM1
 U alice
 "]
 test crosslink-mcdc-reparent-no-baseline-tag {$CODE == 0 && $crosslinkG ne ""}
-test_eq crosslink-mcdc-reparent-no-baseline-plink [crosslink_sql "SELECT count(*)
+test_eq crosslink-mcdc-reparent-no-baseline-plink [fossil_sql "SELECT count(*)
     FROM plink WHERE cid=(SELECT rid FROM blob WHERE uuid='$crosslinkKid3')
     AND pid=(SELECT rid FROM blob WHERE uuid='$crosslinkM1')"] 1
 test_eq crosslink-mcdc-reparent-no-baseline-no-links \
@@ -1183,12 +1205,12 @@ U alice
 "]
 fossil test-content-put --crosslink $crosslinkOnWiki $crosslinkBasedOnWiki
 test crosslink-mcdc-wiki-baseline {$CODE == 0}
-test_eq crosslink-mcdc-wiki-baseline-events [crosslink_sql "SELECT
+test_eq crosslink-mcdc-wiki-baseline-events [fossil_sql "SELECT
     group_concat(comment, ' ') FROM event WHERE type='ci'
     AND comment IN ('child-of-wiki-page','based-on-wiki-page')"] \
     {child-of-wiki-page}
 fossil sha3sum $crosslinkBasedOnWiki
-test_eq crosslink-mcdc-wiki-baseline-waiting [crosslink_sql "SELECT count(*)
+test_eq crosslink-mcdc-wiki-baseline-waiting [fossil_sql "SELECT count(*)
     FROM orphan WHERE rid=(SELECT rid FROM blob
     WHERE uuid='[lindex $RESULT 0]')
     AND baseline=(SELECT rid FROM blob WHERE uuid='$crosslinkW1')"] 1
@@ -1197,7 +1219,8 @@ test_eq crosslink-mcdc-wiki-baseline-waiting [crosslink_sql "SELECT count(*)
 # Scripts that run when artifacts are stored by a command.
 #
 # A script for check-ins can ask for the JSON form of the parent of a
-# check-in that "branch new" makes.  A common script that fails makes "ticket add"
+# check-in that "branch new" makes.  A common script that fails makes "ticket
+# add"
 # fail, after the ticket has been entered.  A tag put on a wiki page by
 # "tag add" is recorded like a tag on a check-in.
 
@@ -1216,28 +1239,28 @@ fossil branch new scripted $crosslinkM1
 test crosslink-mcdc-script-branch {$CODE == 0}
 crosslink_match crosslink-mcdc-script-branch-parent-json $RESULT \
     {*PARENT *&quot;type&quot;:&quot;checkin&quot;*&quot;C&quot;:&quot;crosslink-c2&quot;*}
-test_eq crosslink-mcdc-script-branch-made [crosslink_sql "SELECT count(*)
+test_eq crosslink-mcdc-script-branch-made [fossil_sql "SELECT count(*)
     FROM tagxref, tag WHERE tag.tagid=tagxref.tagid
      AND tagname='sym-scripted'"] 1
 crosslink_script xfer-commit-script ""
 
-set crosslinkTickets [crosslink_sql "SELECT count(*) FROM ticket"]
+set crosslinkTickets [fossil_sql "SELECT count(*) FROM ticket"]
 crosslink_script xfer-common-script {error common-script-says-no}
 fossil ticket add title Scripted status Open -expectError
 test crosslink-mcdc-script-ticket-fails {$CODE != 0}
 crosslink_match crosslink-mcdc-script-ticket-message $RESULT \
     {*common-script-says-no*}
-test_eq crosslink-mcdc-script-ticket-entered [crosslink_sql "SELECT count(*)
+test_eq crosslink-mcdc-script-ticket-entered [fossil_sql "SELECT count(*)
     FROM ticket WHERE title='Scripted'"] 1
 crosslink_script xfer-common-script ""
 fossil ticket add title Unscripted status Open
 test crosslink-mcdc-no-script-ticket {$CODE == 0}
-test_eq crosslink-mcdc-no-script-ticket-count [crosslink_sql "SELECT count(*)
+test_eq crosslink-mcdc-no-script-ticket-count [fossil_sql "SELECT count(*)
     FROM ticket"] [expr {$crosslinkTickets + 2}]
 
 fossil tag add on-a-wiki-page $crosslinkW1
 test crosslink-mcdc-tag-add-wiki {$CODE == 0}
-crosslink_match crosslink-mcdc-tag-add-wiki-event [crosslink_sql "SELECT comment
+crosslink_match crosslink-mcdc-tag-add-wiki-event [fossil_sql "SELECT comment
     FROM event WHERE type='g' AND comment LIKE '%on-a-wiki-page%'"] \
     "Edit \\\[[string range $crosslinkW1 0 15]|*\\\]: Add *\"on-a-wiki-page\"."
 
@@ -1257,11 +1280,11 @@ U alice
 test crosslink-mcdc-cherry-no-table {$CODE == 0 && $crosslinkHash ne ""}
 test_eq crosslink-mcdc-cherry-no-table-event [crosslink_event $crosslinkHash] \
     {ci cherry-no-table}
-test_eq crosslink-mcdc-cherry-no-table-still-none [crosslink_sql "SELECT count(*)
+test_eq crosslink-mcdc-cherry-no-table-still-none [fossil_sql "SELECT count(*)
     FROM sqlite_schema WHERE name='cherrypick'"] 0
 fossil rebuild
 test crosslink-mcdc-cherry-rebuild {$CODE == 0}
-test_eq crosslink-mcdc-cherry-rebuild-recorded [crosslink_sql "SELECT count(*)
+test_eq crosslink-mcdc-cherry-rebuild-recorded [fossil_sql "SELECT count(*)
     FROM cherrypick WHERE childid=(SELECT rid FROM blob
     WHERE uuid='$crosslinkHash')"] 1
 
@@ -1333,7 +1356,7 @@ test crosslink-reparent-more-setup \
 # The primary parent of the check-in with the given hash.
 #
 proc crosslink_primary {hash} {
-  return [crosslink_sql "SELECT uuid FROM plink, blob WHERE pid=rid
+  return [fossil_sql "SELECT uuid FROM plink, blob WHERE pid=rid
       AND isprim AND cid=(SELECT rid FROM blob WHERE uuid='$hash')"]
 }
 
@@ -1362,7 +1385,7 @@ T +parent $crosslinkHash $crosslinkR1
 U alice
 "
 test crosslink-reparent-wiki-page {$CODE == 0}
-test_eq crosslink-reparent-wiki-page-no-links [crosslink_sql "SELECT count(*)
+test_eq crosslink-reparent-wiki-page-no-links [fossil_sql "SELECT count(*)
     FROM plink WHERE cid=(SELECT rid FROM blob WHERE uuid='$crosslinkHash')"] 0
 
 ###############################################################################
@@ -1373,7 +1396,7 @@ D 2026-04-01T12:00:00.000
 P $crosslinkR3 $crosslinkR1
 U alice
 "]
-test_eq crosslink-json-second-parent [crosslink_sql "SELECT
+test_eq crosslink-json-second-parent [fossil_sql "SELECT
     json_extract(artifact_to_json('$crosslinkHash'), '\$.P\[1\]')"] \
     $crosslinkR1
 
@@ -1395,7 +1418,7 @@ P $crosslinkWa $crosslinkWb
 U alice
 [crosslink_w {both}]"]
 test crosslink-wiki-two-parents {$CODE == 0 && $crosslinkHash ne ""}
-test_eq crosslink-wiki-two-parents-plink [crosslink_sql "SELECT
+test_eq crosslink-wiki-two-parents-plink [fossil_sql "SELECT
     group_concat(uuid || ':' || isprim, ' ') FROM (SELECT uuid, isprim
     FROM plink, blob WHERE pid=rid AND cid=(SELECT rid FROM blob
     WHERE uuid='$crosslinkHash') ORDER BY isprim DESC)"] \
@@ -1412,9 +1435,9 @@ U alice
 fossil test-content-put --crosslink bad-z.txt
 test crosslink-bad-z-stored \
     {$CODE == 0 && [regexp {inserted as record (\d+)} $RESULT all crosslinkRid]}
-test_eq crosslink-bad-z-no-event [crosslink_sql "SELECT count(*) FROM event
+test_eq crosslink-bad-z-no-event [fossil_sql "SELECT count(*) FROM event
     WHERE objid=$crosslinkRid"] 0
-test_eq crosslink-bad-z-no-page [crosslink_sql "SELECT count(*) FROM tag
+test_eq crosslink-bad-z-no-page [fossil_sql "SELECT count(*) FROM tag
     WHERE tagname='wiki-Bad Sum'"] 0
 
 ###############################################################################
@@ -1441,7 +1464,7 @@ P $crosslinkHash
 U alice
 [crosslink_w {middle}]"
 test crosslink-technote-middle-arrives-last {$CODE == 0}
-test_eq crosslink-technote-middle-arrives-last-event [crosslink_sql "SELECT
+test_eq crosslink-technote-middle-arrives-last-event [fossil_sql "SELECT
     comment FROM event WHERE type='e' AND comment LIKE 'note-%'"] {note-last}
 
 ###############################################################################
@@ -1475,7 +1498,7 @@ U alice
 test crosslink-two-deltas {$CODE == 0 && $crosslinkHash ne ""}
 test_eq crosslink-two-deltas-event [crosslink_event $crosslinkHash] \
     {ci two-deltas-child}
-test_eq crosslink-two-deltas-mlink [crosslink_sql "SELECT
+test_eq crosslink-two-deltas-mlink [fossil_sql "SELECT
     group_concat(name || ':' || (pid>0) || ':' || (fid>0), ' ') FROM (SELECT name,
     pid, fid FROM mlink, filename WHERE mlink.fnid=filename.fnid
     AND mid=(SELECT rid FROM blob WHERE uuid='$crosslinkHash')
@@ -1499,12 +1522,12 @@ for {set crosslinkI 0} {$crosslinkI < 33} {incr crosslinkI} {
 }
 fossil test-content-put --crosslink {*}$crosslinkFiles
 test crosslink-same-second {$CODE == 0}
-test_eq crosslink-same-second-events [crosslink_sql "SELECT count(*)
+test_eq crosslink-same-second-events [fossil_sql "SELECT count(*)
     FROM event WHERE comment LIKE 'same-second-%'"] 33
-test_eq crosslink-same-second-order [crosslink_sql "SELECT count(*)
+test_eq crosslink-same-second-order [fossil_sql "SELECT count(*)
     FROM plink, event AS p, event AS c WHERE p.objid=pid AND c.objid=cid
      AND c.comment LIKE 'same-second-%' AND p.mtime<c.mtime"] 30
-test_eq crosslink-same-second-tip-time [crosslink_sql "SELECT
+test_eq crosslink-same-second-tip-time [fossil_sql "SELECT
     strftime('%Y-%m-%d %H:%M:%f', mtime) FROM event
     WHERE comment='same-second-32'"] {2026-04-05 10:00:00.000}
 
@@ -1545,12 +1568,12 @@ set crosslinkHash [crosslink_put "C shun-clustered
 D 2026-04-07T10:00:00.000
 U alice
 "]
-test_eq crosslink-shun-unclustered-before [crosslink_sql "SELECT count(*)
+test_eq crosslink-shun-unclustered-before [fossil_sql "SELECT count(*)
     FROM unclustered, blob WHERE unclustered.rid=blob.rid
      AND uuid='$crosslinkHash'"] 1
 crosslink_put [join [lsort [list "M $crosslinkShun" "M $crosslinkHash"]] \n]\n
 test crosslink-shun-cluster {$CODE == 0}
-test_eq crosslink-shun-cluster-clears-other [crosslink_sql "SELECT count(*)
+test_eq crosslink-shun-cluster-clears-other [fossil_sql "SELECT count(*)
     FROM unclustered, blob WHERE unclustered.rid=blob.rid
      AND uuid='$crosslinkHash'"] 0
 
@@ -1561,7 +1584,7 @@ U alice
 test crosslink-shun-tag {$CODE == 0 && $crosslinkG ne ""}
 crosslink_match crosslink-shun-tag-event [crosslink_event $crosslinkG] \
     {g Edit \[5e5e5e5e5e5e5e5e|5e5e5e5e5e\]: Add tag "on-shunned".}
-test_eq crosslink-shun-tag-tags-nothing [crosslink_sql "SELECT count(*)
+test_eq crosslink-shun-tag-tags-nothing [fossil_sql "SELECT count(*)
     FROM tagxref, tag WHERE tag.tagid=tagxref.tagid
      AND tagname='sym-on-shunned'"] 0
 
@@ -1574,7 +1597,7 @@ U alice
 test crosslink-shun-merge-parent {$CODE == 0 && $crosslinkKid ne ""}
 test_eq crosslink-shun-merge-parent-links \
     [crosslink_links $crosslinkKid $crosslinkR1] 1
-test_eq crosslink-shun-no-placeholder [crosslink_sql "SELECT count(*)
+test_eq crosslink-shun-no-placeholder [fossil_sql "SELECT count(*)
     FROM blob WHERE uuid='$crosslinkShun'"] 0
 fossil sql "DELETE FROM shun WHERE uuid='$crosslinkShun'"
 

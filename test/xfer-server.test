@@ -9,11 +9,8 @@
 # with the permissions of the user "nobody", which these tests set.
 #
 
-# These tests run only in a long pass: -assurance stress.
-if {[test_assurance] ne "stress"} {
-  test_skip "runs only with -assurance stress"
-}
-
+# The first sections run at every level, and the rest need
+# -assurance stress.
 require_no_open_checkout
 
 test_setup
@@ -310,6 +307,10 @@ foreach {xferserverName xferserverCard xferserverWant} [list \
 test_eq xfer-server-hash-zero-byte-nothing-stored \
     [xferserver_count "blob WHERE length(uuid)<40"] 0
 
+if {[test_assurance] ne "stress"} {
+  test_skip "the tests after the first sections need -assurance stress"
+}
+
 # Clone, in each version of the protocol.  A login card to test-xfer does
 # not grant the Clone permission, so "nobody" is given it and these
 # messages have no login card.
@@ -429,7 +430,8 @@ xferserver_send "${xferserverPull}pragma req-links\n"
 test xfer-server-read-req-links-git-address \
     {$CODE == 0 && [string first "errors 0" $RESULT] >= 0}
 test xfer-server-read-req-links-git-https \
-    {[string match "*pragma link https://git.example.org/someone/mirror.git*" $RESULT]}
+    {[string match "*pragma link https://git.example.org/someone/mirror.git*" \
+        $RESULT]}
 test xfer-server-read-req-links-git-other-left-out \
     {![string match "*other.git*" $RESULT]}
 xferserver_unset gitpush:*
@@ -530,8 +532,6 @@ xferserver_enter cards
 set xferserverCardsContent "hello world\n"
 set xferserverCardsSize [string length $xferserverCardsContent]
 write_file a.txt $xferserverCardsContent
-fossil add a.txt
-fossil commit -m one --no-warnings
 fossil sha3sum a.txt
 set xferserverCardsHash [lindex $RESULT 0]
 
@@ -580,14 +580,16 @@ foreach {xferserverCardsName xferserverCardsBody} [list \
   size-exceeds-input  "file $xferserverCardsHash 99\n$xferserverCardsContent" \
   size-too-small      "file $xferserverCardsHash 5\n$xferserverCardsContent" \
   size-at-end         "file $xferserverCardsHash 5\n" \
-  size-with-nul       "file $xferserverCardsHash 1\x002\n$xferserverCardsContent" \
+  size-with-nul \
+  "file $xferserverCardsHash 1\x002\n$xferserverCardsContent" \
   content-wrong-hash \
     "file $xferserverCardsHash $xferserverCardsSize\nWRONG TEXT!!\n" \
   cfile-too-few       "cfile $xferserverCardsHash\n" \
   cfile-size-exceeds  "cfile $xferserverCardsHash 5 99\nxx\n" \
   uvfile-too-few      "uvfile note.txt\n" \
   uvfile-bad-mtime    "uvfile note.txt notint $xferserverCardsZeros 3 0\nabc" \
-  uvfile-mtime-nul    "uvfile note.txt 17\x0000 $xferserverCardsZeros 3 0\nabc" \
+  uvfile-mtime-nul \
+  "uvfile note.txt 17\x0000 $xferserverCardsZeros 3 0\nabc" \
   uvfile-bad-hash     "$xferserverCardsUv nothash 3 0\nabc" \
   uvfile-bad-size     "$xferserverCardsUv $xferserverCardsZeros notint 0\nabc" \
   uvfile-bad-flags    "$xferserverCardsUv $xferserverCardsZeros 3 notint\nabc" \
@@ -599,23 +601,6 @@ foreach {xferserverCardsName xferserverCardsBody} [list \
     {$xferserverCardsCode == 0 && $xferserverCardsErrors > 0 &&
      $xferserverCardsStored == 0}
 }
-
-# A client that does not send a version is treated as older than 2.0 and
-# cannot be sent a SHA3 hash.  When such a client asks for an unversioned
-# file the server answers with an error; a current client gets the file.
-write_file note.txt "hi\n"
-fossil unversioned add note.txt -R tgt.fossil --user tester
-set xferserverCardsUvgimme \
-  "login tester 0 0\npull x $xferserverCardsPcode\nuvgimme note.txt\n"
-write_file uvgimme.txt $xferserverCardsUvgimme
-fossil_raw test-xfer -R tgt.fossil uvgimme.txt
-test xfer-cards-uvgimme-old-client \
-  {$CODE == 0
-   && [holds_strings $RESULT [list {or\slater\srequired} "!uvfile note.txt"]]}
-write_file uvgimme.txt $CLIENT_VERSION_CARD$xferserverCardsUvgimme
-fossil_raw test-xfer -R tgt.fossil uvgimme.txt
-test xfer-cards-uvgimme-current-client \
-  {$CODE == 0 && [string first "uvfile note.txt" $RESULT] >= 0}
 
 fossil sql -R tgt.fossil \
   "INSERT OR IGNORE INTO shun(uuid,mtime) VALUES('$xferserverCardsHash',0)"
@@ -632,19 +617,13 @@ xferserver_leave
 # and "uvgimme" that xfer-cards.test and xfer-server.test do not send.
 # Each has a stated effect on the server's repository or on the reply,
 # and none may crash.
-#
-# The messages carry no login card, so they run with the permissions of
-# the user "nobody", which these tests set.
-#
-
 
 xferserver_enter edge
 
 # The answer of one SQL statement on the server, trimmed.
 #
 proc xferserver_sql {sql} {
-  fossil sql -R srv.fossil $sql
-  return [string trim $::RESULT]
+  return [fossil_sql $sql srv.fossil]
 }
 
 # Send the cards BODY to the server after a client-version card and a
@@ -658,14 +637,6 @@ proc xferserver_edge_send {kind body} {
   fossil_raw test-xfer -R srv.fossil msg.txt
   set xferserverEdgeErrors -1
   regexp {errors ([0-9]+)} $::RESULT -> xferserverEdgeErrors
-}
-
-# The hash that Fossil gives TEXT.
-#
-proc xferserver_hash {text} {
-  write_file hash-me.txt $text
-  fossil sha3sum hash-me.txt
-  return [lindex $::RESULT 0]
 }
 
 # Content as a "cfile" card carries it: the size, then the zlib stream.
@@ -718,7 +689,7 @@ set xferserverEdgeAbsent [string repeat 0123456789abcdef 4]
 # "file" cards.
 
 set xferserverEdgeNew "content that the server does not have yet\n"
-set xferserverEdgeNewHash [xferserver_hash $xferserverEdgeNew]
+set xferserverEdgeNewHash [sha3_text $xferserverEdgeNew]
 set xferserverEdgeLen [string length $xferserverEdgeNew]
 
 foreach {xferserverEdgeName xferserverEdgeCard} [list \
@@ -801,7 +772,7 @@ test xfer-edge-cfile-wrong-hash {$CODE == 0 && $xferserverEdgeErrors > 0}
 test xfer-edge-cfile-wrong-hash-not-stored \
     {![xferserver_holds $xferserverEdgeAbsent]}
 set xferserverEdgeSized "content with the wrong size on its card\n"
-set xferserverEdgeSizedHash [xferserver_hash $xferserverEdgeSized]
+set xferserverEdgeSizedHash [sha3_text $xferserverEdgeSized]
 set xferserverEdgeZ [xferserver_compress $xferserverEdgeSized]
 xferserver_edge_send push "cfile $xferserverEdgeSizedHash 7777\
 [string length $xferserverEdgeZ]\n$xferserverEdgeZ"
@@ -816,7 +787,7 @@ test xfer-edge-cfile-not-compressed \
 
 # A shunned artifact is not stored.
 set xferserverEdgeShun "content that the server has shunned\n"
-set xferserverEdgeShunHash [xferserver_hash $xferserverEdgeShun]
+set xferserverEdgeShunHash [sha3_text $xferserverEdgeShun]
 xferserver_sql "INSERT INTO shun(uuid,mtime)\
     VALUES('$xferserverEdgeShunHash',0)"
 set xferserverEdgeZ [xferserver_compress $xferserverEdgeShun]
@@ -833,7 +804,7 @@ set xferserverEdgeAbsent2 [string repeat fedcba9876543210 4]
 write_file delta-src.txt $xferserverEdgeVersion(1)
 write_file delta-tgt.txt "$xferserverEdgeVersion(1)and a line of its own\n"
 fossil test-delta-create delta-src.txt delta-tgt.txt delta.out
-set xferserverEdgeTgtHash [xferserver_hash [read_file delta-tgt.txt]]
+set xferserverEdgeTgtHash [sha3_text [read_file delta-tgt.txt]]
 set xferserverEdgeZ [xferserver_compress [read_file delta.out]]
 xferserver_edge_send push "cfile $xferserverEdgeTgtHash\
 $xferserverEdgeAbsent2 7777\
@@ -869,12 +840,12 @@ foreach {xferserverEdgeName xferserverEdgeCard} [list \
 # One that does not apply, and one that makes content with another hash
 # than the card gives, are refused; one that makes the content that the
 # card names is stored.
-set xferserverEdgeSrcHash [xferserver_hash $xferserverEdgeVersion(1)]
+set xferserverEdgeSrcHash [sha3_text $xferserverEdgeVersion(1)]
 test xfer-edge-cfile-delta-setup-source-held \
     {[xferserver_holds $xferserverEdgeSrcHash] == 1}
 write_file delta-tgt2.txt "$xferserverEdgeVersion(1)and another line\n"
 fossil test-delta-create delta-src.txt delta-tgt2.txt delta2.out
-set xferserverEdgeTgt2Hash [xferserver_hash [read_file delta-tgt2.txt]]
+set xferserverEdgeTgt2Hash [sha3_text [read_file delta-tgt2.txt]]
 set xferserverEdgeDelta [read_file delta2.out]
 # The same delta without the checksum that ends it.
 regsub {[0-9A-Za-z_~]+;$} $xferserverEdgeDelta {} xferserverEdgeBadDelta
@@ -904,7 +875,7 @@ xferserver_forget [list $xferserverEdgeTgt2Hash]
 # "uvfile" cards.
 
 set xferserverEdgeUv "an unversioned note\n"
-set xferserverEdgeUvHash [xferserver_hash $xferserverEdgeUv]
+set xferserverEdgeUvHash [sha3_text $xferserverEdgeUv]
 set xferserverEdgeUvLen [string length $xferserverEdgeUv]
 proc xferserver_uv {name} {
   return [xferserver_sql "SELECT mtime, sz, encoding, hash IS NOT NULL
@@ -935,7 +906,7 @@ test_eq xfer-edge-uvfile-stored [xferserver_uv note.txt] \
 
 # Content that compresses well is stored compressed.
 set xferserverEdgeBig [string repeat "the same line again and again\n" 200]
-set xferserverEdgeBigHash [xferserver_hash $xferserverEdgeBig]
+set xferserverEdgeBigHash [sha3_text $xferserverEdgeBig]
 xferserver_edge_send push "uvfile big.txt 1700000000 $xferserverEdgeBigHash\
 [string length $xferserverEdgeBig] 0\n$xferserverEdgeBig"
 test_eq xfer-edge-uvfile-compressed [xferserver_uv big.txt] \
@@ -951,7 +922,7 @@ test_eq xfer-edge-uvfile-time-only [xferserver_uv note.txt] \
 # Older content does not replace newer.
 set xferserverEdgeOld "an older note\n"
 xferserver_edge_send push "uvfile note.txt 1600000000\
-[xferserver_hash $xferserverEdgeOld]\
+[sha3_text $xferserverEdgeOld]\
 [string length $xferserverEdgeOld] 0\n$xferserverEdgeOld"
 test xfer-edge-uvfile-older {$CODE == 0}
 test_eq xfer-edge-uvfile-older-ignored [xferserver_sql "SELECT hash
@@ -1309,8 +1280,7 @@ proc xferserver_http {body headers address args} {
   if {[file exists http-reply.txt]} {
     set reply [read_file http-reply.txt]
   }
-  set end [string first "\r\n\r\n" $reply]
-  set ::RESULT [expr {$end < 0 ? "" : [string range $reply $end+4 end]}]
+  set ::RESULT [reply_body $reply]
 }
 
 # The login card of USER with PASSWORD for a message of the cards BODY,
@@ -1382,7 +1352,6 @@ xferserver_http $xferserverLoginPull {} 127.0.0.1 --localauth
 test xfer-login-localauth-setting-on {$CODE == 0 && [holds_strings $RESULT \
     {{error not\sauthorized\sto\sread\sbecause\sthe\s'localauth'\ssetting}
      "!igot "}]}
-xferserver_sql "DELETE FROM config WHERE name='localauth'"
 
 unset ::env(SCN_EXE) ::env(SCN_REPO) ::env(SCN_FAULT) ::env(SCN_AUTH)
 unset ::env(SCN_PROJECT)
@@ -1404,27 +1373,18 @@ xferserver_leave
 
 xferserver_enter mcdc
 
-proc xferserver_mcdc_sql {sql} {
-  fossil sql -R srv.fossil $sql
-  return [string trim $::RESULT]
-}
-
-# Send MESSAGE to the server and set RESULT and CODE.
-proc xferserver_mcdc_send {message} {
-  write_file msg.txt $message
-  fossil_raw test-xfer -R srv.fossil msg.txt
-}
 
 # Test NAME passes when the reply to MESSAGE holds each of the strings
 # given, and none that begins with "!".
 proc xferserver_mcdc_expect {name message args} {
-  xferserver_mcdc_send $message
+  xferserver_send $message
   test xfer-server-mcdc-$name {$::CODE == 0 && [holds_strings $::RESULT $args]}
 }
 
 set xferserverMcdcText ""
 for {set xferserverMcdcI 0} {$xferserverMcdcI < 40} {incr xferserverMcdcI} {
-  append xferserverMcdcText "line $xferserverMcdcI of a file that is worth a delta\n"
+  append xferserverMcdcText \
+      "line $xferserverMcdcI of a file that is worth a delta\n"
 }
 write_file a.txt $xferserverMcdcText
 fossil add a.txt
@@ -1448,36 +1408,36 @@ fossil publish [string trim $RESULT]
 fossil test-content-deltify [xferserverMcdc_fid public-1] \
     [xferserverMcdc_fid private-2]
 file copy .rep.fossil srv.fossil
-set xferserverMcdcPcode [xferserver_mcdc_sql \
+set xferserverMcdcPcode [xferserver_sql \
     "SELECT value FROM config WHERE name='project-code'"]
-set xferserverMcdcTip [xferserver_mcdc_sql "SELECT uuid FROM blob WHERE rid=
+set xferserverMcdcTip [xferserver_sql "SELECT uuid FROM blob WHERE rid=
     (SELECT objid FROM event WHERE type='ci' ORDER BY mtime DESC LIMIT 1)"]
 set xferserverMcdcLogin "login tester 0 0\n"
 set xferserverMcdcPull "pull x $xferserverMcdcPcode\n"
 set xferserverMcdcPush "push x $xferserverMcdcPcode\n"
-xferserver_mcdc_sql "UPDATE user SET cap='oiyg' WHERE login='nobody'"
+xferserver_sql "UPDATE user SET cap='oiyg' WHERE login='nobody'"
 # A public check-in, named by a SHA3 hash.
-set xferserverMcdcPublic [xferserver_mcdc_sql "SELECT uuid FROM blob WHERE
+set xferserverMcdcPublic [xferserver_sql "SELECT uuid FROM blob WHERE
     rid IN (SELECT objid FROM event WHERE type='ci')
     AND rid NOT IN (SELECT rid FROM private) LIMIT 1"]
 
 # A private artifact that is stored as a delta of another private artifact.
-set xferserverMcdcDelta [xferserver_mcdc_sql "SELECT b.uuid FROM blob b, delta d,
+set xferserverMcdcDelta [xferserver_sql "SELECT b.uuid FROM blob b, delta d,
     private p WHERE b.rid=d.rid AND p.rid=d.rid AND d.srcid IN
     (SELECT rid FROM private) LIMIT 1"]
 test xfer-server-mcdc-setup-private-delta \
     {[string length $xferserverMcdcDelta] >= 40}
 foreach xferserverMcdcI {1 2} {
-  set xferserverMcdcFile($xferserverMcdcI) [xferserver_mcdc_sql \
+  set xferserverMcdcFile($xferserverMcdcI) [xferserver_sql \
       "SELECT uuid||' '||size FROM blob WHERE rid=[xferserverMcdc_fid \
        [lindex {x public-1 private-2} $xferserverMcdcI]]"]
 }
 lassign $xferserverMcdcFile(1) xferserverMcdcHash1 xferserverMcdcSize1
 lassign $xferserverMcdcFile(2) xferserverMcdcHash2 xferserverMcdcSize2
-test xfer-server-mcdc-setup-public-from-private {[xferserver_mcdc_sql "SELECT
+test xfer-server-mcdc-setup-public-from-private {[xferserver_sql "SELECT
     count(*) FROM delta d, private p WHERE d.rid=
     [xferserverMcdc_fid private-2] AND p.rid=d.srcid"] == 1}
-test xfer-server-mcdc-setup-public-from-public {[xferserver_mcdc_sql "SELECT
+test xfer-server-mcdc-setup-public-from-public {[xferserver_sql "SELECT
     count(*) FROM delta d WHERE d.rid=[xferserverMcdc_fid public-1]
     AND d.srcid=[xferserverMcdc_fid private-2]"] == 1}
 
@@ -1494,7 +1454,7 @@ foreach {xferserverMcdcName xferserverMcdcValue xferserverMcdcWho} {
 } {
   set xferserverMcdcValue [string map \
       [list \$A "'$xferserverMcdcA'"] $xferserverMcdcValue]
-  xferserver_mcdc_sql "DELETE FROM config WHERE name GLOB 'ci-lock-*';
+  xferserver_sql "DELETE FROM config WHERE name GLOB 'ci-lock-*';
     REPLACE INTO config(name,value,mtime)
     VALUES('ci-lock-$xferserverMcdcTip',$xferserverMcdcValue,now())"
   xferserver_mcdc_expect lock-held-by-$xferserverMcdcName \
@@ -1502,7 +1462,7 @@ foreach {xferserverMcdcName xferserverMcdcValue xferserverMcdcWho} {
        $xferserverMcdcTip $xferserverMcdcB\n" \
       "pragma ci-lock-fail $xferserverMcdcWho "
 }
-xferserver_mcdc_sql "DELETE FROM config WHERE name GLOB 'ci-lock-*'"
+xferserver_sql "DELETE FROM config WHERE name GLOB 'ci-lock-*'"
 
 ###############################################################################
 # A clone of a server that has private artifacts.  A client that does not
@@ -1513,7 +1473,9 @@ xferserver_mcdc_expect clone-no-private \
     "${CLIENT_VERSION_CARD}${xferserverMcdcLogin}clone 3 1\n" \
     "cfile " "!private\ncfile" "!cfile $xferserverMcdcDelta"
 xferserver_mcdc_expect clone-private \
-    "${CLIENT_VERSION_CARD}${xferserverMcdcLogin}pragma send-private\nclone 3 1\n" \
+    [join [list \
+        "${CLIENT_VERSION_CARD}${xferserverMcdcLogin}pragma " \
+        "send-private\nclone 3 1\n"] ""] \
     "private\ncfile $xferserverMcdcDelta "
 # A public artifact whose source is private is sent whole: the card names no
 # source.
@@ -1530,7 +1492,9 @@ xferserver_mcdc_expect clone-v2-public-from-public \
     "${CLIENT_VERSION_CARD}${xferserverMcdcLogin}clone 2 1\n" \
     "file $xferserverMcdcHash1 $xferserverMcdcHash2 "
 xferserver_mcdc_expect clone-v2-private \
-    "${CLIENT_VERSION_CARD}${xferserverMcdcLogin}pragma send-private\nclone 2 1\n" \
+    [join [list \
+        "${CLIENT_VERSION_CARD}${xferserverMcdcLogin}pragma " \
+        "send-private\nclone 2 1\n"] ""] \
     "private\nfile $xferserverMcdcDelta "
 
 ###############################################################################
@@ -1545,17 +1509,19 @@ xferserver_mcdc_expect push-sha1 \
     "${CLIENT_VERSION_CARD}${xferserverMcdcLogin}${xferserverMcdcPush}file\
      $xferserverMcdcSha1 13\nsha1 content\n" "errors 0"
 test xfer-server-mcdc-push-sha1-stored \
-    {[xferserver_mcdc_sql "SELECT count(*) FROM blob WHERE
+    {[xferserver_sql "SELECT count(*) FROM blob WHERE
         uuid='$xferserverMcdcSha1' AND size=13"] == 1}
 xferserver_mcdc_expect old-client-gimme-sha1 \
     "${xferserverMcdcLogin}${xferserverMcdcPull}gimme $xferserverMcdcSha1\n" \
     "file $xferserverMcdcSha1 13\nsha1 content\n" "!error Fossil"
 xferserver_mcdc_expect old-client-gimme-sha3 \
     "${xferserverMcdcLogin}${xferserverMcdcPull}gimme $xferserverMcdcPublic\n" \
-    {error Fossil\sversion\s2.0\sor\slater\srequired} "!file $xferserverMcdcPublic"
+    {error Fossil\sversion\s2.0\sor\slater\srequired} \
+    "!file $xferserverMcdcPublic"
 xferserver_mcdc_expect old-client-clone-sha1 \
     "${xferserverMcdcLogin}clone 3 1\n" \
-    "cfile $xferserverMcdcSha1 13 " {error Fossil\sversion\s2.0\sor\slater\srequired}
+    "cfile $xferserverMcdcSha1 13 " \
+    {error Fossil\sversion\s2.0\sor\slater\srequired}
 
 ###############################################################################
 # A server whose send limit is reached stops sending files and tells the
@@ -1563,7 +1529,7 @@ xferserver_mcdc_expect old-client-clone-sha1 \
 
 write_file note.txt "hi\n"
 fossil unversioned add note.txt -R srv.fossil
-xferserver_mcdc_sql "REPLACE INTO config(name,value,mtime)
+xferserver_sql "REPLACE INTO config(name,value,mtime)
     VALUES('max-download','1',now())"
 xferserver_mcdc_expect uvgimme-limit \
     "${CLIENT_VERSION_CARD}${xferserverMcdcLogin}${xferserverMcdcPull}uvgimme\
@@ -1571,7 +1537,7 @@ xferserver_mcdc_expect uvgimme-limit \
 xferserver_mcdc_expect catalog-limit \
     "${CLIENT_VERSION_CARD}${xferserverMcdcLogin}${xferserverMcdcPull}pragma\
      send-catalog x\n" "igot " "errors 0"
-xferserver_mcdc_sql "DELETE FROM config WHERE name='max-download'"
+xferserver_sql "DELETE FROM config WHERE name='max-download'"
 xferserver_mcdc_expect uvgimme-no-limit \
     "${CLIENT_VERSION_CARD}${xferserverMcdcLogin}${xferserverMcdcPull}uvgimme\
      note.txt\n" "uvfile note.txt " "!uvigot"
@@ -1583,7 +1549,7 @@ fossil hash-policy sha1 -R srv.fossil
 write_file old.txt "old\n"
 fossil unversioned add old.txt -R srv.fossil
 fossil hash-policy sha3 -R srv.fossil
-test_eq xfer-server-mcdc-setup-uv-sha1 [xferserver_mcdc_sql "SELECT
+test_eq xfer-server-mcdc-setup-uv-sha1 [xferserver_sql "SELECT
     group_concat(length(hash)) FROM (SELECT hash FROM unversioned
     WHERE name IN ('note.txt','old.txt') ORDER BY name)"] "64,40"
 xferserver_mcdc_expect old-client-uvgimme-sha1 \
@@ -1597,16 +1563,26 @@ xferserver_mcdc_expect old-client-uvgimme-sha3 \
 # A server has the number of seconds in max-download-time to make a reply.
 # Once they have passed it sends no more artifacts: a client that asks for
 # one is told in an "igot" card that the server has it, and a clone is told
-# to ask again from where it was.  Here the script that the server runs
-# before it reads the request keeps it busy for more than one second.
+# to ask again from where it was.  The limit is at least one second and
+# the server counts whole seconds, so the script that the server runs
+# before it reads the request keeps it busy until the date shows the next
+# second, and for 20 ms more because the clock that the server reads can
+# be a few milliseconds behind the date.  The server runs the script
+# again after the request, where the wait is left out.
 
 xferserver_mcdc_expect gimme-in-time \
     "${CLIENT_VERSION_CARD}${xferserverMcdcLogin}${xferserverMcdcPull}gimme\
      $xferserverMcdcPublic\n" "file $xferserverMcdcPublic "
-set xferserverMcdcBusy {set s [expr {[utime]+[stime]}]}
-append xferserverMcdcBusy \
-    {; for {set t $s} {$t-$s < 1100000} {set t [expr {[utime]+[stime]}]} {}}
-xferserver_mcdc_sql "REPLACE INTO config(name,value,mtime) VALUES
+set xferserverMcdcBusy {
+  if {![info exists waited]} {
+    set waited 1
+    set s [date]
+    for {} {[string compare [date] $s] == 0} {} {}
+    set t [utime]
+    for {} {[utime]-$t < 20000} {} {}
+  }
+}
+xferserver_sql "REPLACE INTO config(name,value,mtime) VALUES
     ('max-download-time','1',now()),
     ('xfer-common-script','$xferserverMcdcBusy',now())"
 xferserver_mcdc_expect gimme-out-of-time \
@@ -1616,7 +1592,7 @@ xferserver_mcdc_expect gimme-out-of-time \
 xferserver_mcdc_expect clone-out-of-time \
     "${CLIENT_VERSION_CARD}${xferserverMcdcLogin}clone 3 1\n" \
     "clone_seqno 1\n" "!cfile " "errors 0"
-xferserver_mcdc_sql "DELETE FROM config
+xferserver_sql "DELETE FROM config
     WHERE name IN ('max-download-time','xfer-common-script')"
 
 ###############################################################################
@@ -1629,12 +1605,12 @@ foreach {xferserverMcdcName xferserverMcdcUrl xferserverMcdcKept} {
   localhost  http://localhost/c     0
   ssh        ssh://example.org/d    0
 } {
-  xferserver_mcdc_sql "DELETE FROM config WHERE name GLOB 'syncfrom:*'"
+  xferserver_sql "DELETE FROM config WHERE name GLOB 'syncfrom:*'"
   xferserver_mcdc_expect client-url-$xferserverMcdcName \
       "${xferserverMcdcLogin}${xferserverMcdcPush}pragma client-url\
        $xferserverMcdcUrl\n" "errors 0"
   test xfer-server-mcdc-client-url-$xferserverMcdcName-recorded \
-      {[xferserver_mcdc_sql "SELECT count(*) FROM config
+      {[xferserver_sql "SELECT count(*) FROM config
          WHERE name GLOB 'syncfrom:*'"] == $xferserverMcdcKept}
 }
 

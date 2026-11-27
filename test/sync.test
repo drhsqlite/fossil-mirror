@@ -5,11 +5,8 @@
 # test-integrity".
 #
 
-# These tests run only in a long pass: -assurance stress.
-if {[test_assurance] ne "stress"} {
-  test_skip "runs only with -assurance stress"
-}
-
+# The first sections run at every level, and the rest need
+# -assurance stress.
 require_no_open_checkout
 
 test_setup ""
@@ -145,8 +142,7 @@ set syncXferDir [pwd]
 set syncXferSrv [file join $syncXferDir srv.fossil]
 
 proc sync_sql {repo sql} {
-  fossil sql -R $repo $sql
-  return [string trim $::RESULT]
+  return [fossil_sql $sql $repo]
 }
 
 # How many timeline entries of REPO have the comment COMMENT.
@@ -230,6 +226,10 @@ fossil cat big.txt -R c4.fossil -r $syncXferG1
 test_eq xfer-sync-clone-content $RESULT "${syncXferText}first"
 sync_integrity xfer-sync-clone-integrity c4.fossil
 
+if {[test_assurance] ne "stress"} {
+  test_skip "the tests after the first sections need -assurance stress"
+}
+
 ###############################################################################
 # Private check-ins go only when asked for, and stay private where they
 # arrive.
@@ -297,8 +297,9 @@ write_file two.txt "a file added on the other side\n"
 fossil uv add two.txt -R srv.fossil --mtime 2026-01-02T00:00:00
 fossil uv sync -v $syncXferSrv
 test xfer-sync-uv-pull {$CODE == 0}
-test xfer-sync-uv-pull-said {[string first "UV-PULL: two.txt" $RESULT] >= 0
-    && [string first "Unversioned-file received: two.txt" $RESULT] >= 0}
+test xfer-sync-uv-pull-said \
+    {[holds_strings $RESULT {"UV-PULL: two.txt"
+        "Unversioned-file received: two.txt"}]}
 fossil uv cat two.txt
 test_eq xfer-sync-uv-pull-content $RESULT "a file added on the other side"
 
@@ -322,8 +323,8 @@ fossil uv add one.txt --mtime 2026-01-03T00:00:00
 fossil uv sync -v $syncXferSrv
 test xfer-sync-uv-push-newer {$CODE == 0}
 test xfer-sync-uv-push-newer-said \
-    {[string first "UV-PUSH: one.txt" $RESULT] >= 0
-    && [string first "Unversioned-file sent: one.txt" $RESULT] >= 0}
+    {[holds_strings $RESULT {"UV-PUSH: one.txt"
+        "Unversioned-file sent: one.txt"}]}
 fossil uv cat one.txt -R srv.fossil
 test_eq xfer-sync-uv-push-newer-content $RESULT "the second version of one"
 
@@ -604,7 +605,7 @@ fossil sql -R d.fossil "UPDATE blob SET uuid='[string repeat 0 40]'\
                WHERE name='f2.txt' LIMIT 1)"
 fossil test-integrity -R d.fossil -expectError
 test_match sync-bad-hash-integrity [normalize_result] {checked: 1 errors}
-test sync-bad-hash-integrity-status {$CODE != 0} knownBug
+test sync-bad-hash-integrity-status {$CODE != 0}
 test_stop_server $stopArg [lindex $server 0] [lindex $server 2]
 set server [test_start_server d.fossil stopArg]
 set url http://127.0.0.1:[lindex $server 1]
@@ -631,7 +632,6 @@ if {$::tcl_platform(platform) ne "windows"} {
   test sync-no-reply-fails {$CODE != 0}
   test_match sync-no-reply-message [normalize_result] {empty reply}
   unset ::env(TRANSPORT_DIR)
-  fossil close --chdir nr
 }
 
 ###############################################################################
@@ -655,7 +655,6 @@ fossil sync -u [file join $dir uva.fossil] --chdir uvco
 test sync-unversioned-with-large-commit {$CODE == 0}
 fossil uv list -R uva.fossil
 test_match sync-unversioned-arrived [normalize_result] {note\.txt}
-fossil close --chdir uvco
 
 test_cleanup
 unset ::env(FOSSIL_USER)

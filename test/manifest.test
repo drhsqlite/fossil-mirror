@@ -5,37 +5,20 @@
 # letter case, and artifact_to_json() for every kind of artifact.
 #
 
-# These tests run only in a long pass: -assurance stress.
-if {[test_assurance] ne "stress"} {
-  test_skip "runs only with -assurance stress"
-}
-
 test_setup
-
-# The answer of one SQL statement, trimmed.
-#
-proc manifest_sql {sql} {
-  global RESULT
-  fossil sql $sql
-  return [string trim $RESULT]
-}
 
 # The hash of the check-in with the comment COMMENT.
 #
 proc manifest_ci {comment} {
-  return [manifest_sql "SELECT uuid FROM blob, event
+  return [fossil_sql "SELECT uuid FROM blob, event
       WHERE objid=rid AND type='ci' AND comment='$comment'"]
 }
 
 # The reply of the server to a GET of PATH.
 #
 proc manifest_get {path} {
-  write_file request.txt "GET $path HTTP/1.1\r\nHost: x\r\n\r\n"
-  file delete reply.txt
-  fossil_raw http [file join [pwd] .rep.fossil] --in request.txt \
-      --out reply.txt --ipaddr 127.0.0.1 --localauth
-  if {[file exists reply.txt]} { return [read_file reply.txt] }
-  return ""
+  return [fossil_http [file join [pwd] .rep.fossil] [request_get $path] \
+      --ipaddr 127.0.0.1 --localauth]
 }
 
 write_file a.txt "one\n"
@@ -56,7 +39,7 @@ fossil diff --from $manifestV1 --to $manifestV2
 test manifest-diff-versions {$CODE == 0 && [string match "*+two*" $RESULT]}
 
 # A name that is not a check-in is refused before it is looked up.
-set manifestFile [manifest_sql "SELECT uuid FROM blob, mlink
+set manifestFile [fossil_sql "SELECT uuid FROM blob, mlink
     WHERE rid=fid AND mid=(SELECT rid FROM blob WHERE uuid='$manifestV2')
       AND fnid=(SELECT fnid FROM filename WHERE name='a.txt')"]
 fossil diff --from $manifestFile --to $manifestV2 -expectError
@@ -99,7 +82,7 @@ test manifest-diff-delta {$CODE == 0 && [string match "*+three*" $RESULT]
     && [string match "*DELETED keep.txt*" $RESULT]}
 
 # The JSON form of a delta manifest names its baseline in a B field.
-test_eq manifest-delta-json-baseline [manifest_sql "SELECT
+test_eq manifest-delta-json-baseline [fossil_sql "SELECT
     json_extract(artifact_to_json('$manifestV3'), '\$.B') =
     (SELECT uuid FROM blob WHERE rid=(SELECT baseid FROM plink
       WHERE cid=(SELECT rid FROM blob WHERE uuid='$manifestV3')))"] 1
@@ -147,11 +130,12 @@ test manifest-json-attachment {$CODE == 0}
 fossil ticket add title "A ticket" status Open
 fossil test-create-clusters
 
-set manifestJson [manifest_sql "SELECT count(*), sum(json_valid(j))
+set manifestJson [fossil_sql "SELECT count(*), sum(json_valid(j))
     FROM (SELECT artifact_to_json(rid) AS j FROM blob WHERE size>=0)
    WHERE j IS NOT NULL"]
 set manifestJson [split $manifestJson |]
-test manifest-json-all-valid {[lindex $manifestJson 0] == [lindex $manifestJson 1]
+test manifest-json-all-valid \
+    {[lindex $manifestJson 0] == [lindex $manifestJson 1]
     && [lindex $manifestJson 0] > 10}
 
 foreach {manifestName manifestPath manifestWant} [list \
@@ -165,37 +149,38 @@ foreach {manifestName manifestPath manifestWant} [list \
     rename { set manifestOf $manifestV2 }
     cherrypick { set manifestOf [manifest_ci cherrypick] }
     tag {
-      set manifestOf [manifest_sql "SELECT uuid FROM blob, tagxref, tag
+      set manifestOf [fossil_sql "SELECT uuid FROM blob, tagxref, tag
           WHERE blob.rid=srcid AND tag.tagid=tagxref.tagid
             AND tagname='sym-release'"]
     }
   }
-  test_eq manifest-json-$manifestName [manifest_sql \
+  test_eq manifest-json-$manifestName [fossil_sql \
       "SELECT json_extract(artifact_to_json('$manifestOf'), '$manifestPath')"] \
       $manifestWant
 }
 
 # Content that is not an artifact gives NULL, and a value that is neither
 # a record number nor a name is an error.
-test_eq manifest-json-not-artifact [manifest_sql \
+test_eq manifest-json-not-artifact [fossil_sql \
     "SELECT artifact_to_json('$manifestFile') IS NULL"] 1
 fossil sql "SELECT artifact_to_json(1.5)" -expectError
-test manifest-json-bad-argument {[string match "*Expecting one argument*" $RESULT]}
+test manifest-json-bad-argument \
+    {[string match "*Expecting one argument*" $RESULT]}
 
 ###############################################################################
 # "tag add --root" puts a tag on the first check-in of the line that a
 # check-in is on, and says so when it only tries.
 
-set manifestRoot [manifest_sql "SELECT uuid FROM blob WHERE rid=(SELECT pid
+set manifestRoot [fossil_sql "SELECT uuid FROM blob WHERE rid=(SELECT pid
     FROM plink WHERE pid NOT IN (SELECT cid FROM plink) LIMIT 1)"]
 fossil tag add --root --dry-run rooted $manifestV2
 test manifest-tag-root-dry-run {$CODE == 0 && [string match \
     "*to root ancestor [string range $manifestRoot 0 9]*" $RESULT]}
-test_eq manifest-tag-root-dry-run-no-tag [manifest_sql "SELECT count(*)
+test_eq manifest-tag-root-dry-run-no-tag [fossil_sql "SELECT count(*)
     FROM tag WHERE tagname='sym-rooted'"] 0
 fossil tag add --root rooted $manifestV2
 test manifest-tag-root {$CODE == 0}
-test_eq manifest-tag-root-on-first [manifest_sql "SELECT tagtype FROM tagxref,
+test_eq manifest-tag-root-on-first [fossil_sql "SELECT tagtype FROM tagxref,
     tag, blob WHERE tag.tagid=tagxref.tagid AND tagname='sym-rooted'
      AND tagxref.rid=blob.rid AND tagxref.srcid>0
      AND uuid='$manifestRoot'"] 2
@@ -256,7 +241,10 @@ fossil settings manifest on
 fossil update $manifestSignedHash
 test manifest-signed-update {$CODE == 0}
 test manifest-signed-manifest-file {[string match \
-    "*\nZ *\n# Remove this line to create a well-formed Fossil manifest.\n-----BEGIN PGP SIGNATURE-----\n*" \
+    [join [list \
+        "*\nZ *\n" \
+        "# Remove this line to create a well-formed Fossil " \
+        "manifest.\n-----BEGIN PGP SIGNATURE-----\n*"] ""] \
     [read_file manifest]]}
 fossil diff --from prev --to current -expectError
 test manifest-prev-not-checkin {$CODE != 0

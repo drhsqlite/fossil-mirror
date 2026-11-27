@@ -7,76 +7,14 @@
 # before, and the repository must still be sound.
 #
 
-# These tests run only in a long pass: -assurance stress.
-if {[test_assurance] ne "stress"} {
-  test_skip "runs only with -assurance stress"
-}
-
+# The first sections run at every level, and the rest need
+# -assurance stress.
 require_no_open_checkout
 
 test_setup
 
 proc rebuild_sql {sql {repo .rep.fossil}} {
-  fossil sql -R $repo $sql
-  return [string trim $::RESULT]
-}
-
-# What a repository holds, by hash rather than by record number: the
-# artifacts with their private flag, the timeline, the parent links, the
-# files of each check-in, the leaves and the tags.
-#
-proc rebuild_state {{repo .rep.fossil}} {
-  return [rebuild_sql {
-    SELECT 'blob', uuid, rid IN private FROM blob WHERE size>=0
-    UNION ALL
-    SELECT 'event', b.uuid, e.type || ' ' || ifnull(e.comment,'')
-      FROM event e JOIN blob b ON b.rid=e.objid
-    UNION ALL
-    SELECT 'plink', p.uuid, c.uuid FROM plink
-      JOIN blob p ON p.rid=plink.pid JOIN blob c ON c.rid=plink.cid
-    UNION ALL
-    SELECT 'mlink', m.uuid, f.uuid || ' ' || fn.name FROM mlink
-      JOIN blob m ON m.rid=mlink.mid JOIN blob f ON f.rid=mlink.fid
-      JOIN filename fn ON fn.fnid=mlink.fnid
-    UNION ALL
-    SELECT 'leaf', uuid, '' FROM leaf JOIN blob USING(rid)
-    UNION ALL
-    SELECT 'tag', b.uuid, t.tagname || '=' || ifnull(x.value,'')
-      FROM tagxref x JOIN tag t USING(tagid) JOIN blob b ON b.rid=x.rid
-     WHERE x.tagtype>0
-    ORDER BY 1, 2, 3
-  } $repo]
-}
-
-# The rows that are in one state and not in the other, marked "-" for
-# the first and "+" for the second.  Empty when the two are the same.
-#
-proc rebuild_diff {a b} {
-  set la [split $a \n]
-  set lb [split $b \n]
-  set out {}
-  foreach x $la { if {[lsearch -exact $lb $x] < 0} { lappend out "- $x" } }
-  foreach x $lb { if {[lsearch -exact $la $x] < 0} { lappend out "+ $x" } }
-  return [join $out \n]
-}
-
-proc rebuild_sound {name {repo .rep.fossil}} {
-  fossil test-integrity -R $repo
-  test $name-integrity {$::CODE == 0}
-  fossil test-missing -R $repo
-  test $name-missing {$::CODE == 0}
-}
-
-proc rebuild_hash {comment} {
-  return [rebuild_sql "SELECT uuid FROM blob, event
-      WHERE objid=rid AND comment='$comment'"]
-}
-
-proc rebuild_file_hash {checkin file {repo .rep.fossil}} {
-  return [rebuild_sql "SELECT f.uuid FROM mlink
-      JOIN blob m ON m.rid=mlink.mid JOIN blob f ON f.rid=mlink.fid
-      JOIN filename fn ON fn.fnid=mlink.fnid
-     WHERE m.uuid='$checkin' AND fn.name='$file'" $repo]
+  return [fossil_sql $sql $repo]
 }
 
 # The hashes of the artifacts a repository has the content of, in order;
@@ -141,16 +79,13 @@ for {set rebuildI 1} {$rebuildI <= 7} {incr rebuildI} {
   write_file n.txt [rebuild_noise $rebuildI 1500]
   if {$rebuildI == 1} {fossil add a.txt n.txt}
   fossil commit -m rebuild-trunk-$rebuildI --no-warnings
-  lappend rebuildTrunk [rebuild_hash rebuild-trunk-$rebuildI]
-  set rebuildTrunkText($rebuildI) $rebuildText
+  lappend rebuildTrunk [checkin_hash rebuild-trunk-$rebuildI]
 }
 fossil update [lindex $rebuildTrunk 2]
 fossil branch new side current
 fossil update side
-write_file b.txt "a file only the branch has\n"
-fossil add b.txt
-fossil commit -m rebuild-side-1 --no-warnings
-set rebuildSide [rebuild_hash rebuild-side-1]
+commit_file b.txt "a file only the branch has\n" rebuild-side-1 --no-warnings
+set rebuildSide [checkin_hash rebuild-side-1]
 fossil update trunk
 fossil tag add rebuild-tag [lindex $rebuildTrunk 1]
 write_file page.txt "A wiki page.\n"
@@ -160,19 +95,18 @@ set rebuildSecretText ""
 for {set rebuildI 0} {$rebuildI < 60} {incr rebuildI} {
   append rebuildSecretText "line $rebuildI of private content\n"
 }
-write_file secret.txt $rebuildSecretText
-fossil add secret.txt
-fossil commit -m rebuild-secret-1 --no-warnings --private --branch secret
-set rebuildSecret1 [rebuild_hash rebuild-secret-1]
+commit_file secret.txt $rebuildSecretText rebuild-secret-1 --no-warnings \
+    --private --branch secret
+set rebuildSecret1 [checkin_hash rebuild-secret-1]
 write_file secret.txt "${rebuildSecretText}one more\n"
 fossil commit -m rebuild-secret-2 --no-warnings
-set rebuildSecret2 [rebuild_hash rebuild-secret-2]
-set rebuildSecretFile1 [rebuild_file_hash $rebuildSecret1 secret.txt]
-set rebuildSecretFile2 [rebuild_file_hash $rebuildSecret2 secret.txt]
+set rebuildSecret2 [checkin_hash rebuild-secret-2]
+set rebuildSecretFile1 [checkin_file_hash $rebuildSecret1 secret.txt]
+set rebuildSecretFile2 [checkin_file_hash $rebuildSecret2 secret.txt]
 fossil update trunk
 
-rebuild_sound rebuild-start
-set rebuildStart [rebuild_state]
+repository_sound rebuild-start
+set rebuildStart [repository_state]
 set rebuildAll [rebuild_hashes .rep.fossil]
 set rebuildPublic [rebuild_hashes .rep.fossil "rid NOT IN private"]
 test rebuild-start-setup {[llength $rebuildAll] > [llength $rebuildPublic] &&
@@ -236,8 +170,12 @@ foreach {rebuildName rebuildOpts rebuildOut rebuildQuery rebuildWant} [list \
   test_eq rebuild-$rebuildName-effect [rebuild_sql $rebuildQuery r.fossil] \
       $rebuildWant
   test_eq rebuild-$rebuildName-state \
-      [rebuild_diff $rebuildStart [rebuild_state r.fossil]] ""
-  rebuild_sound rebuild-$rebuildName r.fossil
+      [repository_state_diff $rebuildStart [repository_state r.fossil]] ""
+  repository_sound rebuild-$rebuildName r.fossil
+}
+
+if {[test_assurance] ne "stress"} {
+  test_skip "the tests after the first sections need -assurance stress"
 }
 
 # --deanalyze removes the statistics that --analyze made.  The file is
@@ -251,7 +189,7 @@ fossil sql --no-repository r.fossil \
     "SELECT count(*) FROM sqlite_schema WHERE name='sqlite_stat1'"
 test_eq rebuild-deanalyze-effect [string trim $RESULT] 0
 test_eq rebuild-deanalyze-state \
-    [rebuild_diff $rebuildStart [rebuild_state r.fossil]] ""
+    [repository_state_diff $rebuildStart [repository_state r.fossil]] ""
 
 # --stats counts each kind of artifact.
 fossil rebuild r.fossil --stats
@@ -298,7 +236,7 @@ test_eq rebuild-ifneeded-needed-schema [rebuild_sql "SELECT value FROM config
 test rebuild-ifneeded-needed-rebuilt {[rebuild_sql "SELECT mtime FROM config
     WHERE name='rebuilt'" r.fossil] > 1}
 test_eq rebuild-ifneeded-needed-state \
-    [rebuild_diff $rebuildStart [rebuild_state r.fossil]] ""
+    [repository_state_diff $rebuildStart [repository_state r.fossil]] ""
 
 # Two repository names are one too many.  Without a name, the repository
 # of the check-out is rebuilt.
@@ -306,7 +244,8 @@ fossil rebuild r.fossil full.fossil -expectError
 test rebuild-usage {$CODE != 0 && [string match "*Usage:*" $RESULT]}
 fossil rebuild
 test rebuild-checkout {$CODE == 0}
-test_eq rebuild-checkout-state [rebuild_diff $rebuildStart [rebuild_state]] ""
+test_eq rebuild-checkout-state \
+    [repository_state_diff $rebuildStart [repository_state]] ""
 
 ###############################################################################
 # A repository with the table definitions of an old Fossil: no baseid in
@@ -387,8 +326,8 @@ test_eq rebuild-old-schema-reports-dated [rebuild_sql "SELECT count(*)
 test_eq rebuild-old-schema-concealed [rebuild_sql "SELECT hash, content,
     mtime>1 FROM concealed" old.fossil] "abc|someone@example.invalid|1"
 test_eq rebuild-old-schema-state \
-    [rebuild_diff $rebuildStart [rebuild_state old.fossil]] ""
-rebuild_sound rebuild-old-schema old.fossil
+    [repository_state_diff $rebuildStart [repository_state old.fossil]] ""
+repository_sound rebuild-old-schema old.fossil
 
 ###############################################################################
 # When the main-branch setting names a branch that no check-in has,
@@ -407,11 +346,11 @@ test_eq rebuild-main-branch-tagged [rebuild_sql "SELECT count(*)
    WHERE tagname='sym-primary' AND tagtype=2 AND srcid>0
      AND uuid='$rebuildRoot'" main.fossil] 1
 # The two artifacts that carry the new tags are all that is added.
-set rebuildAdded [rebuild_diff [join $rebuildAll \n] \
+set rebuildAdded [repository_state_diff [join $rebuildAll \n] \
     [join [rebuild_hashes main.fossil] \n]]
 test rebuild-main-branch-kept {[regexp -all -line {^\+ } $rebuildAdded] == 2 &&
     [regexp -all -line {^- } $rebuildAdded] == 0}
-rebuild_sound rebuild-main-branch main.fossil
+repository_sound rebuild-main-branch main.fossil
 # A second rebuild finds the branch and adds nothing.
 set rebuildCount [rebuild_sql "SELECT count(*) FROM blob" main.fossil]
 fossil rebuild main.fossil
@@ -443,7 +382,7 @@ foreach {rebuildName rebuildDamage} [list \
       FROM phantom" damaged.fossil] 1
   fossil cat a.txt -r [lindex $rebuildTrunk 6] -R damaged.fossil
   test_eq rebuild-damage-$rebuildName-newest-readable "$RESULT\n" \
-      $rebuildTrunkText(7)
+      $rebuildText
 }
 file delete damaged.fossil
 
@@ -487,7 +426,7 @@ fossil rebuild fts.fossil --noindex
 test rebuild-noindex {$CODE == 0}
 test_eq rebuild-noindex-gone [rebuild_indexed fts.fossil] none
 test_eq rebuild-index-state \
-    [rebuild_diff $rebuildStart [rebuild_state fts.fossil]] ""
+    [repository_state_diff $rebuildStart [repository_state fts.fossil]] ""
 # --compress-only with --index on a repository that has no index makes one.
 fossil rebuild fts.fossil --compress-only --index
 test rebuild-compress-only-index-new {$CODE == 0 &&
@@ -534,8 +473,8 @@ foreach {rebuildName rebuildCmd rebuildCount rebuildOut} {
   test_eq rebuild-$rebuildName-deltas [rebuild_sql "SELECT count(*)
       FROM delta"] $rebuildDeltas
   test_eq rebuild-$rebuildName-state \
-      [rebuild_diff $rebuildStart [rebuild_state]] ""
-  rebuild_sound rebuild-$rebuildName
+      [repository_state_diff $rebuildStart [repository_state]] ""
+  repository_sound rebuild-$rebuildName
 }
 for {set rebuildI 1} {$rebuildI <= 7} {incr rebuildI} {
   fossil cat n.txt -r [lindex $rebuildTrunk [expr {$rebuildI-1}]]
@@ -559,24 +498,20 @@ test rebuild-detach-capital-new-code {[rebuild_sql "SELECT value FROM config
 test_eq rebuild-detach-capital-parent [rebuild_sql "SELECT value FROM config
     WHERE name='parent-project-code'" detach.fossil] $rebuildCode
 test_eq rebuild-detach-capital-state \
-    [rebuild_diff $rebuildStart [rebuild_state detach.fossil]] ""
+    [repository_state_diff $rebuildStart [repository_state detach.fossil]] ""
 
 ###############################################################################
 # Scrub asks first.  "y" and "Y" are both a yes.
 
-proc rebuild_pw {repo} {
-  return [rebuild_sql "SELECT count(*) FROM user WHERE pw<>''" $repo]
-}
 foreach {rebuildName rebuildAnswer} {small y capital Y} {
   file copy -force full.fossil scrub.fossil
-  test rebuild-scrub-$rebuildName-setup {[rebuild_pw scrub.fossil] > 0}
+  test rebuild-scrub-$rebuildName-setup {[password_count scrub.fossil] > 0}
   fossil_raw -input "$rebuildAnswer\n" scrub scrub.fossil
   test rebuild-scrub-$rebuildName {$CODE == 0}
-  test_eq rebuild-scrub-$rebuildName-passwords [rebuild_pw scrub.fossil] 0
+  test_eq rebuild-scrub-$rebuildName-passwords [password_count scrub.fossil] 0
   test_eq rebuild-scrub-$rebuildName-state \
-      [rebuild_diff $rebuildStart [rebuild_state scrub.fossil]] ""
+      [repository_state_diff $rebuildStart [repository_state scrub.fossil]] ""
 }
-file delete scrub.fossil
 
 ###############################################################################
 # Deconstruct writes each artifact to a file named by its hash; private
@@ -604,7 +539,7 @@ test_eq rebuild-reconstruct-checkins [rebuild_sql "SELECT count(*) FROM event
     WHERE type='ci'" r-public.fossil] [expr {$rebuildCheckins - 2}]
 test_eq rebuild-reconstruct-none-private [rebuild_sql "SELECT count(*)
     FROM private" r-public.fossil] 0
-rebuild_sound rebuild-reconstruct r-public.fossil
+repository_sound rebuild-reconstruct r-public.fossil
 
 # --quiet says nothing.
 file mkdir d-quiet
@@ -647,11 +582,8 @@ test_eq rebuild-reconstruct-keep-rid1 [rebuild_sql "SELECT uuid FROM blob
 test_eq rebuild-reconstruct-keep-private \
     [rebuild_hashes r-keep.fossil "rid IN private"] $rebuildPrivate
 test_eq rebuild-reconstruct-keep-state \
-    [rebuild_diff $rebuildStart [rebuild_state r-keep.fossil]] ""
-fossil test-missing -R r-keep.fossil
-test rebuild-reconstruct-keep-missing {$CODE == 0}
-fossil test-integrity -R r-keep.fossil
-test rebuild-reconstruct-keep-integrity {$CODE == 0}
+    [repository_state_diff $rebuildStart [repository_state r-keep.fossil]] ""
+repository_sound rebuild-reconstruct-keep r-keep.fossil
 
 # Without -P every artifact in the directory becomes public.
 fossil reconstruct r-private.fossil d-private
@@ -660,7 +592,7 @@ test_eq rebuild-reconstruct-private-all [rebuild_hashes r-private.fossil] \
     $rebuildAll
 test_eq rebuild-reconstruct-private-none-private [rebuild_sql "SELECT count(*)
     FROM private" r-private.fossil] 0
-rebuild_sound rebuild-reconstruct-private r-private.fossil
+repository_sound rebuild-reconstruct-private r-private.fossil
 
 # -L sets how many letters of the hash name the directory: none, or five.
 # With none, .rid1 names a file in the directory itself.
@@ -839,7 +771,6 @@ foreach rebuildH $rebuildPublic {
 }
 test_eq rebuild-deconstruct-damage-source-gone-files \
     [rebuild_names d-damaged] $rebuildWant
-file delete damaged.fossil
 
 ###############################################################################
 # Clusters.  test-create-clusters makes one when a hundred or more
@@ -883,7 +814,7 @@ test_eq rebuild-create-clusters-two [rebuild_clusters] 2
 fossil test-clusters -R .rep.fossil
 test rebuild-clusters-two {$CODE == 0 &&
     [string match "*all artifacts reachable through clusters*" $RESULT]}
-rebuild_sound rebuild-clusters
+repository_sound rebuild-clusters
 
 # When the newest cluster is purged, what it listed is in no cluster and
 # test-clusters lists each such artifact.
@@ -902,7 +833,7 @@ test_eq rebuild-clusters-unreachable-listed \
 # A cluster whose content has been replaced with SQL by that of a file.
 file copy -force .rep.fossil cluster.fossil
 fossil sql -R cluster.fossil "UPDATE blob
-    SET content=(SELECT content FROM blob WHERE uuid='[rebuild_file_hash \
+    SET content=(SELECT content FROM blob WHERE uuid='[checkin_file_hash \
         $rebuildSide b.txt]')
   WHERE uuid='$rebuildNewest'"
 fossil test-clusters -R cluster.fossil -expectError

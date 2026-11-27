@@ -48,19 +48,15 @@ Options are:
   This flag is only the fuzz loop count; it does not select
   `-assurance` cases.
 * `-assurance smoke|ci|stress` selects how thoroughly the tests run.
-  The default is `smoke`, which skips `powerloss`. It also sets the
-  cases that `unicode-pathnames` and `utf` run:
-  - `unicode-pathnames`: `smoke` is one pair per fold-behavior class;
-    `ci` is the full hand-written lists; `stress` adds generated pairs.
-    At startup the harness classifies the temporary filesystem once
-    (ASCII case, NFC/NFD, and sharp-s versus `ss`). Predictions use
-    that classification with Fossil's `case-sensitive` setting
-    (byte-for-byte when on; Unicode D145 caseless match when off).
-  - `utf`: `smoke` is a stratified edge set of `test-looks-like-utf`
-    cells; `ci` is the full BOM×payload×extra product; `stress` adds
-    generated payloads. A Tcl predictor scores each LOOK_*/BOM line
-    for both yes and no.
-  Unmet predictions fail the run.
+  The default is `smoke`, which runs something from every file but
+  `powerloss`. `ci` adds `powerloss`, the full hand-written cases of
+  `unicode-pathnames` and `utf`, and the slower tests of `content`,
+  `cgi`, `login` and `config`. `stress` adds generated cases for
+  `unicode-pathnames` and `utf`, and the rest of the coverage tests,
+  which aim at every branch and condition of the code they test. At
+  `smoke` each coverage test file runs only its first sections, about
+  half a second of them. The Coverage table below says which files need
+  which level.
 
  `make test TESTFLAGS="-quiet update"` passes options and names via `make`.
 
@@ -118,18 +114,53 @@ means every run, and `ci` means `ci` and `stress`.
 | Check-ins and the working tree | `amend`, `clean`, `commit-warning`, `mv-rm`, `revert`, `stash`, `symlinks`, `unicode-pathnames`, `update` | `smoke` |
 | Branches and tags | `branch-tag` | `smoke` |
 | Merges, cherrypicks, backouts, and annotate and blame after them | `merge1` to `merge6`, `merge-history`, `merge_exe`, `merge_renames`, `merge_renames_2`, `merge_warn` | `smoke` |
+| Clone, push, pull and sync | `sync` | `smoke` for the first sections, and the rest at `stress` |
 | HTTP and HTTPS client | `http` | `smoke` |
+| Rebuild, reconstruct, and `test-integrity` and `test-missing` on damaged repositories | `integrity` | `smoke` |
+| Commands that must not change what a repository holds: `rebuild`, `repack`, `deconstruct`, `reconstruct` and `detach` | `rebuild` | `smoke` for the first sections, and the rest at `stress` |
+| The content store: long delta chains, the cache of reconstructed artifacts, making and undoing deltas, content that arrives late, and what `test-integrity --parse`, `test-missing` and `test-orphans` report | `content` | `smoke`, and the cache limits at `ci` |
+| What the database shows after an artifact of each kind is stored, and what the artifact parser refuses | `crosslink` | `smoke` for the first sections, and the rest at `stress` |
+| Check-ins read by name and their files found: two check-ins compared, `/dir` and `/tree`, delta manifests, file names in another letter case, and the JSON form of each kind of artifact | `manifest` | `smoke` |
+| How a name from a user or a URL becomes an artifact | `name` | `smoke` for the first sections, and the rest at `stress` |
 | Commands interrupted by a power loss or a killed process | `powerloss` | `ci` |
 | Git export and import, bundles, patches, ZIP and tarball archives | `roundtrip`, `git-export` | `smoke` |
+| Sync protocol cards, sent to the server and to the client | `xfer-server`, `xfer-client` | `smoke` for the first sections, and the rest at `stress` |
+| The login card of the sync protocol, checked by a server without `--localauth` | `xfer-server` | `smoke` for the first sections, and the rest at `stress` |
+| A clone made over the sync protocol, with and without unversioned files, with small replies, and refused | `sync` | `smoke` for the first sections, and the rest at `stress` |
+| Whole pushes, pulls and syncs: private check-ins, unversioned files in both directions, and a pull from a parent project | `sync` | `smoke` for the first sections, and the rest at `stress` |
+| URLs of remote repositories, and well-formed and malformed replies to the sync client | `url` | `smoke` for the first sections, and the rest at `stress` |
+| `fossil configuration` export, import, merge and reset, and the configuration that push, pull and sync transfer | `config` | `smoke` for the first sections, and the rest at `ci` |
+| Commands that remove content: `purge` with its graveyard, undo and obliterate, `scrub`, and `repack` | `purge` | `smoke` for the first sections, and the rest at `stress` |
+| How a server reads a request: query strings, forms, uploads in several parts, dates in headers, SCGI, and requests over ssh | `cgi` | `smoke` for the first request of each kind, and the rest at `ci` |
+| How a server decides who the user is | `login` | `smoke`, and the logins that Fossil delays by a second at `ci` |
+| `fossil import --svn` of dumps whose contents are svndiff0 deltas | `import` | `smoke` for the first sections, and the rest at `stress` |
+| What Fossil puts on an `ssh` command line | `ssh` | `smoke` |
 | Diffs and deltas | `delta1`, `diff` | `smoke` |
+| Fossil's text buffer, `src/blob.c` | `blob` | `smoke` for the first sections, and the rest at `stress` |
+| Malformed input to the delta and manifest parsers, from the inputs in `corpus/corpus.pack` | `fuzz` | `smoke` |
+| Random integration tests of sync: sequences of commits, merges and syncs among three clones, with lost and cut-short sync messages, from the scenario inputs in `corpus/corpus.pack`. Slow for its 16 tests, because each step is a separate run of `fossil`. | `scenario` | `smoke` for one input, and the rest at `stress` |
+| Faults that have been fixed | `regress` | `smoke` |
 | Settings | `settings`, `settings-repo`, `set-manifest` | `smoke` |
 | Wiki, attachments and unversioned files | `wiki`, `unversioned` | `smoke` |
 | TH1 scripting | `th1`, `th1-docs`, `th1-hooks`, `th1-repo`, `th1-taint`, `th1-tcl` | `smoke` |
+| Fossil's own TH1 commands and the template renderer | `th1main` | `smoke` for the first sections, and the rest at `stress` |
 | JSON API | `json` | `smoke` |
 | Parsing and file utilities | `cmdline`, `contains-selector`, `file1`, `glob`, `reserved-names`, `utf` | `smoke` |
 
 ## Fuzz inputs and run-time checking
 
+`corpus/corpus.pack` has the inputs that `fuzz.test` gives to
+`fossil test-fuzz`, and the inputs of `scenario.test`. They are packed in
+one file so that the corpus doesn't add hundreds of files to every check-in
+manifest, and the tests unpack it themselves. To add an input, or to give a
+fuzzing engine a starting corpus, unpack it and pack it again:
+
+```sh
+tclsh corpus.tcl unpack corpus/corpus.pack DIR
+tclsh corpus.tcl pack DIR corpus/corpus.pack
+```
+
+`corpus.tcl` describes the format and each type of input.
 
 A build with ASan and UBSan reports memory errors and undefined behavior that a normal build does not detect. `tools/testbuild.sh asan DIR` makes such a build in `DIR`, and `make test` there runs the whole suite against it. `tools/testbuild.sh cov DIR` makes a build that records coverage, and `tools/testbuild.sh report DIR` then prints the branch coverage of each source file.
 
@@ -180,10 +211,21 @@ check `CODE` yourself. Use `fossil_raw` when you need:
 * a server in the test's own Tcl. The Tcl event loop runs while the
   command does, so a `socket -server` in your test file can answer it.
 
-`holds_strings TEXT WANTED` returns 1 if `TEXT` has every string in the
-list `WANTED`, where a string starting with `!` must be absent.
-`test_start_server` takes options for `fossil server` after its second
-argument.
+Before you write a helper procedure, look in `tester.tcl` for one. Each has
+a comment saying what it does. There are helpers for these jobs:
+
+* asking a repository a question in SQL: `fossil_sql`
+* requesting a web page without a server: `request_get` or `request_post`,
+  then `fossil_http`, then `reply_status`, `reply_header` and `reply_body`
+* answering Fossil when it is the client: `test_listen`
+* checking that a command left a repository as it was: `repository_state`
+  before and after, then `repository_state_diff`
+* checking that a repository isn't damaged: `repository_sound`
+* hashing a file or a string: `sha3_file`, `sha3_text` and the `sha1`
+  pair
+* checking output for several strings at once: `holds_strings`
+* starting and stopping `fossil server`: `test_start_server` and
+  `test_stop_server`
 
 ## Maintaining the tests
 

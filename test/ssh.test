@@ -12,11 +12,6 @@
 # and that ordinary values reach it unchanged.
 #
 
-# These tests run only in a long pass: -assurance stress.
-if {[test_assurance] ne "stress"} {
-  test_skip "runs only with -assurance stress"
-}
-
 require_no_open_checkout
 
 if {$::tcl_platform(platform) eq "windows"} {
@@ -37,7 +32,6 @@ set ::env(PATH) "$sshDir:$::env(PATH)"
 # nothing that could start the real one.
 if {[lindex [auto_execok ssh] 0] ne $sshStub} {
   set ::env(PATH) $sshSavedPath
-  test_cleanup
   test_skip "cannot put a stand-in for ssh first on the PATH"
 }
 
@@ -114,8 +108,8 @@ foreach {sshName sshUrl} {
 # before the host.
 
 ssh_run ui --nobrowser hh:dir/repo.fossil
-test ssh-ui-plain {[string first "<-->\n<hh>\n" $sshArgs] >= 0
-                   && [string first "<dir/repo.fossil>" $sshArgs] >= 0}
+test ssh-ui-plain \
+    {[holds_strings $sshArgs [list "<-->\n<hh>\n" "<dir/repo.fossil>"]]}
 ssh_run ui --nobrowser "hh:dir/a;b.fossil"
 test ssh-ui-refused-semicolon \
     {$sshArgs eq "" && [string first "special to the shell" $RESULT] >= 0}
@@ -142,10 +136,8 @@ test ssh-patch-pull-user-with-dash \
 # replace it with a home directory.
 
 ssh_run test-escaped-arg ~ ~root/x
-test ssh-escaped-tilde {[string first {argv[2] = [~]} $RESULT] >= 0
-                        && [string first {argv[2] = [~root/x]} $RESULT] >= 0}
-
-###############################################################################
+test ssh-escaped-tilde \
+    {[holds_strings $RESULT {{argv[2] = [~]} {argv[2] = [~root/x]}}]}
 
 set ::env(PATH) $sshSavedPath
 unset ::env(ARGS_LOG)

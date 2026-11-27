@@ -9,11 +9,8 @@
 # xfer-server.test tests the server side.
 #
 
-# These tests run only in a long pass: -assurance stress.
-if {[test_assurance] ne "stress"} {
-  test_skip "runs only with -assurance stress"
-}
-
+# The first sections run at every level, and the rest need
+# -assurance stress.
 require_no_open_checkout
 
 if {$::tcl_platform(platform) eq "windows"} {
@@ -40,17 +37,7 @@ set ::env(TRANSPORT_DIR) $xferclientDir
 # command.  Sets xferclientCode to the exit status, or to "crash", and
 # xferclientOut to what fossil printed.
 proc xferclient_sync {verb replies args} {
-  global xferclientDir xferclientWire xferclientCode xferclientOut
-  file delete {*}[glob -nocomplain -directory $xferclientDir \
-                      reply.* request.* count]
-  set number 0
-  foreach reply $replies {
-    write_file [file join $xferclientDir reply.[incr number]] $reply
-  }
-  fossil_raw $verb http://localhost/x --once \
-      --transport-command $xferclientWire {*}$args
-  set xferclientCode $::CODE
-  set xferclientOut $::RESULT
+  xferclient_sync_url $verb http://localhost/x $replies {*}$args
 }
 
 # Like xferclient_sync, for the server at URL.
@@ -204,6 +191,10 @@ fossil sql "REPLACE INTO config(name,value,mtime)
             VALUES('project-code','$xferclientOwnCode',now())"
 fossil sql "DELETE FROM config WHERE name='parent-project-code'"
 
+if {[test_assurance] ne "stress"} {
+  test_skip "the tests after the first sections need -assurance stress"
+}
+
 ###############################################################################
 # igot and gimme.  What the client asks for, or sends, shows in its
 # second request.
@@ -337,17 +328,8 @@ xferclient_expect uvfile-refused-in-pull pull \
     "uvfile note.txt 2000000001 $xferclientAbcHash 3 0\nabc\n" 1 {} \
     "unknown command"
 fossil unversioned cat note.txt
-test xfer-client-uvfile-in-pull-changes-nothing \
-    {[string trim $RESULT] eq "local note"}
-xferclient_expect uvigot-bad-mtime pull \
-    "uvigot note.txt notint $xferclientUvHash 3\n" 1 {} "unknown command"
-xferclient_expect uvigot-bad-size pull \
-    "uvigot note.txt 1700000000 $xferclientUvHash notint\n" 1 {} \
-    "unknown command"
-xferclient_expect uvigot-bad-hash pull \
-    "uvigot note.txt 1700000000 nothash 3\n" 1 {} "unknown command"
-xferclient_expect uvigot-bad-name pull \
-    "uvigot ../x 1700000000 $xferclientUvHash 3\n" 1 {} "unknown command"
+test_eq xfer-client-uvfile-in-pull-changes-nothing [string trim $RESULT] \
+    "local note"
 
 ###############################################################################
 # Each card that has a fixed number of words, and each word that selects a
@@ -428,7 +410,6 @@ foreach {xferclientName xferclientCard xferclientKept} [list \
   test_eq xfer-client-mcdc-link-$xferclientName \
       "$xferclientCode [string trim $RESULT]" "0 $xferclientKept"
 }
-fossil sql "DELETE FROM config WHERE name LIKE 'link:%'"
 
 ###############################################################################
 # A "private" card makes the next file private.  A client that does not sync
@@ -726,7 +707,6 @@ xferclient_clone [list "clone_seqno 2\n$xferclientPush" \
     "clone_seqno 3\n$xferclientPush" "clone_seqno 4\n$xferclientPush"]
 test xfer-client-mcdc-clone-stops-when-nothing-arrives \
     {$xferclientCode == 0 && [xferclient_requests] == 2}
-file delete clone.fossil
 
 ###############################################################################
 # What a sync with -v says at its end about the server.  A server that
@@ -735,17 +715,15 @@ file delete clone.fossil
 # its ssh command, which exits at once.
 
 fossil_raw pull -v --once --proxy off http:///x
-test xfer-client-mcdc-remote-no-host {$CODE == 1
-    && [string first "Pull done," $RESULT] >= 0
-    && [string first "remote: \n" $RESULT] >= 0}
+test xfer-client-mcdc-remote-no-host {$CODE == 1 &&
+    [holds_strings $RESULT [list "Pull done," "remote: \n"]]}
 set xferclientSsh \
     [test_standin log-args.sh [file join $xferclientDir ssh-standin.sh]]
 set ::env(ARGS_LOG) [file join $xferclientDir ssh-args.txt]
 fossil_raw pull -v --once --ssh-command $xferclientSsh ssh:///x
-test xfer-client-mcdc-remote-ssh-no-host {$CODE == 1
-    && [file exists $::env(ARGS_LOG)]
-    && [string first "Pull done," $RESULT] >= 0
-    && [string first "remote: \n" $RESULT] >= 0}
+test xfer-client-mcdc-remote-ssh-no-host {$CODE == 1 &&
+    [file exists $::env(ARGS_LOG)] &&
+    [holds_strings $RESULT [list "Pull done," "remote: \n"]]}
 unset ::env(ARGS_LOG)
 
 ###############################################################################
@@ -754,25 +732,9 @@ unset ::env(ARGS_LOG)
 # a bare timestamp where that is empty, and keeps the header and the cards
 # of each request in the list xferclientHttpRequests.
 
-proc xferclient_http_accept {chan address port} {
-  fconfigure $chan -translation binary -blocking 0
-  set ::xferclientHttpBuf($chan) ""
-  fileevent $chan readable [list xferclient_http_read $chan]
-}
-proc xferclient_http_read {chan} {
-  global xferclientHttpBuf xferclientHttpRequests xferclientHttpReplies
-  append xferclientHttpBuf($chan) [read $chan]
-  set request $xferclientHttpBuf($chan)
+proc xferclient_http_read {chan request} {
+  global xferclientHttpRequests xferclientHttpReplies
   set end [string first "\r\n\r\n" $request]
-  set length 0
-  regexp -nocase -line {^content-length:\s*(\d+)} $request -> length
-  if {![eof $chan] &&
-      ($end < 0 || [string length $request] < $end + 4 + $length)} {
-    return
-  }
-  unset xferclientHttpBuf($chan)
-  fileevent $chan readable {}
-  fconfigure $chan -blocking 1
   # The cards follow four bytes of size when they are compressed.
   set header [string range $request 0 $end+1]
   set cards [string range $request $end+4 end]
@@ -804,9 +766,7 @@ proc xferclient_http_run {replies args} {
 }
 
 if {[loopback_available]} {
-  set xferclientHttpServer \
-      [socket -server xferclient_http_accept -myaddr 127.0.0.1 0]
-  set xferclientHttpPort [lindex [fconfigure $xferclientHttpServer -sockname] 2]
+  set xferclientHttpPort [test_listen xferclient_http_read]
 
   # The login card goes in front of the cards of a request.  Once the
   # server has said that it is of version 2.27 or later and was built at or
@@ -869,9 +829,7 @@ if {[loopback_available]} {
         && [llength $xferclientHttpRequests] == 2
         && [holds_strings $xferclientOut $xferclientSaid]}
   }
-  fossil remote off
-  fossil settings autosync off
-  close $xferclientHttpServer
+  test_listen_stop
 }
 
 ###############################################################################

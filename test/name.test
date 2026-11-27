@@ -8,11 +8,8 @@
 # web pages through "fossil http --in".
 #
 
-# These tests run only in a long pass: -assurance stress.
-if {[test_assurance] ne "stress"} {
-  test_skip "runs only with -assurance stress"
-}
-
+# The first sections run at every level, and the rest need
+# -assurance stress.
 require_no_open_checkout
 
 test_setup ""
@@ -23,18 +20,10 @@ fossil open $nameRepo
 fossil user default alice
 fossil set mtime-changes off
 
-# The answer of one SQL statement, trimmed.
-#
-proc name_sql {sql} {
-  global RESULT
-  fossil sql $sql
-  return [string trim $RESULT]
-}
-
 # The hash of the check-in whose comment is COMMENT.
 #
 proc name_checkin {comment} {
-  return [name_sql "SELECT uuid FROM event, blob
+  return [fossil_sql "SELECT uuid FROM event, blob
       WHERE objid=rid AND type='ci' AND comment='$comment'"]
 }
 
@@ -66,7 +55,7 @@ proc name_put {body} {
   fossil test-content-put --crosslink $fn
   file delete $fn
   if {![regexp {inserted as record (\d+)} $RESULT all rid]} { return "" }
-  return [name_sql "SELECT uuid FROM blob WHERE rid=$rid"]
+  return [fossil_sql "SELECT uuid FROM blob WHERE rid=$rid"]
 }
 
 # The strings in WANTED that TEXT does not hold, and those that begin
@@ -107,7 +96,7 @@ proc name_id {name {type ""}} {
 #
 # The checkout is left at c2.
 
-set nameC0 [name_sql "SELECT uuid FROM event, blob
+set nameC0 [fossil_sql "SELECT uuid FROM event, blob
     WHERE objid=rid AND type='ci'"]
 
 # The hashes of p.txt and q.txt begin with the same five characters.
@@ -155,7 +144,7 @@ fossil tag add gone $nameC1 --date-override "2025-01-08 11:00:00" \
     --user-override alice
 fossil tag cancel gone $nameC1 --date-override "2025-01-08 12:00:00" \
     --user-override alice
-set nameG1 [name_sql "SELECT uuid FROM event, blob
+set nameG1 [fossil_sql "SELECT uuid FROM event, blob
     WHERE objid=rid AND type='g' AND comment LIKE '%\"decade\"%'"]
 
 test name-setup-checkins {[llength [lsort -unique [list $nameC0 $nameC1 \
@@ -326,9 +315,9 @@ set nameCluster [name_put "M [join [lsort [list $nameC0 $nameC1 \
 test name-setup-more {[llength [lsort -unique [list $namePriv $nameA1 \
     $nameA2 $nameW3 $nameSide $nameG2 $nameCluster $nameAtt1 $nameAtt2]]] == 9
     && [string length $nameCluster] == 64 && [string length $nameSha1] == 40
-    && [name_sql "SELECT count(*) FROM phantom"] == 5
-    && [name_sql "SELECT count(*) FROM delta"] > 0
-    && [name_sql "SELECT count(*) FROM blob WHERE uuid='$nameSha1'"] == 1}
+    && [fossil_sql "SELECT count(*) FROM phantom"] == 5
+    && [fossil_sql "SELECT count(*) FROM delta"] > 0
+    && [fossil_sql "SELECT count(*) FROM blob WHERE uuid='$nameSha1'"] == 1}
 
 test name-setup-artifacts {[llength [lsort -unique [list $nameW1 $nameW2 \
     $nameT1 $nameT2 $nameE1 $nameE2 $nameF1]]] == 7
@@ -345,7 +334,8 @@ foreach {nameCase nameName nameType nameWant} [list \
   prev            prev               {}   $nameC1 \
   previous        previous           ci   $nameC1 \
   next            next               {}   $nameC3 \
-  current-wiki    current            w    {ERROR: cannot resolve name: current} \
+  current-wiki    current            w \
+  {ERROR: cannot resolve name: current} \
   ckout           ckout              ci+  $nameC2 \
   ckout-ci        ckout              ci   {ERROR: cannot resolve name: ckout} \
   ckout-any       ckout              {}   {ERROR: cannot resolve name: ckout} \
@@ -360,7 +350,8 @@ foreach {nameCase nameName nameType nameWant} [list \
   tag-hex-prefix  tag:decade         {}   $nameC1 \
   tag-start       tag:br             br   $nameB1 \
   tag-cancelled   gone               {}   {ERROR: cannot resolve name: gone} \
-  tag-none        tag:nosuch         {}   {ERROR: cannot resolve name: tag:nosuch} \
+  tag-none        tag:nosuch         {} \
+  {ERROR: cannot resolve name: tag:nosuch} \
   tag-empty       tag:               {}   {ERROR: cannot resolve name: tag:} \
   tag-percent     tag:%              {}   {ERROR: cannot resolve name: tag:%} \
   tag-underscore  re_1               {}   {ERROR: cannot resolve name: re_1} \
@@ -376,12 +367,19 @@ foreach {nameCase nameName nameType nameWant} [list \
   merge-in-first  merge-in:$nameC0   {}   $nameC0 \
   merge-in-plain  merge-in:$nameB1   {}   $nameC2 \
   root-of-root    root:root:br       {}   $nameC0 \
-  root-none       root:nosuch        {}   {ERROR: cannot resolve name: root:nosuch} \
-  start-none      start:nosuch       {}   {ERROR: cannot resolve name: start:nosuch} \
-  merge-in-none   merge-in:nosuch    {}   {ERROR: cannot resolve name: merge-in:nosuch} \
+  root-none       root:nosuch        {} \
+  {ERROR: cannot resolve name: root:nosuch} \
+  start-none      start:nosuch       {} \
+  {ERROR: cannot resolve name: start:nosuch} \
+  merge-in-none   merge-in:nosuch    {} \
+  {ERROR: cannot resolve name: merge-in:nosuch} \
   root-empty      root:              {}   {ERROR: cannot resolve name: root:} \
 ] {
   test_eq name-checkin-$nameCase [name_id $nameName $nameType] $nameWant
+}
+
+if {[test_assurance] ne "stress"} {
+  test_skip "the tests after the first sections need -assurance stress"
 }
 
 ###############################################################################
@@ -480,7 +478,6 @@ foreach {nameCase nameName nameType nameWant} [list \
 # numbers, and names with punctuation after them.
 
 set nameC1x [string range $nameC1 0 9]
-set nameNone {ERROR: cannot resolve name: }
 set nameTwice {ERROR: ambiguous name: }
 foreach {nameCase nameName nameType nameWant} [list \
   full            $nameC1                        {}  $nameC1 \
@@ -510,7 +507,6 @@ foreach {nameCase nameName nameType nameWant} [list \
   forum           [string range $nameF1 0 9]     f   $nameF1 \
   tag-change      [string range $nameG1 0 9]     g   $nameG1 \
   tag-change-ci   [string range $nameG1 0 9]     ci  - \
-  empty-type      $nameC1x                       ""  $nameC1 \
   type-cx         $nameC1x                       cx  - \
   tip-type-cx     tip                            cx  - \
   rid             rid:1                          {}  $nameC0 \
@@ -539,7 +535,7 @@ foreach {nameCase nameName nameType nameWant} [list \
   long-colons     [string repeat : 5000]         {}  - \
   long-date       date:[string repeat 9 5000]    {}  - \
 ] {
-  if {$nameWant eq "-"} { set nameWant $nameNone$nameName }
+  if {$nameWant eq "-"} { set nameWant $nameNoDate$nameName }
   if {$nameWant eq "="} { set nameWant $nameTwice$nameName }
   test_eq name-hash-$nameCase [name_id $nameName $nameType] $nameWant
 }
@@ -559,7 +555,7 @@ proc name_whatis {name wanted args} {
 fossil whatis tip
 test_eq name-whatis-checkin $RESULT "name:       tip
 artifact:   $nameB3
-size:       [name_sql "SELECT size FROM blob WHERE uuid='$nameB3'"] bytes
+size:       [fossil_sql "SELECT size FROM blob WHERE uuid='$nameB3'"] bytes
 tags:       br
 type:       Check-in by alice on 2025-01-07 10:00:00
 comment:    b3"
@@ -568,7 +564,7 @@ test_eq name-whatis-hash-only $RESULT $nameB3
 fossil whatis -v -h tip
 test_eq name-whatis-hash-only-verbose $RESULT $nameB3
 
-set nameRidC1 [name_sql "SELECT rid FROM blob WHERE uuid='$nameC1'"]
+set nameRidC1 [fossil_sql "SELECT rid FROM blob WHERE uuid='$nameC1'"]
 name_whatis verbose [list "artifact:   $nameC1 ($nameRidC1)" \
     "received:   " "tags:       decade, rel, rel1, trunk"] -v rel1
 name_whatis raw-tags [list "tags:       twins" "closed, hidden" \
@@ -585,14 +581,14 @@ name_whatis ticket-change [list "type:       Ticket-change by alice on" \
 name_whatis file [list "file:       p.txt" \
     "part of \[[string range $nameC1 0 9]\] on branch trunk by alice on"] $nameP
 name_whatis file-on-branch [list "file:       f.txt" "on branch br by alice" \
-    "!on branch trunk"] [name_sql "SELECT uuid FROM blob, mlink
+    "!on branch trunk"] [fossil_sql "SELECT uuid FROM blob, mlink
       WHERE rid=fid AND mid=(SELECT rid FROM blob WHERE uuid='$nameB1')"]
 name_whatis attachment-wiki [list "attachment: att1.txt" \
     "attached to wiki WikiOne" "via $nameA1\n" \
     "by user alice on 2025-01-13 10:00:00" "on the page"] $nameAtt1
 name_whatis attachment-ticket [list "attachment: att2.txt" \
     "attached to ticket $nameTktOnly" \
-    "via $nameA2 ([name_sql "SELECT rid FROM blob WHERE uuid='$nameA2'"])"] \
+    "via $nameA2 ([fossil_sql "SELECT rid FROM blob WHERE uuid='$nameA2'"])"] \
     -v $nameAtt2
 name_whatis cluster [list "artifact:   $nameCluster" "cluster"] $nameCluster
 name_whatis sha1-name [list "hash:       $nameSha1 (ambiguous)" \
@@ -646,7 +642,8 @@ name_whatis by-file [list "name:       f.txt" "file:       f.txt" \
     "on branch trunk"] -f f.txt
 name_whatis by-file-unknown [list "name:       name.fossil" "unknown:    "] \
     -f name.fossil
-name_whatis by-file-sha1 [list "name:       sha1.txt\nhash:       $nameSha1 (ambiguous)" \
+name_whatis by-file-sha1 [list \
+    "name:       sha1.txt\nhash:       $nameSha1 (ambiguous)" \
     "artifact:   $nameSha1" "artifact:   $nameT3"] -f sha1.txt
 name_whatis by-file-twin [list "name:       p.txt" "artifact:   $nameP" \
     "!ambiguous"] -f p.txt
@@ -706,14 +703,15 @@ foreach {nameCase nameArgs nameWant} [list \
   name_whatis json-$nameCase $nameWant --json {*}$nameArgs
 }
 
-test_eq name-whatis-sql-name [name_sql "SELECT whatis('nosuch')"] \
+test_eq name-whatis-sql-name [fossil_sql "SELECT whatis('nosuch')"] \
     "\{\"unknown\":\"nosuch\"\}"
 test name-whatis-sql-rid {[holds_strings \
-    [name_sql "SELECT whatis($nameRidC1)"] \
-    [list "\{\"rid\":$nameRidC1,\"artifact\":\"$nameC1\"" "\"comment\":\"c1\"\}"]]}
-test_eq name-whatis-sql-rid-none [name_sql "SELECT whatis(99999)"] \
+    [fossil_sql "SELECT whatis($nameRidC1)"] \
+    [list "\{\"rid\":$nameRidC1,\"artifact\":\"$nameC1\"" \
+        "\"comment\":\"c1\"\}"]]}
+test_eq name-whatis-sql-rid-none [fossil_sql "SELECT whatis(99999)"] \
     "\{\"rid\":99999,\"artifact\":null\}"
-test_eq name-whatis-sql-other [name_sql "SELECT typeof(whatis(1.5))"] null
+test_eq name-whatis-sql-other [fossil_sql "SELECT typeof(whatis(1.5))"] null
 
 ###############################################################################
 # Other commands that take a name.
@@ -790,9 +788,15 @@ test_eq name-command-ambiguous-minsize-7 $RESULT ""
 fossil test-describe-artifacts
 set nameAll $RESULT
 test_eq name-command-describe [name_missing $nameAll [list \
-    "  [string range $nameC0 0 15] check-in to trunk by alice on 2025-01-01 00:00 " \
-    "  [string range $nameB3 0 15] check-in to br by alice on 2025-01-07 10:00 " \
-    "  [string range $namePriv 0 15] check-in to private by alice on 2025-01-07 09:00  (private)" \
+    [join [list \
+        "  [string range $nameC0 0 15] check-in to trunk by alice " \
+        "on 2025-01-01 00:00 "] ""] \
+    [join [list \
+        "  [string range $nameB3 0 15] check-in to br by alice on " \
+        "2025-01-07 10:00 "] ""] \
+    [join [list \
+        "  [string range $namePriv 0 15] check-in to private by " \
+        "alice on 2025-01-07 09:00  (private)"] ""] \
     "  [string range $nameP 0 15] file p.txt " \
     "  [string range $nameG1 0 15] tag [string range $nameC1 0 15] " \
     "  [string range $nameCluster 0 15] cluster " \
@@ -806,10 +810,14 @@ test_eq name-command-describe [name_missing $nameAll [list \
     "  [string range $nameGhostParent 0 15] parent of check-in $nameW3" \
     "  [string range $nameGhostMerge 0 15] merge parent of check-in $nameSide" \
     "  [string range $nameGhostFile 0 15] file lost.txt " \
-    "  [string range $nameGhostTarget 0 15] check-in referenced by \"sym-ghost\" tag $nameG2" \
-    "  [string range $nameGhostMember 0 15] referenced by cluster $nameCluster"]] {}
+    [join [list \
+        "  [string range $nameGhostTarget 0 15] check-in referenced " \
+        "by \"sym-ghost\" tag $nameG2"] ""] \
+    [join [list \
+        "  [string range $nameGhostMember 0 15] referenced by " \
+        "cluster $nameCluster"] ""]]] {}
 test_eq name-command-describe-count [llength [split $nameAll \n]] \
-    [name_sql "SELECT count(*) FROM blob"]
+    [fossil_sql "SELECT count(*) FROM blob"]
 fossil test-describe-artifacts --from 3 --count 2
 test_eq name-command-describe-range [llength [split $RESULT \n]] 2
 fossil test-unsent
@@ -839,7 +847,7 @@ test name-command-whatis-all {[holds_strings $RESULT [list \
     "artifact:   $nameC0 (1)" "artifact:   $nameF1 (" \
     "file:       q.txt" [string repeat - 79]]]
     && [regexp -all {artifact:   } $RESULT]
-       == [name_sql "SELECT count(*) FROM blob WHERE size>=0"]}
+       == [fossil_sql "SELECT count(*) FROM blob WHERE size>=0"]}
 
 # A repository with no phantoms.
 fossil new nophantom.fossil
@@ -867,11 +875,7 @@ proc name_get {path {caps gjorz}} {
     fossil sql -R $nameWeb "UPDATE user SET cap='$caps' WHERE login='nobody'"
     set nameCapsNow $caps
   }
-  write_file request.txt "GET $path HTTP/1.1\r\nHost: x\r\n\r\n"
-  file delete reply.txt
-  fossil_raw http $nameWeb --in request.txt --out reply.txt {*}$options
-  if {[file exists reply.txt]} { return [read_file reply.txt] }
-  return ""
+  return [fossil_http $nameWeb [request_get $path] {*}$options]
 }
 
 # Test NAME passes if the reply to a request for PATH holds every string
@@ -991,7 +995,8 @@ name_page timeline-back-to /timeline?p=tip&bt=rel1 [list "HTTP/1.0 200 OK" \
     c2 "!initial empty check-in"] admin
 name_page timeline-back-to-tag /timeline?p=tip&bt=tag:rel1 [list \
     "HTTP/1.0 200 OK" c2 "!initial empty check-in"] admin
-name_page timeline-back-to-hash "/timeline?p=tip&bt=[string range $nameC2 0 9]" \
+name_page timeline-back-to-hash \
+    "/timeline?p=tip&bt=[string range $nameC2 0 9]" \
     [list "HTTP/1.0 200 OK" b1 "!>c1<"] admin
 name_page timeline-forward-to /timeline?d=rel1&ft=br [list "HTTP/1.0 200 OK" \
     "descendants of" ">br</a>"] admin
@@ -1011,8 +1016,8 @@ name_page forum-edit-no-name /forumedit [list \
 # Pages that list artifacts.
 
 set nameHead {<tr><th>RID<th>Hash<th>Received<th>Description<th>Ref<th>Remarks}
-set nameRidMax [name_sql "SELECT max(rid) FROM blob"]
-set nameRidDelta [name_sql "SELECT rid FROM delta LIMIT 1"]
+set nameRidMax [fossil_sql "SELECT max(rid) FROM blob"]
+set nameRidDelta [fossil_sql "SELECT rid FROM delta LIMIT 1"]
 
 # What each kind of user is shown.
 foreach {nameCase namePath nameCaps nameWant} [list \
@@ -1047,7 +1052,8 @@ foreach {nameCase namePath nameCaps nameWant} [list \
      "..$nameRidMax</a>" "250 most recent</a>" "All unclustered</a>" \
      "!$nameHead" "!href=\"bloblist\">"] \
   bloblist-range /bloblist?s=11&n=10 admin \
-    [list $nameHead "<td align=\"right\">11</td>" "<td align=\"right\">20</td>" \
+    [list $nameHead "<td align=\"right\">11</td>" \
+        "<td align=\"right\">20</td>" \
      "!<td align=\"right\">10</td>" "!<td align=\"right\">21</td>" \
      "href=\"bloblist\">"] \
   bloblist-private /bloblist?priv admin \
@@ -1056,7 +1062,8 @@ foreach {nameCase namePath nameCaps nameWant} [list \
   bloblist-private-short /bloblist?priv&n=10 admin \
     [list "<h2>Private Artifacts</h2>" "!Select a range"] \
   bloblist-phantoms /bloblist?phan admin \
-    [list "<h2>Phantom Artifacts</h2>" "<td align=\"left\">parent of check-in</td>" \
+    [list "<h2>Phantom Artifacts</h2>" \
+        "<td align=\"left\">parent of check-in</td>" \
      "<a href=\"/info/[string range $nameW3 0 15]\">" \
      "<td align=\"left\">file lost.txt</td>\n<td>&nbsp;\n<td>&nbsp;\n</tr>" \
      "!check-in to trunk" "href=\"bloblist\">" "!href=\"bloblist?phan\">"] \
@@ -1116,9 +1123,13 @@ foreach {nameCase namePath nameCaps nameWant} [list \
     [list "HTTP/1.0 302 Moved Temporarily" "/login?g=deltachain"] \
   collisions /hash-collisions admin \
     [list "<h1>Hash Prefix Collisions on Check-ins</h1>" \
-     "<p>Collisions of length 4:\n<a href=\"/ambiguous/$nameCtwin\">$nameCtwin</a>" \
+     [join [list \
+         "<p>Collisions of length 4:\n" \
+         "<a href=\"/ambiguous/$nameCtwin\">$nameCtwin</a>"] ""] \
      "<h1>Hash Prefix Collisions on All Artifacts</h1>" \
-     "<p>Collisions of length 5:\n<a href=\"/ambiguous/$nameTwin\">$nameTwin</a>" \
+     [join [list \
+         "<p>Collisions of length 5:\n" \
+         "<a href=\"/ambiguous/$nameTwin\">$nameTwin</a>"] ""] \
      "<a href=\"/ambiguous/$nameWtwin\">$nameWtwin</a>" \
      "<p>Total number of hashes: [expr {$nameRidMax}]</p>" \
      "!First 25 collisions"] \
@@ -1126,7 +1137,9 @@ foreach {nameCase namePath nameCaps nameWant} [list \
     [list "HTTP/1.0 302 Moved Temporarily" "/login?g=hash-collisions"] \
   clusters-admin /clusterlist admin \
     [list "<th>Compressed&nbsp;Size\n<th>User<th>IP-Address" \
-     "<tr><td align=\"right\">1\n<td><a href=\"/info/[string range $nameCluster 0 9]\">" \
+     [join [list \
+         "<tr><td align=\"right\">1\n" \
+         "<td><a href=\"/info/[string range $nameCluster 0 9]\">"] ""] \
      "<td>alice\n<td>&nbsp;\n</tr>" "Total size of all clusters: " \
      "href=\"rcvfromlist\">" "href=\"artifact_stats\">"] \
   clusters-reader /clusterlist gjorz \

@@ -11,11 +11,6 @@
 #     tables derived from the artifacts as they were, or repairs them.
 #
 
-# These tests run only in a long pass: -assurance stress.
-if {[test_assurance] ne "stress"} {
-  test_skip "runs only with -assurance stress"
-}
-
 require_no_open_checkout
 
 test_setup ""
@@ -146,7 +141,6 @@ fossil sql -R r2.fossil "SELECT uuid FROM blob JOIN mlink ON fid=rid\
 fossil artifact [normalize_result] -R r2.fossil
 test_eq integrity-artifact-readable [normalize_result] \
     "four\n[string repeat four 200]"
-file delete r2.fossil
 
 ###############################################################################
 # test-integrity and test-missing: exit 0 on a sound repository, non-zero
@@ -202,7 +196,6 @@ foreach {integrityName integritySql integrityCmd} [list \
   fossil sql -R $integrityDamaged $integritySql
   fossil {*}$integrityCmd -R $integrityDamaged -expectError
   test integrity-damage-$integrityName {$CODE != 0}
-  file delete $integrityDamaged
 }
 
 ###############################################################################
@@ -213,7 +206,6 @@ test integrity-derived-not-empty {[string length $integrityBefore] > 0}
 fossil rebuild r.fossil
 test_eq integrity-rebuild-same [integrity_derived r.fossil] $integrityBefore
 
-set integrityDamaged [file join [pwd] damaged.fossil]
 file copy -force r.fossil $integrityDamaged
 fossil sql -R $integrityDamaged \
   "DELETE FROM plink WHERE rowid=(SELECT max(rowid) FROM plink)"
@@ -222,7 +214,6 @@ test integrity-missing-parent-link-shows \
 fossil rebuild $integrityDamaged
 test_eq integrity-rebuild-repairs [integrity_derived $integrityDamaged] \
     $integrityBefore
-file delete $integrityDamaged
 
 test_cleanup
 unset ::env(FOSSIL_USER)

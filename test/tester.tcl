@@ -348,6 +348,67 @@ proc holds_strings {text wanted} {
   return 1
 }
 
+# The text of an HTTP request for PATH, with "Host: x" and each line of
+# the list HEADERS.
+#
+proc request_get {path {headers {}} {method GET}} {
+  set text "$method $path HTTP/1.1\r\nHost: x\r\n"
+  foreach line $headers { append text $line "\r\n" }
+  return "$text\r\n"
+}
+
+# The text of an HTTP POST of BODY to PATH, with "Host: x", each line of
+# the list HEADERS, the content type TYPE and the length of BODY.
+#
+proc request_post {path body {headers {}}
+                   {type application/x-www-form-urlencoded}} {
+  set text "POST $path HTTP/1.1\r\nHost: x\r\n"
+  foreach line $headers { append text $line "\r\n" }
+  append text "Content-Type: $type\r\n"
+  append text "Content-Length: [string length $body]\r\n\r\n$body"
+  return $text
+}
+
+# Give the request TEXT, a string of bytes, to "fossil http" for the
+# repository REPO, with ARGS as more options, and return the reply, or
+# an empty string if there is none.  The request is written to
+# request.txt and the reply to reply.txt.  CODE is the exit status.
+#
+proc fossil_http {repo text args} {
+  write_file request.txt $text
+  file delete reply.txt
+  fossil_raw http $repo --in request.txt --out reply.txt {*}$args
+  if {[file exists reply.txt]} { return [read_file reply.txt] }
+  return ""
+}
+
+# The status line of the HTTP reply REPLY.
+#
+proc reply_status {reply} {
+  return [string trim [lindex [split $reply \n] 0]]
+}
+
+# The value of the first header NAME in the HTTP reply REPLY, or "-" if
+# the reply has no such header.
+#
+proc reply_header {reply name} {
+  set end [string first "\r\n\r\n" $reply]
+  foreach line [split [string range $reply 0 $end] \n] {
+    if {[string match -nocase "$name: *" $line]} {
+      return [string trim [string range $line [string length $name]+1 end]]
+    }
+  }
+  return -
+}
+
+# The content of the HTTP reply REPLY: what follows its headers.
+#
+proc reply_body {reply} {
+  set end [string first "\r\n\r\n" $reply]
+  if {$end < 0} { return "" }
+  return [string range $reply $end+4 end]
+}
+
 # Listens on a port on 127.0.0.1 that the system chooses, and returns
 # the port.  Calls HANDLER with each connection and the request on it,
 # once the whole request has arrived or the client has closed its side,
@@ -529,6 +590,85 @@ proc checkin_hash {comment} {
   return $hash
 }
 
+# Runs SQL in the repository REPO, or in the repository of the open
+# checkout when REPO is empty, and returns the output, trimmed.
+#
+proc fossil_sql {sql {repo ""}} {
+  if {$repo eq ""} {
+    fossil sql $sql
+  } else {
+    fossil sql -R $repo $sql
+  }
+  return [string trim $::RESULT]
+}
+
+# Returns what the repository REPO holds, by hash and not by record
+# number, so that two states can be compared after content has been
+# stored again: the artifacts with their private flag, the timeline, the
+# parent links, the files of each check-in, the leaves and the tags.
+#
+proc repository_state {{repo .rep.fossil}} {
+  return [fossil_sql {
+    SELECT 'blob', uuid, rid IN private FROM blob WHERE size>=0
+    UNION ALL
+    SELECT 'event', b.uuid, e.type || ' ' || ifnull(e.comment,'')
+      FROM event e JOIN blob b ON b.rid=e.objid
+    UNION ALL
+    SELECT 'plink', p.uuid, c.uuid FROM plink
+      JOIN blob p ON p.rid=plink.pid JOIN blob c ON c.rid=plink.cid
+    UNION ALL
+    SELECT 'mlink', m.uuid, f.uuid || ' ' || fn.name FROM mlink
+      JOIN blob m ON m.rid=mlink.mid JOIN blob f ON f.rid=mlink.fid
+      JOIN filename fn ON fn.fnid=mlink.fnid
+    UNION ALL
+    SELECT 'leaf', uuid, '' FROM leaf JOIN blob USING(rid)
+    UNION ALL
+    SELECT 'tag', b.uuid, t.tagname || '=' || ifnull(x.value,'')
+      FROM tagxref x JOIN tag t USING(tagid) JOIN blob b ON b.rid=x.rid
+     WHERE x.tagtype>0
+    ORDER BY 1, 2, 3
+  } $repo]
+}
+
+# Returns the rows that are in one repository state and not in the
+# other, marked "-" for the first and "+" for the second.  Empty when the
+# two are the same.
+#
+proc repository_state_diff {a b} {
+  set la [split $a \n]
+  set lb [split $b \n]
+  set out {}
+  foreach x $la { if {[lsearch -exact $lb $x] < 0} { lappend out "- $x" } }
+  foreach x $lb { if {[lsearch -exact $la $x] < 0} { lappend out "+ $x" } }
+  return [join $out \n]
+}
+
+# Tests NAME-integrity and NAME-missing: that test-integrity and
+# test-missing find nothing wrong with the repository REPO.
+#
+proc repository_sound {name {repo .rep.fossil}} {
+  fossil test-integrity -R $repo
+  test $name-integrity {$::CODE == 0}
+  fossil test-missing -R $repo
+  test $name-missing {$::CODE == 0}
+}
+
+# Returns the hash of the version of FILE in the check-in with the hash
+# CHECKIN, in the repository REPO.
+#
+proc checkin_file_hash {checkin file {repo .rep.fossil}} {
+  return [fossil_sql "SELECT f.uuid FROM mlink
+      JOIN blob m ON m.rid=mlink.mid JOIN blob f ON f.rid=mlink.fid
+      JOIN filename fn ON fn.fnid=mlink.fnid
+     WHERE m.uuid='$checkin' AND fn.name='$file'" $repo]
+}
+
+# Returns how many users of the repository REPO have a password.
+#
+proc password_count {repo} {
+  return [fossil_sql "SELECT count(*) FROM user WHERE pw<>''" $repo]
+}
+
 # Returns the path of the repository of the open checkout, from
 # "fossil info", or an empty string when there is none.
 #
@@ -558,6 +698,23 @@ proc sha1_text {txt} {
   set filename [file join $::tempPath sha1_text_[pid]]
   write_file $filename $txt
   set hash [sha1_file $filename]
+  file delete $filename
+  return $hash
+}
+
+# Returns the SHA3 hash of the file FILENAME, from "fossil sha3sum".
+#
+proc sha3_file {filename} {
+  fossil sha3sum $filename
+  return [lindex $::RESULT 0]
+}
+
+# Returns the SHA3 hash of the string TXT.
+#
+proc sha3_text {txt} {
+  set filename [file join $::tempPath sha3_text_[pid]]
+  write_file $filename $txt
+  set hash [sha3_file $filename]
   file delete $filename
   return $hash
 }

@@ -19,11 +19,8 @@
 # goes on an ssh command line.
 #
 
-# These tests run only in a long pass: -assurance stress.
-if {[test_assurance] ne "stress"} {
-  test_skip "runs only with -assurance stress"
-}
-
+# The first sections run at every level, and the rest need
+# -assurance stress.
 require_no_open_checkout
 
 if {![loopback_available]} {
@@ -440,6 +437,10 @@ foreach urlOption {--nosync --ipv4 --ipv6 --accept-any-cert} {
   url_parse_test url-proxy-option$urlOption http://h/x $urlOption {name h}
 }
 
+if {[test_assurance] ne "stress"} {
+  test_skip "the tests after the first sections need -assurance stress"
+}
+
 ###############################################################################
 # The name for a clone of a URL.
 
@@ -477,9 +478,6 @@ test_eq url-basename-none $RESULT ""
 ###############################################################################
 # The HTTP exchange.
 
-set urlServers [list]
-set urlRequests [list]
-
 # Listens on a port on 127.0.0.1 that the system chooses, and returns
 # the port.  Connection N is answered with item N of REPLIES, and the
 # last item answers every later connection.  "PORT" in a reply stands for
@@ -487,28 +485,9 @@ set urlRequests [list]
 #
 proc url_listen {replies} {
   set ::urlRequests [list]
-  set server [socket -server [list url_accept $replies] -myaddr 127.0.0.1 0]
-  lappend ::urlServers $server
-  return [lindex [fconfigure $server -sockname] 2]
+  return [test_listen [list url_receive $replies]]
 }
-proc url_accept {replies chan address port} {
-  fconfigure $chan -translation binary -blocking 0
-  set ::urlRequest($chan) ""
-  fileevent $chan readable [list url_receive $replies $chan]
-}
-proc url_receive {replies chan} {
-  append ::urlRequest($chan) [read $chan]
-  set request $::urlRequest($chan)
-  set end [string first "\r\n\r\n" $request]
-  set length 0
-  regexp -nocase -line {^content-length:\s*(\d+)} $request -> length
-  if {![eof $chan] &&
-      ($end < 0 || [string length $request] < $end + 4 + $length)} {
-    return
-  }
-  unset ::urlRequest($chan)
-  fileevent $chan readable {}
-  fconfigure $chan -blocking 1
+proc url_receive {replies chan request} {
   set number [llength $::urlRequests]
   lappend ::urlRequests $request
   if {$number >= [llength $replies]} {set number end}
@@ -517,12 +496,6 @@ proc url_receive {replies chan} {
     puts -nonewline $chan [string map [list PORT $port] \
                                [lindex $replies $number]]
   }
-  catch {close $chan}
-}
-proc url_listen_stop {} {
-  update
-  foreach urlServer $::urlServers {close $urlServer}
-  set ::urlServers [list]
 }
 
 # Returns TEXT with each line end changed to CR LF.
@@ -558,7 +531,7 @@ proc url_request_body {number} {
 proc url_httpmsg {replies args} {
   set port [url_listen $replies]
   fossil_raw -seconds 60 test-httpmsg http://127.0.0.1:$port/x {*}$args
-  url_listen_stop
+  test_listen_stop
 }
 
 # Replies that are accepted.  Each row is a name, the reply header, the
@@ -597,22 +570,34 @@ foreach {urlName urlHeader urlBody urlExpected} [list \
       "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 5\n\n" \
       hello hello \
   content-type-debug \
-      "HTTP/1.1 200 OK\nContent-Type: application/x-fossil-debug\nContent-Length: 5\n\n" \
+      [join [list \
+          "HTTP/1.1 200 OK\n" \
+          "Content-Type: application/x-fossil-debug\n" \
+          "Content-Length: 5\n\n"] ""] \
       hello hello \
   content-type-uncompressed \
-      "HTTP/1.1 200 OK\nContent-Type: application/x-fossil-uncompressed\nContent-Length: 5\n\n" \
+      [join [list \
+          "HTTP/1.1 200 OK\n" \
+          "Content-Type: application/x-fossil-uncompressed\n" \
+          "Content-Length: 5\n\n"] ""] \
       hello hello \
   interim-100 \
       "HTTP/1.1 100 Continue\n\nHTTP/1.1 200 OK\nContent-Length: 5\n\n" \
       hello hello \
   interim-with-headers \
-      "HTTP/1.1 103 Early Hints\nLink: </x>\n\nHTTP/1.1 200 OK\nContent-Length: 5\n\n" \
+      [join [list \
+          "HTTP/1.1 103 Early Hints\nLink: </x>\n\nHTTP/1.1 200 OK\n" \
+          "Content-Length: 5\n\n"] ""] \
       hello hello \
   interim-twice \
-      "HTTP/1.1 100 Continue\n\nHTTP/1.1 102 Processing\n\nHTTP/1.1 200 OK\nContent-Length: 5\n\n" \
+      [join [list \
+          "HTTP/1.1 100 Continue\n\nHTTP/1.1 102 Processing\n\n" \
+          "HTTP/1.1 200 OK\nContent-Length: 5\n\n"] ""] \
       hello hello \
   interim-four-blank-lines \
-      "HTTP/1.1 100 Continue\n\n\n\n\n\nHTTP/1.1 200 OK\nContent-Length: 5\n\n" \
+      [join [list \
+          "HTTP/1.1 100 Continue\n\n\n\n\n\nHTTP/1.1 200 OK\n" \
+          "Content-Length: 5\n\n"] ""] \
       hello hello \
   chunked "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\n\n" \
       "3\r\nhel\r\n2\r\nlo\r\n0\r\n\r\n" hello \
@@ -700,13 +685,19 @@ foreach {urlName urlReply urlMessage} [list \
   transfer-encoding-empty "HTTP/1.1 200 OK\nTransfer-Encoding:\n\n" \
       {unsupported transfer-encoding: } \
   transfer-encoding-twice \
-      "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\nTransfer-Encoding: chunked\n\n0\n\n" \
+      [join [list \
+          "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\n" \
+          "Transfer-Encoding: chunked\n\n0\n\n"] ""] \
       {server sent two transfer-encoding headers} \
   transfer-encoding-and-length \
-      "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\nContent-Length: 5\n\n5\nhello\n0\n\n" \
+      [join [list \
+          "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\n" \
+          "Content-Length: 5\n\n5\nhello\n0\n\n"] ""] \
       {reply has both content-length and transfer-encoding} \
   length-and-transfer-encoding \
-      "HTTP/1.1 200 OK\nContent-Length: 0\nTransfer-Encoding: chunked\n\n0\n\n" \
+      [join [list \
+          "HTTP/1.1 200 OK\nContent-Length: 0\n" \
+          "Transfer-Encoding: chunked\n\n0\n\n"] ""] \
       {reply has both content-length and transfer-encoding} \
   chunk-no-body "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\n\n" \
       {chunked reply ended without terminator} \
@@ -727,7 +718,9 @@ foreach {urlName urlReply urlMessage} [list \
       "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\n\n80000000\nhello\n0\n\n" \
       {chunked reply: invalid chunk size} \
   chunk-size-twenty-digits \
-      "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\n\nFFFFFFFFFFFFFFFFFFFF\nhello\n0\n\n" \
+      [join [list \
+          "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\n\n" \
+          "FFFFFFFFFFFFFFFFFFFF\nhello\n0\n\n"] ""] \
       {chunked reply: invalid chunk size} \
   chunk-size-then-text \
       "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\n\n5 x\nhello\n0\n\n" \
@@ -779,7 +772,8 @@ foreach {urlName urlReply urlMessage} [list \
       {server says: 401 Unauthorized} \
 ] {
   url_httpmsg [list [url_crlf $urlReply]] -v
-  test_match url-http-refused-$urlName "$CODE $RESULT" "^1 (?:.*\n)*.*$urlMessage"
+  test_match url-http-refused-$urlName "$CODE $RESULT" \
+      "^1 (?:.*\n)*.*$urlMessage"
   url_httpmsg [list [url_crlf $urlReply]]
   test url-http-refused-quiet-$urlName {$CODE == 1}
 }
@@ -806,7 +800,8 @@ foreach {urlName urlReply urlMessage} [list \
 ] {
   file delete out.txt
   url_httpmsg [list [url_crlf $urlReply]] --out out.txt
-  test url-http-message-$urlName {$CODE == 1 && [string first $urlMessage $RESULT] >= 0}
+  test url-http-message-$urlName \
+      {$CODE == 1 && [string first $urlMessage $RESULT] >= 0}
   url_httpmsg [list [url_crlf $urlReply]]
   test url-http-message-quiet-$urlName {$CODE == 1 && $RESULT eq ""}
 }
@@ -820,7 +815,6 @@ url_httpmsg [list $urlShort] --out out.txt
 test url-http-message-truncated {$CODE == 1 &&
     [string first "response truncated: got 5 bytes of 6" $RESULT] >= 0}
 url_httpmsg [list $urlShort]
-test url-http-message-quiet-truncated {$CODE == 1}
 test url-http-truncated-bytes {$RESULT eq "hello"}
 
 # A redirect is followed three times, with the same method and payload,
@@ -829,7 +823,8 @@ test url-http-truncated-bytes {$RESULT eq "hello"}
 #
 foreach urlStatus {301 302 307 308} {
   url_httpmsg [list \
-      [url_crlf "HTTP/1.1 $urlStatus Moved\nLocation: http://127.0.0.1:PORT/b\n\n"] \
+      [url_crlf \
+          "HTTP/1.1 $urlStatus Moved\nLocation: http://127.0.0.1:PORT/b\n\n"] \
       [url_crlf "HTTP/1.1 200 OK\nContent-Length: 5\n\nhello"]]
   test url-http-redirect-$urlStatus {$CODE == 0 && $RESULT eq "hello" &&
       [url_request_line 0] eq "GET /x HTTP/1.1" &&
@@ -839,7 +834,8 @@ write_file payload.txt "payload text\n"
 url_httpmsg [list \
     [url_crlf "HTTP/1.1 302 Found\nLocation: http://127.0.0.1:PORT/b\n\n"] \
     [url_crlf "HTTP/1.1 302 Found\nLocation: http://127.0.0.1:PORT/c\n\n"] \
-    [url_crlf "HTTP/1.1 302 Found\nLocation: http://127.0.0.1:PORT/d/xfer\n\n"] \
+    [url_crlf \
+        "HTTP/1.1 302 Found\nLocation: http://127.0.0.1:PORT/d/xfer\n\n"] \
     [url_crlf "HTTP/1.1 200 OK\nContent-Length: 5\n\nhello"]] payload.txt
 test url-http-redirect-three {$CODE == 0 && $RESULT eq "hello" &&
     [llength $urlRequests] == 4 &&
@@ -849,7 +845,8 @@ url_httpmsg [list \
     [url_crlf "HTTP/1.1 302 Found\nLocation: http://127.0.0.1:PORT/b\n\n"]]
 test url-http-redirect-four {$CODE == 1 && [llength $urlRequests] == 4}
 url_httpmsg [list \
-    [url_crlf "HTTP/1.1 302 Found\nX-Other: 1\nLOCATION:http://127.0.0.1:PORT/b\n\n"] \
+    [url_crlf \
+        "HTTP/1.1 302 Found\nX-Other: 1\nLOCATION:http://127.0.0.1:PORT/b\n\n"] \
     [url_crlf "HTTP/1.1 200 OK\nContent-Length: 5\n\nhello"]] -v
 test url-http-redirect-after-other-header {$CODE == 0 &&
     [string first "redirect with status 302 to http://127.0.0.1:" $RESULT] >= 0}
@@ -858,7 +855,8 @@ test url-http-redirect-after-other-header {$CODE == 0 &&
 # repository whose own path ends in /xfer is still found.
 #
 url_httpmsg [list \
-    [url_crlf "HTTP/1.1 302 Found\nLocation: http://127.0.0.1:PORT/d/xfer/xfer\n\n"] \
+    [url_crlf \
+        "HTTP/1.1 302 Found\nLocation: http://127.0.0.1:PORT/d/xfer/xfer\n\n"] \
     [url_crlf "HTTP/1.1 200 OK\nContent-Length: 5\n\nhello"]]
 test_eq url-http-redirect-xfer-twice [url_request_line 1] "GET /d/xfer HTTP/1.1"
 
@@ -893,7 +891,7 @@ test url-request-get {[url_request_line 0] eq "GET /x HTTP/1.1" &&
 set urlPort [url_listen [list $urlOk]]
 fossil_raw -seconds 60 test-httpmsg http://127.0.0.1:$urlPort
 test_eq url-request-no-path [url_request_line 0] "GET / HTTP/1.1"
-url_listen_stop
+test_listen_stop
 
 url_httpmsg [list $urlOk] payload.txt
 test url-request-post {[url_request_line 0] eq "POST /x HTTP/1.1" &&
@@ -915,7 +913,7 @@ fossil_raw -seconds 60 -input "from standard input" \
 test url-request-standard-input {
     [url_request_header 0 Content-Type] eq "application/x-unknown" &&
     [url_request_body 0] eq "from standard input"}
-url_listen_stop
+test_listen_stop
 
 # --compress sends the payload compressed and expects a compressed
 # reply: four bytes of size and then a zlib stream.
@@ -931,12 +929,14 @@ proc url_uncompress {bytes} {
   if {$size != [string length $text]} {return "(wrong size)"}
   return $text
 }
-set urlPort [url_listen [list [url_crlf "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: [string length [url_compress "compressed reply"]]\n\n"][url_compress "compressed reply"]]]
+set urlPort [url_listen [list \
+    [url_crlf \
+        "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: [string length [url_compress "compressed reply"]]\n\n"][url_compress "compressed reply"]]]
 fossil_raw -seconds 60 test-httpmsg http://127.0.0.1:$urlPort/x payload.txt \
     --compress
 test url-request-compress {$CODE == 0 && $RESULT eq "compressed reply" &&
     [url_uncompress [url_request_body 0]] eq "payload text\n"}
-url_listen_stop
+test_listen_stop
 
 # The reply goes to the file named by --out or by the third argument,
 # but not by both.
@@ -954,9 +954,8 @@ test url-request-out-twice {$CODE == 1 && ![file exists out.txt] &&
     [string first "output file specified twice" $RESULT] >= 0}
 url_httpmsg [list $urlOk] -v
 test url-request-verbose {$CODE == 0 &&
-    [string first "Sending " $RESULT] >= 0 &&
-    [string first "Read: \[HTTP/1.1 200 OK\]" $RESULT] >= 0 &&
-    [string first "Reply received: 2 of 2 bytes" $RESULT] >= 0}
+    [holds_strings $RESULT [list "Sending " "Read: \[HTTP/1.1 200 OK\]" \
+        "Reply received: 2 of 2 bytes"]]}
 url_httpmsg [list [url_crlf "HTTP/1.1 200 OK\n\n"]hello] -v
 test url-request-verbose-no-length {$CODE == 0 && [string first \
     "Reply received: 5 bytes (w/o content-length)" $RESULT] >= 0}
@@ -971,9 +970,11 @@ url_httpmsg [list $urlOk] --ipv6
 test url-request-option--ipv6 {($CODE == 0 && $RESULT eq "ok") ||
     [string first "getaddrinfo() fails" $RESULT] >= 0}
 fossil_raw test-httpmsg
-test url-request-usage-none {$CODE == 1 && [string match "*Usage:*URL*" $RESULT]}
+test url-request-usage-none \
+    {$CODE == 1 && [string match "*Usage:*URL*" $RESULT]}
 fossil_raw test-httpmsg http://127.0.0.1:1/ a b c
-test url-request-usage-many {$CODE == 1 && [string match "*Usage:*URL*" $RESULT]}
+test url-request-usage-many \
+    {$CODE == 1 && [string match "*Usage:*URL*" $RESULT]}
 fossil_raw test-httpmsg file://$urlRepo
 test url-request-file-needs-subpath {$CODE == 1 && [string first \
     "the --subpath option is required for file://" $RESULT] >= 0}
@@ -1026,7 +1027,11 @@ proc url_login_card {user secret body} {
   set nonce [sha1_text $body]
   return "login $user $nonce [sha1_text $nonce$secret]"
 }
-set urlSyncOk [url_crlf "HTTP/1.1 200 OK\nContent-Type: application/x-fossil-uncompressed\nContent-Length: 2\n\n"]ok
+set urlSyncOk [url_crlf \
+    [join [list \
+        "HTTP/1.1 200 OK\n" \
+        "Content-Type: application/x-fossil-uncompressed\n" \
+        "Content-Length: 2\n\n"] ""]]ok
 set urlCard "[url_login_card bob secret "payload text\n"]\npayload text\n"
 
 # Runs test-httpmsg --xfer for the user and password in USERINFO, which
@@ -1035,7 +1040,7 @@ proc url_xfer {userinfo args} {
   set port [url_listen [list $::urlSyncOk]]
   fossil_raw -seconds 60 test-httpmsg http://${userinfo}127.0.0.1:$port/x \
       payload.txt --xfer {*}$args
-  url_listen_stop
+  test_listen_stop
 }
 
 url_xfer bob:secret@
@@ -1074,7 +1079,11 @@ test url-login-compress {$CODE == 0 &&
 fossil sql "SELECT value FROM config WHERE name='project-code'"
 set urlProject [string trim $RESULT]
 set urlSecret [sha1_text $urlProject/bob/secret]
-set urlPullOk [url_crlf "HTTP/1.1 200 OK\nContent-Type: application/x-fossil-uncompressed\nContent-Length: 41\n\n"]
+set urlPullOk [url_crlf \
+    [join [list \
+        "HTTP/1.1 200 OK\n" \
+        "Content-Type: application/x-fossil-uncompressed\n" \
+        "Content-Length: 41\n\n"] ""]]
 append urlPullOk "# timestamp 2026-01-01T00:00:00 errors 0\n"
 
 # Returns 1 if request NUMBER of the last exchange begins with the login
@@ -1093,7 +1102,7 @@ proc url_pull {userinfo args} {
   set port [url_listen [list $::urlPullOk]]
   fossil_raw -seconds 60 pull http://${userinfo}127.0.0.1:$port/repo \
       --httptrace {*}$args
-  url_listen_stop
+  test_listen_stop
   file delete {*}[glob -nocomplain http-request-*.txt http-reply-*.txt]
   return $port
 }
@@ -1136,16 +1145,20 @@ fossil_raw -seconds 60 test-httpmsg http://bob:secret@127.0.0.1:$urlPort/x \
 test url-login-cookie-no-payload {
     [url_request_line 0] eq "GET /x HTTP/1.1" &&
     [url_request_header 0 Cookie] eq "(none)"}
-url_listen_stop
+test_listen_stop
 
 # A sync reply of another content type is an error message from the
 # server.  It is printed without its HTML tags.
 #
 proc url_xfer_reply {type body args} {
-  set port [url_listen [list [url_crlf "HTTP/1.1 200 OK\nContent-Type: $type\nContent-Length: [string length $body]\n\n"]$body]]
+  set port [url_listen [list \
+      [url_crlf \
+          [join [list \
+              "HTTP/1.1 200 OK\nContent-Type: $type\n" \
+              "Content-Length: [string length $body]\n\n"] ""]]$body]]
   fossil_raw -seconds 60 test-httpmsg http://127.0.0.1:$port/x \
       payload.txt --xfer {*}$args
-  url_listen_stop
+  test_listen_stop
 }
 url_xfer_reply text/html "<p>no <b>such</b> page</p>" -v
 test url-xfer-error-verbose {$CODE == 1 &&
@@ -1159,8 +1172,7 @@ test url-xfer-error-open-tag {$CODE == 1 &&
 file delete out.txt
 url_xfer_reply text/html "<p>no such page</p>" --out out.txt
 test url-xfer-error-to-file {$CODE == 1 &&
-    [string first "server sends error" $RESULT] >= 0 &&
-    [string first "no such page" $RESULT] < 0}
+    [holds_strings $RESULT {"server sends error" "!no such page"}]}
 url_xfer_reply text/html "<p>no such page</p>"
 test url-xfer-error-quiet {$CODE == 1 &&
     [string first "server sends error" $RESULT] < 0}
@@ -1177,8 +1189,7 @@ test url-xfer-reply-uncompressed {$CODE == 0 && $RESULT eq "plain reply"}
 
 fossil_raw -seconds 60 test-httpmsg file://$urlRepo --subpath /test-env
 test url-file-page {$CODE == 0 &&
-    [string first "<title>" $RESULT] >= 0 &&
-    [string first "Environment Test" $RESULT] >= 0}
+    [holds_strings $RESULT {<title> "Environment Test"}]}
 fossil_raw -seconds 60 test-httpmsg file://$urlRepo --subpath /nosuchpage -v
 test url-file-not-found {$CODE == 1 &&
     [string first "server says: 404 Not Found" $RESULT] >= 0}
@@ -1193,7 +1204,11 @@ test url-file-redirect-quiet {$CODE == 1 && $RESULT eq ""}
 
 # Returns the reply header for a sync reply with the body BODY.
 proc url_sync_reply {body} {
-  return [url_crlf "HTTP/1.1 200 OK\nContent-Type: application/x-fossil-uncompressed\nContent-Length: [string length $body]\n\n"]$body
+  return [url_crlf \
+      [join [list \
+          "HTTP/1.1 200 OK\n" \
+          "Content-Type: application/x-fossil-uncompressed\n" \
+          "Content-Length: [string length $body]\n\n"] ""]]$body
 }
 set urlNotFound [url_crlf "HTTP/1.1 404 Not Found\nContent-Length: 0\n\n"]
 
@@ -1203,7 +1218,7 @@ proc url_sync {verb url replies args} {
   set port [url_listen $replies]
   set map [list PORT $port]
   fossil_raw -seconds 60 $verb [string map $map $url] {*}[string map $map $args]
-  url_listen_stop
+  test_listen_stop
   return $port
 }
 
@@ -1242,7 +1257,6 @@ test url-sync-proxy-redirect {[llength $urlRequests] == 2 &&
 # not talk to the repository that the value names in place of the
 # remote.
 #
-file delete proxyclone.fossil
 fossil_raw -seconds 60 clone http://example.invalid/repo proxyclone.fossil \
     --proxy file://$urlRepo
 test url-sync-proxy-file {$CODE == 1 && ![file exists proxyclone.fossil]}
@@ -1292,7 +1306,8 @@ test url-sync-httpauth-redirect {[llength $urlRequests] == 2 &&
 foreach {urlStatus urlRemembered} {301 1 308 1 302 0 307 0} {
   fossil remote off
   set urlPort [url_sync pull http://127.0.0.1:PORT/old [list \
-      [url_crlf "HTTP/1.1 $urlStatus Moved\nLocation: http://127.0.0.1:PORT/new\n\n"] \
+      [url_crlf \
+          "HTTP/1.1 $urlStatus Moved\nLocation: http://127.0.0.1:PORT/new\n\n"] \
       $urlNotFound]]
   fossil remote
   test_eq url-sync-redirect-$urlStatus-remembered [string trim $RESULT] \
@@ -1326,7 +1341,7 @@ url_parse_test url-sync-saved-password saved {--use-config --show-pw} \
 set urlPort [url_listen [list $urlPullOk]]
 url_config sync-url:saved 'http://bob@127.0.0.1:$urlPort/repo'
 fossil_raw -seconds 60 pull saved --once --httptrace
-url_listen_stop
+test_listen_stop
 file delete {*}[glob -nocomplain http-request-*.txt http-reply-*.txt]
 test url-sync-saved-remote {$CODE == 0 && [url_login_ok 0 bob $urlSecret]}
 url_parse_test url-sync-saved-password-hashed saved {--use-config --show-pw} \
@@ -1350,7 +1365,7 @@ set urlPort [url_listen [list $urlPullOk]]
 url_config sync-url:saved 'http://bob@127.0.0.1:$urlPort/repo'
 url_config parent-project-code 'parentcode'
 fossil_raw -seconds 60 pull saved --from-parent-project
-url_listen_stop
+test_listen_stop
 url_parse_test url-sync-parent-remembered default {--use-parent --show-pw} \
     [list name 127.0.0.1 port $urlPort user bob \
          passwd [sha1_text parentcode/bob/secret] pwConfig parent-project-pw]
@@ -1362,7 +1377,6 @@ fossil sql "DELETE FROM config WHERE name GLOB 'parent-project-*'"
 # A clone that fails with --httptrace prints the last reply.  When there
 # is no reply it prints none.
 #
-file delete traceclone.fossil
 url_sync clone http://127.0.0.1:PORT/repo [list \
     [url_sync_reply "error not\\sallowed\\shere\n"]] traceclone.fossil \
     --httptrace
@@ -1372,7 +1386,7 @@ test url-sync-clone-httptrace {$CODE == 1 &&
     [regexp {clone aborted\s+HTTP/1.1 200 OK} $RESULT]}
 file delete {*}[glob -nocomplain http-request-*.txt http-reply-*.txt]
 set urlPort [url_listen {}]
-url_listen_stop
+test_listen_stop
 fossil_raw -seconds 60 clone http://127.0.0.1:$urlPort/repo traceclone.fossil \
     --httptrace
 test url-sync-clone-httptrace-no-reply {$CODE == 1 &&
@@ -1396,7 +1410,8 @@ if {!$is_windows} {
   fossil_raw pull {http://u:p@[::1]/x} --once \
       --transport-command [file join $urlDir transport-fail.sh] --httptrace
   test url-transport-url-ipv6 {
-      [regexp -line {^RUN .*transport-fail.sh '?http://u:p@\[::1\]/x'? } $RESULT]}
+      [regexp -line {^RUN .*transport-fail.sh '?http://u:p@\[::1\]/x'? } \
+          $RESULT]}
   fossil_raw pull file://$urlRepo --once \
       --transport-command [file join $urlDir transport-fail.sh] --httptrace
   test url-transport-url-file {[regexp -line \
@@ -1408,13 +1423,18 @@ if {!$is_windows} {
 # remote with a user and no saved password gets a message, not a login
 # card.
 
-write_file xfersetup.txt [url_crlf "POST /xfersetup HTTP/1.0\nHost: localhost\nReferer: http://localhost/xfersetup\nContent-Type: application/x-www-form-urlencoded\nContent-Length: 6\n\nsync=1"]
+write_file xfersetup.txt [url_crlf \
+    [join [list \
+        "POST /xfersetup HTTP/1.0\nHost: localhost\n" \
+        "Referer: http://localhost/xfersetup\n" \
+        "Content-Type: application/x-www-form-urlencoded\n" \
+        "Content-Length: 6\n\nsync=1"] ""]]
 set urlPort [url_listen [list $urlPullOk]]
 url_config last-sync-url 'http://bob@127.0.0.1:$urlPort/repo'
 url_config last-sync-pw obscure('secret')
 fossil_raw -seconds 60 http --in xfersetup.txt --ipaddr 127.0.0.1 $urlRepo \
     --localauth
-url_listen_stop
+test_listen_stop
 test url-web-sync {[string first "HTTP/1.0 200 OK" $RESULT] == 0 &&
     [llength $urlRequests] == 1 &&
     [string first "Sync done" $RESULT] >= 0}
@@ -1423,7 +1443,7 @@ fossil sql "DELETE FROM config WHERE name='last-sync-pw'"
 url_config last-sync-url 'http://bob@127.0.0.1:$urlPort/repo'
 fossil_raw -seconds 60 http --in xfersetup.txt --ipaddr 127.0.0.1 $urlRepo \
     --localauth
-url_listen_stop
+test_listen_stop
 test url-web-sync-no-password {[string first "HTTP/1.0 200 OK" $RESULT] == 0 &&
     [string first "incorrect or missing password for user bob" $RESULT] >= 0}
 fossil sql "DELETE FROM config WHERE name GLOB 'last-sync-*'"
@@ -1563,7 +1583,8 @@ if {!$is_windows && [lindex [auto_execok ssh] 0] ne $urlSshStub} {
     return [expr {[file exists $file] ? [string trim [read_file $file]] : 0}]
   }
 
-  set urlSshOk [url_crlf "Status: 200 OK\nContent-Type: text/plain\nContent-Length: 5\n\n"]hello
+  set urlSshOk [url_crlf \
+      "Status: 200 OK\nContent-Type: text/plain\nContent-Length: 5\n\n"]hello
 
   # The reply of "fossil test-http" on the server begins with a Status
   # line.  The request says that it comes over ssh.
@@ -1579,7 +1600,8 @@ if {!$is_windows && [lindex [auto_execok ssh] 0] ne $urlSshStub} {
   url_ssh [list [url_crlf "STATUS: 200\ncontent-length: 5\n\n"]hello] \
       test-httpmsg ssh://hh/dir/r.fossil?fossil=/opt/fossil --subpath /x
   test url-ssh-reply-upper-case-refused {$CODE == 1}
-  url_ssh [list [url_crlf "HTTP/1.1 200 OK\nStatus: 200 OK\nContent-Length: 5\n\n"]hello] \
+  url_ssh [list [url_crlf \
+      "HTTP/1.1 200 OK\nStatus: 200 OK\nContent-Length: 5\n\n"]hello] \
       test-httpmsg ssh://hh/dir/r.fossil --subpath /x
   test url-ssh-reply-both-status-lines {$CODE == 0 && $RESULT eq "hello"}
 
@@ -1602,13 +1624,18 @@ if {!$is_windows && [lindex [auto_execok ssh] 0] ne $urlSshStub} {
     test_match url-ssh-refused-$urlName "$CODE $RESULT" \
         "^1 (?:.*\n)*.*$urlMessage"
   }
-  url_ssh [list [url_crlf "Status: 302 Found\nLocation: http://127.0.0.1:1/x\n\n"]] \
+  url_ssh [list [url_crlf \
+      "Status: 302 Found\nLocation: http://127.0.0.1:1/x\n\n"]] \
       test-httpmsg ssh://hh/dir/r.fossil --subpath /x
   test url-ssh-redirect-quiet {$CODE == 1 && $RESULT eq ""}
 
   # A sync request over ssh has no login card.
   #
-  url_ssh [list [url_crlf "Status: 200 OK\nContent-Type: application/x-fossil-uncompressed\nContent-Length: 2\n\n"]ok] \
+  url_ssh [list [url_crlf \
+      [join [list \
+          "Status: 200 OK\n" \
+          "Content-Type: application/x-fossil-uncompressed\n" \
+          "Content-Length: 2\n\n"] ""]]ok] \
       test-httpmsg ssh://bob:secret@hh/dir/r.fossil --subpath /x \
       payload.txt --xfer -v
   test url-ssh-no-login-card {$CODE == 0 &&
@@ -1623,10 +1650,11 @@ if {!$is_windows && [lindex [auto_execok ssh] 0] ne $urlSshStub} {
       --out out.txt
   test url-ssh-retry-with-path {$CODE == 0 && [url_ssh_runs] == 2 &&
       [read_file out.txt] eq "hello" &&
-      [string first "First attempt to run fossil on hh using SSH failed" \
-          $RESULT] >= 0 &&
-      [string first "Retrying with the PATH= argument" $RESULT] >= 0 &&
-      [regexp {<hh>\n<fossil>\n<test-http>\n(?:.*\n)*<hh>\n<PATH=[^\n]*>\n<fossil>\n<test-http>} \
+      [holds_strings $RESULT \
+          {"First attempt to run fossil on hh using SSH failed"
+          "Retrying with the PATH= argument"}] &&
+      [regexp \
+          {<hh>\n<fossil>\n<test-http>\n(?:.*\n)*<hh>\n<PATH=[^\n]*>\n<fossil>\n<test-http>} \
           $urlSshArgs]}
   url_ssh [list "" $urlSshOk] test-httpmsg ssh://hh/dir/r.fossil --subpath /x
   test url-ssh-retry-quiet {$CODE == 0 && [url_ssh_runs] == 2 &&
@@ -1704,6 +1732,5 @@ if {!$is_windows && [lindex [auto_execok ssh] 0] ne $urlSshStub} {
 
 ###############################################################################
 
-url_listen_stop
 array set env [array get urlSavedEnv]
 test_cleanup

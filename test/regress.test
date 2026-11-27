@@ -2,11 +2,6 @@
 # Tests for faults that have been fixed, which have no better home.
 #
 
-# These tests run only in a long pass: -assurance stress.
-if {[test_assurance] ne "stress"} {
-  test_skip "runs only with -assurance stress"
-}
-
 require_no_open_checkout
 
 test_setup
@@ -95,7 +90,6 @@ foreach {regressName regressProps} {
       svn-$regressName.dump
   test regress-svn-import-$regressName \
        {$CODE == 1 && [string match "*svn-dump data*" $RESULT]}
-  file delete svn-$regressName.fossil
 }
 
 set regressSvnDate {svn:date 2026-01-01T00:00:00.000000Z}
@@ -106,7 +100,6 @@ append regressSvnSound [regress_svn_rev 1 [regress_svn_props \
 write_file svn-sound.dump $regressSvnSound
 fossil import --svn svn-sound.fossil svn-sound.dump
 test regress-svn-import-sound {$CODE == 0}
-file delete svn-sound.fossil
 
 ###############################################################################
 # Two more malformed property blocks for "fossil import --svn": one with a
@@ -122,7 +115,6 @@ foreach regressName {nul-in-block negative-block} {
       svn-$regressName.dump
   test regress-svn-import-$regressName \
        {$CODE == 1 && [string match "*svn-dump data format broken*" $RESULT]}
-  file delete svn-$regressName.fossil
 }
 
 ###############################################################################
@@ -254,7 +246,6 @@ test regress-push-held-attachment {$CODE == 0
 fossil sql -R regress-attach-clone.fossil \
     "SELECT count(*) FROM attachment WHERE target='AttachPage'"
 test_eq regress-push-held-attachment-rows [string trim $RESULT] 1
-file delete regress-attach-clone.fossil
 
 ###############################################################################
 # The TH1 command styleHeader run from the command line writes the page
@@ -279,7 +270,5 @@ foreach {regressName regressUrl} {bare https://x slash https://x/} {
   test regress-baseurl-no-path-$regressName \
       {$CODE == 0 && [string match "HTTP/1.0 200*" $RESULT]}
 }
-
-###############################################################################
 
 test_cleanup
