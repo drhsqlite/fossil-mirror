@@ -19,6 +19,7 @@ if {$::tcl_platform(platform) eq "windows"} {
 }
 
 test_setup
+source [file join $::testfiledir trunk-fixes.tcl]
 
 set sshDir [file join [pwd] ssh-standin]
 file mkdir $sshDir
@@ -138,6 +139,31 @@ test ssh-patch-pull-user-with-dash \
 ssh_run test-escaped-arg ~ ~root/x
 test ssh-escaped-tilde \
     {[holds_strings $RESULT {{argv[2] = [~]} {argv[2] = [~root/x]}}]}
+
+###############################################################################
+# "sync --all" with two remotes: the default one answers every request
+# with a redirect to an ssh: URL, and the second, a repository file, has
+# an artifact that the local repository lacks, so the sync makes a
+# second pass.  The redirect is refused on each pass and ssh is not run.
+# Known bug: a refused redirect replaces the URL of the remote, so the
+# second pass connects to the ssh: URL.
+
+proc ssh_redirect {chan request} {
+  puts -nonewline $chan "HTTP/1.1 302 Found\r\nLocation: ssh://hh/r.fossil\r\n"
+  puts -nonewline $chan "Content-Length: 0\r\nConnection: close\r\n\r\n"
+}
+fossil new ssh-local.fossil
+file copy -force ssh-local.fossil ssh-other.fossil
+write_file ssh-page.txt "page\n"
+fossil wiki create SshPage ssh-page.txt -R ssh-other.fossil
+set sshPort [test_listen ssh_redirect]
+fossil remote http://127.0.0.1:$sshPort/x -R ssh-local.fossil
+fossil remote add other [file join [pwd] ssh-other.fossil] -R ssh-local.fossil
+ssh_run sync --all -R ssh-local.fossil
+test_listen_stop
+test ssh-sync-all-refused-redirect {$sshArgs eq "" &&
+    [string first "cannot redirect to ssh://hh/r.fossil" $RESULT] >= 0} \
+    knownBug
 
 set ::env(PATH) $sshSavedPath
 unset ::env(ARGS_LOG)

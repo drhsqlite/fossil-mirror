@@ -244,7 +244,8 @@ fossil up previous
 test_update $testname $message $changes
 
 # "fossil update --dry-run" must not change the check-out, even where the
-# update would overwrite an unmanaged file.
+# update would overwrite an unmanaged file.  Fossil copies that file to
+# NAME-original.
 set testname "dry-run"
 set fname [test_update_setup $testname]
 write_seq_to_file $fname

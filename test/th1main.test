@@ -8,6 +8,7 @@
 # The first sections run at every level, and the rest need
 # -assurance stress.
 test_setup
+source [file join $::testfiledir trunk-fixes.tcl]
 
 write_file a.txt "hello\n"
 write_file f83.txt "line 83\n"
@@ -44,11 +45,12 @@ proc th1main_check {name actual mode expected {constraints ""}} {
 
 # Run each row of TABLE: a test name, options for test-th-eval, a
 # script, a mode and an expected value as th1main_check takes them.
+# CONSTRAINTS is given to every test of the table.
 #
-proc th1main_table {table} {
+proc th1main_table {table {constraints ""}} {
   foreach {name opts script mode expected} $table {
     set got [th1main_eval $script {*}$opts]
-    th1main_check th1main-$name $got $mode $expected
+    th1main_check th1main-$name $got $mode $expected $constraints
   }
 }
 
@@ -167,7 +169,8 @@ foreach {th1mainName th1mainCall th1mainUsage} {
   capture-many     {captureTh1 a b}         {captureTh1 STRING}
 } {
   test_eq th1main-args-$th1mainName [th1main_eval $th1mainCall] \
-      "TH_ERROR: wrong # args: should be \"$th1mainUsage\""
+      "TH_ERROR: wrong # args: should be \"$th1mainUsage\"" \
+      [trunk_mark $th1mainName {randhex-many http-none http-three}]
 }
 
 if {[test_assurance] ne "stress"} {
@@ -522,10 +525,10 @@ test th1main-eval-usage-many {$CODE == 1 && [string match "Usage: *" $RESULT]}
 # In a repository that has never held an unversioned file, "unversioned
 # list" gives an empty list and "unversioned content" a script error.
 set th1mainGot [th1main_eval {unversioned list}]
-test th1main-uv-list-none {$CODE == 0 && $th1mainGot eq ""}
+test th1main-uv-list-none {$CODE == 0 && $th1mainGot eq ""} $::trunkMark
 set th1mainGot [th1main_eval {unversioned content nosuch}]
 test th1main-uv-content-none \
-    {$CODE == 0 && [string match "TH_ERROR:*" $th1mainGot]}
+    {$CODE == 0 && [string match "TH_ERROR:*" $th1mainGot]} $::trunkMark
 
 write_file u.txt "data\n"
 write_file v.txt "more\n"
@@ -555,10 +558,10 @@ set th1mainPrefix [string trim $RESULT]
 test_eq th1main-ambiguous-setup $th1mainPrefix 2b06
 set th1mainGot [th1main_eval "artifact $th1mainPrefix"]
 test th1main-artifact-ambiguous \
-    {$CODE == 0 && $th1mainGot eq "TH_ERROR: ambiguous name"}
+    {$CODE == 0 && $th1mainGot eq "TH_ERROR: ambiguous name"} $::trunkMark
 set th1mainGot [th1main_eval "artifact $th1mainPrefix a.txt"]
 test th1main-artifact-ambiguous-checkin \
-    {$CODE == 0 && [string match "TH_ERROR: *" $th1mainGot]}
+    {$CODE == 0 && [string match "TH_ERROR: *" $th1mainGot]} $::trunkMark
 test_eq th1main-dir-ambiguous [th1main_eval "dir $th1mainPrefix"] {}
 
 # "setting -strict" and "http -asynchronous" with nothing after the
@@ -571,13 +574,13 @@ foreach {th1mainName th1mainCall th1mainUsage} {
 } {
   set th1mainGot [th1main_eval $th1mainCall]
   test th1main-args-$th1mainName {$CODE == 0 && [string match \
-      "TH_ERROR: *" $th1mainGot]}
+      "TH_ERROR: *" $th1mainGot]} $::trunkMark
 }
 
 # combobox with a second argument that is not a list gives a script error.
 set th1mainGot [th1main_eval "combobox nm \"\{\" 1"]
 test th1main-combobox-not-list \
-    {$CODE == 0 && [string match "*TH_ERROR: *" $th1mainGot]}
+    {$CODE == 0 && [string match "*TH_ERROR: *" $th1mainGot]} $::trunkMark
 
 # A query runs each of its statements once.
 foreach {th1mainName th1mainSql} {
@@ -590,23 +593,26 @@ foreach {th1mainName th1mainSql} {
           "{\$n>50} {error endless}}; set n"] ""]
   test th1main-query-statements-$th1mainName \
       {$CODE == 0 && [string trim $RESULT] eq [dict get {two 2 space 1} \
-          $th1mainName]}
+          $th1mainName]} $::trunkMark
 }
 
 # builtin_request_js with a name that is not a built-in file gives a
 # script error.
 set th1mainGot [th1main_eval {builtin_request_js nosuch.js}]
-test th1main-requestjs-unknown {$CODE == 0}
+test th1main-requestjs-unknown {$CODE == 0} $::trunkMark
 
 # randhex gives at most 50 bytes, 100 digits.
-test_match th1main-randhex-50 [th1main_eval {randhex 50}] {^[0-9a-f]{100}$}
-test th1main-randhex-50-exit {$CODE == 0}
-test_match th1main-randhex-over [th1main_eval {randhex 1000}] {^[0-9a-f]{100}$}
+test_match th1main-randhex-50 [th1main_eval {randhex 50}] {^[0-9a-f]{100}$} \
+    [sanitizer_trunk_mark]
+test th1main-randhex-50-exit {$CODE == 0} [sanitizer_trunk_mark]
+test_match th1main-randhex-over [th1main_eval {randhex 1000}] \
+    {^[0-9a-f]{100}$} \
+    [sanitizer_trunk_mark]
 
 # http with text that is not a URL gives a script error.
 set th1mainGot [th1main_eval {http not-a-url}]
 test th1main-http-not-url \
-    {$CODE == 0 && [string match "TH_ERROR: *" $th1mainGot]}
+    {$CODE == 0 && [string match "TH_ERROR: *" $th1mainGot]} $::trunkMark
 
 # A phantom: an artifact whose content the repository does not hold.
 set th1mainPhantom \
@@ -739,7 +745,7 @@ foreach {th1mainName th1mainOpts th1mainScript th1mainWanted} {
   set th1mainGot [th1main_eval $th1mainScript --th-trace {*}$th1mainOpts]
   test th1main-trace-$th1mainName {[holds_strings $th1mainGot [concat \
       {{------------------ BEGIN TRACE LOG ------------------}} \
-      $th1mainWanted]]}
+      $th1mainWanted]]} [trunk_mark $th1mainName header]
 }
 
 ###############################################################################
@@ -805,7 +811,8 @@ foreach {th1mainName th1mainText} {
   continue {a<th1>continue</th1>after}
   return {a<th1>return 5</th1>after}
 } {
-  test_eq th1main-render-$th1mainName [th1main_render $th1mainText] a
+  test_eq th1main-render-$th1mainName [th1main_render $th1mainText] a \
+    $::trunkMark
 }
 
 # Text after a zero byte in the file is not rendered.
@@ -1011,7 +1018,7 @@ th1main_table {
       eq {TH_ERROR: redirect is only allowed in a web request }
   redirect-no-request-http {} {redirect http://example.com/}
       eq {TH_ERROR: redirect is only allowed in a web request }
-}
+} $::trunkMark
 set th1mainGot [th1main_eval {redirect http://example.com/a} --cgi]
 test th1main-redirect-cgi-http {[holds_strings $th1mainGot [list \
     "Status: 302 " "Location: http://example.com/a\r\n"]]}
@@ -1020,7 +1027,7 @@ test th1main-redirect-cgi-https {[holds_strings $th1mainGot [list \
     "Status: 302 " "Location: https://example.com/a\r\n"]]}
 set th1mainGot [th1main_eval {redirect /relative} --cgi]
 test th1main-redirect-cgi-relative {[holds_strings $th1mainGot \
-    {{redirect is only allowed in a web request} !Location}]}
+    {{redirect is only allowed in a web request} !Location}]} $::trunkMark
 
 # verifyCsrf lets through only a POST from the same site that carries
 # the token insertCsrf wrote.

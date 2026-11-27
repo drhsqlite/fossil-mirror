@@ -620,7 +620,8 @@ foreach {blobName blobOption blobBefore blobGiven blobStored} {
 }
 
 # Content with a zero byte after its lines keeps the bytes that follow
-# the zero byte.
+# the zero byte.  With --convert-eol-unix Fossil stores only the lines
+# before the zero byte.
 test_eq blob-eol-to-unix-nul [blob_eol "s\n" "x\r\ny\r\n\x00tail\r\nmore\r\n" \
     --convert-eol-unix] \
     "x\ny\n\x00tail\nmore\n" knownBug
@@ -750,7 +751,8 @@ foreach {blobName blobSecond} {
 fossil revert bom-plain.txt
 
 # Two files with a byte-order mark and a zero byte differ after the zero
-# byte.  They are binary files, which a diff does not compare.
+# byte.  They are binary files, which a diff does not compare.  Fossil prints
+# an empty diff and exits 0 without the message.
 write_file bom-nul.1 [blob_bytes efbbbf]a\x00b\n
 write_file bom-nul.2 [blob_bytes efbbbf]a\x00c\n
 fossil_raw test-diff bom-nul.1 bom-nul.2
@@ -909,7 +911,7 @@ blob_clean a
 test blob-clean-prompt-all-asks-once {$CODE == 0 &&
     [string first "\"clean-2.tmp\"" $RESULT] < 0}
 # An empty answer, and an answer that is none of the letters offered,
-# keep the file.
+# keep the file.  Fossil removes both files for each of these answers.
 foreach {blobName blobAnswer} {
   empty      {}
   brace      \{
@@ -974,7 +976,8 @@ test blob-merge-no-final-newline-conflict {$CODE == 0 &&
     [regexp {=======[^\n]*\nTWO\n>>>>>>>} $blobMerged]}
 
 # One side changes a line and the other adds a line after the last one,
-# which had no line end.  The added line is a line of its own.
+# which had no line end.  The added line is a line of its own.  Fossil
+# joins it to that line: "a\nB\ncd".
 test_eq blob-merge-no-final-newline-append \
     [blob_merge "a\nb\nc" "a\nB\nc" "a\nb\nc\nd"] \
     "a\nB\nc\nd" knownBug

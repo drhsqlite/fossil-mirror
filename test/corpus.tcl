@@ -56,7 +56,7 @@
 # This is the corpus to give a fuzzing engine, which cannot produce a
 # matching checksum by changing bytes.  The inputs named with card
 # letters only are the "ok-" inputs of manifest with the Z card removed.
-# A name with a suffix after the letters is an input that once showed a
+# A name with a suffix after the letters is an input for one particular
 # defect.  The "fuzz-" inputs were found by libFuzzer and are kept for
 # the branches of manifest.c they reach: a run from the other inputs was
 # reduced with -set_cover_merge=1, and from the result a small set was

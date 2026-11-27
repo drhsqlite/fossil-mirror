@@ -26,7 +26,8 @@
 # example: delta.c) that holds a branch which was never taken, or never
 # not taken.  A line is left out if test/coverage-marks.txt lists it with
 # the reason why it cannot be tested.  The exit status is 1 if any line is
-# printed, so the command can be used to hold a file at full coverage.
+# printed, so a check can rely on the command to keep a file at full
+# coverage.
 #
 # The "cov", "report" and "missed" commands need Clang, llvm-profdata and
 # llvm-cov.

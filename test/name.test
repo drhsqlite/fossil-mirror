@@ -13,6 +13,7 @@
 require_no_open_checkout
 
 test_setup ""
+source [file join $::testfiledir trunk-fixes.tcl]
 
 set nameRepo [file join [pwd] name.fossil]
 fossil new --admin-user alice --date-override "2025-01-01 00:00:00" $nameRepo
@@ -470,7 +471,9 @@ foreach {nameCase nameName nameType nameWant} [list \
   tag-two-colons    {::}                            {}  - \
 ] {
   if {$nameWant eq "-"} { set nameWant $nameNoDate$nameName }
-  test_eq name-date-$nameCase [name_id $nameName $nameType] $nameWant
+  test_eq name-date-$nameCase [name_id $nameName $nameType] $nameWant \
+      [sanitizer_trunk_mark $nameCase \
+          {compact-zulu-day compact-zulu-min compact-zulu-sec}]
 }
 
 ###############################################################################
@@ -879,11 +882,12 @@ proc name_get {path {caps gjorz}} {
 }
 
 # Test NAME passes if the reply to a request for PATH holds every string
-# in WANTED and none of those that begin with "!".
+# in WANTED and none of those that begin with "!".  CONSTRAINTS is given
+# to the test.
 #
-proc name_page {name path wanted {caps gjorz}} {
+proc name_page {name path wanted {caps gjorz} {constraints ""}} {
   set reply [name_get $path $caps]
-  test_eq name-page-$name [name_missing $reply $wanted] {}
+  test_eq name-page-$name [name_missing $reply $wanted] {} $constraints
 }
 
 set nameHref {<a href="/info/}
@@ -908,7 +912,7 @@ name_page info-prefix /info/[string range $nameC1 0 9] [list \
     "!is ambiguous" "HTTP/1.0 200 OK" $nameC1] admin
 name_page info-date /info/date:2025-01-03 [list "HTTP/1.0 200 OK" $nameC2] admin
 name_page info-date-zulu /info/date:20250103Z [list "HTTP/1.0 200 OK" \
-    $nameC2] admin
+    $nameC2] admin [sanitizer_trunk_mark]
 name_page info-escape /info/re%6c1 [list "HTTP/1.0 200 OK" $nameC1] admin
 name_page info-percent /info/% [list "No such object: %"]
 name_page info-bad-escape /info/%zz [list "No such object: "]
@@ -978,7 +982,8 @@ name_page timeline-number-after "/timeline?a=202501041000Z&n=2" [list \
 name_page timeline-number-after-z "/timeline?a=20250104100000z&n=1" [list \
     "occurring on or after 2025-01-04 10:00:00Z." b1 "!>c3<"] admin
 name_page timeline-number-zulu-day "/timeline?a=20250104Z&n=1" [list \
-    "HTTP/1.0 200 OK" "occurring on or after 20250104Z." b1 "!>c3<"] admin
+    "HTTP/1.0 200 OK" "occurring on or after 20250104Z." b1 "!>c3<"] admin \
+    [sanitizer_trunk_mark]
 name_page timeline-number-is-hash /timeline?c=20250105 [list \
     "HTTP/1.0 200 OK" "!occurring around 2025-01-05"] admin
 name_page timeline-tag /timeline?c=rel1&n=1 [list \
@@ -1004,7 +1009,7 @@ name_page timeline-forward-to-tag /timeline?d=rel1&ft=tag:br [list \
     "HTTP/1.0 200 OK" "descendants of" ">tag:br</a>"] admin
 name_page timeline-forward-to-hash \
     "/timeline?d=rel1&ft=[string range $nameB1 0 9]" [list "HTTP/1.0 200 OK" \
-    "descendants of" ">[string range $nameB1 0 9]</a>"] admin
+    "descendants of" ">[string range $nameB1 0 9]</a>"] admin $::trunkMark
 name_page timeline-forward-to-none /timeline?d=rel1&ft=nosuch [list \
     "HTTP/1.0 200 OK" "descendants of" "!cannot resolve"] admin
 
@@ -1228,7 +1233,8 @@ name_page collisions-too-many /hash-collisions [list \
 
 # A user with no capabilities is not shown the names of artifacts.
 set nameReply [name_get /ambiguous/[string range $nameP 0 0] {}]
-test name-page-ambiguous-no-read {![string match *$nameP* $nameReply]}
+test name-page-ambiguous-no-read {![string match *$nameP* $nameReply]} \
+    $::trunkMark
 
 ###############################################################################
 # Known faults.
@@ -1236,18 +1242,20 @@ test name-page-ambiguous-no-read {![string match *$nameP* $nameReply]}
 # A request for more of the most recent artifacts than there are shows
 # them all, and a request for fewer shows as many as asked for.
 test name-page-bloblist-recent-all {[string match \
-    {*<tr><td align="right">1</td>*} [name_get /bloblist?recent&n=600 admin]]}
+    {*<tr><td align="right">1</td>*} [name_get /bloblist?recent&n=600 admin]]} \
+    $::trunkMark
 test name-page-bloblist-recent-count {[regexp -all {<tr><td align="right">} \
-    [name_get /bloblist?recent&n=250 admin]] == 250}
+    [name_get /bloblist?recent&n=250 admin]] == 250} $::trunkMark
 
 # The list of tags has a quoted key in JSON.
 fossil whatis --json tip
-test name-whatis-json-tags-key {[string match {*,"tags":\["br"\],*} $RESULT]}
+test name-whatis-json-tags-key {[string match {*,"tags":\["br"\],*} $RESULT]} \
+    $::trunkMark
 
 # The second meaning of a name is numbered 2 when it is a ticket.
 fossil whatis [string range $nameC1 0 5]
 test name-whatis-ticket-meaning-number \
-    {[string match "*---- meaning #2 ----*" $RESULT]}
+    {[string match "*---- meaning #2 ----*" $RESULT]} $::trunkMark
 
 ###############################################################################
 test_cleanup

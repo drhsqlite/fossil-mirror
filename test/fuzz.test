@@ -17,9 +17,18 @@ set fuzzTypes [corpus_unpack [file join $::testfiledir corpus corpus.pack] \
 test_eq fuzz-corpus-types $fuzzTypes [list delta-accept delta-apply \
     delta-reject delta-roundtrip manifest manifest-body scenario xfer]
 
+# The corpus types are fuzz types of a fossil with the "test-fuzz-inert"
+# command.  Another fossil does not know them, so the tests would check
+# nothing.
+fossil_raw test-fuzz-inert
+set fuzzHaveTypes [expr {[string first "unknown command" $RESULT] < 0}]
+if {!$fuzzHaveTypes} {
+  test_skip_part "fuzz-corpus-TYPE: test-fuzz needs the delta, manifest\
+      and xfer fuzz types of a fossil with the test-fuzz-inert command"
+}
 foreach fuzzDir [lsort [glob -nocomplain -types d [file join corpus *]]] {
   set fuzzType [file tail $fuzzDir]
-  if {$fuzzType eq "scenario"} continue
+  if {$fuzzType eq "scenario" || !$fuzzHaveTypes} continue
   fossil test-fuzz $fuzzDir
   test fuzz-corpus-$fuzzType {$CODE == 0}
 }
@@ -49,6 +58,13 @@ foreach fuzzType {manifest manifest-body} {
   }
 }
 test fuzz-corpus-manifest-guarded {[llength $fuzzNotInert] == 0}
+
+# The tests below need the "test-fuzz-inert" command and the checks on
+# fuzz types and empty inputs that come with it.
+if {!$fuzzHaveTypes} {
+  test_skip "the tests of test-fuzz-inert, empty inputs and fuzz type\
+      names need a fossil with the test-fuzz-inert command"
+}
 file mkdir pack
 file copy [file join $::testfiledir corpus corpus.pack] pack
 fossil test-fuzz-inert pack

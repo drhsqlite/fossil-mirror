@@ -137,9 +137,9 @@ means every run, and `ci` means `ci` and `stress`.
 | What Fossil puts on an `ssh` command line | `ssh` | `smoke` |
 | Diffs and deltas | `delta1`, `diff` | `smoke` |
 | Fossil's text buffer, `src/blob.c` | `blob` | `smoke` for the first sections, and the rest at `stress` |
-| Malformed input to the delta and manifest parsers, from the inputs in `corpus/corpus.pack` | `fuzz` | `smoke` |
+| Malformed input to the delta and manifest parsers, from the inputs in `corpus/corpus.pack` (needs a fossil with `test-fuzz-inert`) | `fuzz` | `smoke` |
 | Random integration tests of sync: sequences of commits, merges and syncs among three clones, with lost and cut-short sync messages, from the scenario inputs in `corpus/corpus.pack`. Slow for its 16 tests, because each step is a separate run of `fossil`. | `scenario` | `smoke` for one input, and the rest at `stress` |
-| Faults that have been fixed | `regress` | `smoke` |
+| Single faults with no better home | `regress` | `smoke` |
 | Settings | `settings`, `settings-repo`, `set-manifest` | `smoke` |
 | Wiki, attachments and unversioned files | `wiki`, `unversioned` | `smoke` |
 | TH1 scripting | `th1`, `th1-docs`, `th1-hooks`, `th1-repo`, `th1-taint`, `th1-tcl` | `smoke` |

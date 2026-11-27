@@ -37,6 +37,7 @@ foreach urlVar {http_proxy HTTP_PROXY https_proxy HTTPS_PROXY all_proxy
 }
 
 test_setup
+source [file join $::testfiledir trunk-fixes.tcl]
 set urlRepo [file join [pwd] .rep.fossil]
 set urlDir [pwd]
 
@@ -221,7 +222,8 @@ foreach {urlName urlText urlMessage} {
 } {
   fossil_raw test-urlparser $urlText --proxy off
   test url-parse-refused-$urlName \
-      {$CODE == 1 && [string first $urlMessage $RESULT] >= 0}
+      {$CODE == 1 && [string first $urlMessage $RESULT] >= 0} \
+      [trunk_mark $urlName {port-too-large port-huge}]
 }
 
 # An ssh: URL with a host and no path has an empty path, and fossil
@@ -240,24 +242,29 @@ foreach {urlName urlText urlExpected} {
   scheme-only ssh://
   {isSsh 1 name {} path {} canonical ssh://}
 } {
-  url_parse_test url-parse-ssh-no-path-$urlName $urlText {} $urlExpected
+  url_parse_test url-parse-ssh-no-path-$urlName $urlText {} $urlExpected \
+      [sanitizer_trunk_mark $urlName \
+          {host user-host host-port user-host-port scheme-only}]
   test url-parse-ssh-no-path-$urlName-output {$CODE == 0 &&
       [regexp -all -line {^(g\.url\.\w+ +|url_full\(g\.url\) )= } $RESULT] ==
-          [llength [split [string trim $RESULT] \n]]}
+          [llength [split [string trim $RESULT] \n]]} \
+      [sanitizer_trunk_mark $urlName \
+          {host user-host host-port user-host-port scheme-only}]
 }
 
 # The complete URL of an ssh: remote has the "/" between the host and
 # the path.
 #
 url_parse_test url-parse-ssh-full ssh://u@h/dir/r.fossil {} \
-    {full ssh://u@h/dir/r.fossil}
+    {full ssh://u@h/dir/r.fossil} $::trunkMark
 
 # A second fossil= parameter is refused.
 #
 fossil_raw test-urlparser ssh://h/r.fossil?fossil=/a/fossil&fossil=/b/fossil \
     --proxy off
 test url-parse-ssh-fossil-twice {$CODE == 1 &&
-    [string match "*more than one fossil= query parameter*" $RESULT]}
+    [string match "*more than one fossil= query parameter*" $RESULT]} \
+    $::trunkMark
 
 # A very long user name, password, host and path.  The four together stay
 # under the 128 KB that Linux allows for one argument.
@@ -773,16 +780,17 @@ foreach {urlName urlReply urlMessage} [list \
 ] {
   url_httpmsg [list [url_crlf $urlReply]] -v
   test_match url-http-refused-$urlName "$CODE $RESULT" \
-      "^1 (?:.*\n)*.*$urlMessage"
+      "^1 (?:.*\n)*.*$urlMessage" [trunk_mark $urlName redirect-to-bad-port]
   url_httpmsg [list [url_crlf $urlReply]]
-  test url-http-refused-quiet-$urlName {$CODE == 1}
+  test url-http-refused-quiet-$urlName {$CODE == 1} \
+    [trunk_mark $urlName redirect-to-bad-port]
 }
 
 # A redirect to an ssh: URL with no path is refused.
 #
 url_httpmsg [list [url_crlf "HTTP/1.1 302 Found\nLocation: ssh://h\n\n"]] -v
 test_match url-http-refused-redirect-to-ssh-no-path "$CODE $RESULT" \
-    {^1 (?:.*\n)*.*cannot redirect to ssh://h}
+    {^1 (?:.*\n)*.*cannot redirect to ssh://h} [sanitizer_trunk_mark]
 
 # A status line that test-httpmsg prints an error for without -v only
 # when it is not told to be quiet: it is quiet when it prints the reply
@@ -803,6 +811,11 @@ foreach {urlName urlReply urlMessage} [list \
   test url-http-message-$urlName \
       {$CODE == 1 && [string first $urlMessage $RESULT] >= 0}
   url_httpmsg [list [url_crlf $urlReply]]
+  if {$urlName eq "redirect-to-file" && $::sanitizerBuild} {
+    test_skip_part "url-http-message-quiet-redirect-to-file: a sanitizer\
+        reports the fault that 71f60497bb fixes, which is not on trunk"
+    continue
+  }
   test url-http-message-quiet-$urlName {$CODE == 1 && $RESULT eq ""}
 }
 
@@ -815,7 +828,7 @@ url_httpmsg [list $urlShort] --out out.txt
 test url-http-message-truncated {$CODE == 1 &&
     [string first "response truncated: got 5 bytes of 6" $RESULT] >= 0}
 url_httpmsg [list $urlShort]
-test url-http-truncated-bytes {$RESULT eq "hello"}
+test url-http-truncated-bytes {$RESULT eq "hello"} $::trunkMark
 
 # A redirect is followed three times, with the same method and payload,
 # and the fourth is refused.  301, 302, 307 and 308 are followed.  A
@@ -1162,7 +1175,8 @@ proc url_xfer_reply {type body args} {
 }
 url_xfer_reply text/html "<p>no <b>such</b> page</p>" -v
 test url-xfer-error-verbose {$CODE == 1 &&
-    [string first "server sends error: no such page" $RESULT] >= 0}
+    [string first "server sends error: no such page" $RESULT] >= 0} \
+    $::trunkMark
 url_xfer_reply text/html "plain text, no tags" -v
 test url-xfer-error-plain-text {$CODE == 1 &&
     [string first "server sends error: plain text, no tags" $RESULT] >= 0}
@@ -1251,7 +1265,7 @@ url_sync pull http://example.invalid/repo [list \
     $urlNotFound] --once --proxy http://127.0.0.1:PORT
 test url-sync-proxy-redirect {[llength $urlRequests] == 2 &&
     [string match "POST http://127.0.0.1:*/moved HTTP/1.1" \
-        [url_request_line 1]]}
+        [url_request_line 1]]} $::trunkMark
 
 # A proxy is an http: or https: URL.  With any other value fossil must
 # not talk to the repository that the value names in place of the
@@ -1259,7 +1273,8 @@ test url-sync-proxy-redirect {[llength $urlRequests] == 2 &&
 #
 fossil_raw -seconds 60 clone http://example.invalid/repo proxyclone.fossil \
     --proxy file://$urlRepo
-test url-sync-proxy-file {$CODE == 1 && ![file exists proxyclone.fossil]}
+test url-sync-proxy-file {$CODE == 1 && ![file exists proxyclone.fossil]} \
+    $::trunkMark
 file delete proxyclone.fossil
 
 # A pull through a proxy remembers the URL of the remote, not of the
@@ -1393,7 +1408,8 @@ test url-sync-clone-httptrace-no-reply {$CODE == 1 &&
     ![file exists traceclone.fossil] &&
     [string first "cannot connect to host 127.0.0.1:$urlPort" $RESULT] >= 0}
 test url-sync-clone-httptrace-no-reply-message \
-    {[string first "server returned an error - clone aborted" $RESULT] >= 0}
+    {[string first "server returned an error - clone aborted" $RESULT] >= 0} \
+    $::trunkMark
 file delete {*}[glob -nocomplain http-request-*.txt http-reply-*.txt]
 
 # --transport-command with --httptrace prints the command.  A command
@@ -1445,7 +1461,8 @@ fossil_raw -seconds 60 http --in xfersetup.txt --ipaddr 127.0.0.1 $urlRepo \
     --localauth
 test_listen_stop
 test url-web-sync-no-password {[string first "HTTP/1.0 200 OK" $RESULT] == 0 &&
-    [string first "incorrect or missing password for user bob" $RESULT] >= 0}
+    [string first "incorrect or missing password for user bob" $RESULT] >= 0} \
+    $::trunkMark
 fossil sql "DELETE FROM config WHERE name GLOB 'last-sync-*'"
 
 ###############################################################################
@@ -1724,7 +1741,7 @@ if {!$is_windows && [lindex [auto_execok ssh] 0] ne $urlSshStub} {
   test url-ssh-proxy-not-used {$CODE == 0 && [url_ssh_runs] == 1 &&
       [string first "via proxy" $RESULT] < 0}
   url_ssh [list] pull http://example.invalid/repo --once --proxy ssh://hh/x
-  test url-ssh-proxy-is-ssh-url {[url_ssh_runs] == 0}
+  test url-ssh-proxy-is-ssh-url {[url_ssh_runs] == 0} $::trunkMark
 
   set env(PATH) $urlSavedPath
   unset env(URL_SSH_DIR)

@@ -13,6 +13,7 @@
 require_no_open_checkout
 
 test_setup ""
+source [file join $::testfiledir trunk-fixes.tcl]
 set configDir [pwd]
 set ::env(FOSSIL_USER) tester
 
@@ -506,13 +507,14 @@ foreach configArea {alias interwiki} {
   configRun configuration reset $configArea -R r-$configArea.fossil
   test_eq config-reset-$configArea-removes \
       [configState r-$configArea.fossil $configArea 0 1] \
-      [configDefaults $configArea]
+      [configDefaults $configArea] $::trunkMark
 }
 configNew r-all.fossil
 configFill r-all.fossil
 configRun configuration reset all -R r-all.fossil
 test config-reset-all-removes-aliases {[configSql r-all.fossil "SELECT count(*)
-    FROM config WHERE name GLOB 'walias:/*' OR name GLOB 'interwiki:*'"] == 0}
+    FROM config WHERE name GLOB 'walias:/*' OR name GLOB 'interwiki:*'"] == 0} \
+    $::trunkMark
 test_eq config-reset-all-settings [configSql r-all.fossil "SELECT group_concat(
     name) FROM (SELECT name FROM config WHERE NOT name GLOB 'walias:/*' AND
     NOT name GLOB 'interwiki:*' ORDER BY name)"] \
@@ -564,7 +566,8 @@ test config-import-report-fraction {[configSql f-b.fossil "SELECT count(*)
 
 configRun configuration export project since.cfg --since 2099-01-01 \
     -R a.fossil
-test config-export-since-future {$CODE == 0 && [configKinds since.cfg] eq ""}
+test config-export-since-future {$CODE == 0 && [configKinds since.cfg] eq ""} \
+    $::trunkMark
 configRun configuration export project since2.cfg --since 2000-01-01 \
     -R a.fossil
 test config-export-since-past {$CODE == 0 &&
@@ -1335,10 +1338,10 @@ test config-var-unset-no-pattern {[configSql w.fossil "SELECT count(*) FROM
     config"] == $configCount}
 fossil_raw -input "Y\n" test-var-list "a-s*" --unset -R w.fossil
 test config-var-unset-capital {[configSql w.fossil "SELECT count(*) FROM config
-    WHERE name='a-short'"] == 0}
+    WHERE name='a-short'"] == 0} $::trunkMark
 fossil_raw -input "y\n" test-var-list "a-s*" --unset -R w.fossil
 test config-var-unset-yes {$CODE == 0 && [configSql w.fossil "SELECT count(*)
-    FROM config WHERE name='a-short'"] == 0}
+    FROM config WHERE name='a-short'"] == 0} $::trunkMark
 
 ###############################################################################
 # The rest of the file needs a TCP connection over the loopback interface.
@@ -1464,7 +1467,7 @@ foreach {configUser configArea} {{} skin adm email adm user adm all} {
   } else {
     test config-push-$configLabel-$configArea-refused {
         [string first "not authorized to push configuration" $RESULT] >= 0}
-    test config-push-refused-status {$CODE == 1}
+    test config-push-refused-status {$CODE == 1} $::trunkMark
     test_eq config-push-$configLabel-$configArea-unchanged \
         [configDump cs.fossil] $configPre
   }

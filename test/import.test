@@ -9,6 +9,7 @@
 # The first sections run at every level, and the rest need
 # -assurance stress.
 test_setup
+source [file join $::testfiledir trunk-fixes.tcl]
 
 # A number in the variable-length form of svndiff0: seven bits a byte,
 # most significant first, the high bit set on every byte but the last.
@@ -223,15 +224,15 @@ write_file git-artifact.fi $importStream
 fossil_raw -seconds 60 import --git git-artifact.fossil git-artifact.fi
 test import-git-artifact-file {$CODE == 0}
 fossil sql -R git-artifact.fossil "SELECT count(*) FROM event WHERE type='ci'"
-test_eq import-git-artifact-one-checkin [string trim $RESULT] 1
+test_eq import-git-artifact-one-checkin [string trim $RESULT] 1 $::trunkMark
 fossil sql -R git-artifact.fossil \
     "SELECT count(*) FROM tag WHERE tagname='sym-planted'"
-test_eq import-git-artifact-no-branch [string trim $RESULT] 0
+test_eq import-git-artifact-no-branch [string trim $RESULT] 0 $::trunkMark
 fossil_raw cat f.txt -R git-artifact.fossil -r trunk
 test_eq import-git-artifact-content $RESULT \
     [join [list \
         "${importArt}# Remove this line to create a well-formed " \
-        "Fossil control artifact.\n"] ""]
+        "Fossil control artifact.\n"] ""] $::trunkMark
 
 ###############################################################################
 # Input that "fossil import" must refuse with an error and exit code 1.
@@ -263,7 +264,9 @@ foreach {importName importStream} [list \
   fossil_raw -seconds 60 import --git refuse-$importName.fossil \
       refuse-$importName.fi
   test import-refuse-git-$importName {$CODE == 1 &&
-      [string first "bad fast-import line" $RESULT] >= 0}
+      [string first "bad fast-import line" $RESULT] >= 0} \
+      [trunk_mark $importName {data-negative data-huge time-past-9999
+          time-13-digits time-no-space}]
 }
 
 # A commit command whose name is 992 bytes long, with no slash after its
@@ -271,7 +274,7 @@ foreach {importName importStream} [list \
 # data and is not made.
 write_file git-ref-long.fi "commit [string repeat a 992]"
 fossil_raw -seconds 60 import --git git-ref-long.fossil git-ref-long.fi
-test import-git-ref-long {$CODE == 0}
+test import-git-ref-long {$CODE == 0} [sanitizer_trunk_mark]
 
 # Each row: an svn dump.  A header line has no newline after its value,
 # because the dump ends there, a zero byte comes first, or the line is
@@ -295,7 +298,7 @@ foreach {importName importDump} [list \
   fossil_raw -seconds 60 import --svn refuse-$importName.fossil \
       refuse-$importName.dump
   test import-refuse-svn-$importName {$CODE == 1 &&
-      [string first "svn-dump data format broken" $RESULT] >= 0}
+      [string first "svn-dump data format broken" $RESULT] >= 0} $::trunkMark
 }
 
 # A file outside trunk, branches and tags is passed over even when it has
@@ -320,7 +323,7 @@ foreach importName {trunk branches tags} {
   fossil_raw -seconds 60 import --svn --$importName "" \
       refuse-$importName.fossil base.dump
   test import-refuse-svn-empty-$importName {$CODE == 1 && [string first \
-      "may be empty only with a non-empty --base" $RESULT] >= 0}
+      "may be empty only with a non-empty --base" $RESULT] >= 0} $::trunkMark
 }
 fossil_raw -seconds 60 import --svn --base proj --trunk "" base.fossil base.dump
 test import-svn-base-empty-trunk {$CODE == 0}
@@ -642,7 +645,8 @@ foreach {importName importStream importError} [list \
 # command says so rather than give an error from the database.
 #
 fossil_raw -seconds 60 import --git names.fossil names.fi
-test import-git-exists {$CODE == 1 && [holds_strings $RESULT {!SQLITE_ERROR}]}
+test import-git-exists {$CODE == 1 && [holds_strings $RESULT {!SQLITE_ERROR}]} \
+    $::trunkMark
 test_eq import-git-exists-untouched [import_checkins names] "names fewer"
 
 # With --force an existing repository is replaced.  The stream comes on
@@ -736,7 +740,8 @@ append importStream [import_commit refs/heads/master 2 orphan \
 fossil_raw -seconds 60 -input $importStream import --git \
     --import-marks zero.marks zero.fossil
 test import-git-import-marks-zero {$CODE == 1 &&
-    [string first "error importing marks from file: zero.marks" $RESULT] >= 0}
+    [string first "error importing marks from file: zero.marks" $RESULT] >= 0} \
+    $::trunkMark
 
 # Each row: a marks line that is not a commit or file mark of Fossil's,
 # which "fossil export --import-marks" refuses.
@@ -751,7 +756,8 @@ foreach {importName importLine} [list \
   fossil_raw -seconds 60 export --git --import-marks bad-$importName.marks \
       -R marks-export.fossil
   test import-export-marks-$importName {$CODE == 1 && [string first \
-      "error importing marks from file: bad-$importName.marks" $RESULT] >= 0}
+      "error importing marks from file: bad-$importName.marks" $RESULT] >= 0} \
+    $::trunkMark
 }
 
 # Marks may name a check-in made by "fossil commit", whose files carry no
@@ -792,7 +798,8 @@ write_file default.fi $importStream
 fossil_raw -seconds 60 import default.fossil default.fi
 test import-default-format {$CODE == 0}
 test_eq import-default-format-checkins [import_checkins default] first
-test_eq import-default-format-tags [import_tags default first] "master trunk"
+test_eq import-default-format-tags [import_tags default first] "master trunk" \
+    $::trunkMark
 
 # A ref of fewer than five bytes names its branch.
 #
@@ -803,10 +810,12 @@ append importStream [import_commit x 3 second "M 100644 :1 b\n"]
 import_git shortref $importStream
 test_eq import-git-short-ref [import_sql shortref "SELECT value
     FROM event, tagxref WHERE rid=objid AND tagxref.tagid=8
-     AND comment='second'"] x
+     AND comment='second'"] x $::trunkMark
 
 # A file command acts on a file that an earlier line of the same commit
-# made: D removes it, C copies it and R renames it.
+# made: D removes it, C copies it and R renames it.  Fossil applies D, C
+# and R only to the files of the parent check-in: gone and old stay, dst
+# and new are not made.
 #
 set importStream [import_blob 1 "hello\n"]
 append importStream [import_commit refs/heads/master 2 ordered \
@@ -1016,11 +1025,12 @@ test_eq import-svn-revtags-main-branch [import_sql revtags \
 set importTags [import_tags revtags "(no comment)"]
 test import-svn-revtags-tag {"tg-v2" in $importTags}
 
-# Every other check-in gets such a tag too.
+# Every other check-in gets such a tag too.  Fossil adds none to them.
 test import-svn-revtags-ordinary {"R2x" in $importTags} knownBug
 test import-svn-revtags-branch {"R3x" in [import_tags revtags three]} knownBug
 
-# A tag whose directory is deleted is no longer on its check-in.
+# A tag whose directory is deleted is taken off its check-in.  Fossil leaves
+# tg-v1 on it.
 test import-svn-revtags-tag-deleted {"tg-v1" ni $importTags} knownBug
 
 # A history under proj/ with other names for the three directories: trunk
@@ -1068,7 +1078,7 @@ foreach {importName importOptions} {
 test_eq import-svn-named-copy-props [import_perm named four run3] x
 
 # A file that is copied keeps the permission of the file it comes from.
-test_eq import-svn-named-copy-perm [import_perm named four run2] x
+test_eq import-svn-named-copy-perm [import_perm named four run2] x $::trunkMark
 
 # With --flat every path is a file of the trunk.
 import_svn flat $importDump --flat
@@ -1079,7 +1089,8 @@ test_eq import-svn-flat-tags [import_tags flat two] trunk
 test_eq import-svn-flat-copy-perm [import_perm flat four proj/main/run2] x
 
 # With --flat and --base the trunk holds the paths under the base, and
-# the paths outside it are passed over.
+# the paths outside it are passed over.  Fossil also puts a check-in on a
+# branch "elsewhere".
 import_svn flatbase $importDump --flat --base proj
 test import-svn-flat-base {$CODE == 0}
 test_eq import-svn-flat-base-files [import_files flatbase two] \
@@ -1094,7 +1105,8 @@ import_svn dircopy \
     "$importHead[import_r 1 one][import_file add trunk/d/f "f\n"][import_r \
     2 two][import_copy dir trunk/d2 trunk/d 1]"
 test import-svn-dir-copy {$CODE == 0}
-test_eq import-svn-dir-copy-files [import_files dircopy two] "d/f, d2/f"
+test_eq import-svn-dir-copy-files [import_files dircopy two] "d/f, d2/f" \
+    $::trunkMark
 
 # --ignore-tree leaves out a directory and what is in it, on the trunk
 # and on a branch, and no other path that begins with the same letters.
@@ -1212,7 +1224,10 @@ foreach {importName importDump importError} [list \
 ] {
   import_svn bad-$importName $importDump
   test import-svn-bad-$importName {$CODE == 1 &&
-      [string first $importError $RESULT] >= 0}
+      [string first $importError $RESULT] >= 0} \
+      [trunk_mark $importName \
+          {rev-over-31-bits rev-eleven-digits
+           node-before-revision}]
 }
 
 # Each row: the bytes of a property block before its end mark, which make
@@ -1292,7 +1307,7 @@ test_eq import-svn-quiet-nodes-one [import_files quiet-nodes one] \
 # A copied file keeps the executable permission of its source when the
 # node gives no properties or only a property delta.
 test_eq import-svn-copy-props [import_files quiet-nodes two] \
-    "a.txt, delta x, full, nodelta, none x, run.sh x"
+    "a.txt, delta x, full, nodelta, none x, run.sh x" $::trunkMark
 
 # Nothing is left of the tags and the branch that were never made: the
 # timeline holds the three check-ins and the tag that closes trunk when
@@ -1315,14 +1330,16 @@ test_eq import-svn-trunk-copied "[import_files quiet-nodes six];\
 import_svn odd-path "$importR1[import_file add trunk/./a "a\n"][import_r 2 \
     two][import_file add trunk/b "b\n"]"
 test import-svn-odd-path {$CODE == 1 &&
-    [string first "svn path is not a valid file name" $RESULT] >= 0}
+    [string first "svn path is not a valid file name" $RESULT] >= 0} \
+    $::trunkMark
 
 # So is a file that is added with no content and no source.
 #
 import_svn no-content "$importR1[import_file add trunk/a "a\n"][import_record \
     {Node-path trunk/n Node-kind file Node-action add}]"
 test import-svn-no-content {$CODE == 1 &&
-    [string first "svn file has no content and no source" $RESULT] >= 0}
+    [string first "svn file has no content and no source" $RESULT] >= 0} \
+    $::trunkMark
 
 ###############################################################################
 # A history made by Subversion, dumped with and without deltas: files, an
@@ -1374,7 +1391,7 @@ if {$::is_windows} {
         files_of_checkin(b.uuid) f WHERE e.comment='four' AND b.rid=e.objid"];\
         [import_cat $importName four a.txt]" "a.txt link moved.sh; alpha2\n"
     test_eq import-$importName-four-perm \
-        [import_perm $importName four moved.sh] x
+        [import_perm $importName four moved.sh] x $::trunkMark
   }
 }
 

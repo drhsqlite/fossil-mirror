@@ -19,6 +19,7 @@ if {!$loginWaits} {
 require_no_open_checkout
 
 test_setup
+source [file join $::testfiledir trunk-fixes.tcl]
 
 set loginRepo [file join [pwd] .rep.fossil]
 
@@ -470,7 +471,8 @@ foreach {loginCkName loginCkValue} {
       [list "Cookie: $loginCookieName=$loginCkValue"]]
   test login-cookie-bad-$loginCkName {$CODE == 0
       && [reply_status $loginReply] eq "HTTP/1.0 200 OK"
-      && [login_who $loginReply] eq "nobody"}
+      && [login_who $loginReply] eq "nobody"} \
+      [sanitizer_trunk_mark $loginCkName {slash end-slash}]
 }
 
 ###############################################################################
@@ -497,21 +499,22 @@ foreach {loginGoName loginGoTarget loginGoWant} [list \
   set loginReply [login_get \
       "/login?u=loginbob&p=newbobpw&fossil-goto=$loginGoTarget"]
   test_eq login-goto-query-$loginGoName [reply_header $loginReply Location] \
-      $loginGoWant
+      $loginGoWant [trunk_mark $loginGoName {other-site host-prefix}]
   set loginReply [login_form loginbob newbobpw "fossil-goto=$loginGoTarget"]
   test_eq login-goto-form-$loginGoName [reply_header $loginReply Location] \
-      $loginGoWant
+      $loginGoWant [trunk_mark $loginGoName {other-site host-prefix}]
   set loginReply [login_post /login "u=loginbob&p=newbobpw&in=Login" \
       [list "Cookie: fossil-goto=$loginGoTarget"]]
   test_eq login-goto-cookie-$loginGoName [reply_header $loginReply Location] \
-      $loginGoWant
+      $loginGoWant [trunk_mark $loginGoName {other-site host-prefix}]
   set loginReply [login_get "/login?$loginAnon&fossil-goto=$loginGoTarget"]
   test login-goto-anonymous-$loginGoName \
       {[string match "*anonymous*" [reply_header $loginReply Set-Cookie]]
-       && [reply_header $loginReply Location] eq $loginGoWant}
+       && [reply_header $loginReply Location] eq $loginGoWant} \
+       [trunk_mark $loginGoName {other-site host-prefix}]
   set loginReply [login_get "/ityaar?$loginRobot&fossil-goto=$loginGoTarget"]
   test_eq login-goto-ityaar-$loginGoName [reply_header $loginReply Location] \
-      $loginGoWant
+      $loginGoWant [trunk_mark $loginGoName {other-site host-prefix}]
 }
 
 # The captcha page at /honeypot remembers the address asked for in a
@@ -1325,7 +1328,7 @@ foreach {loginFgName loginFgTarget loginFgWant} [list \
 ] {
   test_eq login-goto-$loginFgName [reply_header [login_get \
       "/login?u=loginbob&p=bobfinal&fossil-goto=$loginFgTarget"] Location] \
-      $loginFgWant
+      $loginFgWant [trunk_mark $loginFgName {base-more other}]
 }
 
 # A GET with "out" does not log out.
@@ -1552,7 +1555,8 @@ foreach {loginWfName loginWfValue} [list \
   set loginReply [login_get "/ityaar?captchaseed=$loginSeed&captcha=zzzzzzzz" \
       [list "Cookie: $loginGrpCookie=$loginWfValue"]]
   test login-group-wellformed-$loginWfName \
-      {[string match "*Prove that you are human*" $loginReply]}
+      {[string match "*Prove that you are human*" $loginReply]} \
+      [sanitizer_trunk_mark $loginWfName end-slash]
 }
 fossil login-group leave
 

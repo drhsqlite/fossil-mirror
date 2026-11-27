@@ -37,7 +37,8 @@ fossil update trunk
 write_file f1 "f1.1"
 write_file f3 "f3.1"
 
-# "fossil merge --dry-run" must not change the check-out.
+# "fossil merge --dry-run" must not change the check-out.  Where the merge
+# would overwrite an unmanaged file, Fossil copies it to NAME-original.
 fossil merge --dry-run --integrate mrg -expectError
 test_eq merge_warn-dry-run-files [glob -nocomplain f3*] f3 knownBug
 test_eq merge_warn-dry-run-content [read_file f3] f3.1

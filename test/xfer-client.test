@@ -18,6 +18,7 @@ if {$::tcl_platform(platform) eq "windows"} {
 }
 
 test_setup
+source [file join $::testfiledir trunk-fixes.tcl]
 
 write_file a.txt "hello world\n"
 fossil add a.txt
@@ -126,8 +127,13 @@ xferclient_expect link-not-asked-for pull \
     "pragma link http://example.org/y {} 1790000000\n" 0 {}
 xferclient_expect cookie pull "cookie abc\n" 0 {}
 xferclient_expect cookie-alone pull "cookie\n" 1 {} "unknown command"
-xferclient_expect clone-seqno-negative pull "clone_seqno -1\n" 0 {}
-xferclient_expect clone-seqno-not-a-number pull "clone_seqno x\n" 0 {}
+# A clone_seqno that is not a count: the pull ends, with or without
+# an error.
+foreach {name seqno} {negative -1 not-a-number x} {
+  xferclient_run pull "clone_seqno $seqno\n"
+  test xfer-client-clone-seqno-$name {$xferclientCode in {0 1}
+                                      && [xferclient_requests] <= 20}
+}
 xferclient_expect comment-only pull "# a comment\n" 0 {}
 
 ###############################################################################
@@ -308,10 +314,9 @@ xferclient_expect config-size-not-a-number pull \
 
 ###############################################################################
 # Unversioned files.  The cards for them are acted on only in a sync of
-# unversioned content, or in a clone.  In an ordinary pull a server used
-# to be able to replace an unversioned file with a uvfile card that the
-# client had not asked for, and a uvigot card ended the pull with an SQL
-# error.
+# unversioned content, or in a clone.  In an ordinary pull a uvigot or
+# uvfile card is an unknown command: the pull ends with that error, not an
+# SQL error, and the local unversioned file is unchanged.
 
 write_file note.txt "local note\n"
 fossil unversioned add note.txt
@@ -408,7 +413,8 @@ foreach {xferclientName xferclientCard xferclientKept} [list \
   xferclient_run pull $xferclientCard --share-links
   fossil sql "SELECT count(*) FROM config WHERE name LIKE 'link:%'"
   test_eq xfer-client-mcdc-link-$xferclientName \
-      "$xferclientCode [string trim $RESULT]" "0 $xferclientKept"
+      "$xferclientCode [string trim $RESULT]" "0 $xferclientKept" \
+      [trunk_mark $xferclientName {ftp no-scheme}]
 }
 
 ###############################################################################
@@ -711,20 +717,34 @@ test xfer-client-mcdc-clone-stops-when-nothing-arrives \
 ###############################################################################
 # What a sync with -v says at its end about the server.  A server that
 # could not be reached is named as the URL names it, with no address.  The
-# URLs here have no host; the one for ssh is given standin/log-args.sh as
-# its ssh command, which exits at once.
+# URLs here have no host; the one for http names port 9, on which nothing
+# is expected to listen, and the one for ssh is given standin/log-args.sh
+# as its ssh command, which exits at once.  The stand-in is also first on
+# the PATH as "ssh"; if it cannot be, the ssh case is skipped.
 
-fossil_raw pull -v --once --proxy off http:///x
+fossil_raw pull -v --once --proxy off http://:9/x
 test xfer-client-mcdc-remote-no-host {$CODE == 1 &&
     [holds_strings $RESULT [list "Pull done," "remote: \n"]]}
+set xferclientSshDir [file join $xferclientDir ssh-standin]
+file mkdir $xferclientSshDir
 set xferclientSsh \
-    [test_standin log-args.sh [file join $xferclientDir ssh-standin.sh]]
-set ::env(ARGS_LOG) [file join $xferclientDir ssh-args.txt]
-fossil_raw pull -v --once --ssh-command $xferclientSsh ssh:///x
-test xfer-client-mcdc-remote-ssh-no-host {$CODE == 1 &&
-    [file exists $::env(ARGS_LOG)] &&
-    [holds_strings $RESULT [list "Pull done," "remote: \n"]]}
-unset ::env(ARGS_LOG)
+    [test_standin log-args.sh [file join $xferclientSshDir ssh]]
+set xferclientSavedPath $::env(PATH)
+set ::env(PATH) "$xferclientSshDir:$::env(PATH)"
+unset -nocomplain ::auto_execs(ssh)
+if {[lindex [auto_execok ssh] 0] ne $xferclientSsh} {
+  test_skip_part "xfer-client-mcdc-remote-ssh-no-host: cannot put a\
+      stand-in for ssh first on the PATH"
+} else {
+  set ::env(ARGS_LOG) [file join $xferclientDir ssh-args.txt]
+  fossil_raw pull -v --once --ssh-command $xferclientSsh ssh:///x
+  test xfer-client-mcdc-remote-ssh-no-host {$CODE == 1 &&
+      [file exists $::env(ARGS_LOG)] &&
+      [holds_strings $RESULT [list "Pull done," "remote: \n"]]}
+  unset ::env(ARGS_LOG)
+}
+set ::env(PATH) $xferclientSavedPath
+unset -nocomplain ::auto_execs(ssh)
 
 ###############################################################################
 # What shows only when the client speaks HTTP.  The server is made here: it

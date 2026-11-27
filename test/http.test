@@ -234,6 +234,8 @@ foreach {name expected} {
   set port [http_listen [list http_proxy $name]]
   test_match http-proxy-$name [http_clone http://127.0.0.1:$port/] $expected
 }
+# A chunk size line that ends in a zero byte is malformed.  Fossil accepts
+# it and the clone succeeds.
 set port [http_listen [list http_proxy chunk-size-nul]]
 test_match http-proxy-chunk-size-nul [http_clone http://127.0.0.1:$port/] \
     {malformed chunk size line} knownBug
@@ -270,6 +272,9 @@ foreach {name path expected} {
 set proxy http://127.0.0.1:$recordPort
 http_request_line http-rfc-proxy-path http://localhost:9/plain \
     {POST http://localhost:9/plain HTTP/1.1} $proxy
+# Sent to a proxy, Fossil writes the space as "+" (POST
+# http://localhost:9/my%2Brepo HTTP/1.1) and encodes the "%" of each escape
+# of a UTF-8 byte again (POST http://localhost:9/r%25C3%25A9po HTTP/1.1).
 http_request_line http-rfc-proxy-path-space {http://localhost:9/my repo} \
     {POST http://localhost:9/my%20repo HTTP/1.1} $proxy knownBug
 http_request_line http-rfc-proxy-path-utf8 http://localhost:9/répo \
@@ -301,6 +306,8 @@ proc http_redirect {chan request} {
   }
 }
 set port [http_listen http_redirect]
+# Fossil does not follow the relative Location: it fails with "unknown
+# repository: /new" and fetches nothing from /new.
 fossil_raw -seconds 60 test-httpmsg http://127.0.0.1:$port/old --out new.txt
 test_eq http-rfc-relative-redirect \
     [expr {[file exists new.txt] ? [read_file new.txt] : ""}] new knownBug
@@ -347,6 +354,8 @@ for {set i 1} {$i <= 3} {incr i} {
 }
 if {$haveTls && $havePython} {
   # The message for a reset during the TLS handshake includes the reason.
+  # Fossil prints empty parentheses: "Error establishing SSL connection
+  # 127.0.0.1:PORT ()".
   set output [http_clone https://127.0.0.1:$resetPort/]
   test http-sigpipe-https-reset-reason \
       {![string match "*SSL connection*()*" $output]} knownBug
