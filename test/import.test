@@ -1,0 +1,1358 @@
+#
+# "fossil import --svn" and "fossil import --git".  The dumps and the
+# streams are written here, byte by byte: first dumps whose file contents
+# are svndiff0 deltas (Text-delta: true), as "svnadmin dump --deltas"
+# writes them, then git streams, then dumps of whole histories.  Where
+# Subversion or git is installed, a history that it wrote is imported too.
+#
+
+# These tests run only in a long pass: -assurance stress.
+if {[test_assurance] ne "stress"} {
+  test_skip "runs only with -assurance stress"
+}
+
+test_setup
+
+# A number in the variable-length form of svndiff0: seven bits a byte,
+# most significant first, the high bit set on every byte but the last.
+#
+proc import_varint {n} {
+  set out [list [expr {$n & 0x7f}]]
+  set n [expr {$n >> 7}]
+  while {$n} {
+    set out [linsert $out 0 [expr {0x80 | ($n & 0x7f)}]]
+    set n [expr {$n >> 7}]
+  }
+  return [binary format c* $out]
+}
+
+# One window: source offset and length, target length, instructions and
+# new data.  INSTR is a list of byte values.
+#
+proc import_window {srcoff srclen tgtlen instr data} {
+  set i [binary format c* $instr]
+  return "[import_varint $srcoff][import_varint $srclen][import_varint $tgtlen][import_varint [string length $i]][import_varint [string length $data]]$i$data"
+}
+
+proc import_props {pairs} {
+  set b ""
+  foreach {k v} $pairs {
+    append b "K [string length $k]\n$k\nV [string length $v]\n$v\n"
+  }
+  return "${b}PROPS-END\n"
+}
+
+proc import_rev {n log} {
+  set p [import_props [list svn:log $log svn:author dan \
+      svn:date 2026-01-0[expr {$n+1}]T00:00:00.000000Z]]
+  set len [string length $p]
+  return "Revision-number: $n\nProp-content-length: $len\nContent-length: $len\n\n$p\n"
+}
+
+proc import_node {path kind action {text ""} {delta 0}} {
+  set p "PROPS-END\n"
+  set h "Node-path: $path\nNode-kind: $kind\nNode-action: $action\n"
+  if {$kind eq "dir"} {
+    return "${h}Prop-content-length: 10\nContent-length: 10\n\n$p\n\n"
+  }
+  if {$delta} { append h "Text-delta: true\n" }
+  set n [string length $text]
+  return "${h}Prop-content-length: 10\nText-content-length: $n\nContent-length: [expr {$n+10}]\n\n$p$text\n\n"
+}
+
+# Revision 1 adds trunk/a.txt, "hello world\n", as a delta from nothing.
+# Revision 2 changes it by the delta in WINDOWS.
+#
+proc import_dump {windows {magic "SVN\000"}} {
+  set d "SVN-fs-dump-format-version: 3\n\nUUID: 00000000-0000-0000-0000-000000000000\n\n"
+  append d [import_rev 0 zero]
+  append d [import_rev 1 one]
+  append d [import_node trunk dir add]
+  append d [import_node trunk/a.txt file add \
+      "SVN\000[import_window 0 0 12 {0x8c} "hello world\n"]" 1]
+  append d [import_rev 2 two]
+  append d [import_node trunk/a.txt file change "$magic$windows" 1]
+  return $d
+}
+
+# Import WINDOWS as revision 2 and return the file it makes, or the error.
+#
+proc import_try {name windows {magic "SVN\000"}} {
+  write_file $name.dump [import_dump $windows $magic]
+  fossil_raw -seconds 60 import --svn $name.fossil $name.dump
+  if {$::CODE != 0} { return "error: [string trim $::RESULT]" }
+  fossil_raw cat a.txt -R $name.fossil -r trunk
+  return $::RESULT
+}
+
+###############################################################################
+# Sound deltas give the file they describe.
+
+# Twelve bytes from the source, then five new ones.
+test_eq import-svn-source-and-data [import_try sound \
+    [import_window 0 12 17 {0x0c 0 0x85} "more\n"]] "hello world\nmore\n"
+
+# A copy from the target that overlaps itself repeats what was written.
+test_eq import-svn-target-overlap [import_try rle \
+    [import_window 0 12 8 {0x82 0x46 0} ab]] abababab
+
+# Two windows, each from its own part of the source.
+test_eq import-svn-two-windows [import_try two \
+    "[import_window 0 5 5 {0x05 0} {}][import_window 6 6 6 {0x05 0 0x81} !]"] \
+    helloworld!
+
+# A length that does not fit in the instruction byte follows it.
+test_eq import-svn-long-length [import_try long \
+    [import_window 0 12 70 {0x80 70} [string repeat z 70]]] \
+    [string repeat z 70]
+
+# A copy of no bytes from the target may name any offset.
+test_eq import-svn-empty-target-copy [import_try emptycopy \
+    [import_window 0 12 2 {0x40 0 0 0x82} ab]] ab
+
+###############################################################################
+# Malformed deltas are refused, with nothing read or written outside the
+# buffers and no byte of the new file left unwritten.
+
+foreach {importName importWindows} [list \
+    write-past-target [import_window 0 12 4 {0x80 100} [string repeat x 100]] \
+    source-offset [import_window 0 12 10 {0x0a 0x87 0x68} {}] \
+    source-length [import_window 0 12 10 {0x0a 5} {}] \
+    bad-instruction [import_window 0 12 1 {0xc1 0} {}] \
+    source-window [import_window 1000 12 10 {0x0a 0} {}] \
+    target-offset [import_window 0 12 10 {0x82 0x48 0x87 0x68} ab] \
+    target-unwritten [import_window 0 12 4 {0x44 0} {}] \
+    data-past-end [import_window 0 12 50 {0xb2} abcde] \
+    huge-instr-len "[import_varint 0][import_varint 12][import_varint 5][import_varint 100000][import_varint 5]\x85abcde" \
+    huge-data-len "[import_varint 0][import_varint 12][import_varint 5][import_varint 1][import_varint 100000]\x85abcde" \
+    truncated-varint "\x80\x80" \
+    truncated-length [binary format c* {0 12 5 1 5 0x80}] \
+    target-unfilled [import_window 0 12 4000 {0x85} abcde] \
+] {
+  set importResult [import_try $importName $importWindows]
+  test import-svn-$importName {$CODE == 1 &&
+      [string match "*Invalid svndiff0*" $importResult]}
+}
+
+# Not an svndiff0 delta at all.
+test import-svn-not-svndiff {[string match "*Invalid svndiff0*" \
+    [import_try not abc "XYZ\000"]]}
+
+###############################################################################
+# A dump written by Subversion itself, with deltas of several windows.
+# Every version that Fossil imports must be byte for byte the one that
+# Subversion holds.
+
+if {[catch {exec svnadmin --version --quiet}] || [catch {exec svn --version --quiet}]} {
+  test_skip_part "svnadmin and svn are not installed"
+} else {
+  set importRepo [file join [pwd] svnrepo]
+  exec svnadmin create $importRepo
+  exec svn checkout -q file://$importRepo svnwc
+  file mkdir svnwc/trunk
+  set importBase ""
+  for {set importI 0} {$importI < 6000} {incr importI} {
+    append importBase "line $importI of a file that spans several delta windows\n"
+  }
+  set importVersions [list $importBase]
+  set importNext ""
+  for {set importI 0} {$importI < [string length $importBase]} {incr importI 20000} {
+    append importNext [string range $importBase $importI [expr {$importI+19999}]]
+    append importNext [string repeat x 3000] [string repeat "pattern $importI " 300]
+  }
+  lappend importVersions $importNext
+  lappend importVersions "[string repeat {repeated line of text} 20000]\n"
+  write_file svnwc/trunk/a.txt [lindex $importVersions 0]
+  exec svn add -q svnwc/trunk
+  exec svn commit -q -m one svnwc
+  write_file svnwc/trunk/a.txt [lindex $importVersions 1]
+  exec svn commit -q -m two svnwc
+  write_file svnwc/trunk/a.txt [lindex $importVersions 2]
+  exec svn commit -q -m three svnwc
+  exec svnadmin dump -q --deltas $importRepo > real.dump
+  fossil import --svn real.fossil real.dump
+  test import-svn-real {$CODE == 0}
+  set importI 0
+  foreach importComment {one two three} {
+    fossil sql -R real.fossil "SELECT uuid FROM blob, event
+        WHERE objid=rid AND type='ci' AND comment LIKE '$importComment%'"
+    set importHash [string trim $RESULT "'\n "]
+    fossil cat a.txt -R real.fossil -r $importHash -o real-$importComment.txt
+    test_eq import-svn-real-$importComment [read_file real-$importComment.txt] \
+        [lindex $importVersions $importI]
+    incr importI
+  }
+}
+
+###############################################################################
+# "fossil import --git" of a commit holding a file whose content is a
+# Fossil check-in artifact, one whose second card is a P card that names no
+# parent.  The file is imported as a file: the repository holds one
+# check-in, the imported commit, and the file reads back with a line added
+# at its end that stops it being an artifact.
+
+set importArt "D 2026-03-08T10:01:00.000\nP\nR d41d8cd98f00b204e9800998ecf8427e\n"
+append importArt "T *branch * planted\nT *sym-planted *\nU mallory\n"
+write_file git-artifact-body.txt $importArt
+fossil md5sum git-artifact-body.txt
+append importArt "Z [lindex $RESULT 0]\n"
+set importStream "blob\nmark :1\ndata [string length $importArt]\n$importArt\n"
+append importStream "commit refs/heads/master\nmark :2\n"
+append importStream "committer A <a@example.org> 1700000000 +0000\n"
+append importStream "data 4\nimp\nM 100644 :1 f.txt\n\n"
+write_file git-artifact.fi $importStream
+fossil_raw -seconds 60 import --git git-artifact.fossil git-artifact.fi
+test import-git-artifact-file {$CODE == 0}
+fossil sql -R git-artifact.fossil "SELECT count(*) FROM event WHERE type='ci'"
+test_eq import-git-artifact-one-checkin [string trim $RESULT] 1
+fossil sql -R git-artifact.fossil \
+    "SELECT count(*) FROM tag WHERE tagname='sym-planted'"
+test_eq import-git-artifact-no-branch [string trim $RESULT] 0
+fossil_raw cat f.txt -R git-artifact.fossil -r trunk
+test_eq import-git-artifact-content $RESULT \
+    "${importArt}# Remove this line to create a well-formed Fossil control artifact.\n"
+
+###############################################################################
+# Input that "fossil import" must refuse with an error and exit code 1.
+
+# Each row: a git stream.  The length of a data command is negative, too
+# large to hold, or not a number; the time of a committer is past the
+# year 9999, has thirteen digits, or has no space before it; a commit
+# names a ref of 992 bytes with no slash and no newline.
+#
+set importWho "committer C <c@example.org>"
+foreach {importName importStream} [list \
+  data-negative   "blob\nmark :1\ndata -1\nhello world, and more than one byte\n" \
+  data-huge       "blob\nmark :1\ndata 2147483647\nhello\n" \
+  data-not-number "blob\nmark :1\ndata <<EOF\nhello\nEOF\n" \
+  time-past-9999  "commit refs/heads/master\nmark :1\n$importWho 253402300800 +0000\ndata 1\nx\n" \
+  time-13-digits  "commit refs/heads/master\nmark :1\n$importWho 9999999999999 +0000\ndata 1\nx\n" \
+  time-no-space   "commit refs/heads/master\nmark :1\n${importWho}1700000000 +0000\ndata 1\nx\n" \
+] {
+  write_file refuse-$importName.fi $importStream
+  fossil_raw -seconds 60 import --git refuse-$importName.fossil refuse-$importName.fi
+  test import-refuse-git-$importName {$CODE == 1 &&
+      [string first "bad fast-import line" $RESULT] >= 0}
+}
+
+# A commit command whose name is 992 bytes long, with no slash after its
+# fifth byte and no newline, is read within the name.  The commit has no
+# data and is not made.
+write_file git-ref-long.fi "commit [string repeat a 992]"
+fossil_raw -seconds 60 import --git git-ref-long.fossil git-ref-long.fi
+test import-git-ref-long {$CODE == 0}
+
+# Each row: an svn dump.  A header line has no newline after its value,
+# because the dump ends there, a zero byte comes first, or the line is
+# longer than the importer reads at once; a file on the trunk has no
+# Node-action.
+#
+set importStart "SVN-fs-dump-format-version: 2\n\nUUID: 0000\n\n"
+append importStart "Revision-number: 1\nProp-content-length: 10\n"
+append importStart "Content-length: 10\n\nPROPS-END\n\n"
+foreach {importName importDump} [list \
+  header-cut   "SVN-fs-dump-format-version: 2\nUUID: 0000" \
+  header-zero  "SVN-fs-dump-format-version: 2\nUUID: 00\00000\n\n" \
+  header-long  "SVN-fs-dump-format-version: 2\nUUID: [string repeat 0 1200]\n\n" \
+  no-action    "${importStart}Node-path: trunk/a\nNode-kind: file\nText-content-length: 1\nContent-length: 1\n\nx\n\n" \
+] {
+  write_file refuse-$importName.dump $importDump
+  fossil_raw -seconds 60 import --svn refuse-$importName.fossil refuse-$importName.dump
+  test import-refuse-svn-$importName {$CODE == 1 &&
+      [string first "svn-dump data format broken" $RESULT] >= 0}
+}
+
+# A file outside trunk, branches and tags is passed over even when it has
+# no Node-action.
+#
+write_file outside.dump "${importStart}Node-path: other/a\nNode-kind: file\nText-content-length: 1\nContent-length: 1\n\nx\n\n"
+fossil_raw -seconds 60 import --svn outside.fossil outside.dump
+test import-svn-outside-no-action {$CODE == 0}
+
+# An empty --trunk, --branches or --tags is refused unless --base names a
+# directory; with one, an empty --trunk makes the base itself the trunk.
+#
+write_file base.dump "${importStart}Node-path: proj/a\nNode-kind: file\nNode-action: add\nText-content-length: 1\nContent-length: 1\n\nx\n\n"
+foreach importName {trunk branches tags} {
+  fossil_raw -seconds 60 import --svn --$importName "" refuse-$importName.fossil base.dump
+  test import-refuse-svn-empty-$importName {$CODE == 1 && [string first \
+      "may be empty only with a non-empty --base" $RESULT] >= 0}
+}
+fossil_raw -seconds 60 import --svn --base proj --trunk "" base.fossil base.dump
+test import-svn-base-empty-trunk {$CODE == 0}
+fossil sql -R base.fossil "SELECT group_concat(f.filename, ' ')
+    FROM event e, blob b, files_of_checkin(b.uuid) f WHERE b.rid=e.objid"
+test_eq import-svn-base-empty-trunk-files $RESULT a
+
+###############################################################################
+# "fossil import --git" of streams written here, command by command.
+
+proc import_blob {mark text} {
+  return "blob\nmark :$mark\ndata [string length $text]\n$text\n"
+}
+
+# A commit on REF with mark MARK and comment COMMENT, made by C, MARK
+# minutes after 2023-11-14 22:13:20 UTC.  BODY is the lines that follow
+# the comment.
+#
+proc import_commit {ref mark comment {body ""}} {
+  set when [expr {1700000000+60*$mark}]
+  return "commit $ref\nmark :$mark\ncommitter C <c@example.org> $when +0000\ndata [string length $comment]\n$comment\n$body\n"
+}
+
+proc import_git {name stream args} {
+  write_file $name.fi $stream
+  fossil_raw -seconds 60 import --git {*}$args $name.fossil $name.fi
+}
+
+# What repository NAME answers to QUERY.
+#
+proc import_sql {name query} {
+  fossil sql -R $name.fossil $query
+  return [string trim $::RESULT]
+}
+
+# The files of the check-in of NAME whose comment is COMMENT, in name
+# order: the name, the permission and the former name of each.
+#
+proc import_files {name comment} {
+  return [import_sql $name "SELECT group_concat(trim(f.filename||' '||coalesce(f.perm,'')||' '||coalesce(f.previousName,'')), ', ')
+      FROM event e, blob b, files_of_checkin(b.uuid) f
+      WHERE e.type='ci' AND e.comment='$comment' AND b.rid=e.objid"]
+}
+
+# The branch and tag names that hold for the check-in with comment COMMENT.
+#
+proc import_tags {name comment} {
+  return [import_sql $name "SELECT group_concat(substr(tagname,5), ' ') FROM (
+      SELECT tagname FROM tag, tagxref, event
+      WHERE tag.tagid=tagxref.tagid AND tagxref.rid=event.objid
+        AND tagxref.tagtype>0 AND tagname LIKE 'sym-%'
+        AND event.type='ci' AND event.comment='$comment' ORDER BY tagname)"]
+}
+
+# The comments of the parents of the check-in with comment COMMENT, the
+# primary parent first.
+#
+proc import_parents {name comment} {
+  return [import_sql $name "SELECT group_concat(comment, ' ') FROM (
+      SELECT p.comment FROM plink, event c, event p
+      WHERE c.comment='$comment' AND plink.cid=c.objid AND p.objid=plink.pid
+      ORDER BY plink.isprim DESC, p.comment)"]
+}
+
+proc import_checkins {name} {
+  return [import_sql $name "SELECT group_concat(comment, ' ') FROM
+      (SELECT comment FROM event WHERE type='ci' ORDER BY mtime, comment)"]
+}
+
+# A stream with every command that the importer knows.  Commit one holds
+# plain, executable, link, empty and inline files, a file whose mark is
+# not defined and an M line with no mark and no name.  Commit two has no
+# "from" and follows one on the same branch.  Commit three begins another
+# branch.  Commit four has a parent on another branch and three merge
+# lines, one of them for a mark that is not defined.  Commits five and six
+# are on the same tag ref.
+#
+set importStream "# a comment line\nfeature done\noption git quiet\n"
+append importStream "progress halfway there\n"
+append importStream [import_blob 1 "hello\n"]
+append importStream "blob\ndata 6\nhello\n\n"
+append importStream "blob\nmark :2\ndata 0\n\n"
+append importStream [import_blob 3 "exec\n"]
+append importStream "reset refs/heads/master\n"
+append importStream "commit refs/heads/master\nmark :10\n"
+append importStream "author Au Thor <au@example.org> 1600000000 +0000\n"
+append importStream "committer C <c@example.org> 1700000600 +0000\n"
+append importStream "data 3\none\n"
+append importStream "M 100644 :1 a.txt\nM 100755 :3 run.sh\nM 120000 :1 link\n"
+append importStream "M 100644 :2 empty\n"
+append importStream "M 100644 inline in.txt\ndata 7\ninline\n\n"
+append importStream "M 100644 :99 missing.txt\n"
+append importStream "M 100644 :1 dir/x\nM 100644 :1 dir/y\n"
+append importStream "M 100644 :1 tmp/p\nM 100644 :1 tmp/q\nM 100644 :1 tmpfile\n"
+append importStream "M 100644\nN :1 :10\ncheckpoint\n"
+append importStream [import_commit refs/heads/master 11 two \
+    "D run.sh\nD tmp\nC a.txt b.txt\nR link link2\n"]
+append importStream [import_commit refs/heads/dev 12 three \
+    "M 100644 :1 d.txt\n"]
+append importStream [import_commit refs/heads/dev 13 four \
+    "from :11\nmerge :12\nmerge :10\nmerge :98\nC dir dir2\nR dir dir3\n"]
+append importStream [import_commit refs/tags/v1 14 five \
+    "from :13\nM 100644 :1 five.txt\n"]
+append importStream [import_commit refs/tags/v1 15 six \
+    "from :14\nM 100644 :1 six.txt\n"]
+set importTagger "tagger T <t@example.org> 1700009999 +0000"
+append importStream "tag v2\nfrom :13\n$importTagger\ndata 8\nthe tag\n\n"
+append importStream "tag v3\nfrom :13\n$importTagger\n"
+append importStream "tag nodate\nfrom :13\ndata 1\nx\n"
+append importStream "tag nofrom\n$importTagger\ndata 1\nx\n"
+append importStream "tag unknown\nfrom :97\n$importTagger\n"
+append importStream "tag v4\n$importTagger\nfrom :13"
+
+import_git all $importStream
+test import-git-all {$CODE == 0}
+test import-git-all-progress {[holds_strings $RESULT {"halfway there" 2023-11-14}]}
+test_eq import-git-all-checkins [import_checkins all] "one two three four five six"
+test_eq import-git-all-user [import_sql all \
+    "SELECT user||' '||date(mtime) FROM event WHERE comment='one'"] \
+    "c@example.org 2023-11-14"
+test_eq import-git-all-one [import_files all one] \
+    "a.txt w, dir/x w, dir/y w, empty w, in.txt w, link l, run.sh x, tmp/p w, tmp/q w, tmpfile w"
+fossil_raw cat in.txt -R all.fossil -r [import_sql all \
+    "SELECT uuid FROM blob, event WHERE rid=objid AND comment='one'"]
+test_eq import-git-all-inline $RESULT "inline\n"
+test_eq import-git-all-two [import_files all two] \
+    "a.txt w, b.txt w, dir/x w, dir/y w, empty w, in.txt w, link2 l link, tmpfile w"
+test_eq import-git-all-two-parent [import_parents all two] one
+test_eq import-git-all-two-tags [import_tags all two] "master trunk"
+test_eq import-git-all-three-parent [import_parents all three] ""
+test_eq import-git-all-three-tags [import_tags all three] "dev trunk"
+test_eq import-git-all-four [import_files all four] \
+    "a.txt w, b.txt w, dir2/x w, dir2/y w, dir3/x w dir/x, dir3/y w dir/y, empty w, in.txt w, link2 l, tmpfile w"
+test_eq import-git-all-four-parents [import_parents all four] "two one three"
+test_eq import-git-all-four-tags [import_tags all four] "dev trunk v2 v3 v4"
+test_eq import-git-all-tag-comment [import_sql all "SELECT value FROM tagxref
+    WHERE tagid=(SELECT tagid FROM tag WHERE tagname='sym-v2')"] "the tag"
+test_eq import-git-all-five-tags [import_tags all five] "dev trunk"
+test_eq import-git-all-six-tags [import_tags all six] "dev trunk v1"
+test_eq import-git-all-no-other-tags [import_sql all "SELECT count(*) FROM tag
+    WHERE tagname IN ('sym-nodate','sym-nofrom','sym-unknown')"] 0
+
+# With --quiet the dates of the commits are not printed.
+import_git quiet $importStream --quiet
+test import-git-quiet {$CODE == 0 && [holds_strings $RESULT {!2023-11-14}]}
+test_eq import-git-quiet-checkins [import_checkins quiet] \
+    "one two three four five six"
+
+
+# File names in quotes, as git writes names that hold unusual bytes.  Each
+# row is the name as the stream gives it and the name the file must get.
+# A backslash and three octal digits stand for one byte unless the byte
+# would be zero; a backslash and a letter for a control character; a
+# backslash and anything else for that character.  A name that begins
+# with a quote and does not end with one is kept as it is.
+#
+set importNames [list \
+    {plain name}                    "plain name" \
+    {"all\a\b\f\n\r\t\v\\\"end"}    "all\a\b\f\n\r\t\v\\\"end" \
+    {"oct\303\251"}                 "oct\xc3\xa9" \
+    {"tail\\"}                      "tail\\" \
+    {"c3\777"}                      "c3777" \
+    {"c4\1.5"}                      "c41.5" \
+    {"c5\1895"}                     "c51895" \
+    {"c6\11.5"}                     "c611.5" \
+    {"c7\1185"}                     "c71185" \
+    {"c8\0005"}                     "c80005" \
+    {"noend}                        "\"noend" \
+]
+set importStream [import_blob 1 "hello\n"]
+set importBody ""
+set importWant [list]
+foreach {importGiven importName} $importNames {
+  append importBody "M 100644 :1 $importGiven\n"
+  lappend importWant [binary encode hex $importName]
+}
+append importStream [import_commit refs/heads/master 2 names $importBody]
+append importStream [import_commit refs/heads/master 3 fewer \
+    "D \"oct\\303\\251\"\nD plain name\n"]
+import_git names $importStream
+test import-git-names {$CODE == 0}
+test_eq import-git-names-files [import_sql names "SELECT group_concat(lower(hex(f.filename)), ' ')
+    FROM event e, blob b, files_of_checkin(b.uuid) f
+    WHERE e.comment='names' AND b.rid=e.objid"] [lsort $importWant]
+test_eq import-git-names-deleted [import_sql names "SELECT count(*)
+    FROM event e, blob b, files_of_checkin(b.uuid) f
+    WHERE e.comment='fewer' AND b.rid=e.objid"] 9
+
+# A line that ends in a carriage return and a newline gives the name
+# before them.  A carriage return with no newline after it ends the name.
+#
+set importStream [import_blob 1 "hello\n"]
+append importStream [import_commit refs/heads/master 2 returns \
+    "M 100644 :1 cr.txt\r\nM 100644 :1 cut\rtail\n"]
+import_git returns $importStream
+test_eq import-git-returns [import_files returns returns] "cr.txt w, cut w"
+
+# A ref with nothing after its last slash, and one with no slash after
+# "refs/", name the branch as they stand.  "property branch-nick" names the
+# branch of its commit; "property rebase-of" changes nothing.
+#
+set importStream [import_blob 1 "hello\n"]
+append importStream [import_commit refs/heads/ 2 slash "M 100644 :1 a\n"]
+append importStream [import_commit refs/x 3 short "M 100644 :1 a\n"]
+append importStream [import_commit refs/heads/master 4 nick \
+    "property branch-nick 7 nicked\nproperty rebase-of abc\nM 100644 :1 a\n"]
+import_git refs $importStream
+test_eq import-git-refs [import_sql refs "SELECT group_concat(comment||'='||value, ' ')
+    FROM (SELECT comment, value FROM event, tagxref
+          WHERE rid=objid AND tagxref.tagid=8 ORDER BY event.mtime)"] \
+    "slash=refs/heads/ short=refs/x nick=nicked"
+
+# A commit on a tag ref that has no parent gets no tag, and a commit with
+# no committer line makes no check-in.
+#
+set importStream [import_blob 1 "hello\n"]
+append importStream [import_commit refs/tags/t0 2 rootless "M 100644 :1 a\n"]
+append importStream "commit refs/tags/t1\nmark :3\ndata 6\nnobody\nfrom :2\n"
+import_git tagrefs $importStream
+test import-git-tagrefs {$CODE == 0}
+test_eq import-git-tagrefs-checkins [import_checkins tagrefs] rootless
+test_eq import-git-tagrefs-tags [import_tags tagrefs rootless] trunk
+
+# With --use-author the author of a commit is its user and the author's
+# time its date, and the committer counts only where there is no author.
+# Without the option the author line is passed over.
+#
+set importStream [import_blob 1 "hello\n"]
+append importStream "commit refs/heads/master\nmark :2\n"
+append importStream "author Au Thor <au@example.org> 1600000000 +0000\n"
+append importStream "committer C <c@example.org> 1700000000 +0000\n"
+append importStream "data 4\nboth\nM 100644 :1 a\n\n"
+append importStream [import_commit refs/heads/master 3 alone "M 100644 :1 b\n"]
+import_git author $importStream --use-author
+test_eq import-git-use-author [import_sql author "SELECT group_concat(
+    comment||' '||user||' '||date(mtime), ', ') FROM event"] \
+    "both au@example.org 2020-09-13, alone c@example.org 2023-11-14"
+import_git noauthor $importStream
+test_eq import-git-no-use-author [import_sql noauthor "SELECT group_concat(
+    comment||' '||user||' '||date(mtime), ', ') FROM event"] \
+    "both c@example.org 2023-11-14, alone c@example.org 2023-11-14"
+
+# The --rename options: master and trunk get the names given, and each
+# branch and tag name is put into its pattern in place of the "%".
+#
+set importStream [import_blob 1 "hello\n"]
+append importStream [import_commit refs/heads/master 2 first "M 100644 :1 a\n"]
+append importStream [import_commit refs/heads/side 3 second \
+    "from :2\nM 100644 :1 b\n"]
+append importStream "tag rel\nfrom :3\n$importTagger\n"
+import_git renamed $importStream --rename-master chief --rename-trunk stem \
+    --rename-branch "b-%-e" --rename-tag "t-%"
+test_eq import-git-rename-first [import_tags renamed first] "b-chief-e stem"
+test_eq import-git-rename-second [import_tags renamed second] \
+    "b-side-e stem t-rel"
+test_eq import-git-rename-main-branch [import_sql renamed \
+    "SELECT value FROM config WHERE name='main-branch'"] stem
+
+# Each row: the options and the error they must give.  A rename pattern
+# needs exactly one "%"; --rename-rev belongs to --svn; the command takes
+# a repository and at most one input file; the input file must exist.
+#
+foreach {importName importOptions importError} {
+  rename-no-percent   {--rename-branch plain new.fossil names.fi}
+      "missing '%' in argument to --rename-branch"
+  rename-two-percent  {--rename-tag a%b%c new.fossil names.fi}
+      "multiple '%' in argument to --rename-tag"
+  rename-rev          {--rename-rev r% new.fossil names.fi}
+      "unrecognized command-line option"
+  no-repository       {}
+      "Usage: "
+  three-arguments     {new.fossil names.fi more}
+      "Usage: "
+  no-input-file       {new.fossil no-such-file.fi}
+      "cannot open input file"
+  import-marks-missing {--import-marks no-such-file new.fossil names.fi}
+      "cannot open no-such-file for reading"
+  export-marks-directory {--export-marks . new.fossil names.fi}
+      "cannot open . for writing"
+} {
+  fossil_raw -seconds 60 import --git {*}$importOptions
+  test import-git-option-$importName {$CODE == 1 &&
+      [string first $importError $RESULT] >= 0 && ![file exists new.fossil]}
+}
+
+# Each row: a stream and the error it must give.
+#
+foreach {importName importStream importError} [list \
+  unknown-command  "bogus line\n"  {bad fast-import line: [bogus line]} \
+  no-angle-bracket "commit refs/heads/master\ncommitter C 1700000000 +0000\n" \
+      {bad fast-import line: [committer C 1700000000 +0000]} \
+  no-open-bracket  "commit refs/heads/master\ncommitter C c@example.org> 17 +0000\n" \
+      {bad fast-import line: [committer C c@example.org>} \
+  short-data       "blob\nmark :1\ndata 50\nabc" \
+      {short read: got 3 of 50 bytes} \
+] {
+  import_git bad-$importName $importStream
+  test import-git-bad-$importName {$CODE == 1 &&
+      [string first $importError $RESULT] >= 0}
+}
+
+# Without --force an existing repository is not written over, and the
+# command says so rather than give an error from the database.
+#
+fossil_raw -seconds 60 import --git names.fossil names.fi
+test import-git-exists {$CODE == 1 && [holds_strings $RESULT {!SQLITE_ERROR}]}
+test_eq import-git-exists-untouched [import_checkins names] "names fewer"
+
+# With --force an existing repository is replaced.  The stream comes on
+# standard input when no file is named.
+#
+set importStream [import_blob 1 "hello\n"]
+append importStream [import_commit refs/heads/master 2 forced "M 100644 :1 a\n"]
+fossil_raw -seconds 60 -input $importStream import --git --force names.fossil
+test import-git-force {$CODE == 0}
+test_eq import-git-force-checkins [import_checkins names] forced
+
+# With --no-rebuild the check-ins are there and nothing is rebuilt or
+# vacuumed.
+#
+import_git norebuild $importStream --no-rebuild
+test import-git-no-rebuild {$CODE == 0 &&
+    [holds_strings $RESULT {!Rebuilding !Vacuuming}]}
+test_eq import-git-no-rebuild-checkins [import_checkins norebuild] forced
+
+
+# --attribute gives the user name for an email address, --export-marks
+# writes one line for each check-in and none for a file, and a later
+# import with --incremental and --import-marks goes on from those marks
+# and still knows the names.  There, a committer whose name and address
+# are the contact information of a user is that user.
+#
+set importStream [import_blob 1 "hello\n"]
+append importStream [import_commit refs/heads/master 2 base "M 100644 :1 a\n"]
+import_git incr $importStream --attribute "c@example.org carol" \
+    --attribute lonely@example.org --export-marks incr.marks
+test import-git-attribute {$CODE == 0}
+test_eq import-git-attribute-user [import_sql incr \
+    "SELECT user FROM event WHERE comment='base'"] carol
+test_eq import-git-attribute-table [import_sql incr \
+    "SELECT group_concat(email||'='||user, ' ') FROM
+     (SELECT email, user FROM fx_git ORDER BY email)"] \
+    "c@example.org=carol lonely@example.org="
+test_eq import-git-export-marks [read_file incr.marks] "[import_sql incr \
+    "SELECT 'c'||rid||' :2 '||uuid FROM blob, event WHERE rid=objid"]\n"
+
+fossil sql -R incr.fossil "INSERT INTO user(login, pw, cap, info)
+    VALUES('dee', '', 'i', 'Dee <dee@example.org>')"
+set importStream [import_blob 1 "more\n"]
+append importStream "commit refs/heads/master\nmark :3\n"
+append importStream "committer Dee <dee@example.org> 1700000180 +0000\n"
+append importStream "data 5\nlater\nfrom :2\nM 100644 :1 b\n\n"
+append importStream [import_commit refs/heads/master 4 last "M 100644 :1 c\n"]
+fossil_raw -seconds 60 -input $importStream import --git --incremental \
+    --import-marks incr.marks --export-marks incr2.marks incr.fossil
+test import-git-incremental {$CODE == 0 &&
+    [holds_strings $RESULT {!project-id !admin-user}]}
+test_eq import-git-incremental-parents \
+    "[import_parents incr later], [import_parents incr last]" "base, later"
+test_eq import-git-incremental-users [import_sql incr "SELECT group_concat(
+    comment||'='||user, ' ') FROM (SELECT * FROM event ORDER BY mtime)"] \
+    "base=carol later=dee last=carol"
+test_eq import-git-incremental-files [import_files incr last] "a w, b w, c w"
+test_eq import-git-incremental-marks [lsort [split [string trim \
+    [read_file incr2.marks]] \n]] [lsort [split [import_sql incr \
+    "SELECT 'c'||rid||' :'||(1+(SELECT count(*) FROM event x
+     WHERE x.mtime<=event.mtime))||' '||uuid FROM blob, event WHERE rid=objid"] \n]]
+
+# A third import adds another name to the ones kept in the repository.
+#
+set importStream "commit refs/heads/master\nmark :5\n"
+append importStream "committer E <eve@example.org> 1700000500 +0000\n"
+append importStream "data 5\nthird\nfrom :4\n\n"
+fossil_raw -seconds 60 -input $importStream import --git --incremental \
+    --import-marks incr2.marks --attribute "eve@example.org eve" incr.fossil
+test import-git-incremental-attribute {$CODE == 0}
+test_eq import-git-incremental-attribute-user [import_sql incr \
+    "SELECT user FROM event WHERE comment='third'"] eve
+test_eq import-git-incremental-attribute-table [import_sql incr \
+    "SELECT count(*) FROM fx_git"] 3
+
+# A marks file whose hash is not the one of its artifact is refused.
+#
+write_file wrong.marks "c1 :2 [string repeat 0 40]\n"
+fossil_raw -seconds 60 -input $importStream import --git --incremental \
+    --import-marks wrong.marks incr.fossil
+test import-git-import-marks-wrong {$CODE == 1 &&
+    [string first "error importing marks from file: wrong.marks" $RESULT] >= 0}
+
+# A marks file that gives record number 0 to a hash the repository does
+# not hold is refused.
+#
+write_file zero.marks "c0 :5 [string repeat a 40]\n"
+set importStream [import_blob 1 "hello\n"]
+append importStream [import_commit refs/heads/master 2 orphan \
+    "from :5\nM 100644 :1 a\n"]
+fossil_raw -seconds 60 -input $importStream import --git \
+    --import-marks zero.marks zero.fossil
+test import-git-import-marks-zero {$CODE == 1 &&
+    [string first "error importing marks from file: zero.marks" $RESULT] >= 0}
+
+# Each row: a marks line that is not a commit or file mark of Fossil's,
+# which "fossil export --import-marks" refuses.
+#
+fossil init marks-export.fossil
+foreach {importName importLine} [list \
+  other-type  "x5 junk" \
+  git-style   ":1 [string repeat a 40]" \
+  other-zero  "x0 junk" \
+] {
+  write_file bad-$importName.marks "$importLine\n"
+  fossil_raw -seconds 60 export --git --import-marks bad-$importName.marks \
+      -R marks-export.fossil
+  test import-export-marks-$importName {$CODE == 1 && [string first \
+      "error importing marks from file: bad-$importName.marks" $RESULT] >= 0}
+}
+
+# Marks may name a check-in made by "fossil commit", whose files carry no
+# permission, and the files of such a parent are kept.  A commit whose
+# "from" is the mark of a file keeps nothing from it.
+#
+write_file plain.txt "plain\n"
+fossil add plain.txt
+fossil commit -m committed
+fossil sql "SELECT 'c'||rid||' :7 '||uuid FROM blob
+            WHERE rid=(SELECT objid FROM event WHERE comment='committed')"
+set importMarks "$RESULT\n"
+fossil sql "SELECT 'b'||rid||' :8 '||uuid FROM blob
+            WHERE rid=(SELECT fid FROM mlink)"
+append importMarks "$RESULT\n"
+write_file plain.marks $importMarks
+set importStream [import_blob 1 "more\n"]
+append importStream [import_commit refs/heads/trunk 9 onto \
+    "from :7\nM 100644 :1 new.txt\n"]
+append importStream [import_commit refs/heads/other 10 onfile \
+    "from :8\nM 100644 :1 only.txt\n"]
+fossil_raw -seconds 60 -input $importStream import --git --incremental \
+    --import-marks plain.marks .rep.fossil
+test import-git-marks-commit {$CODE == 0}
+fossil sql "SELECT group_concat(f.filename||':'||f.perm, ' ')
+    FROM event e, blob b, files_of_checkin(b.uuid) f
+    WHERE e.comment='onto' AND b.rid=e.objid"
+test_eq import-git-marks-commit-files $RESULT "new.txt:w plain.txt:w"
+fossil sql "SELECT group_concat(f.filename, ' ')
+    FROM event e, blob b, files_of_checkin(b.uuid) f
+    WHERE e.comment='onfile' AND b.rid=e.objid"
+test_eq import-git-marks-file-files $RESULT only.txt
+
+# With neither --git nor --svn the input is a git stream, and its master
+# branch keeps its name.
+#
+set importStream [import_blob 1 "hello\n"]
+append importStream [import_commit refs/heads/master 2 first "M 100644 :1 a\n"]
+write_file default.fi $importStream
+fossil_raw -seconds 60 import default.fossil default.fi
+test import-default-format {$CODE == 0}
+test_eq import-default-format-checkins [import_checkins default] first
+test_eq import-default-format-tags [import_tags default first] "master trunk"
+
+# A ref of fewer than five bytes names its branch.
+#
+set importStream [import_blob 1 "hello\n"]
+append importStream [import_commit refs/heads/master 2 first \
+    "M 100644 :1 a-long-name-for-a-file\n"]
+append importStream [import_commit x 3 second "M 100644 :1 b\n"]
+import_git shortref $importStream
+test_eq import-git-short-ref [import_sql shortref "SELECT value
+    FROM event, tagxref WHERE rid=objid AND tagxref.tagid=8
+     AND comment='second'"] x
+
+# A file command acts on a file that an earlier line of the same commit
+# made: D removes it, C copies it and R renames it.
+#
+set importStream [import_blob 1 "hello\n"]
+append importStream [import_commit refs/heads/master 2 ordered \
+    "M 100644 :1 gone\nD gone\nM 100644 :1 src\nC src dst\nM 100644 :1 old\nR old new\n"]
+import_git ordered $importStream
+test_eq import-git-ordered [import_files ordered ordered] \
+    "dst w, new w, src w" knownBug
+
+###############################################################################
+# "fossil import --svn" of dumps written here, record by record.
+
+# One record of a dump.  HEADERS is a list of header names and values.
+# PROPS, unless it is "-", is a list of property names and values, and
+# TEXT, unless it is "-", is the content.
+#
+proc import_record {headers {props -} {text -}} {
+  set h ""
+  foreach {k v} $headers { append h "$k: $v\n" }
+  set body ""
+  if {$props ne "-"} {
+    set body [import_props $props]
+    append h "Prop-content-length: [string length $body]\n"
+  }
+  if {$text ne "-"} {
+    append h "Text-content-length: [string length $text]\n"
+    append body $text
+  }
+  return "${h}Content-length: [string length $body]\n\n$body\n\n"
+}
+
+# Revision N, made by dan on day N+1 of 2026, with LOG as its comment.
+#
+proc import_r {n log} {
+  return [import_record [list Revision-number $n] [list svn:log $log \
+      svn:author dan svn:date [format 2026-01-%02dT00:00:00.000000Z [expr {$n+1}]]]]
+}
+proc import_file {action path text {props -}} {
+  return [import_record \
+      [list Node-path $path Node-kind file Node-action $action] $props $text]
+}
+proc import_dir {path} {
+  return [import_record [list Node-path $path Node-kind dir Node-action add]]
+}
+proc import_copy {kind path from rev {props -} {text -}} {
+  return [import_record [list Node-path $path Node-kind $kind Node-action add \
+      Node-copyfrom-rev $rev Node-copyfrom-path $from] $props $text]
+}
+proc import_delete {path} {
+  return [import_record [list Node-path $path Node-action delete]]
+}
+proc import_svn {name dump args} {
+  write_file $name.dump $dump
+  fossil_raw -seconds 60 import --svn {*}$args $name.fossil $name.dump
+}
+set importHead "SVN-fs-dump-format-version: 2\n\n"
+append importHead "UUID: 00000000-0000-0000-0000-000000000000\n\n"
+
+# A history in the usual layout.
+#   1  trunk gets a plain file, an executable, a link and a file in a
+#      directory; two paths outside trunk, branches and tags are passed over
+#   2  no log and no author; a file changes, the executable changes with
+#      no properties given, a directory has content and a file has a
+#      change of properties only
+#   3  trunk is copied to branches/b1
+#   4  a file changes on b1
+#   5  trunk is copied to tags/v1 and to tags/v2
+#   6  on trunk, a file is copied from b1, one from trunk, one from trunk
+#      with a delta and one from trunk with new content
+#   7  a directory and a file are deleted and the executable is replaced
+#   8  a directory of trunk and the whole of trunk are copied into b1
+#   9  a directory of trunk is copied to branches/b2
+#  10  branches/b2 is deleted
+#  11  tags/v1 is deleted
+#  12  a file that does not exist is deleted
+#  13  a file gets the executable property and the content it had
+#  14  a file is added that sorts after every other
+#  15  branches/b3 is copied from trunk as of revision 0, and gets a file
+#
+set importDump $importHead
+append importDump [import_record {Revision-number 0} \
+    {svn:date 2026-01-01T00:00:00.000000Z}]
+append importDump [import_r 1 one] [import_dir trunk] [import_dir branches] \
+    [import_dir tags] [import_dir trunk/sub] \
+    [import_file add trunk/a.txt "alpha\n"] \
+    [import_file add trunk/run.sh "run\n" {svn:executable *}] \
+    [import_file add trunk/link "link a.txt" {svn:special *}] \
+    [import_file add trunk/sub/s.txt "sub\n"] \
+    [import_file add other/x "x\n"] [import_file add trunkx/y "y\n"]
+append importDump [import_record {Revision-number 2} \
+    {svn:date 2026-01-03T00:00:00.000000Z}] \
+    [import_file change trunk/a.txt "alpha2\n"] \
+    [import_file change trunk/run.sh "run2\n"] \
+    [import_record {Node-path trunk Node-kind dir Node-action change} - xyz] \
+    [import_file change trunk/sub/s.txt - {svn:eol-style native}]
+append importDump [import_r 3 three] [import_copy dir branches/b1 trunk 2]
+append importDump [import_r 4 four] [import_file change branches/b1/a.txt "beta\n"]
+append importDump [import_r 5 five] [import_copy dir tags/v1 trunk 4] \
+    [import_copy dir tags/v2 trunk 4]
+append importDump [import_r 6 six] \
+    [import_copy file trunk/b-copy.txt branches/b1/a.txt 4] \
+    [import_copy file trunk/a2.txt trunk/a.txt 2] \
+    [import_record {Node-path trunk/d.txt Node-kind file Node-action add
+        Node-copyfrom-rev 2 Node-copyfrom-path trunk/a.txt Text-delta true} \
+        - "SVN\000[import_window 0 7 12 {0x07 0 0x85} "more\n"]"] \
+    [import_copy file trunk/e.txt trunk/a.txt 2 - "fresh\n"]
+append importDump [import_r 7 seven] [import_delete trunk/sub] \
+    [import_delete trunk/a.txt] [import_file replace trunk/run.sh "new run\n"]
+append importDump [import_r 8 eight] \
+    [import_copy dir branches/b1/sub2 trunk/sub 6] \
+    [import_copy dir branches/b1/tcopy trunk 7]
+append importDump [import_r 9 nine] [import_copy dir branches/b2 trunk/sub 6]
+append importDump [import_r 10 ten] [import_delete branches/b2]
+append importDump [import_r 11 eleven] [import_delete tags/v1]
+append importDump [import_r 12 twelve] [import_delete trunk/nothing]
+append importDump [import_r 13 thirteen] \
+    [import_file change trunk/run.sh "new run\n" {svn:executable *}]
+append importDump [import_r 14 fourteen] [import_file add trunk/zz.txt "z\n"]
+append importDump [import_r 15 fifteen] [import_copy dir branches/b3 trunk 0] \
+    [import_file add branches/b3/f.txt "f\n"]
+
+# The content of file PATH in the check-in of NAME with comment COMMENT.
+#
+proc import_cat {name comment path} {
+  fossil_raw cat $path -R $name.fossil -r [import_sql $name "SELECT uuid
+      FROM blob, event WHERE rid=objid AND type='ci' AND comment='$comment'"]
+  return $::RESULT
+}
+
+import_svn layout $importDump
+test import-svn-layout {$CODE == 0}
+regexp {admin-user: (\S+)} $RESULT importAll importAdmin
+test_eq import-svn-layout-checkins [import_checkins layout] "one (no comment)\
+    three four six seven eight nine thirteen fourteen fifteen"
+test_eq import-svn-layout-users [import_sql layout "SELECT group_concat(
+    user, ' ') FROM (SELECT user FROM event WHERE type='ci'
+    ORDER BY mtime LIMIT 2)"] "dan $importAdmin"
+test_eq import-svn-layout-one [import_files layout one] \
+    "a.txt, link l, run.sh x, sub/s.txt"
+test_eq import-svn-layout-link [import_cat layout one link] a.txt
+test_eq import-svn-layout-two [import_files layout "(no comment)"] \
+    "a.txt, link l, run.sh x, sub/s.txt"
+test_eq import-svn-layout-two-content \
+    "[import_cat layout {(no comment)} a.txt][import_cat layout {(no comment)} run.sh]" \
+    "alpha2\nrun2\n"
+test_eq import-svn-layout-two-tags [import_tags layout "(no comment)"] "trunk v2"
+test_eq import-svn-layout-three [import_files layout three] \
+    "a.txt, link l, run.sh x, sub/s.txt"
+test_eq import-svn-layout-three-parent [import_parents layout three] "(no comment)"
+test_eq import-svn-layout-three-tags [import_tags layout three] b1
+test_eq import-svn-layout-four [import_cat layout four a.txt] "beta\n"
+test_eq import-svn-layout-four-tags [import_tags layout four] b1
+test_eq import-svn-layout-six [import_files layout six] \
+    "a.txt, a2.txt, b-copy.txt, d.txt, e.txt, link l, run.sh x, sub/s.txt"
+test_eq import-svn-layout-six-content "[import_cat layout six b-copy.txt][import_cat \
+    layout six a2.txt][import_cat layout six d.txt][import_cat layout six e.txt]" \
+    "beta\nalpha2\nalpha2\nmore\nfresh\n"
+test_eq import-svn-layout-six-parents [import_parents layout six] \
+    "(no comment) four"
+test_eq import-svn-layout-seven [import_files layout seven] \
+    "a2.txt, b-copy.txt, d.txt, e.txt, link l, run.sh"
+test_eq import-svn-layout-seven-content [import_cat layout seven run.sh] "new run\n"
+test_eq import-svn-layout-eight [import_files layout eight] "a.txt, link l,\
+    run.sh x, sub/s.txt, sub2/s.txt, tcopy/a2.txt, tcopy/b-copy.txt,\
+    tcopy/d.txt, tcopy/e.txt, tcopy/link l, tcopy/run.sh"
+test_eq import-svn-layout-eight-parents [import_parents layout eight] "four seven"
+test_eq import-svn-layout-nine [import_files layout nine] s.txt
+test_eq import-svn-layout-nine-parent [import_parents layout nine] six
+test_eq import-svn-layout-nine-tags [import_tags layout nine] b2
+test_eq import-svn-layout-nine-closed [import_sql layout "SELECT count(*)
+    FROM tagxref, tag, event WHERE tag.tagid=tagxref.tagid AND tagname='closed'
+     AND tagxref.rid=objid AND comment='nine' AND tagtype>0"] 1
+test_eq import-svn-layout-thirteen [import_files layout thirteen] \
+    "a2.txt, b-copy.txt, d.txt, e.txt, link l, run.sh x"
+test_eq import-svn-layout-thirteen-parent [import_parents layout thirteen] seven
+test_eq import-svn-layout-fourteen [import_files layout fourteen] \
+    "a2.txt, b-copy.txt, d.txt, e.txt, link l, run.sh x, zz.txt"
+test_eq import-svn-layout-fifteen [import_files layout fifteen] f.txt
+test_eq import-svn-layout-fifteen-parent [import_parents layout fifteen] ""
+test_eq import-svn-layout-fifteen-tags [import_tags layout fifteen] b3
+
+
+# The same history with --rev-tags and the --rename options.  The trunk
+# and every branch and tag get their names from the patterns, and a
+# check-in that begins a branch or has two parents gets a tag made from
+# its revision number and the --rename-rev pattern.
+#
+import_svn revtags $importDump --rev-tags --rename-rev R%x \
+    --rename-branch br-% --rename-tag tg-% --rename-trunk main
+test import-svn-revtags {$CODE == 0}
+test import-svn-revtags-root {[holds_strings [import_tags revtags one] \
+    {R1x br-main}]}
+test import-svn-revtags-merge {[holds_strings [import_tags revtags six] \
+    {R6x br-main}]}
+test import-svn-revtags-new-root {[holds_strings \
+    [import_tags revtags fifteen] {R15x br-b3 !br-main}]}
+test_eq import-svn-revtags-main-branch [import_sql revtags \
+    "SELECT value FROM config WHERE name='main-branch'"] main
+set importTags [import_tags revtags "(no comment)"]
+test import-svn-revtags-tag {"tg-v2" in $importTags}
+
+# Every other check-in gets such a tag too.
+test import-svn-revtags-ordinary {"R2x" in $importTags} knownBug
+test import-svn-revtags-branch {"R3x" in [import_tags revtags three]} knownBug
+
+# A tag whose directory is deleted is no longer on its check-in.
+test import-svn-revtags-tag-deleted {"tg-v1" ni $importTags} knownBug
+
+# A history under proj/ with other names for the three directories: trunk
+# is proj/main, branches are in proj/br and tags in proj/tg.  Revision 1
+# adds a file and an executable to the trunk and two files elsewhere, 2
+# copies the trunk to branch b1 and changes the file there, 3 copies b1
+# to tag v1, and 4 copies the executable on the trunk, and the file with
+# the executable property set on the copy.
+#
+set importDump $importHead
+append importDump [import_r 1 one] [import_dir proj] [import_dir proj/main] \
+    [import_file add proj/main/a "a\n"] \
+    [import_file add proj/main/run "run\n" {svn:executable *}] \
+    [import_file add proj/other/x "x\n"] [import_file add elsewhere/y "y\n"]
+append importDump [import_r 2 two] [import_copy dir proj/br/b1 proj/main 1] \
+    [import_file change proj/br/b1/a "b\n"]
+append importDump [import_r 3 three] [import_copy dir proj/tg/v1 proj/br/b1 2]
+append importDump [import_r 4 four] \
+    [import_copy file proj/main/run2 proj/main/run 1] \
+    [import_copy file proj/main/run3 proj/main/a 1 {svn:executable *}]
+
+# The permission of file PATH in the check-in with comment COMMENT.
+#
+proc import_perm {name comment path} {
+  return [import_sql $name "SELECT coalesce(f.perm,'')
+      FROM event e, blob b, files_of_checkin(b.uuid) f WHERE e.type='ci'
+       AND e.comment='$comment' AND b.rid=e.objid AND f.filename='$path'"]
+}
+
+# The directories are named with and without a slash at the end.
+foreach {importName importOptions} {
+  named       {--base proj --trunk main --branches br --tags tg}
+  named-slash {--base proj/ --trunk main/ --branches br/ --tags tg/}
+} {
+  import_svn $importName $importDump {*}$importOptions
+  test import-svn-$importName {$CODE == 0}
+  test_eq import-svn-$importName-checkins [import_checkins $importName] \
+      "one two four"
+  test_eq import-svn-$importName-one [import_files $importName one] "a, run x"
+  test_eq import-svn-$importName-two "[import_files $importName two];\
+      [import_tags $importName two]; [import_cat $importName two a]" \
+      "a, run x; b1 v1; b\n"
+}
+
+test_eq import-svn-named-copy-props [import_perm named four run3] x
+
+# A file that is copied keeps the permission of the file it comes from.
+test_eq import-svn-named-copy-perm [import_perm named four run2] x
+
+# With --flat every path is a file of the trunk.
+import_svn flat $importDump --flat
+test import-svn-flat {$CODE == 0}
+test_eq import-svn-flat-files [import_files flat two] "elsewhere/y,\
+    proj/br/b1/a, proj/br/b1/run x, proj/main/a, proj/main/run x, proj/other/x"
+test_eq import-svn-flat-tags [import_tags flat two] trunk
+test_eq import-svn-flat-copy-perm [import_perm flat four proj/main/run2] x
+
+# With --flat and --base the trunk holds the paths under the base, and
+# the paths outside it are passed over.
+import_svn flatbase $importDump --flat --base proj
+test import-svn-flat-base {$CODE == 0}
+test_eq import-svn-flat-base-files [import_files flatbase two] \
+    "br/b1/a, br/b1/run x, main/a, main/run x, other/x"
+test_eq import-svn-flat-base-branches [import_sql flatbase "SELECT
+    group_concat(DISTINCT value) FROM tagxref WHERE tagid=8"] trunk knownBug
+
+# A revision that copies a directory to another place on the same branch,
+# and does nothing else, is a check-in with the files of the copy.
+#
+import_svn dircopy "$importHead[import_r 1 one][import_file add trunk/d/f "f\n"][import_r \
+    2 two][import_copy dir trunk/d2 trunk/d 1]"
+test import-svn-dir-copy {$CODE == 0}
+test_eq import-svn-dir-copy-files [import_files dircopy two] "d/f, d2/f"
+
+# --ignore-tree leaves out a directory and what is in it, on the trunk
+# and on a branch, and no other path that begins with the same letters.
+# An empty --ignore-tree names nothing.
+#
+set importDump $importHead
+append importDump [import_r 1 one] [import_dir trunk] \
+    [import_file add trunk/keep.txt "k\n"] [import_dir trunk/old] \
+    [import_file add trunk/old/f.txt "f\n"] \
+    [import_file add trunk/older.txt "o\n"] \
+    [import_file add branches/dead/x.txt "x\n"]
+import_svn ignore $importDump --ignore-tree trunk/old --ignore-tree "" \
+    --ignore-tree branches/dead
+test import-svn-ignore-tree {$CODE == 0}
+test_eq import-svn-ignore-tree-files [import_files ignore one] \
+    "keep.txt, older.txt"
+test_eq import-svn-ignore-tree-checkins [import_sql ignore \
+    "SELECT count(*) FROM event"] 1
+
+# --incremental adds to a repository that exists, and tags each new
+# check-in with its revision number unless --no-rev-tags is given.
+#
+import_svn sincr "$importHead[import_r 1 one][import_file add trunk/a "a\n"]"
+write_file sincr2.dump "$importHead[import_r 2 two][import_file add trunk/b "b\n"]"
+fossil_raw -seconds 60 import --svn --incremental sincr.fossil sincr2.dump
+test import-svn-incremental {$CODE == 0 && [holds_strings $RESULT {!project-id}]}
+fossil_raw -seconds 60 -input \
+    "$importHead[import_r 3 three][import_file add trunk/c "c\n"]" \
+    import --svn --incremental --no-rev-tags sincr.fossil
+test import-svn-incremental-no-rev-tags {$CODE == 0}
+test_eq import-svn-incremental-checkins [import_checkins sincr] "one two three"
+test_eq import-svn-incremental-tags "[import_tags sincr one];\
+    [import_tags sincr two]; [import_tags sincr three]" \
+    "trunk; svn-rev-2 trunk; trunk"
+
+# A revision with no date gets the time of the import.  A property block
+# may hold the name of a deleted property.  The record after the version
+# need not be the UUID.
+#
+set importProps "D 3\nfoo\nK 7\nsvn:log\nV 7\nundated\nPROPS-END\n"
+set importDump "SVN-fs-dump-format-version: 3\n\nOther: 1\n\n"
+append importDump "Revision-number: 1\n"
+append importDump "Prop-content-length: [string length $importProps]\n"
+append importDump "Content-length: [string length $importProps]\n\n$importProps\n"
+append importDump [import_file add trunk/a "a\n"]
+import_svn undated $importDump
+test import-svn-undated {$CODE == 0}
+test_eq import-svn-undated-checkin [import_sql undated "SELECT comment||' '||
+    (mtime>julianday('now','-1 day')) FROM event"] "undated 1"
+
+# A dump that is the version record and nothing else has no check-in.
+import_svn version-only "SVN-fs-dump-format-version: 2\n\n"
+test import-svn-version-only {$CODE == 0}
+test_eq import-svn-version-only-checkins [import_sql version-only \
+    "SELECT count(*) FROM event"] 0
+
+# Each row: a dump and the error it must give.
+#
+set importR1 "$importHead[import_r 1 one]"
+set importA "$importR1[import_file add trunk/a "a\n"]"
+foreach {importName importDump importError} [list \
+  empty "" "Input is not an svn-dump!" \
+  no-version "Other: 1\n\n" "Input is not an svn-dump!" \
+  version-4 "SVN-fs-dump-format-version: 4\n\n" \
+      "Unknown svn-dump format version: 4" \
+  no-colon "${importHead}no colon here\n\n" {bad header line: [no colon here]} \
+  ends-in-headers "${importHead}Revision-number: 1\n" \
+      "svn-dump data ended unexpectedly" \
+  props-short "${importHead}Revision-number: 1\nProp-content-length: 50\n\nPROPS-END\n" \
+      "short read: got 10 of 50 bytes" \
+  props-no-end "${importHead}Revision-number: 1\nProp-content-length: 12\n\nK 1\na\nV 1\nb\n" \
+      "svn-dump data ended unexpectedly" \
+  props-negative "${importHead}Revision-number: 1\nProp-content-length: -5\n\n" \
+      "svn-dump data format broken" \
+  text-short "${importR1}Node-path: trunk/a\nNode-kind: file\nNode-action: add\nText-content-length: 9\n\nabc" \
+      "short read: got 3 of 9 bytes" \
+  unknown-record "${importHead}Other: 1\n\n" "Unknown record type" \
+  rev-over-31-bits "$importHead[import_record {Revision-number 2147483648}]" \
+      "svn-dump data format broken" \
+  rev-eleven-digits "$importHead[import_record {Revision-number 21474836480}]" \
+      "svn-dump data format broken" \
+  node-before-revision "$importHead[import_file add trunk/a "a\n"]" \
+      "svn-dump data format broken" \
+  no-copyfrom-rev "$importA[import_record {Node-path trunk/b Node-kind file
+      Node-action add Node-copyfrom-path trunk/a}]" "Missing copyfrom-rev" \
+  copy-from-outside "$importA[import_copy file trunk/b other/a 1]" \
+      "Copy from path outside the import paths" \
+  add-no-kind "$importR1[import_record {Node-path trunk/a Node-action add} - x]" \
+      "Missing Node-kind" \
+  change-no-kind "$importA[import_record {Node-path trunk/a Node-action change} - x]" \
+      "Missing Node-kind" \
+  unknown-action "$importR1[import_record {Node-path trunk/a Node-kind file
+      Node-action frobnicate}]" "Unknown Node-action" \
+  short-link "$importR1[import_file add trunk/l "link " {svn:special *}]" \
+      "Too short symbolic link path" \
+  delta-too-short "$importR1[import_record {Node-path trunk/a Node-kind file
+      Node-action add Text-delta true} - SVN]" "Invalid svndiff0 format" \
+  delta-no-source "$importR1[import_record {Node-path trunk/a Node-kind file
+      Node-action add Text-delta true} - \
+      "SVN\000[import_window 0 5 5 {0x05 0} {}]"]" \
+      "Don't know how to handle NULL input" \
+] {
+  import_svn bad-$importName $importDump
+  test import-svn-bad-$importName {$CODE == 1 &&
+      [string first $importError $RESULT] >= 0}
+}
+
+# Each row: the bytes of a property block before its end mark, which make
+# the block malformed.  A length may be negative, reach past the block or
+# not be followed by a newline, a zero byte may come before the newline
+# or stand in place of the space after the letter, and a line may begin
+# with a letter other than D, K and V.
+#
+foreach {importName importProps} [list \
+  d-zero-byte     "D 1\000\000" \
+  d-zero-space    "D\0001\na\n" \
+  d-no-newline    "D 1" \
+  d-negative      "D -1\nab\n" \
+  d-too-long      "D 99\nab\n" \
+  not-k           "X 1\na\n" \
+  k-zero-space    "K\0001\na\nV 1\nb\n" \
+  k-no-newline    "K 1" \
+  k-negative      "K -1\na\n" \
+  k-no-end        "K 2\nabcd\nV 1\nb\n" \
+  not-v           "K 1\na\nX 1\nb\n" \
+  v-zero-byte     "K 1\na\nV 1\000\000" \
+  v-zero-space    "K 1\na\nV\0001\nb\n" \
+  v-no-newline    "K 1\na\nV 1" \
+  v-no-end        "K 1\na\nV 1\nbcd\n" \
+] {
+  append importProps "PROPS-END\n"
+  set importLength [string length $importProps]
+  import_svn props-$importName "${importHead}Revision-number: 1\nProp-content-length: $importLength\nContent-length: $importLength\n\n$importProps\n"
+  test import-svn-props-$importName {$CODE == 1 &&
+      [string first "svn-dump data format broken" $RESULT] >= 0}
+}
+
+# A history with nodes that make no check-in of their own.
+#   1  trunk gets a file and an executable; a file named "branches", and
+#      a file directly in branches and one directly in tags, are passed over
+#   2  the executable is copied four times: with its properties given in
+#      full and none of them svn:executable, with a property delta that
+#      changes nothing, with "Prop-delta: false", and with no properties
+#   3  a tag and a branch that were never made are deleted, and so is a
+#      file of another tag that was never made
+#   4  trunk is deleted
+#   5  trunk is copied from trunk as of revision 1
+#   6  a file of trunk changes
+#
+set importDump $importHead
+append importDump [import_r 1 one] [import_dir trunk] [import_dir branches] \
+    [import_dir tags] [import_file add trunk/a.txt "a\n"] \
+    [import_file add trunk/run.sh "run\n" {svn:executable *}] \
+    [import_file add branches "a file\n"] \
+    [import_file add branches/README "a file\n"] \
+    [import_file add tags/README "a file\n"]
+append importDump [import_r 2 two] \
+    [import_copy file trunk/full trunk/run.sh 1 {}] \
+    [import_record {Node-path trunk/delta Node-kind file Node-action add
+        Node-copyfrom-rev 1 Node-copyfrom-path trunk/run.sh
+        Prop-delta true} {}] \
+    [import_record {Node-path trunk/nodelta Node-kind file Node-action add
+        Node-copyfrom-rev 1 Node-copyfrom-path trunk/run.sh
+        Prop-delta false} {}] \
+    [import_copy file trunk/none trunk/run.sh 1]
+append importDump [import_r 3 three] [import_delete tags/never] \
+    [import_delete tags/never2/file] [import_delete branches/never]
+append importDump [import_r 4 four] [import_delete trunk]
+append importDump [import_r 5 five] [import_copy dir trunk trunk 1]
+append importDump [import_r 6 six] [import_file change trunk/a.txt "b\n"]
+import_svn quiet-nodes $importDump
+test import-svn-quiet-nodes {$CODE == 0}
+test_eq import-svn-quiet-nodes-checkins [import_checkins quiet-nodes] \
+    "one two six"
+test_eq import-svn-quiet-nodes-one [import_files quiet-nodes one] \
+    "a.txt, run.sh x"
+
+# A copied file keeps the executable permission of its source when the
+# node gives no properties or only a property delta.
+test_eq import-svn-copy-props [import_files quiet-nodes two] \
+    "a.txt, delta x, full, nodelta, none x, run.sh x"
+
+# Nothing is left of the tags and the branch that were never made: the
+# timeline holds the three check-ins and the tag that closes trunk when
+# it is deleted.
+test_eq import-svn-never-made [import_sql quiet-nodes "SELECT count(*)
+    FROM tag WHERE tagname GLOB 'sym-never*' OR tagname GLOB 'sym-README*'"] 0
+test_eq import-svn-never-made-events [import_sql quiet-nodes "SELECT
+    group_concat(type, ' ') FROM (SELECT type FROM event ORDER BY mtime)"] \
+    "ci ci g ci"
+
+# Trunk as copied from revision 1 has the files of revision 1 again, and
+# the next check-in on it follows the last one made there.
+test_eq import-svn-trunk-copied "[import_files quiet-nodes six];\
+    [import_cat quiet-nodes six a.txt]; [import_parents quiet-nodes six];\
+    [import_tags quiet-nodes six]" "a.txt, run.sh x; b\n; two; trunk"
+
+# A path that a check-in cannot hold is refused, or else every revision
+# becomes a check-in.
+#
+import_svn odd-path "$importR1[import_file add trunk/./a "a\n"][import_r 2 \
+    two][import_file add trunk/b "b\n"]"
+test import-svn-odd-path {$CODE == 1 &&
+    [string first "svn path is not a valid file name" $RESULT] >= 0}
+
+# So is a file that is added with no content and no source.
+#
+import_svn no-content "$importR1[import_file add trunk/a "a\n"][import_record \
+    {Node-path trunk/n Node-kind file Node-action add}]"
+test import-svn-no-content {$CODE == 1 &&
+    [string first "svn file has no content and no source" $RESULT] >= 0}
+
+###############################################################################
+# A history made by Subversion, dumped with and without deltas: files, an
+# executable and a link on the trunk, a branch and a tag copied from it,
+# a change, a renamed file, and the branch deleted.
+
+if {$::is_windows} {
+  test_skip_part "the history made by Subversion needs links and file modes"
+} elseif {[catch {exec svnadmin --version --quiet}] || [catch {exec svn --version --quiet}]} {
+  test_skip_part "svnadmin and svn are not installed"
+} else {
+  set importRepo [file join [pwd] svnrepo2]
+  set importUrl file://$importRepo
+  exec svnadmin create $importRepo
+  exec svn mkdir -q -m layout $importUrl/trunk $importUrl/branches \
+      $importUrl/tags
+  exec svn checkout -q $importUrl/trunk svnwc2
+  write_file svnwc2/a.txt "alpha\n"
+  write_file svnwc2/run.sh "run\n"
+  file link -symbolic svnwc2/link a.txt
+  exec svn add -q svnwc2/a.txt svnwc2/run.sh svnwc2/link
+  exec svn propset -q svn:executable on svnwc2/run.sh
+  exec svn commit -q -m one svnwc2
+  exec svn copy -q -m two $importUrl/trunk $importUrl/branches/b1
+  exec svn copy -q -m three $importUrl/trunk $importUrl/tags/v1
+  write_file svnwc2/a.txt "alpha2\n"
+  exec svn move -q svnwc2/run.sh svnwc2/moved.sh
+  exec svn commit -q -m four svnwc2
+  exec svn delete -q -m five $importUrl/branches/b1
+  foreach {importName importOption} {plain {} deltas --deltas} {
+    exec svnadmin dump -q {*}$importOption $importRepo > svn-$importName.dump
+    fossil_raw -seconds 60 import --svn svn-$importName.fossil svn-$importName.dump
+    test import-svn-made-$importName {$CODE == 0}
+    set importName svn-$importName
+    test_eq import-$importName-checkins [import_checkins $importName] \
+        "one two four"
+    test_eq import-$importName-one "[import_files $importName one];\
+        [import_cat $importName one link]; [import_tags $importName one]" \
+        "a.txt, link l, run.sh x; a.txt; trunk v1"
+    test_eq import-$importName-two "[import_parents $importName two];\
+        [import_tags $importName two]; [import_sql $importName "SELECT count(*)
+        FROM tagxref, tag, event WHERE tag.tagid=tagxref.tagid
+         AND tagname='closed' AND tagxref.rid=objid AND comment='two'"]" \
+        "one; b1; 1"
+    test_eq import-$importName-four "[import_sql $importName "SELECT
+        group_concat(f.filename, ' ') FROM event e, blob b,
+        files_of_checkin(b.uuid) f WHERE e.comment='four' AND b.rid=e.objid"];\
+        [import_cat $importName four a.txt]" "a.txt link moved.sh; alpha2\n"
+    test_eq import-$importName-four-perm \
+        [import_perm $importName four moved.sh] x
+  }
+}
+
+###############################################################################
+# A history made by git and written by "git fast-export": files whose
+# names git puts in quotes, an executable and a link, a branch, a renamed
+# file, a merge, a tag with a message, and a file removed.
+
+if {$::is_windows} {
+  test_skip_part "the history made by git needs links and file modes"
+} elseif {[catch {exec git --version}]} {
+  test_skip_part "git is not installed"
+} else {
+  # Run git in the repository as if on day DAY of January 2026.
+  proc import_git_run {day args} {
+    set ::env(GIT_AUTHOR_DATE) "2026-01-0$day 00:00:00 +0000"
+    set ::env(GIT_COMMITTER_DATE) $::env(GIT_AUTHOR_DATE)
+    set out [exec git -C gitrepo -c user.name=Tester \
+        -c user.email=tester@example.org {*}$args 2>@1]
+    unset ::env(GIT_AUTHOR_DATE) ::env(GIT_COMMITTER_DATE)
+    return $out
+  }
+  exec git -c init.defaultBranch=master init -q gitrepo 2>@1
+  foreach importName [list a.txt run.sh "sp ace.txt" "q\"uote.txt" "t\tab.txt"] {
+    write_file [file join gitrepo $importName] "content of $importName\n"
+  }
+  file attributes gitrepo/run.sh -permissions 0755
+  file link -symbolic gitrepo/link a.txt
+  import_git_run 1 add -A
+  import_git_run 1 commit -q -m one
+  import_git_run 2 checkout -q -b side
+  write_file gitrepo/side.txt "side\n"
+  import_git_run 2 add side.txt
+  import_git_run 2 commit -q -m two
+  import_git_run 3 checkout -q master
+  import_git_run 3 mv a.txt moved.txt
+  import_git_run 3 commit -q -m three
+  import_git_run 4 merge -q --no-ff -m four side
+  import_git_run 5 tag -a -m "tag message" v1
+  import_git_run 6 rm -q run.sh
+  import_git_run 6 commit -q -m five
+  write_file made.fi [import_git_run 7 fast-export --all -M]
+  fossil_raw -seconds 60 import --git made.fossil made.fi
+  test import-git-made {$CODE == 0}
+  test_eq import-git-made-checkins [import_checkins made] \
+      "one two three four five"
+  test_eq import-git-made-one [import_files made one] "a.txt w, link l,\
+      q\"uote.txt w, run.sh x, sp ace.txt w, t\tab.txt w"
+  test_eq import-git-made-one-content \
+      "[import_cat made one link]; [import_cat made one {sp ace.txt}]" \
+      "a.txt; content of sp ace.txt\n"
+  test_eq import-git-made-three [import_files made three] "link l,\
+      moved.txt w a.txt, q\"uote.txt w, run.sh x, sp ace.txt w, t\tab.txt w"
+  test_eq import-git-made-four "[import_parents made four];\
+      [import_sql made "SELECT user FROM event WHERE comment='four'"]" \
+      "three two; tester@example.org"
+  test import-git-made-four-tag {"v1" in [import_tags made four]}
+  test_eq import-git-made-tag-message [import_sql made "SELECT value
+      FROM tagxref WHERE tagid=(SELECT tagid FROM tag WHERE tagname='sym-v1')
+       AND tagtype=1 AND value IS NOT NULL"] "tag message"
+  test_eq import-git-made-five [import_files made five] "link l,\
+      moved.txt w, q\"uote.txt w, side.txt w, sp ace.txt w, t\tab.txt w"
+  test_eq import-git-made-five-tags [import_tags made five] "master trunk"
+}
+
+###############################################################################
+
+test_cleanup

@@ -1,0 +1,429 @@
+#
+# Send each kind of card and pragma of the sync protocol to the server
+# side, through "fossil test-xfer", with and without the permission it
+# needs, and require the documented answer and no crash.  This complements
+# xfer-cards.test, which covers the cards that carry content.
+#
+# "fossil test-xfer" treats a login card as a grant of the Read, Write,
+# Private and Admin permissions.  A message without a login card runs
+# with the permissions of the user "nobody", which these tests set.
+#
+
+require_no_open_checkout
+
+test_setup
+
+write_file a.txt "hello world\n"
+fossil add a.txt
+fossil commit -m one --no-warnings
+fossil sql -R .rep.fossil \
+  "SELECT b.uuid FROM blob b JOIN mlink m ON m.fid=b.rid\
+   JOIN filename f USING(fnid) WHERE f.name='a.txt'"
+set xferserverFile [string trim $::RESULT]
+fossil sql -R .rep.fossil "SELECT value FROM config WHERE name='project-code'"
+set xferserverPcode [string trim $::RESULT]
+fossil sql -R .rep.fossil "SELECT max(rid) FROM blob"
+set xferserverMaxRid [string trim $::RESULT]
+
+# The server is a copy of the repository of this checkout, so that it
+# holds a check-in.  A hash that it does not hold:
+file copy .rep.fossil srv.fossil
+set xferserverAbsent [string repeat 0123456789abcdef 4]
+set xferserverLogin "login tester 0 0\n"
+set xferserverVersion "pragma client-version 22900 20261110 124827\n"
+
+# Set the capabilities of the user "nobody" on the server.
+proc xferserver_caps {caps} {
+  fossil sql -R srv.fossil \
+    "UPDATE user SET cap='$caps' WHERE login IN ('nobody','anonymous')"
+}
+
+# Send one message.  Sets xferserverOk to 1 when fossil did not crash and
+# xferserverReply to what it printed.  The reply goes through a file and
+# is read back as bytes, because it can hold compressed content.
+proc xferserver_send {body} {
+  global xferserverOk xferserverReply
+  write_file msg.txt $body
+  set xferserverOk [expr {[catch {exec $::fossilexe test-xfer -R srv.fossil \
+                                    msg.txt > reply.out 2>@1}]==0}]
+  set xferserverFd [open reply.out rb]
+  set xferserverReply [read $xferserverFd]
+  close $xferserverFd
+}
+
+# Send a message and require that it is answered without a crash and
+# that the reply does, or does not, hold each of the strings given.  A
+# string that begins with "!" must be absent.
+proc xferserver_expect {name body args} {
+  global xferserverOk xferserverReply
+  xferserver_send $body
+  set xferserverGood $xferserverOk
+  foreach xferserverWant $args {
+    if {[string index $xferserverWant 0] eq "!"} {
+      if {[string first [string range $xferserverWant 1 end] \
+             $xferserverReply]>=0} {set xferserverGood 0}
+    } elseif {[string first $xferserverWant $xferserverReply]<0} {
+      set xferserverGood 0
+    }
+  }
+  if {!$xferserverGood} {
+    puts "  reply to $name: $xferserverReply"
+  }
+  test xfer-server-$name {$xferserverGood}
+}
+
+set xferserverPull "pull x $xferserverPcode\n"
+set xferserverPush "push x $xferserverPcode\n"
+
+###############################################################################
+# With no permissions at all, everything is refused.
+
+xferserver_caps ""
+xferserver_expect none-pull $xferserverPull \
+    {error not\sauthorized\sto\sread}
+xferserver_expect none-push $xferserverPush \
+    {error not\sauthorized\sto\swrite}
+xferserver_expect none-clone "clone 3 1\n" \
+    {error not\sauthorized\sto\sclone}
+xferserver_expect none-file "file $xferserverFile 12\nhello world\n" \
+    {error not\sauthorized\sto\swrite}
+xferserver_expect none-cfile "cfile $xferserverFile 12 3\nabc\n" \
+    {error not\sauthorized\sto\swrite}
+xferserver_expect none-uvgimme "uvgimme note.txt\n" "!uvfile" "errors 0"
+xferserver_expect none-reqconfig "reqconfig /project\n" "!config " "errors 0"
+xferserver_expect none-uv-hash "pragma uv-hash $xferserverAbsent\n" \
+    "!uv-pull-only" "!uv-push-ok"
+xferserver_expect none-private "private\n" {error not\sauthorized\sto\ssync\sprivate}
+xferserver_expect none-send-private "pragma send-private\n" \
+    {error not\sauthorized\sto\ssync\sprivate}
+xferserver_expect none-config "config /project 0\n\n" \
+    {error not\sauthorized\sto\spush\sconfiguration}
+
+###############################################################################
+# Read only: a pull is served, a push after it is turned into a message.
+
+xferserver_caps "o"
+xferserver_expect read-pull $xferserverVersion$xferserverPull \
+    "igot " "pragma server-version" "errors 0"
+xferserver_expect read-pull-then-push $xferserverPull$xferserverPush \
+    {message pull\sonly\s-\snot\sauthorized\sto\spush}
+xferserver_expect read-gimme \
+    "$xferserverVersion${xferserverPull}gimme $xferserverFile\n" \
+    "file $xferserverFile"
+# A client that gives no version is taken to be older than 2.0, which
+# cannot be sent a SHA3 hash.
+xferserver_expect read-gimme-old-client \
+    "${xferserverPull}gimme $xferserverFile\n" \
+    "!file $xferserverFile" {error Fossil\sversion\s2.0\sor\slater\srequired}
+xferserver_expect read-gimme-absent "${xferserverPull}gimme $xferserverAbsent\n" \
+    "!file $xferserverAbsent" "errors 0"
+xferserver_expect read-gimme-no-pull "gimme $xferserverFile\n" \
+    "!file $xferserverFile" "errors 0"
+xferserver_expect read-igot-no-push "${xferserverPull}igot $xferserverAbsent\n" \
+    "!gimme $xferserverAbsent" "errors 0"
+xferserver_expect read-uv-hash "pragma uv-hash $xferserverAbsent\n" \
+    "pragma uv-pull-only"
+xferserver_expect read-reqconfig "reqconfig /project\n" "config /config "
+xferserver_expect read-reqconfig-old-style "reqconfig project-name\n" \
+    "!config " "errors 0"
+
+###############################################################################
+# Malformed cards are answered with "bad command", or with an error of
+# their own, and never crash.
+
+foreach {xferserverName xferserverBody} [list \
+  gimme-extra-token   "gimme $xferserverFile extra\n" \
+  gimme-not-a-hash    "gimme nothash\n" \
+  uvgimme-extra-token "uvgimme a b\n" \
+  uvgimme-bad-name    "uvgimme ../etc/passwd\n" \
+  igot-alone          "igot\n" \
+  igot-not-a-hash     "igot nothash\n" \
+  pull-not-a-hash     "pull x nothash\n" \
+  pull-too-few        "pull x\n" \
+  login-too-few       "login tester 0\n" \
+  reqconfig-extra     "reqconfig /project extra\n" \
+  config-size-not-int "config /project notint\n" \
+  cookie-alone        "cookie\n" \
+  pragma-alone        "pragma\n" \
+  unknown-card        "frobnicate 1 2 3\n" \
+] {
+  xferserver_expect bad-$xferserverName $xferserverBody {error bad\scommand:}
+}
+xferserver_expect wrong-project "pull x $xferserverAbsent\n" \
+    {error wrong\sproject}
+xferserver_expect cookie "cookie abc\n" "errors 0"
+xferserver_expect unknown-pragma "pragma no-such-pragma 1 2\n" "errors 0"
+xferserver_expect comment-line "# a comment\n$xferserverPull" "errors 0"
+xferserver_expect ci-lock-too-few "pragma ci-lock $xferserverFile\n" "errors 0"
+xferserver_expect ci-unlock-not-a-hash "pragma ci-unlock nothash\n" "errors 0"
+xferserver_expect client-version-short "pragma client-version 22900\n" \
+    "!pragma server-version" "errors 0"
+
+###############################################################################
+# Write without Private: a client that says an artifact is private is not
+# asked for it, and may not send private content.
+
+xferserver_caps "io"
+xferserver_expect write-igot-public "${xferserverPush}igot $xferserverAbsent\n" \
+    "gimme $xferserverAbsent"
+fossil sql -R srv.fossil "SELECT count(*) FROM blob b, private p\
+   WHERE p.rid=b.rid AND b.uuid='$xferserverAbsent'"
+test xfer-server-write-igot-public-not-private {[string trim $RESULT]==0}
+xferserver_expect write-igot-private-known \
+    "${xferserverPush}igot $xferserverAbsent 1\n" \
+    "!gimme $xferserverAbsent" "errors 0"
+fossil sql -R srv.fossil "SELECT count(*) FROM blob b, private p\
+   WHERE p.rid=b.rid AND b.uuid='$xferserverAbsent'"
+test xfer-server-write-igot-private-marks-phantom {[string trim $RESULT]==1}
+set xferserverAbsent2 [string repeat fedcba9876543210 4]
+xferserver_expect write-igot-private-unknown \
+    "${xferserverPush}igot $xferserverAbsent2 1\n" \
+    "!gimme $xferserverAbsent2" "errors 0"
+fossil sql -R srv.fossil \
+    "SELECT count(*) FROM blob WHERE uuid='$xferserverAbsent2'"
+test xfer-server-write-igot-private-unknown-not-stored {[string trim $RESULT]==0}
+xferserver_expect write-private "${xferserverPush}private\n" \
+    {error not\sauthorized\sto\ssync\sprivate}
+xferserver_expect write-client-url \
+    "${xferserverPush}pragma client-url http://example.org/x\n" "errors 0"
+fossil sql -R srv.fossil \
+    "SELECT count(*) FROM config WHERE name GLOB 'syncfrom:*example.org*'"
+test xfer-server-write-client-url-recorded {[string trim $RESULT]==1}
+
+###############################################################################
+# With a login card: private content, configuration, clone and locks.
+
+xferserver_caps ""
+set xferserverAbsent3 [string repeat 00112233445566778899aabbccddeeff 2]
+# A private artifact that the server lacks becomes a private phantom.  It
+# is asked for only when the client offers to send private content.
+xferserver_expect login-igot-private \
+    "$xferserverLogin${xferserverPush}igot $xferserverAbsent3 1\n" \
+    "!gimme $xferserverAbsent3" "errors 0"
+fossil sql -R srv.fossil "SELECT count(*) FROM blob b, private p\
+   WHERE p.rid=b.rid AND b.uuid='$xferserverAbsent3'"
+test xfer-server-login-igot-private-phantom {[string trim $RESULT]==1}
+xferserver_expect login-private "$xferserverLogin${xferserverPush}private\n" \
+    "errors 0"
+xferserver_expect login-send-private \
+    "$xferserverLogin${xferserverPull}pragma send-private\n" "errors 0"
+xferserver_expect login-send-catalog \
+    "$xferserverLogin${xferserverPull}pragma send-catalog\n" \
+    "igot $xferserverFile"
+xferserver_expect login-req-clusters \
+    "$xferserverLogin${xferserverPull}pragma req-clusters\n" "errors 0"
+xferserver_expect login-req-links \
+    "$xferserverLogin${xferserverPull}pragma req-links\n" "errors 0"
+xferserver_expect login-uv-hash-same \
+    "${xferserverLogin}pragma uv-hash da39a3ee5e6b4b0d3255bfef95601890afd80709\n" \
+    "!uv-pull-only" "!uv-push-ok"
+
+# The configuration that the server gives out is accepted back.
+xferserver_send "${xferserverLogin}reqconfig /project\n"
+test xfer-server-login-reqconfig \
+    {$xferserverOk && [string first "config /config " $xferserverReply]>=0}
+set xferserverCards ""
+foreach xferserverLine [split $xferserverReply \n] {
+  if {[string match "#*" $xferserverLine]} continue
+  append xferserverCards $xferserverLine\n
+}
+xferserver_expect login-config-roundtrip \
+    "$xferserverLogin$xferserverPush$xferserverCards" "errors 0"
+xferserver_expect login-config-negative-size \
+    "${xferserverLogin}config /project -5\n" {error bad\scommand:}
+
+# Clone, in each version of the protocol.  A login card to test-xfer does
+# not grant the Clone permission, so "nobody" is given it.
+xferserver_caps "g"
+set xferserverLogin $xferserverVersion
+xferserver_expect clone-v2-old-client "clone 2 1\n" \
+    "!file " {error Fossil\sversion\s2.0\sor\slater\srequired} "clone_seqno 0"
+xferserver_expect clone-v3-old-client "clone 3 1\n" \
+    "!cfile " {error Fossil\sversion\s2.0\sor\slater\srequired} "clone_seqno 0"
+xferserver_expect clone-v1 "${xferserverLogin}clone\n" \
+    "push " "igot $xferserverFile" "errors 0"
+xferserver_expect clone-v1-odd-arguments "${xferserverLogin}clone x y\n" \
+    "push " "errors 0"
+xferserver_expect clone-v2 "${xferserverLogin}clone 2 1\n" \
+    "file " "clone_seqno 0"
+# "fossil test-xfer" prints the reply as a string, so a reply that holds
+# compressed content is cut at its first zero byte.  Only the start of
+# such a reply can be checked.
+xferserver_expect clone-v3 "${xferserverLogin}clone 3 1\n" "cfile "
+xferserver_expect clone-v3-past-end \
+    "${xferserverLogin}clone 3 [expr {$xferserverMaxRid+50}]\n" \
+    "!cfile " "clone_seqno 0"
+xferserver_expect clone-v3-zero "${xferserverLogin}clone 3 0\n" \
+    {error invalid\sclone\ssequence\snumber}
+fossil sql -R srv.fossil \
+    "REPLACE INTO config(name,value,mtime) VALUES('max-download',1,now())"
+xferserver_expect clone-v3-small-reply "${xferserverLogin}clone 3 1\n" \
+    "!cfile " "clone_seqno 1"
+fossil sql -R srv.fossil "DELETE FROM config WHERE name='max-download'"
+fossil sql -R srv.fossil \
+    "REPLACE INTO config(name,value,mtime) VALUES('max-download-time',0,now())"
+xferserver_expect clone-v3-no-time "${xferserverLogin}clone 3 1\n" "cfile "
+fossil sql -R srv.fossil "DELETE FROM config WHERE name='max-download-time'"
+fossil sql -R srv.fossil \
+    "REPLACE INTO config(name,value,mtime) VALUES('uv-sync',1,now())"
+xferserver_expect clone-uv-sync "${xferserverLogin}clone 3 1\n" \
+    "pragma uv-pull-only"
+fossil sql -R srv.fossil "DELETE FROM config WHERE name='uv-sync'"
+
+set xferserverLogin "login tester 0 0\n"
+xferserver_caps ""
+
+# Check-in locks.  The second client to ask for the lock on the same
+# check-in is told who holds it; the holder asking again is not.
+fossil sql -R srv.fossil "SELECT uuid FROM blob WHERE rid=(SELECT max(objid)\
+   FROM event WHERE type='ci')"
+set xferserverCkin [string trim $::RESULT]
+set xferserverClientA [string repeat a 40]
+set xferserverClientB [string repeat b 40]
+xferserver_expect ci-lock-first \
+    "$xferserverLogin${xferserverPull}pragma ci-lock $xferserverCkin $xferserverClientA\n" \
+    "!ci-lock-fail" "pragma avoid-delta-manifests"
+xferserver_expect ci-lock-holder-again \
+    "$xferserverLogin${xferserverPull}pragma ci-lock $xferserverCkin $xferserverClientA\n" \
+    "!ci-lock-fail"
+xferserver_expect ci-lock-second-client \
+    "$xferserverLogin${xferserverPull}pragma ci-lock $xferserverCkin $xferserverClientB\n" \
+    "pragma ci-lock-fail "
+xferserver_expect ci-unlock \
+    "$xferserverLogin${xferserverPull}pragma ci-unlock $xferserverClientA\n" "errors 0"
+fossil sql -R srv.fossil "SELECT count(*) FROM config WHERE name GLOB 'ci-lock-*'"
+test xfer-server-ci-unlock-removed {[string trim $RESULT]==0}
+xferserver_expect ci-lock-after-unlock \
+    "$xferserverLogin${xferserverPull}pragma ci-lock $xferserverCkin $xferserverClientB\n" \
+    "!ci-lock-fail"
+# A lock older than the lock-timeout setting is dropped.
+fossil sql -R srv.fossil "UPDATE config SET mtime=mtime-100000 WHERE name GLOB 'ci-lock-*'"
+xferserver_expect ci-lock-expired \
+    "$xferserverLogin${xferserverPull}pragma ci-lock $xferserverCkin $xferserverClientA\n" \
+    "!ci-lock-fail"
+fossil sql -R srv.fossil \
+    "REPLACE INTO config(name,value,mtime) VALUES('forbid-delta-manifests',0,now())"
+xferserver_expect ci-lock-delta-manifests-allowed \
+    "$xferserverLogin${xferserverPull}pragma ci-lock $xferserverCkin $xferserverClientA\n" \
+    "!avoid-delta-manifests" "errors 0"
+
+###############################################################################
+# More cards and pragmas under particular permissions and settings.
+
+fossil sql -R srv.fossil "DELETE FROM config WHERE name GLOB 'ci-lock-*'"
+fossil sql -R srv.fossil "DELETE FROM config WHERE name='forbid-delta-manifests'"
+set xferserverAbsent4 [string repeat 0f1e2d3c4b5a6978 4]
+xferserver_expect login-igot-flag-zero \
+    "$xferserverLogin${xferserverPush}igot $xferserverAbsent4 0\n" \
+    "gimme $xferserverAbsent4"
+xferserver_expect bad-config-too-few "${xferserverLogin}config /project\n" \
+    {error bad\scommand:}
+xferserver_expect uv-hash-not-a-hash "${xferserverLogin}pragma uv-hash nothash\n" \
+    "!uv-pull-only" "!uv-push-ok" "errors 0"
+xferserver_expect ci-lock-not-a-hash \
+    "$xferserverLogin${xferserverPull}pragma ci-lock nothash $xferserverClientA\n" \
+    "!avoid-delta-manifests" "errors 0"
+xferserver_expect ci-unlock-too-few "${xferserverLogin}pragma ci-unlock\n" "errors 0"
+xferserver_expect client-url-too-few "${xferserverLogin}pragma client-url\n" \
+    "errors 0"
+
+# The unversioned catalog is sent once in a reply, and a client that may
+# write unversioned files is told so.
+xferserver_caps "oy"
+xferserver_expect uv-hash-may-push "pragma uv-hash $xferserverAbsent\n" \
+    "pragma uv-push-ok"
+xferserver_expect uv-hash-twice \
+    "pragma uv-hash $xferserverAbsent\npragma uv-hash $xferserverAbsent\n" \
+    "pragma uv-push-ok" "errors 0"
+test xfer-server-uv-hash-twice-one-answer \
+    {[regexp -all {pragma uv-push-ok} $xferserverReply]==1}
+
+# Without the Write permission a client URL is not recorded.
+xferserver_caps "o"
+xferserver_expect read-client-url \
+    "${xferserverPull}pragma client-url http://example.net/z\n" "errors 0"
+fossil sql -R srv.fossil \
+    "SELECT count(*) FROM config WHERE name GLOB 'sync*example.net*'"
+test xfer-server-read-client-url-not-recorded {[string trim $RESULT]==0}
+
+# Links to other repositories of the project are given on request, except
+# those on the local host.
+fossil sql -R srv.fossil "REPLACE INTO config(name,value,mtime)\
+   VALUES('syncwith:http://localhost:8080/y','{}',now())"
+xferserver_expect read-req-links "${xferserverPull}pragma req-links\n" \
+    "pragma link http://example.org/x" "!localhost:8080/y"
+
+# The address configuration is given only to a client that may read
+# addresses.
+xferserver_caps "oe"
+xferserver_expect read-address-reqconfig "reqconfig /all\n" "errors 0"
+
+# Clone combined with other cards.
+xferserver_caps "gx"
+xferserver_expect clone-version-one "${xferserverVersion}clone 1 1\n" \
+    "push " "igot $xferserverFile" "errors 0"
+xferserver_expect clone-then-gimme \
+    "${xferserverVersion}clone\ngimme $xferserverFile\n" \
+    "file $xferserverFile" "errors 0"
+xferserver_expect clone-send-private \
+    "${xferserverVersion}pragma send-private\nclone\n" "push " "errors 0"
+fossil sql -R srv.fossil \
+    "REPLACE INTO config(name,value,mtime) VALUES('uv-sync',1,now())"
+xferserver_expect clone-uv-sync-after-uv-hash \
+    "${xferserverVersion}pragma uv-hash $xferserverAbsent\nclone 3 1\n" \
+    "pragma uv-pull-only"
+test xfer-server-clone-uv-sync-one-catalog \
+    {[regexp -all {pragma uv-pull-only} $xferserverReply]==1}
+fossil sql -R srv.fossil "DELETE FROM config WHERE name='uv-sync'"
+xferserver_caps ""
+
+# More check-in locks: a lock on another check-in does not get in the
+# way, a lock on a check-in that is no longer a leaf is dropped, and a
+# lock with no user name is reported as held by "nobody".
+fossil sql -R srv.fossil "SELECT b.uuid FROM blob b, plink p\
+   WHERE b.rid=p.pid AND p.cid=(SELECT max(objid) FROM event WHERE type='ci')"
+set xferserverParent [string trim $::RESULT]
+test xfer-server-setup-parent {[string length $xferserverParent]>=40}
+xferserver_expect ci-lock-on-parent \
+    "$xferserverLogin${xferserverPull}pragma ci-lock $xferserverParent $xferserverClientA\n" \
+    "!ci-lock-fail" "errors 0"
+xferserver_expect ci-lock-parent-not-a-leaf \
+    "$xferserverLogin${xferserverPull}pragma ci-lock $xferserverParent $xferserverClientB\n" \
+    "!ci-lock-fail" "errors 0"
+xferserver_expect ci-lock-tip \
+    "$xferserverLogin${xferserverPull}pragma ci-lock $xferserverCkin $xferserverClientA\n" \
+    "!ci-lock-fail" "errors 0"
+fossil sql -R srv.fossil "SELECT count(*) FROM config WHERE name GLOB 'ci-lock-*'"
+test xfer-server-ci-lock-parent-dropped {[string trim $RESULT]==1}
+fossil sql -R srv.fossil "UPDATE config SET value=json_object('clientid',\
+   '$xferserverClientA') WHERE name GLOB 'ci-lock-*'"
+xferserver_expect ci-lock-held-by-nobody \
+    "$xferserverLogin${xferserverPull}pragma ci-lock $xferserverCkin $xferserverClientB\n" \
+    "pragma ci-lock-fail nobody "
+fossil sql -R srv.fossil "DELETE FROM config WHERE name GLOB 'ci-lock-*'"
+
+# The TH1 transfer scripts run on the server.  One that fails is reported.
+fossil sql -R srv.fossil "REPLACE INTO config(name,value,mtime)\
+   VALUES('xfer-push-script','set xferserverSeen 1',now())"
+xferserver_expect push-script-ok "$xferserverLogin$xferserverPush" "errors 0"
+fossil sql -R srv.fossil "REPLACE INTO config(name,value,mtime)\
+   VALUES('xfer-push-script','error push-script-says-no',now())"
+xferserver_expect push-script-fails "$xferserverLogin$xferserverPush" \
+    {error push\sscript\sfailed:} "push-script-says-no"
+fossil sql -R srv.fossil "DELETE FROM config WHERE name='xfer-push-script'"
+fossil sql -R srv.fossil "REPLACE INTO config(name,value,mtime)\
+   VALUES('xfer-common-script','error common-script-says-no',now())"
+xferserver_expect common-script-fails \
+    "$xferserverLogin$xferserverPull$xferserverPush" \
+    {error common\sscript\sfailed:} "common-script-says-no"
+fossil sql -R srv.fossil "DELETE FROM config WHERE name='xfer-common-script'"
+
+# A repository with no project code cannot answer a pull or a push.
+fossil sql -R srv.fossil "DELETE FROM config WHERE name='project-code'"
+xferserver_send "$xferserverLogin$xferserverPull"
+test xfer-server-no-project-code \
+    {!$xferserverOk && [string first "missing project code" $xferserverReply]>=0}
+
+###############################################################################
+
+test_cleanup

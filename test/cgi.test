@@ -1,0 +1,1880 @@
+#
+# How a server reads a request: src/cgi.c.  Requests are written to a
+# file and given to "fossil http --in", which handles one request as a
+# server does and writes the reply to a file.  The page /test-env shows
+# the parameters the server read from the request.
+#
+# Plain HTTP, the same request arriving over ssh, and SCGI.
+#
+
+# These tests run only in a long pass: -assurance stress.
+if {[test_assurance] ne "stress"} {
+  test_skip "runs only with -assurance stress"
+}
+
+test_setup
+
+write_file a.txt "an unversioned file\n"
+fossil uv add a.txt
+set cgiRepo [file join [pwd] .rep.fossil]
+
+# Send the request in TEXT, a string of bytes, to the server and return
+# the reply.  ARGS are more options for "fossil http".
+#
+proc cgi_send {text args} {
+  global cgiRepo
+  write_file request.txt $text
+  file delete reply.txt
+  fossil_raw http $cgiRepo --in request.txt --out reply.txt {*}$args
+  if {[file exists reply.txt]} { return [read_file reply.txt] }
+  return ""
+}
+
+# The same, as a local administrator.
+proc cgi_admin {text args} {
+  return [cgi_send $text --ipaddr 127.0.0.1 --localauth {*}$args]
+}
+
+# The status line of a reply.
+proc cgi_status {reply} {
+  return [string trim [lindex [split $reply \n] 0]]
+}
+
+# The value of parameter NAME as /test-env shows it, or "-" if it does
+# not show it.
+proc cgi_param {reply name} {
+  set start [string first "\n$name = " $reply]
+  if {$start < 0} { return - }
+  incr start [expr {[string length $name] + 4}]
+  set end [string first "  <br>" $reply $start]
+  if {$end < 0} { return - }
+  return [string range $reply $start [expr {$end - 1}]]
+}
+
+# The value of header NAME in a reply, or "-" if the reply has no such
+# header.
+proc cgi_header {reply name} {
+  set end [string first "\r\n\r\n" $reply]
+  foreach line [split [string range $reply 0 $end] \n] {
+    if {[string match -nocase "$name: *" $line]} {
+      return [string trim [string range $line [string length $name]+1 end]]
+    }
+  }
+  return -
+}
+
+# The content of a reply: what follows its headers.
+proc cgi_body {reply} {
+  set end [string first "\r\n\r\n" $reply]
+  if {$end < 0} { return "" }
+  return [string range $reply $end+4 end]
+}
+
+# A GET request for PATH with the header lines in HEADERS, a list.
+proc cgi_get {path {headers {}} {method GET}} {
+  set text "$method $path HTTP/1.1\r\nHost: x\r\n"
+  foreach line $headers { append text $line "\r\n" }
+  return "$text\r\n"
+}
+
+# A POST request with BODY as its content.
+proc cgi_post {type body {path /test-env}} {
+  return "POST $path HTTP/1.1\r\nHost: x\r\nContent-Type: $type\r\nContent-Length: [string length $body]\r\n\r\n$body"
+}
+
+###############################################################################
+# Plain HTTP.
+
+set cgiReply [cgi_admin "GET /test-env?a=1&b=two+words&c=%41%42&d=&e HTTP/1.1\r\nHost: x\r\n\r\n"]
+test cgi-get {$CODE == 0}
+test_eq cgi-get-status [cgi_status $cgiReply] "HTTP/1.0 200 OK"
+test_eq cgi-get-plain [cgi_param $cgiReply a] 1
+test_eq cgi-get-plus [cgi_param $cgiReply b] "two words"
+test_eq cgi-get-escape [cgi_param $cgiReply c] AB
+test_eq cgi-get-empty [cgi_param $cgiReply d] ""
+test_eq cgi-get-no-value [cgi_param $cgiReply e] ""
+
+set cgiReply [cgi_admin [cgi_post application/x-www-form-urlencoded \
+    "x=1&y=a%20b&Z=upper"]]
+test_eq cgi-post-form [cgi_param $cgiReply x] 1
+test_eq cgi-post-form-escape [cgi_param $cgiReply y] "a b"
+test_eq cgi-post-form-upper [cgi_param $cgiReply z] upper
+
+foreach {cgiName cgiRequest} [list \
+    no-method "\r\n\r\n" \
+    bad-method "DELETE /test-env HTTP/1.1\r\nHost: x\r\n\r\n" \
+] {
+  set cgiReply [cgi_send $cgiRequest --ipaddr 127.0.0.1]
+  test cgi-malformed-$cgiName \
+      {[string match "HTTP/1.0 40*" [cgi_status $cgiReply]]}
+}
+
+# A request line with no path is a request for the home page.
+set cgiReply [cgi_send "GET\r\n\r\n" --ipaddr 127.0.0.1]
+test_eq cgi-no-path [cgi_status $cgiReply] "HTTP/1.0 302 Moved Temporarily"
+
+###############################################################################
+# Form data in several parts, as a browser sends an upload.
+
+proc cgi_part {name body {extra ""}} {
+  return "--XB\r\nContent-Disposition: form-data; name=\"$name\"$extra\r\n\r\n$body\r\n"
+}
+set cgiType "multipart/form-data; boundary=XB"
+
+set cgiReply [cgi_admin [cgi_post $cgiType \
+    "[cgi_part alpha {first value}][cgi_part upload {file body} \
+      {; filename="a.txt"}]--XB--\r\n"]]
+test_eq cgi-multipart [cgi_param $cgiReply alpha] "first value"
+test_eq cgi-multipart-file [cgi_param $cgiReply upload] "file body"
+test_eq cgi-multipart-filename [cgi_param $cgiReply upload:filename] a.txt
+test_eq cgi-multipart-bytes [cgi_param $cgiReply upload:bytes] 9
+
+set cgiReply [cgi_admin [cgi_post $cgiType \
+    "--XB\r\nContent-Disposition: form-data; name=\"t\"; filename=\"t.bin\"\r\nContent-Type: application/octet-stream\r\n\r\nxyz\r\n--XB--\r\n"]]
+test_eq cgi-multipart-mimetype [cgi_param $cgiReply t:mimetype] \
+    application/octet-stream
+
+# A name that begins with a capital is taken in lower case.
+set cgiReply [cgi_admin [cgi_post $cgiType \
+    "[cgi_part Upper v {; filename="F.TXT"}]--XB--\r\n"]]
+test_eq cgi-multipart-upper [cgi_param $cgiReply upper] v
+test_eq cgi-multipart-upper-filename [cgi_param $cgiReply upper:filename] F.TXT
+
+# Lines may end with a bare newline.
+set cgiReply [cgi_admin [cgi_post $cgiType \
+    "--XB\nContent-Disposition: form-data; name=\"lf\"\n\nvalue\n--XB--\n"]]
+test_eq cgi-multipart-lf [cgi_param $cgiReply lf] value
+
+# A part with no closing boundary after a long one ends at the end of the
+# request, and every part is read within the request.
+set cgiReply [cgi_admin [cgi_post $cgiType \
+    "[cgi_part alpha [string repeat x 3000]]--XB\r\nContent-Disposition: form-data; name=\"beta\"\r\n\r\nno closing boundary"]]
+test cgi-multipart-unclosed {$CODE == 0}
+test_eq cgi-multipart-unclosed-first \
+    [string length [cgi_param $cgiReply alpha]] 3000
+test_eq cgi-multipart-unclosed-second [cgi_param $cgiReply beta] \
+    "no closing boundary"
+
+# Malformed and unusual bodies are read without a crash.
+set cgiI 0
+foreach cgiBody [list \
+    "" \
+    "\r\n\r\nvalue\r\n\r\n" \
+    "--XB" \
+    "--XB\r\n" \
+    "--XB\r\n\r\nno name here\r\n--XB--\r\n" \
+    "--XB\r\nContent-Disposition: form-data; name=\"a\"" \
+    "[cgi_part a "one\000two"]--XB--\r\n" \
+    "--XB\r\nContent-Disp\000osition: form-data; name=\"a\"\r\n\r\nv\r\n--XB--\r\n" \
+    "--[string repeat B 3000]\r\nContent-Disposition: form-data; name=\"a\"\r\n\r\nshort\r\n" \
+    "[cgi_part a [string repeat x 2000]]--XB\r\nContent-Disposition: form-data; name=\"b\"" \
+    "[cgi_part {} v]--XB--\r\n" \
+    "--XB\r\nContent-Disposition: form-data; filename=\"f\"\r\n\r\nv\r\n--XB--\r\n" \
+    "--XB\r\nContent-Disposition: form-data; name=\"abc\r\n\r\nv\r\n--XB--\r\n" \
+    "--XB\r\nContent-Disposition: form-data; name=\r\n\r\nv\r\n--XB--\r\n" \
+    "--XB\r\nContent-Disposition: form-data; name=\"a\"; filename=\r\n\r\nv\r\n--XB--\r\n" \
+    "--XB\r\nContent-Disposition: form-data; name=\"a\"\r\ncontent-type:\r\n\r\nv\r\n--XB--\r\n" \
+    "[cgi_part a "\n--X"]--XB--\r\n" \
+] {
+  incr cgiI
+  cgi_admin [cgi_post $cgiType $cgiBody]
+  test cgi-multipart-odd-$cgiI {$CODE == 0}
+}
+set cgiMany ""
+for {set cgiI 0} {$cgiI < 400} {incr cgiI} {
+  append cgiMany [cgi_part p$cgiI [string repeat v [expr {$cgiI % 50}]]]
+}
+set cgiReply [cgi_admin [cgi_post $cgiType "$cgiMany--XB--\r\n"]]
+test_eq cgi-multipart-many [cgi_param $cgiReply p399] [string repeat v 49]
+
+###############################################################################
+# The date in an If-Modified-Since header.  A file that has not changed
+# since that date is not sent again.
+
+proc cgi_since {date} {
+  set reply [cgi_send "GET /uv/a.txt HTTP/1.1\r\nHost: x\r\nIf-Modified-Since: $date\r\n\r\n" --ipaddr 127.0.0.1]
+  return [cgi_status $reply]
+}
+test_eq cgi-since-later [cgi_since "Mon, 01 Jan 2099 00:00:00 GMT"] \
+    "HTTP/1.0 304 Not Modified"
+test_eq cgi-since-earlier [cgi_since "Sat, 01 Jan 2000 00:00:00 GMT"] \
+    "HTTP/1.0 200 OK"
+test_eq cgi-since-garbage [cgi_since "yesterday"] "HTTP/1.0 200 OK"
+# Numbers out of range are not a date.
+foreach {cgiName cgiDate} {
+  year   "Mon, 01 Jan 2147483647 00:00:00 GMT"
+  day    "Mon, 2147483647 Jan 2026 00:00:00 GMT"
+  hour   "Mon, 01 Jan 2026 2147483647:00:00 GMT"
+  minute "Mon, 01 Jan 2026 00:2147483647:00 GMT"
+} {
+  test_eq cgi-since-huge-$cgiName [cgi_since $cgiDate] "HTTP/1.0 200 OK"
+}
+
+###############################################################################
+# A reply is compressed with gzip when the client accepts it and the type
+# of the content is text, JavaScript, JSON, WebAssembly, Tcl, tar, XML,
+# SVG or an icon.  Other types, and a client that does not accept gzip,
+# get the content as it is.
+
+foreach {cgiName cgiGzip} {
+  g.txt 1  g.js 1  g.json 1  g.wasm 1  g.tcl 1  g.tar 1  g.xml 1  g.svg 1
+  g.ico 1  g.png 0  g.zip 0  g.pdf 0
+} {
+  write_file $cgiName [string repeat "content to compress\n" 50]
+  fossil uv add $cgiName
+  set cgiReply [cgi_send "GET /uv/$cgiName HTTP/1.1\r\nHost: x\r\nAccept-Encoding: gzip, deflate\r\n\r\n" --ipaddr 127.0.0.1]
+  test_eq cgi-gzip-$cgiName \
+      [string match "*\nContent-Encoding: gzip\r\n*" $cgiReply] $cgiGzip
+}
+set cgiReply [cgi_send "GET /uv/g.txt HTTP/1.1\r\nHost: x\r\n\r\n" --ipaddr 127.0.0.1]
+test cgi-gzip-not-accepted {[cgi_status $cgiReply] eq "HTTP/1.0 200 OK"
+    && ![string match "*Content-Encoding*" $cgiReply]}
+
+###############################################################################
+# A POST whose Referer is another site is not taken as safe from forgery,
+# and is written to the error log.
+
+proc cgi_logout {referer} {
+  return [cgi_send "POST /login HTTP/1.1\r\nHost: x\r\nReferer: $referer\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: 5\r\n\r\nout=1" --ipaddr 10.0.0.1 --errorlog [file join [pwd] err.log]]
+}
+file delete err.log
+cgi_logout http://x/login
+test cgi-same-origin-not-logged {![file exists err.log]
+    || ![string match "*different origin*" [read_file err.log]]}
+cgi_logout http://elsewhere.example/page
+test cgi-other-origin-logged {[file exists err.log]
+    && [string match "*POST from different origin*" [read_file err.log]]}
+
+###############################################################################
+# SCGI: a header of name and value pairs, each ended by a zero byte,
+# preceded by its length and followed by a comma.
+
+proc cgi_scgi {pairs {body ""}} {
+  set h ""
+  foreach {k v} $pairs { append h $k \000 $v \000 }
+  return "[string length $h]:$h,$body"
+}
+set cgiReply [cgi_send [cgi_scgi {
+  CONTENT_LENGTH 0 SCGI 1 REQUEST_METHOD GET REQUEST_URI /test-env?s=1
+  PATH_INFO /test-env QUERY_STRING s=1 SERVER_NAME x SERVER_PORT 80
+  REMOTE_ADDR 127.0.0.1
+}] --scgi --localauth]
+test_eq cgi-scgi [cgi_status $cgiReply] "HTTP/1.0 200 OK"
+test_eq cgi-scgi-param [cgi_param $cgiReply s] 1
+
+foreach {cgiName cgiRequest} [list \
+    too-short "15:CONTENT_LENGTH\0000\000," \
+    cut-short "40:CONTENT_LENGTH\0000\000," \
+    no-zero "20:CONTENT_LENGTH0000000000," \
+    huge-length "99999999999999999999:CONTENT_LENGTH\0000\000," \
+] {
+  set cgiReply [cgi_send $cgiRequest --scgi]
+  test cgi-scgi-$cgiName {$CODE == 0 &&
+      [string match "HTTP/1.0 400*" [cgi_status $cgiReply]]}
+}
+
+###############################################################################
+# The same reader for a request that arrives over ssh, which the server
+# knows from SSH_CONNECTION.  It reads the client's probes first.
+
+set ::env(SSH_CONNECTION) "127.0.0.1 5000 127.0.0.1 22"
+set cgiReply [cgi_send "GET /test-env?q=1 HTTP/1.1\r\nHost: x\r\n\r\n" --localauth]
+test_eq cgi-ssh [cgi_status $cgiReply] "HTTP/1.0 200 OK"
+test_eq cgi-ssh-param [cgi_param $cgiReply q] 1
+test_eq cgi-ssh-address [cgi_param $cgiReply REMOTE_ADDR] 127.0.0.1
+
+set cgiReply [cgi_send [cgi_post application/x-www-form-urlencoded \
+    "p=posted"] --localauth]
+test_eq cgi-ssh-post [cgi_param $cgiReply p] posted
+
+# An older client opens the connection with "echo" probes, each of which
+# the server answers with the word it was given, and then names the
+# command it ran.  Any other word in a probe is refused.
+set cgiReply [cgi_send "echo test1\necho probe-2\nfossil\nGET /test-env?q=3 HTTP/1.1\r\nHost: x\r\n\r\n" --localauth]
+test cgi-ssh-probes {[string match "test1\nprobe-2\n*" $cgiReply]
+    && [string match "*\nHTTP/1.0 200 OK*" $cgiReply]}
+test_eq cgi-ssh-probes-param [cgi_param $cgiReply q] 3
+foreach {cgiName cgiRequest} [list \
+    probe-word "echo hello\n" \
+    probe-alone "echo\n" \
+    probe-no-command "echo test1\n" \
+] {
+  set cgiReply [cgi_send $cgiRequest --localauth]
+  test cgi-ssh-$cgiName {$CODE == 0
+      && [string match "*400 Bad Request*" $cgiReply]}
+}
+
+foreach {cgiName cgiRequest} [list \
+    empty "" \
+    bad-method "PUT /x HTTP/1.1\r\n\r\n" \
+    no-url "GET\r\n\r\n" \
+    long-line "GET /[string repeat a 5000] HTTP/1.1\r\n\r\n" \
+] {
+  cgi_send $cgiRequest
+  test cgi-ssh-$cgiName {$CODE == 0 || $CODE == 1}
+}
+unset ::env(SSH_CONNECTION)
+
+###############################################################################
+# Names and values in a query string and in a Cookie header.  A name is
+# taken when it begins with a letter and holds only letters, digits,
+# "_" and "-"; of two values with one name the first is kept; a value
+# from the query string that holds a control character is dropped.
+
+set cgiReply [cgi_admin [cgi_get \
+    "/test-env?e&a=1&=5&&a\$b=6&c=%01x&1a=2&_u=3&a=second&Up=4&zz" \
+    [list "Cookie: ck=1;  sp=2; fossil-x=9; Big=3"]]]
+foreach {cgiName cgiParam cgiValue} {
+  no-value-first  e         ""
+  plain           a         1
+  empty-name      ""        -
+  strange-name    a$b       -
+  control-char    c         -
+  digit-first     1a        -
+  underscore      _u        -
+  upper           up        4
+  no-value-last   zz        ""
+  cookie          ck        1
+  cookie-space    sp        2
+  cookie-upper    big       3
+  cookie-fossil   fossil-x  -
+  cookie-header   HTTP_COOKIE -
+} {
+  test_eq cgi-names-$cgiName [cgi_param $cgiReply $cgiParam] $cgiValue
+}
+
+# With "showall" the page shows the cookies as well.
+set cgiReply [cgi_admin [cgi_get /test-env?showall \
+    [list "Cookie: ck=1; fossil-x=9"]]]
+test_eq cgi-showall-cookie [cgi_param $cgiReply fossil-x] 9
+test_eq cgi-showall-header [cgi_param $cgiReply HTTP_COOKIE] "ck=1; fossil-x=9"
+
+# A value in a form may hold a control character.
+set cgiReply [cgi_admin [cgi_post application/x-www-form-urlencoded \
+    "k=%01x&plain=1"]]
+test_eq cgi-post-control-char [cgi_param $cgiReply k] "\001x"
+
+# More than 630 parameters are refused.
+set cgiMany ""
+for {set cgiI 0} {$cgiI < 700} {incr cgiI} { append cgiMany "q$cgiI=1&" }
+set cgiReply [cgi_admin [cgi_post application/x-www-form-urlencoded $cgiMany]]
+test cgi-too-many {$CODE == 1
+    && [string match "*Too many query parameters*" $cgiReply$RESULT]}
+
+###############################################################################
+# The request line and the header lines.
+
+set cgiReply [cgi_admin "GET /test-env?showall HTTP/1.1\r\nHOST: named.example:8080\r\nIf-None-Match: tag\r\nAuthorization: Basic eDp5\r\nAccept-Language:   de  \r\nUser-Agent: Agent/1\r\nUnknown-Header: ignored\r\n\r\n"]
+foreach {cgiParam cgiValue} {
+  HTTP_HOST            named.example:8080
+  SERVER_NAME          named.example
+  HTTP_IF_NONE_MATCH   tag
+  HTTP_AUTHORIZATION   {Basic eDp5}
+  HTTP_ACCEPT_LANGUAGE de
+  HTTP_USER_AGENT      Agent/1
+  REQUEST_SCHEME       http
+  REQUEST_METHOD       GET
+} {
+  test_eq cgi-header-$cgiParam [cgi_param $cgiReply $cgiParam] $cgiValue
+}
+
+# An "Https:" header says that the request came by https, so the reply
+# sends a local user to the https login page.
+set cgiReply [cgi_admin [cgi_get /test-env [list "Https: on"]]]
+test_eq cgi-header-https [cgi_header $cgiReply Location] \
+    https://x/login?g=test-env
+
+# X-Forwarded-For names the client when the request comes from this
+# machine: the last address in it is taken.  From any other machine the
+# header is ignored.  Only a local client sees /test-env here.
+foreach {cgiName cgiFrom cgiForwarded cgiAddr} {
+  one         ::1        127.0.0.1                127.0.0.1
+  comma       127.0.0.1  9.9.9.9,::1              ::1
+  space       127.0.0.1  {9.9.9.9, 127.0.0.1}     127.0.0.1
+  mapped      127.0.0.1  ::ffff:127.0.0.1         ::ffff:127.0.0.1
+  remote      127.0.0.1  {127.0.0.1, 9.9.9.9}     -
+  empty       127.0.0.1  {}                       -
+  not-local   10.0.0.1   127.0.0.1                -
+} {
+  set cgiReply [cgi_send [cgi_get /test-env \
+      [list "X-Forwarded-For: $cgiForwarded"]] --ipaddr $cgiFrom --localauth]
+  test_eq cgi-forwarded-$cgiName [cgi_param $cgiReply REMOTE_ADDR] $cgiAddr
+}
+
+# HEAD gets the headers of the reply to GET and no content.
+set cgiReply [cgi_send [cgi_get /uv/g.png {} HEAD] --ipaddr 127.0.0.1]
+test_eq cgi-head-status [cgi_status $cgiReply] "HTTP/1.0 200 OK"
+test_eq cgi-head-length [cgi_header $cgiReply Content-Length] 1000
+test_eq cgi-head-body [cgi_body $cgiReply] ""
+
+# A POST must say how long its content is, and send that much.
+set cgiReply [cgi_admin "POST /test-env HTTP/1.1\r\nHost: x\r\n\r\n"]
+test cgi-post-no-length {[cgi_status $cgiReply] eq "HTTP/1.0 400 Bad Request"
+    && [string match "*missing CONTENT_LENGTH on a POST method*" $cgiReply]}
+set cgiReply [cgi_admin "POST /test-env HTTP/1.1\r\nHost: x\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: 50\r\n\r\na=1"]
+test cgi-post-short {[cgi_status $cgiReply] eq "HTTP/1.0 400 Bad Request"
+    && [string match "*Wanted 50 bytes but got only 3*" $cgiReply]}
+# Content with no type is not read.
+set cgiReply [cgi_admin "POST /test-env HTTP/1.1\r\nHost: x\r\nContent-Length: 3\r\n\r\na=1"]
+test cgi-post-no-type {[cgi_status $cgiReply] eq "HTTP/1.0 200 OK"
+    && [cgi_param $cgiReply a] eq "-"}
+foreach {cgiName cgiLength} {negative -5 zero 0 word abc huge 99999999999999999999} {
+  set cgiReply [cgi_admin "POST /test-env HTTP/1.1\r\nHost: x\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: $cgiLength\r\n\r\na=1"]
+  test cgi-post-length-$cgiName {$CODE == 0
+      && [regexp {^HTTP/1.0 (200|400) } $cgiReply]}
+}
+
+###############################################################################
+# Part of a file: a Range header on a GET that succeeds gets the bytes
+# asked for, not compressed, with status 206.
+
+write_file r.css 0123456789abcdefghij
+fossil uv add r.css
+proc cgi_range {range {method GET} {file r.css}} {
+  return [cgi_send [cgi_get /uv/$file \
+      [list "Range: $range" "Accept-Encoding: gzip"] $method] \
+      --ipaddr 127.0.0.1]
+}
+set cgiReply [cgi_range bytes=2-5]
+test_eq cgi-range-status [cgi_status $cgiReply] "HTTP/1.0 206 Partial Content"
+test_eq cgi-range-header [cgi_header $cgiReply Content-Range] "bytes 2-5/20"
+test_eq cgi-range-length [cgi_header $cgiReply Content-Length] 4
+test_eq cgi-range-encoding [cgi_header $cgiReply Content-Encoding] -
+test_eq cgi-range-body [cgi_body $cgiReply] 2345
+set cgiReply [cgi_range bytes=0-0]
+test_eq cgi-range-first-byte [cgi_body $cgiReply] 0
+# A range that is not two numbers in order is ignored.
+foreach {cgiName cgiRange} {
+  word       bytes=abc
+  one-number bytes=5-
+  negative   bytes=-5-10
+  backwards  bytes=9-3
+  other-unit lines=1-2
+} {
+  set cgiReply [cgi_range $cgiRange]
+  test cgi-range-ignored-$cgiName {
+      [cgi_status $cgiReply] eq "HTTP/1.0 200 OK"
+      && [cgi_header $cgiReply Content-Encoding] eq "gzip"}
+}
+# A range that runs past the end of the file stops at the end.
+set cgiReply [cgi_range bytes=15-2147483646]
+test_eq cgi-range-past-end [cgi_body $cgiReply] fghij
+test_eq cgi-range-past-end-header [cgi_header $cgiReply Content-Range] \
+    "bytes 15-19/20"
+test_eq cgi-range-past-end-length [cgi_header $cgiReply Content-Length] 5
+# A range that starts at or after the end gets 416 and no content.
+foreach {cgiName cgiRange} {at-end bytes=20-20 after-end bytes=25-30} {
+  set cgiReply [cgi_range $cgiRange]
+  test cgi-range-unsatisfiable-$cgiName {
+      [cgi_status $cgiReply] eq "HTTP/1.0 416 Range Not Satisfiable"
+      && [cgi_header $cgiReply Content-Range] eq "bytes */20"
+      && [cgi_header $cgiReply Content-Length] eq "0"}
+}
+# A number too large for an int is not taken as a smaller one.
+set cgiReply [cgi_range bytes=0-4294967299]
+test cgi-range-too-large {[cgi_status $cgiReply] eq "HTTP/1.0 200 OK"}
+# A reply other than 206 is sent whole, whatever range was asked for.
+set cgiReply [cgi_send [cgi_get /uv/nosuch.css [list "Range: bytes=3-9"]] \
+    --ipaddr 127.0.0.1]
+test cgi-range-not-found {
+    [string match "HTTP/1.0 404 *" [cgi_status $cgiReply]]
+    && [string match "<!DOCTYPE*" [cgi_body $cgiReply]]}
+
+###############################################################################
+# More shapes of form data in several parts.
+
+proc cgi_form {body} {
+  global cgiType
+  return [cgi_admin [cgi_post $cgiType $body]]
+}
+# A part with no content, where lines end with a bare newline.
+set cgiReply [cgi_form \
+    "--XB\nContent-Disposition: form-data; name=\"none\"\n\n\n--XB--\n"]
+test_eq cgi-multipart-empty-value [cgi_param $cgiReply none] ""
+
+# A name in capitals with no file name is taken in lower case and has no
+# count of bytes.
+set cgiReply [cgi_form "[cgi_part Shout loud]--XB--\r\n"]
+test_eq cgi-multipart-upper-plain [cgi_param $cgiReply shout] loud
+test_eq cgi-multipart-upper-no-bytes [cgi_param $cgiReply shout:bytes] -
+
+# A name in capitals with a type of content.
+set cgiReply [cgi_form "--XB\r\nContent-Disposition: form-data; name=\"Typed\"; filename=\"t\"\r\nContent-Type: text/x-test\r\n\r\nv\r\n--XB--\r\n"]
+test_eq cgi-multipart-upper-mimetype [cgi_param $cgiReply typed:mimetype] \
+    text/x-test
+test_eq cgi-multipart-upper-bytes [cgi_param $cgiReply typed:bytes] 1
+
+# A name that does not begin with a letter is not taken, with or without
+# a file name or a type.
+set cgiReply [cgi_form "--XB\r\nContent-Disposition: form-data; name=\"1st\"; filename=\"f\"\r\nContent-Type: text/plain\r\n\r\nv\r\n[cgi_part after ok]--XB--\r\n"]
+test_eq cgi-multipart-digit-name [cgi_param $cgiReply 1st] -
+test_eq cgi-multipart-digit-filename [cgi_param $cgiReply 1st:filename] -
+test_eq cgi-multipart-digit-mimetype [cgi_param $cgiReply 1st:mimetype] -
+test_eq cgi-multipart-digit-next [cgi_param $cgiReply after] ok
+
+# A type or a file name given before the name belongs to no parameter.
+set cgiReply [cgi_form "--XB\r\nContent-Type: text/early\r\nContent-Disposition: form-data; filename=\"early\"; name=\"late\"\r\n\r\nv\r\n--XB--\r\n"]
+test_eq cgi-multipart-type-first-value [cgi_param $cgiReply late] v
+test_eq cgi-multipart-type-first-mimetype [cgi_param $cgiReply late:mimetype] -
+test_eq cgi-multipart-type-first-filename [cgi_param $cgiReply late:filename] -
+
+# Words in a header line that the reader does not know are passed over.
+set cgiReply [cgi_form "--XB\r\nContent-Disposition: form-data; nonce=1; foo=2; charset=3; xyz; name=\"known\"\r\n\r\nv\r\n--XB--\r\n"]
+test_eq cgi-multipart-unknown-words [cgi_param $cgiReply known] v
+
+# A quoted word that reaches the end of a header line without a closing
+# quote.  The request must be answered within the time limit.
+set cgiBody "--XB\r\nContent-Disposition: form-data; name=\"\r\n\r\nv\r\n[cgi_part after ok]--XB--\r\n"
+write_file request.txt [cgi_post $cgiType $cgiBody]
+file delete reply.txt
+fossil_raw -seconds 15 http $cgiRepo --in request.txt --out reply.txt \
+    --ipaddr 127.0.0.1 --localauth
+test cgi-multipart-lone-quote {$CODE == 0}
+
+# Only the first 49 words of a header line are read.
+set cgiWords ""
+for {set cgiI 0} {$cgiI < 30} {incr cgiI} { append cgiWords " w$cgiI \"q$cgiI\";" }
+set cgiReply [cgi_form "--XB\r\nContent-Disposition: form-data;$cgiWords name=\"far\"\r\n\r\nv\r\n[cgi_part after ok]--XB--\r\n"]
+test_eq cgi-multipart-many-words [cgi_param $cgiReply far] -
+test_eq cgi-multipart-many-words-next [cgi_param $cgiReply after] ok
+
+# A quote that ends a header line after a space is a word of no
+# characters, so the part has no name.
+set cgiReply [cgi_form "--XB\r\nContent-Disposition: form-data; name= \"\r\n\r\nv\r\n[cgi_part after ok]--XB--\r\n"]
+test {cgi-multipart-quote-alone} {[cgi_status $cgiReply] eq "HTTP/1.0 200 OK"
+    && [cgi_param $cgiReply after] eq "ok"}
+
+# Content that begins with a zero byte has no parts.
+set cgiReply [cgi_form "\000--XB\r\n[cgi_part a v]--XB--\r\n"]
+test cgi-multipart-zero-first {[cgi_status $cgiReply] eq "HTTP/1.0 200 OK"
+    && [cgi_param $cgiReply a] eq "-"}
+
+###############################################################################
+# More dates in If-Modified-Since.  The file is given the time that the
+# date stands for and is then not sent again; one second newer and it is.
+
+write_file d.bin "dated"
+fossil uv add d.bin
+proc cgi_since_exact {date seconds} {
+  set result ""
+  foreach mtime [list $seconds [expr {$seconds + 1}]] {
+    fossil sql "UPDATE unversioned SET mtime=$mtime WHERE name='d.bin'"
+    set reply [cgi_send [cgi_get /uv/d.bin [list "If-Modified-Since: $date"]] \
+        --ipaddr 127.0.0.1]
+    lappend result [lindex [cgi_status $reply] 1]
+  }
+  return $result
+}
+foreach {cgiName cgiDate cgiSeconds} {
+  epoch-year      "Thu, 01 Jan 1970 00:00:10 GMT"  10
+  two-digit-year  "Fri, 31 Dec 99 23:59:59 GMT"    946684799
+  leap-2000-feb   "Tue, 29 Feb 2000 12:00:00 GMT"  951825600
+  leap-2000-mar   "Wed, 01 Mar 2000 00:00:00 GMT"  951868800
+  leap-2024-jan   "Wed, 31 Jan 2024 00:00:00 GMT"  1706659200
+  leap-2024-dec   "Tue, 31 Dec 2024 23:59:60 GMT"  1735689600
+  plain-2023-mar  "Wed, 01 Mar 2023 01:02:03 GMT"  1677632523
+  not-leap-2100   "Mon, 01 Mar 2100 00:00:00 GMT"  4107456000
+  year-8099       "Thu, 31 Dec 9999 23:59:59 GMT"  253402300799
+} {
+  test_eq cgi-since-exact-$cgiName [cgi_since_exact $cgiDate $cgiSeconds] \
+      {304 200}
+}
+# Each of these is not a date, so the file is sent.
+fossil sql "UPDATE unversioned SET mtime=1 WHERE name='d.bin'"
+foreach {cgiName cgiDate} {
+  year-before-1970 "Wed, 01 Jan 69 00:00:00 GMT"
+  year-10000       "Sat, 01 Jan 10000 00:00:00 GMT"
+  day-zero         "Mon, 00 Jan 2026 00:00:00 GMT"
+  day-32           "Mon, 32 Jan 2026 00:00:00 GMT"
+  hour-negative    "Mon, 01 Jan 2026 -1:00:00 GMT"
+  hour-24          "Mon, 01 Jan 2026 24:00:00 GMT"
+  minute-negative  "Mon, 01 Jan 2026 00:-1:00 GMT"
+  minute-60        "Mon, 01 Jan 2026 00:60:00 GMT"
+  second-negative  "Mon, 01 Jan 2026 00:00:-1 GMT"
+  second-61        "Mon, 01 Jan 2026 00:00:61 GMT"
+  month            "Mon, 01 Foo 2026 00:00:00 GMT"
+  short            "Mon, 01 Jan 2026"
+  empty            ""
+} {
+  set cgiReply [cgi_send [cgi_get /uv/d.bin \
+      [list "If-Modified-Since: $cgiDate"]] --ipaddr 127.0.0.1]
+  test_eq cgi-since-not-a-date-$cgiName [cgi_status $cgiReply] \
+      "HTTP/1.0 200 OK"
+}
+
+###############################################################################
+# Redirects.  A redirect to an absolute URL is sent as it is; a redirect
+# to a path that begins with "/" is made relative to the base URL; any
+# other target is appended to the base URL.  The "referer" query
+# parameter, the Referer header, or a default supplies the target for
+# the user-edit cancel button.
+
+proc cgi_redirect_to {query {referer none}} {
+  set headers {}
+  if {$referer ne "none"} { lappend headers "Referer: $referer" }
+  set reply [cgi_admin [cgi_get "/setup_uedit?$query" $headers]]
+  return [cgi_header $reply Location]
+}
+# The cancel button redirects to the referer.
+test_eq cgi-redirect-absolute-http [cgi_redirect_to can=1 http://other/p] \
+    http://other/p
+test_eq cgi-redirect-absolute-https [cgi_redirect_to can=1 https://other/p] \
+    https://other/p
+test_eq cgi-redirect-rooted [cgi_redirect_to {can=1&referer=/at-root}] \
+    http://x/at-root
+test_eq cgi-redirect-relative [cgi_redirect_to {can=1&referer=some/where}] \
+    http://x/some/where
+# With no referer parameter and no Referer header, the default is used.
+test_eq cgi-redirect-default [cgi_redirect_to can=1] http://x/setup_ulist
+# The "referer" query parameter is preferred over the Referer header.
+test_eq cgi-redirect-param-wins \
+    [cgi_redirect_to {can=1&referer=/from-param} http://x/from-header] \
+    http://x/from-param
+
+###############################################################################
+# The anti-forgery check.  A GET from the same origin is "same origin"
+# only; a POST adds "POST"; a POST that also carries the right "csrf"
+# token adds "CSRF token".  The page reports the level it reached.
+
+proc cgi_csrf_level {reply} {
+  if {[regexp {CSRF safety = ([^<]*)} $reply all level]} { return $level }
+  return -
+}
+set cgiToken ""
+set cgiReply [cgi_admin [cgi_get /setup_uedit?id=0]]
+regexp {name="csrf" value="([^"]*)"} $cgiReply all cgiToken
+
+set cgiReply [cgi_admin [cgi_get /test-env [list "Referer: http://x/prev"]]]
+test_eq cgi-csrf-get [cgi_csrf_level $cgiReply] "Same origin"
+proc cgi_env_post {body {referer http://x/prev}} {
+  return [cgi_admin "POST /test-env HTTP/1.1\r\nHost: x\r\nReferer: $referer\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: [string length $body]\r\n\r\n$body"]
+}
+set cgiReply [cgi_env_post "csrf=$cgiToken"]
+test_eq cgi-csrf-post-token [cgi_csrf_level $cgiReply] "Same origin, POST, CSRF token"
+set cgiReply [cgi_env_post "csrf=wrong"]
+test_eq cgi-csrf-post-bad-token [cgi_csrf_level $cgiReply] "Same origin, POST"
+set cgiReply [cgi_env_post "x=1" http://elsewhere/p]
+test_eq cgi-csrf-post-other-origin [cgi_csrf_level $cgiReply] "unsafe"
+
+# A page that consults the check more than once.  A cross-origin POST to
+# the user-edit page, which asks twice, is ignored without error.
+set cgiReply [cgi_admin "POST /setup_uedit HTTP/1.1\r\nHost: x\r\nReferer: http://elsewhere/p\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: 14\r\n\r\nid=0&delete=1&"]
+test cgi-csrf-twice-cross {[cgi_status $cgiReply] eq "HTTP/1.0 200 OK"}
+# A valid same-origin POST with the token creates the user.
+set cgiBody "id=0&login=newcomer&info=x&pw=secretpw&apply=1&csrf=$cgiToken"
+set cgiReply [cgi_admin "POST /setup_uedit HTTP/1.1\r\nHost: x\r\nReferer: http://x/setup_uedit\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: [string length $cgiBody]\r\n\r\n$cgiBody"]
+test cgi-csrf-verify-accepts {[string match "HTTP/1.0 302*" [cgi_status $cgiReply]]}
+test cgi-csrf-user-created     {[fossil sql "SELECT count(*) FROM user WHERE login='newcomer'"] == 1}
+
+# The user-edit page needs "login", "info", "pw" and "apply" to make a
+# change.  A request with "login" alone changes nothing.
+set cgiBody "id=0&login=cgighost&csrf=$cgiToken"
+cgi_admin "POST /setup_uedit HTTP/1.1\r\nHost: x\r\nReferer: http://x/setup_uedit\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: [string length $cgiBody]\r\n\r\n$cgiBody"
+test cgi-all-needs-every-field \
+    {[fossil sql "SELECT count(*) FROM user WHERE login='cgighost'"] == 0}
+
+###############################################################################
+# Request methods and the same reader over ssh.
+
+# A POST over ssh reaches the parameter decoder.
+set ::env(SSH_CONNECTION) "127.0.0.1 5000 127.0.0.1 22"
+set cgiReply [cgi_send [cgi_post application/x-www-form-urlencoded \
+    "posted=yes"] --localauth]
+test_eq cgi-ssh-post-value [cgi_param $cgiReply posted] yes
+# A HEAD over ssh.
+set cgiReply [cgi_send [cgi_get /test-env?q=9 {} HEAD] --localauth]
+test_eq cgi-ssh-head [cgi_status $cgiReply] "HTTP/1.0 200 OK"
+unset ::env(SSH_CONNECTION)
+
+###############################################################################
+# cgi_from_mobile, used by /forum to pick a default display order.  An
+# iPad is not treated as mobile; another phone is; no agent is not.
+proc cgi_forum_order {agent} {
+  set headers {}
+  if {$agent ne ""} { lappend headers "User-Agent: $agent" }
+  set reply [cgi_admin [cgi_get /forum?t=a $headers]]
+  return [cgi_status $reply]
+}
+foreach {cgiName cgiAgent} {
+  phone  "Mozilla/5.0 (iPhone; Mobile) Safari"
+  ipad   "Mozilla/5.0 (iPad) Safari"
+  none   ""
+} {
+  test_eq cgi-mobile-$cgiName [cgi_forum_order $cgiAgent] "HTTP/1.0 200 OK"
+}
+
+###############################################################################
+# A spider check.  For a request that is not logged in, an unused query
+# parameter whose value looks like an injection attack gets a 418 reply
+# and a note in the error log.  The whole request environment is written
+# to the log.
+
+proc cgi_attack {value} {
+  global cgiRepo
+  write_file request.txt "GET /timeline?inj=$value HTTP/1.1\r\nHost: x\r\nCookie: fossil-x=secret\r\n\r\n"
+  file delete reply.txt attack.log
+  fossil_raw http $cgiRepo --in request.txt --out reply.txt \
+      --ipaddr 9.9.9.9 --errorlog [file join [pwd] attack.log]
+  return [expr {[file exists reply.txt] ? [read_file reply.txt] : ""}]
+}
+set cgiReply [cgi_attack "1;select"]
+test_eq cgi-attack-status [cgi_status $cgiReply] "HTTP/1.0 418 I'm a teapot"
+test cgi-attack-logged {[file exists attack.log]
+    && [string match "*possible hack attempt*" [read_file attack.log]]
+    && [string match "*QUERY_STRING = inj=1;select*" [read_file attack.log]]}
+# A value longer than 100 characters is shortened in the log.
+set cgiReply [cgi_attack "[string repeat a 200];x"]
+test cgi-attack-long {[cgi_status $cgiReply] eq "HTTP/1.0 418 I'm a teapot"
+    && [string match "*aaa...*" [read_file attack.log]]}
+# A logged-in request with the same value is not stopped.
+set cgiReply [cgi_admin [cgi_get "/timeline?inj=1;select"]]
+test_eq cgi-attack-admin-ok [cgi_status $cgiReply] "HTTP/1.0 200 OK"
+
+###############################################################################
+# The same-origin test with crafted Referer headers.  The base URL here
+# is "http://x".  A Referer that shares the base but has more path after
+# it with no "/" boundary is a different origin.  A Referer with a "%"
+# escape is decoded before the comparison.  The /test-env page reports
+# the result.
+
+proc cgi_origin {referer {method GET} {body ""}} {
+  set req "$method /test-env HTTP/1.1\r\nHost: x\r\nReferer: $referer\r\n"
+  if {$method eq "POST"} {
+    append req "Content-Type: application/x-www-form-urlencoded\r\n"
+    append req "Content-Length: [string length $body]\r\n"
+  }
+  append req "\r\n$body"
+  set reply [cgi_admin $req]
+  return [cgi_csrf_level $reply]
+}
+test_eq cgi-origin-same [cgi_origin http://x/page] "Same origin"
+test_eq cgi-origin-boundary [cgi_origin http://xtra/page] unsafe
+test_eq cgi-origin-escaped [cgi_origin http://x/a%2Fb] "Same origin"
+# A different-origin GET reaches the method test in the same-origin check
+# without writing a warning (the warning is for POST only).
+test_eq cgi-origin-get-other [cgi_origin http://elsewhere/p] unsafe
+
+###############################################################################
+# cgi_parameter_name walks every parameter: the ticket-entry page copies
+# each into its interpreter.
+
+set cgiReply [cgi_admin [cgi_get "/tktnew?username=someone&extra=1"]]
+test_eq cgi-param-name-page [cgi_status $cgiReply] "HTTP/1.0 200 OK"
+
+###############################################################################
+# cgi_param_info walks the parameters for the /cookies page.
+
+set cgiReply [cgi_admin [cgi_get /cookies \
+    [list "Cookie: fossil_display_settings=x; extra=y"]]]
+test cgi-param-info-page {[cgi_status $cgiReply] eq "HTTP/1.0 200 OK"
+    && [string match "*fossil_display_settings*" $cgiReply]}
+
+###############################################################################
+# Two more destinations for cgi_print_all.  With --cgitrace the whole
+# parameter set is traced before the page runs.
+
+write_file request.txt [cgi_get "/test-env?traced=1"]
+file delete reply.txt
+fossil_raw http $cgiRepo --in request.txt --out reply.txt \
+    --ipaddr 127.0.0.1 --localauth --cgitrace
+test cgi-cgitrace {$CODE == 0
+    && [string match "*Calling*" $RESULT]
+    && [string match "*traced = 1*" $RESULT]}
+
+# A CGI control file with "cgi-debug:" writes the environment to a debug
+# file as the control file is read.
+write_file cgi.ctl "repository: [file nativename $cgiRepo]\ncgi-debug: debug.txt\n"
+file delete debug.txt
+set ::env(REQUEST_METHOD) GET
+set ::env(SCRIPT_NAME) ""
+set ::env(PATH_INFO) /test-env
+set ::env(QUERY_STRING) "dbg=1"
+set ::env(REMOTE_ADDR) 127.0.0.1
+fossil_raw cgi cgi.ctl
+foreach cgiVar {REQUEST_METHOD SCRIPT_NAME PATH_INFO QUERY_STRING REMOTE_ADDR} {
+  unset ::env($cgiVar)
+}
+test cgi-debug-file {[file exists debug.txt]
+    && [string match "*QUERY_STRING = dbg=1*" [read_file debug.txt]]}
+
+###############################################################################
+# Trimmed, boolean and "checked" parameter readers, reached through the
+# email-alert subscription page.  The page exists once email is enabled
+# and its tables are built.
+
+fossil settings email-send-method db
+set cgiNotifyBody "submit=Refresh&esm=db&csrf=$cgiToken"
+cgi_admin "POST /setup_notification HTTP/1.1\r\nHost: x\r\nReferer: http://x/setup_notification\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: [string length $cgiNotifyBody]\r\n\r\n$cgiNotifyBody"
+test cgi-alert-tables-built \
+    {[fossil sql "SELECT count(*) FROM sqlite_schema WHERE name='subscriber'"] == 1}
+
+# The form renders the "checked" state of the checkboxes.
+set cgiReply [cgi_admin [cgi_get /subscribe]]
+test cgi-subscribe-form {[cgi_status $cgiReply] eq "HTTP/1.0 200 OK"
+    && [string match "*checkbox*" $cgiReply]}
+
+# A submitted subscription: the name is trimmed and the boxes are read as
+# booleans.  A leading and trailing space on the name is removed.
+set cgiSubBody "submit=1&e=someone@example.com&suname=  trimmed  &sa=1&sc=on&csrf=$cgiToken"
+cgi_admin "POST /subscribe HTTP/1.1\r\nHost: x\r\nReferer: http://x/subscribe\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: [string length $cgiSubBody]\r\n\r\n$cgiSubBody"
+test cgi-subscribe-trimmed-name \
+    {[fossil sql "SELECT suname FROM subscriber WHERE semail='someone@example.com'"] eq "trimmed"}
+test cgi-subscribe-boolean-alert \
+    {[string match "*a*" [fossil sql "SELECT ssub FROM subscriber WHERE semail='someone@example.com'"]]}
+
+###############################################################################
+# The HTTP reader is called in a loop for a request arriving over ssh.
+# When the first request announces the Fossil ssh transport, the reader
+# is called again for a second request in the same connection, and the
+# later request updates the parameters that the first one set.
+
+set ::env(SSH_CONNECTION) "127.0.0.1 5000 127.0.0.1 22"
+write_file request.txt \
+    "GET /test-env?first=1 HTTP/1.1\r\nHost: x\r\nX-Fossil-Transport: ssh\r\nContent-Length: 0\r\n\r\nGET /test-env?second=2 HTTP/1.1\r\nHost: x\r\nUser-Agent: Later\r\n\r\n"
+file delete reply.txt
+fossil_raw http $cgiRepo --in request.txt --out reply.txt --localauth
+set cgiReply [read_file reply.txt]
+test cgi-ssh-transport-first {[string match "*first = 1*" $cgiReply]}
+test cgi-ssh-transport-second {[string match "*second = 2*" $cgiReply]}
+unset ::env(SSH_CONNECTION)
+
+###############################################################################
+# The skin query parameter sets a cookie with a default path, and marks
+# the request "udc" unless "once" is present.  A cookie carrying a login
+# card is taken out of the parameters.
+
+set cgiReply [cgi_admin [cgi_get /test-env?skin=darkmode]]
+test cgi-skin-cookie {[string match "*Set-Cookie: fossil_display_settings=*" \
+    $cgiReply] && [cgi_param $cgiReply udc] eq 1}
+# With "once" the cookie is not written and "udc" is not forced.
+set cgiReply [cgi_admin [cgi_get {/test-env?skin=darkmode&once=1}]]
+test cgi-skin-once {![string match "*Set-Cookie: fossil_display_settings=*" \
+    $cgiReply] && [cgi_param $cgiReply udc] eq "-"}
+# A skin cookie is honoured as well as a skin query parameter.
+set cgiReply [cgi_admin [cgi_get /test-env \
+    [list "Cookie: fossil_display_settings=skin=ardoise"]]]
+test_eq cgi-skin-from-cookie [cgi_param $cgiReply fossil_display_settings] \
+    skin=ardoise
+# A login-card cookie is removed from the visible parameters.
+set cgiReply [cgi_admin [cgi_get /test-env [list "Cookie: x-f-l-c=card-value"]]]
+test_eq cgi-login-card-hidden [cgi_param $cgiReply x-f-l-c] -
+
+###############################################################################
+# The reply content type for an unversioned file comes from the
+# "mimetypes" setting.  Parsing of the type stops at the first character
+# outside the range "+" through "z", and a text type is compressed.
+
+fossil settings mimetypes "zw text/x|y"
+write_file f.zw "other text to send"
+fossil uv add f.zw
+set cgiReply [cgi_send [cgi_get /uv/f.zw] --ipaddr 127.0.0.1]
+test cgi-content-type-stops \
+    {[string match "text/x;*" [cgi_header $cgiReply Content-Type]]}
+
+###############################################################################
+# A skin name that is not a known skin produces an error, so the cookie
+# is not written.
+
+set cgiReply [cgi_admin [cgi_get /test-env?skin=no_such_skin_here]]
+test cgi-skin-unknown {![string match "*Set-Cookie: fossil_display_settings=*" \
+    $cgiReply] && [cgi_param $cgiReply skin] eq "no_such_skin_here"}
+
+###############################################################################
+# Deleting a cookie: the reply carries a Set-Cookie with a value of
+# "null" and a negative age.  On an https base the cookie is marked
+# secure.
+
+proc cgi_cookie_delete {base} {
+  global cgiToken cgiRepo
+  set body "delfossil_display_settings=Delete&csrf=$cgiToken"
+  set req "POST /cookies HTTP/1.1\r\nHost: x\r\nReferer: $base/cookies\r\n"
+  append req "Cookie: fossil_display_settings=skin=xyz\r\n"
+  append req "Content-Type: application/x-www-form-urlencoded\r\n"
+  append req "Content-Length: [string length $body]\r\n\r\n$body"
+  write_file request.txt $req
+  file delete reply.txt
+  fossil_raw http $cgiRepo --in request.txt --out reply.txt \
+      --ipaddr 127.0.0.1 --localauth --baseurl $base
+  return [read_file reply.txt]
+}
+set cgiReply [cgi_cookie_delete http://x]
+test cgi-cookie-delete {[string match \
+    "*Set-Cookie: fossil_display_settings=null;*max-age=-1;*" $cgiReply]}
+set cgiReply [cgi_cookie_delete https://x/d]
+test cgi-cookie-delete-secure {[string match "*max-age=-1;*secure;*" $cgiReply]
+    || [string match "*max-age=-1;* secure*" $cgiReply]}
+
+###############################################################################
+# Compression of several reply content types that are named by the "m"
+# parameter on a raw artifact.  A committed file gives a blob to serve.
+
+write_file art.txt "the quick brown fox jumps over the lazy dog\n"
+fossil add art.txt
+fossil commit -m "add art" --no-warnings
+set cgiArt [fossil sql \
+    "SELECT uuid FROM blob WHERE rid=(SELECT max(rid) FROM blob)"]
+proc cgi_raw_type {mime} {
+  global cgiArt
+  set reply [cgi_send [cgi_get /raw/$cgiArt?m=$mime \
+      [list "Accept-Encoding: gzip"]] --ipaddr 127.0.0.1 --localauth]
+  return [cgi_header $reply Content-Encoding]
+}
+foreach {cgiName cgiMime} {
+  javascript application/javascript
+  json       application/json
+  wasm       application/wasm
+  xtcl       application/x-tcl
+  xtar       application/x-tar
+  appxml     application/customxml
+} {
+  test_eq cgi-raw-gzip-$cgiName [cgi_raw_type $cgiMime] gzip
+}
+# A type outside the compressible set is sent as-is.
+test_eq cgi-raw-no-gzip [cgi_raw_type application/octet-stream] -
+###############################################################################
+# More content types.  A type that begins with "a" but is not an
+# application type, and an application type outside the list, is sent as
+# it is.
+
+foreach {cgiName cgiMime} {
+  audio   audio/mpeg
+  java    application/java-archive
+  xother  application/x-other
+} {
+  test_eq cgi-raw-no-gzip-$cgiName [cgi_raw_type $cgiMime] -
+}
+# With --nocompress nothing is compressed.
+set cgiFile [fossil sql "SELECT uuid FROM blob, mlink, filename
+    WHERE blob.rid=mlink.fid AND mlink.fnid=filename.fnid
+    AND filename.name='art.txt'"]
+set cgiReply [cgi_send [cgi_get /raw/$cgiFile?m=text/plain \
+    [list "Accept-Encoding: gzip"]] --ipaddr 127.0.0.1 --localauth --nocompress]
+test cgi-nocompress {[cgi_status $cgiReply] eq "HTTP/1.0 200 OK"
+    && [cgi_header $cgiReply Content-Encoding] eq "-"
+    && [cgi_body $cgiReply] eq "the quick brown fox jumps over the lazy dog\n"}
+
+###############################################################################
+# More about ranges.  A Range header counts only for GET, and not for
+# content of the type that a sync uses.  Part of an artifact named by its
+# full hash, sent to a visitor who is not logged in, may be kept by the
+# client for ever.
+
+set cgiReply [cgi_range bytes=2-5 HEAD]
+test cgi-range-head {[cgi_status $cgiReply] eq "HTTP/1.0 200 OK"
+    && [cgi_header $cgiReply Content-Range] eq "-"}
+set cgiReply [cgi_range bytes=5]
+test cgi-range-ignored-no-dash {[cgi_status $cgiReply] eq "HTTP/1.0 200 OK"
+    && [cgi_header $cgiReply Content-Range] eq "-"}
+set cgiReply [cgi_send [cgi_get /raw/$cgiArt?m=application/x-fossil \
+    [list "Range: bytes=1-3"]] --ipaddr 127.0.0.1 --localauth]
+test cgi-range-sync-type {[cgi_status $cgiReply] eq "HTTP/1.0 200 OK"
+    && [cgi_header $cgiReply Content-Range] eq "-"}
+set cgiReply [cgi_send [cgi_get /raw/$cgiFile?m=text/plain \
+    [list "Range: bytes=4-8"]] --ipaddr 9.9.9.9]
+test_eq cgi-range-artifact [cgi_body $cgiReply] quick
+test_eq cgi-range-artifact-cache [cgi_header $cgiReply Cache-Control] \
+    "max-age=315360000, immutable"
+
+###############################################################################
+# The "at" parameter of /raw names the file for the client to save the
+# content in.  Only its last path element is used, and every character
+# in it other than a letter, a digit, "." and "-" becomes "_".
+
+set cgiReply [cgi_send [cgi_get "/raw/$cgiArt?at=some/dir/my%20file-1%3B.txt"] \
+    --ipaddr 127.0.0.1 --localauth]
+test_eq cgi-attachment-name [cgi_header $cgiReply Content-Disposition] \
+    {attachment; filename="my_file-1_.txt";}
+
+###############################################################################
+# A request that is refused before any repository is open: the server is
+# given a directory, and the request has a method it does not know.
+
+file mkdir norepo
+write_file request.txt "DELETE /x HTTP/1.1\r\nHost: x\r\n\r\n"
+file delete reply.txt
+fossil_raw http [file join [pwd] norepo] --in request.txt --out reply.txt \
+    --ipaddr 127.0.0.1
+test cgi-no-repository-bad-method {$CODE == 0
+    && [cgi_status [read_file reply.txt]] eq "HTTP/1.0 400 Bad Request"}
+
+###############################################################################
+# More of the same-origin test: a Referer that is the base URL and
+# nothing more is the same origin.
+
+test_eq cgi-origin-exact [cgi_origin http://x] "Same origin"
+
+###############################################################################
+# With --httptrace the server reports each parameter as it is set and
+# copies the request into a file named httplog-NNNNN.txt in the current
+# directory.  If it cannot make that file it says so and goes on.
+
+foreach cgiLog [glob -nocomplain httplog-*.txt] { file delete $cgiLog }
+write_file request.txt [cgi_get /test-env?traced=2]
+file delete reply.txt
+fossil_raw http $cgiRepo --in request.txt --out reply.txt \
+    --ipaddr 127.0.0.1 --localauth --httptrace
+set cgiLogs [glob -nocomplain httplog-*.txt]
+test cgi-httptrace {$CODE == 0
+    && [string first "# cgi: traced = \[2\]" $RESULT] >= 0
+    && [string first "# open log on httplog-" $RESULT] >= 0
+    && [llength $cgiLogs] == 1}
+if {[llength $cgiLogs] == 1} {
+  set cgiLogText [read_file [lindex $cgiLogs 0]]
+  test cgi-httptrace-log {
+      [string match "GET /test-env?traced=2 HTTP/1.1*Host: x*" $cgiLogText]}
+  file delete [lindex $cgiLogs 0]
+}
+# The file holds the header and the content of a POST.
+write_file request.txt [cgi_post application/x-www-form-urlencoded "body=sent"]
+fossil_raw http $cgiRepo --in request.txt --out reply.txt \
+    --ipaddr 127.0.0.1 --localauth --httptrace
+set cgiLogs [glob -nocomplain httplog-*.txt]
+set cgiLogText ""
+foreach cgiLog $cgiLogs {
+  append cgiLogText [read_file $cgiLog]
+  file delete $cgiLog
+}
+test cgi-httptrace-post-content {[string match "*body=sent" $cgiLogText]}
+test cgi-httptrace-post-header \
+    {[string match "POST /test-env HTTP/1.1*" $cgiLogText]}
+write_file request.txt [cgi_get /test-env?traced=2]
+if {$::tcl_platform(platform) eq "unix"} {
+  set cgiHere [pwd]
+  file mkdir readonly
+  file attributes readonly -permissions 0555
+  cd readonly
+  fossil_raw http $cgiRepo --in [file join $cgiHere request.txt] \
+      --out [file join $cgiHere reply.txt] \
+      --ipaddr 127.0.0.1 --localauth --httptrace
+  cd $cgiHere
+  file attributes readonly -permissions 0755
+  test cgi-httptrace-no-log {$CODE == 0
+      && [string first "# failed to open httplog-" $RESULT] >= 0
+      && [cgi_status [read_file reply.txt]] eq "HTTP/1.0 200 OK"}
+}
+
+###############################################################################
+# A request for the top of the site is sent on to the index page.  A
+# login-card cookie in such a request is taken once.
+
+set cgiReply [cgi_admin [cgi_get / [list "Cookie: x-f-l-c=card-value"]]]
+test_eq cgi-login-card-home [cgi_header $cgiReply Location] http://x/index
+
+###############################################################################
+# The honeypot page offers a visitor who is not logged in a captcha, and
+# keeps the URL that was asked for, with its query parameters, in a
+# cookie.
+
+set cgiReply [cgi_send [cgi_get "/honeypot?a=1&b&c=two"] --ipaddr 9.9.9.9]
+test cgi-original-url {[string first \
+    "Set-Cookie: fossil-goto=http%3A%2F%2Fx%2Fhoneypot%3Fa%3D1%26b%26c%3Dtwo;" \
+    $cgiReply] >= 0}
+
+###############################################################################
+# The "ss" parameter of /timeline is checked for an attack as soon as it
+# is read, for a visitor who is not logged in.
+
+write_file request.txt [cgi_get "/timeline?ss=1;select"]
+file delete reply.txt attack.log
+fossil_raw http $cgiRepo --in request.txt --out reply.txt \
+    --ipaddr 9.9.9.9 --errorlog [file join [pwd] attack.log]
+test cgi-attack-read-parameter {
+    [cgi_status [read_file reply.txt]] eq "HTTP/1.0 418 I'm a teapot"
+    && [string match "*418 response on \"ss\"*" [read_file attack.log]]}
+set cgiReply [cgi_admin [cgi_get "/timeline?ss=m"]]
+test_eq cgi-attack-read-parameter-admin [cgi_status $cgiReply] "HTTP/1.0 200 OK"
+
+###############################################################################
+# SSH_CONNECTION names the client only when it holds an address followed
+# by a space.  Otherwise the request is read as plain HTTP from an
+# unknown address, which --localauth does not log in.
+
+foreach {cgiName cgiValue} {empty "" one-word nospace} {
+  set ::env(SSH_CONNECTION) $cgiValue
+  set cgiReply [cgi_send [cgi_get /test-env] --localauth]
+  unset ::env(SSH_CONNECTION)
+  test_eq cgi-ssh-connection-$cgiName [cgi_header $cgiReply Location] \
+      http://x/login?g=test-env
+}
+
+###############################################################################
+# SCGI: SCRIPT_NAME, PATH_INFO and REQUEST_URI.  The server needs
+# SCRIPT_NAME, or both of the others to work it out from; and one of
+# PATH_INFO and REQUEST_URI, from which it works out the other.  If
+# SCRIPT_NAME is not the start of REQUEST_URI, it is cut down to the
+# part that is.
+
+# The reply to an SCGI request with the name and value PAIRS added to
+# the usual ones: the status and the error for a request that is
+# refused, or else the status and what /test-env shows for SCRIPT_NAME,
+# PATH_INFO and REQUEST_URI.
+proc cgi_scgi_names {pairs} {
+  set reply [cgi_send [cgi_scgi [concat {
+    CONTENT_LENGTH 0 SCGI 1 REQUEST_METHOD GET SERVER_NAME x SERVER_PORT 80
+    REMOTE_ADDR 127.0.0.1
+  } $pairs]] --scgi --localauth]
+  set status [lindex [cgi_status $reply] 1]
+  if {$status eq "400"} {
+    return [list 400 [string trim [cgi_body $reply]]]
+  }
+  if {$status ne "200"} { return $status }
+  return [list 200 [cgi_param $reply SCRIPT_NAME] [cgi_param $reply PATH_INFO] \
+      [cgi_param $reply REQUEST_URI]]
+}
+foreach {cgiName cgiPairs cgiWant} {
+  nothing
+    {}
+    {400 {Bad SCGI Request: missing SCRIPT_NAME}}
+  uri-only
+    {REQUEST_URI /test-env}
+    {400 {Bad SCGI Request: missing SCRIPT_NAME}}
+  path-only
+    {PATH_INFO /test-env}
+    {400 {Bad SCGI Request: missing SCRIPT_NAME}}
+  path-not-in-uri
+    {REQUEST_URI /abc PATH_INFO /test-env}
+    {400 {Bad SCGI Request: PATH_INFO not found in REQUEST_URI}}
+  script-from-uri-and-path
+    {REQUEST_URI /pre/test-env PATH_INFO /test-env}
+    {200 /pre /test-env /pre/test-env}
+  script-only
+    {SCRIPT_NAME {}}
+    {400 {Bad SCGI Request: missing PATH_INFO and/or REQUEST_URI}}
+  uri-from-path
+    {SCRIPT_NAME {} PATH_INFO /test-env}
+    {200 {} /test-env /test-env}
+  uri-from-path-empty-query
+    {SCRIPT_NAME {} PATH_INFO /test-env QUERY_STRING {}}
+    {200 {} /test-env /test-env}
+  uri-from-path-and-query
+    {SCRIPT_NAME {} PATH_INFO /test-env QUERY_STRING s=1}
+    {200 {} /test-env /test-env?s=1}
+  uri-from-path-no-slash
+    {SCRIPT_NAME /pre PATH_INFO test-env/x}
+    404
+  path-from-uri
+    {SCRIPT_NAME {} REQUEST_URI /test-env}
+    {200 {} /test-env /test-env}
+  path-from-uri-with-query
+    {SCRIPT_NAME {} REQUEST_URI /test-env?s=1 QUERY_STRING s=1}
+    {200 {} /test-env /test-env?s=1}
+  script-cut-down
+    {SCRIPT_NAME /abcd REQUEST_URI /abc/test-env}
+    {200 /abc /test-env /abc/test-env}
+  uri-is-script
+    {SCRIPT_NAME /abc REQUEST_URI /abc}
+    302
+} {
+  test_eq cgi-scgi-names-$cgiName [cgi_scgi_names $cgiPairs] $cgiWant
+}
+foreach {cgiName cgiRequest cgiError} [list \
+    empty "" "SCGI header too short" \
+    length-only "20" "cannot read entire SCGI header" \
+] {
+  set cgiReply [cgi_send $cgiRequest --scgi]
+  test cgi-scgi-$cgiName {$CODE == 0
+      && [cgi_status $cgiReply] eq "HTTP/1.0 400 Bad Request"
+      && [string match "*$cgiError*" $cgiReply]}
+}
+
+###############################################################################
+# Page aliases.  An alias in the configuration names a page and query
+# parameters for it: "NAME=VALUE" sets a parameter, replacing one of the
+# same name in the request; a name in capitals is taken in lower case;
+# "NAME!" removes a parameter of the request.
+
+fossil sql "REPLACE INTO config(name,value,mtime) VALUES('walias:/cgialias','/test-env?a=new&Bb=2&gone!&absent!&fresh',0)"
+fossil sql "REPLACE INTO config(name,value,mtime) VALUES('walias:/cgialias2','/test-env?zz!',0)"
+set cgiReply [cgi_admin [cgi_get "/cgialias?a=old&gone=1&keep=3"]]
+test_eq cgi-alias-replace [cgi_param $cgiReply a] new
+test_eq cgi-alias-upper [cgi_param $cgiReply bb] 2
+test_eq cgi-alias-delete [cgi_param $cgiReply gone] -
+test_eq cgi-alias-add [cgi_param $cgiReply fresh] ""
+test_eq cgi-alias-keep [cgi_param $cgiReply keep] 3
+set cgiReply [cgi_admin [cgi_get "/cgialias2?m=1&zz=9"]]
+test {cgi-alias-delete-last} {[cgi_param $cgiReply zz] eq "-"
+    && [cgi_param $cgiReply m] eq "1"}
+
+###############################################################################
+# The configuration page saves the text given for the main menu, unless
+# the request also asks for the menu to be reset: then the saved menu is
+# removed and the text is not looked at.
+
+proc cgi_menu_post {fields} {
+  global cgiToken
+  set body "$fields&csrf=$cgiToken"
+  set reply [cgi_admin "POST /setup_config HTTP/1.1\r\nHost: x\r\nReferer: http://x/setup_config\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: [string length $body]\r\n\r\n$body"]
+  return [list [lindex [cgi_status $reply] 1] \
+      [fossil sql "SELECT value FROM config WHERE name='mainmenu'"]]
+}
+test_eq cgi-menu-saved [cgi_menu_post "mmenu=cgi-menu-text&zlast=1"] \
+    {200 cgi-menu-text}
+test_eq cgi-menu-reset [cgi_menu_post "mmenu=other-text&resetMenu=1&zlast=1"] \
+    {200 {}}
+test_eq cgi-menu-reset-alone [cgi_menu_post "resetMenu=1"] {200 {}}
+
+###############################################################################
+# More of the trimmed, boolean and "checked" readers on the subscription
+# page.  A name that is missing or all spaces is no name; a line end of
+# CR LF inside a name becomes LF, and a CR alone is kept.  A box with an
+# empty value is on, and one with the value "off" is off.
+
+proc cgi_subscribe {email fields} {
+  global cgiToken
+  set body "submit=1&e=$email&$fields&csrf=$cgiToken"
+  cgi_admin "POST /subscribe HTTP/1.1\r\nHost: x\r\nReferer: http://x/subscribe\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: [string length $body]\r\n\r\n$body"
+  return [fossil sql "SELECT hex(suname), ssub FROM subscriber WHERE semail='$email'"]
+}
+test_eq cgi-subscribe-no-name [cgi_subscribe s1@example.com "sa=&sc=off"] \
+    "|a"
+test_eq cgi-subscribe-blank-name \
+    [cgi_subscribe s2@example.com "suname=+++&sa=0&sc=1"] "|c"
+test_eq cgi-subscribe-line-ends \
+    [cgi_subscribe s3@example.com "suname=+one%0D%0Atwo%0Dend&sa=1"] \
+    "6F6E650A74776F0D656E64|a"
+# The form shows a box as checked for a value that is a word for "true".
+set cgiReply [cgi_admin [cgi_get "/subscribe?submit=1&sa=on&sc=off&st=2"]]
+test cgi-subscribe-checked-word {
+    [string match "*name=\"sa\" checked>*" $cgiReply]
+    && [string match "*name=\"sc\" >*" $cgiReply]
+    && [string match "*name=\"st\" >*" $cgiReply]}
+
+###############################################################################
+# A request that is refused when Fossil runs as a CGI program names the
+# web server, if the web server gave its name.  A CGI request with no
+# REQUEST_METHOD is not a POST.
+
+# No work in the background after a reply from here on: its process
+# would outlive the test.
+fossil settings backoffice-disable 1
+write_file cgi2.ctl "repository: [file nativename $cgiRepo]\nlocalauth\n"
+proc cgi_cgi {vars} {
+  global RESULT
+  foreach {name value} $vars { set ::env($name) $value }
+  fossil_raw cgi cgi2.ctl
+  foreach {name value} $vars { unset ::env($name) }
+  return $RESULT
+}
+set cgiReply [cgi_cgi {REQUEST_METHOD POST SCRIPT_NAME /s PATH_INFO /test-env
+    REMOTE_ADDR 127.0.0.1}]
+test cgi-cgi-refused {[string match "Status: 400 Bad Request*" $cgiReply]
+    && [string match "*\nBad CGI Request: missing CONTENT_LENGTH on a POST method*" $cgiReply]}
+set cgiReply [cgi_cgi {REQUEST_METHOD POST SCRIPT_NAME /s PATH_INFO /test-env
+    REMOTE_ADDR 127.0.0.1 SERVER_SOFTWARE TestServer/1}]
+test cgi-cgi-refused-server-named {
+    [string match "*\nBad CGI Request from \"TestServer/1\": missing CONTENT_LENGTH*" $cgiReply]}
+set cgiReply [cgi_cgi {SCRIPT_NAME /s PATH_INFO /test-env REMOTE_ADDR 127.0.0.1
+    HTTP_HOST x HTTP_REFERER http://x/s/prev}]
+test_eq cgi-cgi-no-method [cgi_csrf_level $cgiReply] "Same origin"
+
+# A control file that names a debug file which cannot be opened is used
+# all the same.
+write_file cgi3.ctl "repository: [file nativename $cgiRepo]\nlocalauth\ncgi-debug: [file join [pwd] nosuchdir debug.txt]\n"
+set ::env(REQUEST_METHOD) GET
+set ::env(SCRIPT_NAME) /s
+set ::env(PATH_INFO) /test-env
+set ::env(QUERY_STRING) "nodebug=1"
+set ::env(REMOTE_ADDR) 127.0.0.1
+fossil_raw cgi cgi3.ctl
+foreach cgiVar {REQUEST_METHOD SCRIPT_NAME PATH_INFO QUERY_STRING REMOTE_ADDR} {
+  unset ::env($cgiVar)
+}
+test cgi-debug-file-unopened {$CODE == 0
+    && [string match "Status: 200 OK*" $RESULT]
+    && [cgi_param $RESULT nodebug] eq "1"}
+
+###############################################################################
+# The JSON interface, where Fossil has it.  Content that is not a JSON
+# object is refused with error FOSSIL-1101.  Content of a type that is
+# not JSON is not read as JSON.  A request that the web server marks
+# "no_json" is not prepared as a JSON request when it is read.
+
+fossil test-th-eval "hasfeature json"
+if {[normalize_result] eq "1"} {
+  foreach {cgiName cgiBody} {not-json {not json} array {[1]} one-byte x} {
+    set cgiReply [cgi_admin [cgi_post application/json $cgiBody /json/version]]
+    test cgi-json-post-$cgiName-exit {$CODE == 0}
+    test cgi-json-post-$cgiName-reply \
+        {[string match "*FOSSIL-1101*" $cgiReply]}
+  }
+  set cgiReply [cgi_admin [cgi_post text/x-other {[1]} /json/version]]
+  test cgi-json-post-other-type {[cgi_status $cgiReply] eq "HTTP/1.0 200 OK"
+      && [string match "*jsonApiVersion*" $cgiReply]}
+  set cgiReply [cgi_send [cgi_scgi {
+    CONTENT_LENGTH 8 CONTENT_TYPE application/json SCGI 1 REQUEST_METHOD POST
+    SCRIPT_NAME {} PATH_INFO /json/version SERVER_NAME x SERVER_PORT 80
+    REMOTE_ADDR 127.0.0.1 no_json 1
+  } "not json"] --scgi --localauth]
+  test cgi-json-no-json {[cgi_status $cgiReply] eq "HTTP/1.0 200 OK"
+      && [string match "*jsonApiVersion*" $cgiReply]}
+}
+
+###############################################################################
+# More of a connection over ssh.  An older client, after its probes,
+# sends a blank line twice and the command again before each further
+# request.  A request may name the repository file before the page.
+
+set ::env(SSH_CONNECTION) "127.0.0.1 5000 127.0.0.1 22"
+set cgiFirst "echo test1\nfossil\nGET /test-env?first=1 HTTP/1.1\r\nHost: x\r\nUser-Agent: First\r\nX-Fossil-Transport: other\r\n\r\n"
+set cgiReply [cgi_send "$cgiFirst\n\nfossil\nGET /test-env?second=2 HTTP/1.1\r\nHost: x\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nX-Fossil-Transport: ssh\r\n\r\n" --localauth]
+test cgi-ssh-flip {[string match "test1\n*" $cgiReply]
+    && [string match "*HTTP_USER_AGENT = First*first = 1*second = 2*" $cgiReply]}
+foreach {cgiName cgiMore cgiError} [list \
+    cut-short     "\n"              "incorrect transport_flip" \
+    not-blank     "\nxyz\n"         "transport_flip failed" \
+    other-command "\n\nother\n"     "transport_open failed" \
+    no-request    "\n\nfossil\n"    "missing HTTP header" \
+] {
+  set cgiReply [cgi_send $cgiFirst$cgiMore --localauth]
+  test cgi-ssh-flip-$cgiName {$CODE == 0
+      && [string match "*first = 1*400 Bad Request*$cgiError*" $cgiReply]}
+}
+# With nothing after the two blank lines the connection is over.
+set cgiReply [cgi_send "$cgiFirst\n\n" --localauth]
+test cgi-ssh-flip-end {$CODE == 0 && [string match "*first = 1*" $cgiReply]
+    && ![string match "*400 Bad Request*" $cgiReply]}
+foreach {cgiName cgiRequest cgiError} [list \
+    probes-only    "echo test1\nfossil\n"   "missing HTTP header" \
+    blank-first    "\nGET /test-env HTTP/1.1\r\nHost: x\r\n\r\n" \
+                   "unsupported HTTP method" \
+    empty-command  "echo test1\n\nGET /test-env?first=1 HTTP/1.1\r\nHost: x\r\n\r\n\n\nfossil\n" \
+                   "transport_open failed" \
+    repository-only "GET $cgiRepo HTTP/1.1\r\nHost: x\r\n\r\n" \
+                   "malformed URL in HTTP header" \
+] {
+  set cgiReply [cgi_send $cgiRequest --localauth]
+  test cgi-ssh-$cgiName {$CODE == 0
+      && [string match "*400 Bad Request*$cgiError*" $cgiReply]}
+}
+set cgiReply [cgi_send [cgi_get $cgiRepo/test-env?named=1] --localauth]
+test cgi-ssh-repository-in-url {[cgi_param $cgiReply named] eq "1"
+    && [cgi_param $cgiReply PATH_INFO] eq "/test-env"}
+# The name is taken off only when a "/" or the end follows it, and only
+# for GET.
+set cgiReply [cgi_send [cgi_get ${cgiRepo}x/test-env] --localauth]
+test_eq cgi-ssh-repository-longer [cgi_param $cgiReply PATH_INFO] -
+set cgiReply [cgi_send [cgi_get $cgiRepo/test-env [list "Content-Length: 0"] \
+    POST] --localauth]
+test_eq cgi-ssh-repository-post [cgi_param $cgiReply PATH_INFO] -
+# Later requests on one ssh connection: the second sends Content-Length
+# before a longer header line and must get its length and body; the third
+# is a GET with no Content-Length and must be served with a length of 0.
+set cgiFirst "POST /test-env HTTP/1.1\r\nX-Fossil-Transport: SSH\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: 3\r\n\r\na=1"
+set cgiSecond "POST /test-env HTTP/1.1\r\nContent-Length: 3\r\nContent-Type: application/x-www-form-urlencoded-and-more\r\n\r\nb=2"
+set cgiThird "GET /test-env?c=3 HTTP/1.1\r\nHost: x\r\n\r\n"
+set cgiReply [cgi_send $cgiFirst$cgiSecond$cgiThird --localauth]
+test cgi-ssh-later-content-length {$CODE == 0 && [string match \
+    "*CONTENT_LENGTH = 3*a = 1*CONTENT_LENGTH = 3*b = 2*CONTENT_LENGTH = 0*c = 3*" \
+    [regsub -all {<[^>]*>} $cgiReply {}]]}
+unset ::env(SSH_CONNECTION)
+
+###############################################################################
+# A visitor who is not logged in reaches a page that is closed to robots
+# with a token, and gets a cookie that opens the page afterwards.  The
+# same value given as a query parameter does not.
+
+fossil sql "REPLACE INTO config(name,value,mtime) VALUES('robot-restrict','timeline',0)"
+fossil sql "REPLACE INTO config(name,value,mtime) VALUES('token-cgitoken','{\"user\":\"someone\"}',0)"
+proc cgi_robot {path {cookie ""}} {
+  set headers [list "User-Agent: Agent/1"]
+  if {$cookie ne ""} { lappend headers "Cookie: $cookie" }
+  return [cgi_send [cgi_get $path $headers] --ipaddr 9.9.9.9]
+}
+set cgiRobot "*Checking to see if you are a robot*"
+test cgi-robot-stopped {[string match $cgiRobot [cgi_robot /timeline]]}
+set cgiReply [cgi_robot /timeline?token=cgitoken]
+set cgiProof ""
+regexp {Set-Cookie: fossil-client-ok=(\d+);} $cgiReply all cgiProof
+test cgi-robot-token {$cgiProof ne "" && ![string match $cgiRobot $cgiReply]}
+test cgi-robot-cookie {![string match $cgiRobot \
+    [cgi_robot /timeline fossil-client-ok=$cgiProof]]}
+test cgi-robot-query-parameter {[string match $cgiRobot \
+    [cgi_robot /timeline?fossil-client-ok=$cgiProof]]}
+# A parameter that failed as proof is left out of the links of the page
+# that a good token opens.
+set cgiReply [cgi_robot "/timeline?proof=1&token=cgitoken&n=1"]
+test cgi-robot-failed-proof-dropped {
+    [string match "*timeline?*token=cgitoken*" $cgiReply]
+    && ![string match "*proof=1*" $cgiReply]}
+fossil sql "DELETE FROM config WHERE name='robot-restrict'"
+
+###############################################################################
+# A forum thread is shown in order of time to a phone and as a hierarchy
+# to anything else, an iPad included.  The page offers the other order.
+
+set cgiFd [open post.txt wb]
+puts -nonewline $cgiFd "D 2026-01-04T10:00:01.000\nH Cgi\\sthread\nU alice\nW 5\nhello\n"
+close $cgiFd
+fossil md5sum post.txt
+set cgiSum [lindex $RESULT 0]
+set cgiFd [open post.txt ab]
+puts -nonewline $cgiFd "Z $cgiSum\n"
+close $cgiFd
+fossil test-content-put --crosslink post.txt
+set cgiPost [fossil sql "SELECT uuid FROM blob WHERE rid=(SELECT fpid FROM forumpost LIMIT 1)"]
+foreach {cgiName cgiAgent cgiOther} {
+  phone  "Mozilla/5.0 (iPhone; Mobile) Safari"  Hierarchical
+  ipad   "Mozilla/5.0 (iPad; Mobile) Safari"    Chronological
+  desk   "Mozilla/5.0 (X11; Linux)"             Chronological
+  none   ""                                     Chronological
+} {
+  set cgiHeaders {}
+  if {$cgiAgent ne ""} { lappend cgiHeaders "User-Agent: $cgiAgent" }
+  set cgiReply [cgi_admin [cgi_get /forumthread/$cgiPost?t=a $cgiHeaders]]
+  test cgi-forum-order-$cgiName {[string match "*>Cgi thread<*" $cgiReply]
+      && [string match "*?t=?\">$cgiOther</a>*" $cgiReply]}
+}
+
+###############################################################################
+# Logging in without "remember me" gives a cookie that lasts for the
+# session: it has no age.
+
+fossil user new cgiuser contact userpw
+fossil user capabilities cgiuser o
+proc cgi_login {fields} {
+  set body "u=cgiuser&p=userpw&in=Login&$fields"
+  return [cgi_send "POST /login HTTP/1.1\r\nHost: x\r\nReferer: http://x/login\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: [string length $body]\r\n\r\n$body" --ipaddr 9.9.9.9]
+}
+set cgiCookie [cgi_header [cgi_login x=1] Set-Cookie]
+test cgi-login-session-cookie {[string match "fossil-*=*cgiuser; Path=*; HttpOnly;*" $cgiCookie]
+    && ![string match "*max-age*" $cgiCookie]}
+set cgiCookie [cgi_header [cgi_login remember=1] Set-Cookie]
+test cgi-login-lasting-cookie {[string match "fossil-*=*cgiuser; Path=*; max-age=*" $cgiCookie]}
+
+###############################################################################
+# A program under /ext that gives a status of 0 gets the usual "200 OK".
+
+if {$::tcl_platform(platform) eq "unix"} {
+  file mkdir extroot
+  write_file extroot/status0.sh "#!/bin/sh\nprintf 'Status: 0 Nothing\\r\\nContent-Type: text/plain\\r\\n\\r\\nfrom the program\\n'\n"
+  file attributes extroot/status0.sh -permissions 0755
+  set cgiReply [cgi_admin [cgi_get /ext/status0.sh] \
+      --extroot [file join [pwd] extroot]]
+  test cgi-ext-status-zero {[cgi_status $cgiReply] eq "HTTP/1.0 200 OK"
+      && [string match "*from the program*" $cgiReply]
+      && ![string match "*printf*" $cgiReply]}
+}
+
+###############################################################################
+# A CGI control file that names no repository gets "500", and so does a
+# CGI request with no control file at all.  A control file with a
+# "redirect: * URL" line sends every request on for good: to URL with
+# the name asked for in place of "%s", to URL as it is if it holds a
+# "?", and otherwise to URL followed by the path and the query.
+
+# Run fossil with the words in ARGS and the environment variables in
+# VARS, a list of names and values, and return what it printed.
+proc cgi_run_with {vars args} {
+  global RESULT
+  foreach {name value} $vars { set ::env($name) $value }
+  fossil_raw {*}$args
+  foreach {name value} $vars { unset ::env($name) }
+  return $RESULT
+}
+# Run from a directory outside the checkout, as a CGI script would be.
+set cgiDir [file join [file dirname [pwd]] cgi-no-checkout]
+file mkdir $cgiDir
+write_file [file join $cgiDir cgi5.ctl] "#!/usr/bin/fossil\n"
+set cgiHere [pwd]
+cd $cgiDir
+set cgiReply [cgi_run_with {REQUEST_METHOD GET SCRIPT_NAME /s PATH_INFO /home} \
+    cgi cgi5.ctl]
+cd $cgiHere
+file delete -force $cgiDir
+test cgi-cgi-no-repository {$CODE == 1
+    && [string match "Status: 500 Internal Server Error*" $cgiReply]
+    && [string match "*Unable to find or open the project repository" $cgiReply]}
+set cgiReply [cgi_run_with {GATEWAY_INTERFACE CGI/1.1 REQUEST_METHOD GET
+    SCRIPT_NAME /s PATH_INFO /home}]
+test cgi-cgi-no-control-file {$CODE == 1
+    && [string match "Status: 500 Internal Server Error*" $cgiReply]
+    && [string match "*No CGI control file specified" $cgiReply]}
+foreach {cgiName cgiTarget cgiLocation} {
+  name   http://other.example/find/%s   http://other.example/find/abc
+  query  http://other.example/find?x=1  http://other.example/find?x=1
+  path   http://other.example/base      http://other.example/base/abc?q=1
+} {
+  write_file cgi6.ctl "#!/usr/bin/fossil\nredirect: * $cgiTarget\n"
+  set cgiReply [cgi_run_with {REQUEST_METHOD GET HTTP_HOST x SCRIPT_NAME /s
+      PATH_INFO /abc QUERY_STRING q=1} cgi cgi6.ctl]
+  test cgi-cgi-redirect-$cgiName {$CODE == 0
+      && [string match "Status: 301 Moved Permanently*" $cgiReply]
+      && [cgi_header "$cgiReply\r\n\r\n" Location] eq $cgiLocation}
+}
+
+###############################################################################
+# The setup page warns of a page header that has no "base" element, and
+# does not when the header has one, as the built-in header does.
+
+set cgiReply [cgi_admin [cgi_get /setup]]
+test cgi-setup-base-present {[cgi_status $cgiReply] eq "HTTP/1.0 200 OK"
+    && ![string match "*Configuration Error*" $cgiReply]}
+fossil sql "REPLACE INTO config(name,value,mtime) VALUES('header',
+    '<html><head><title>plain</title></head><body>',now())"
+set cgiReply [cgi_admin [cgi_get /setup]]
+test cgi-setup-base-missing {[cgi_status $cgiReply] eq "HTTP/1.0 200 OK"
+    && [string match "*Configuration Error*base href=*" $cgiReply]}
+
+# The TH1 command "redirect" in a page header sends the client to
+# another page: with "302", or with "307" when its second argument is
+# true, which tells the client to repeat the request as it made it.
+foreach {cgiName cgiScript cgiStatus} {
+  plain   {redirect /stat}    {HTTP/1.0 302 Moved Temporarily}
+  method  {redirect /stat 1}  {HTTP/1.0 307 Temporary Redirect}
+} {
+  fossil sql "REPLACE INTO config(name,value,mtime) VALUES('header',
+      '<html><head></head><body><th1>$cgiScript</th1>',now())"
+  set cgiReply [cgi_admin [cgi_get /timeline]]
+  test cgi-th1-redirect-$cgiName {[cgi_status $cgiReply] eq $cgiStatus
+      && [cgi_header $cgiReply Location] eq "http://x/stat"}
+}
+fossil sql "DELETE FROM config WHERE name='header'"
+
+# The same command run from the command line, where there is no request
+# to answer, is an error.
+foreach {cgiName cgiUrl} {path /stat url http://other.example/x} {
+  fossil_raw test-th-eval "redirect $cgiUrl"
+  test cgi-th1-redirect-no-request-$cgiName {$CODE == 0 && [string match \
+      "*redirect is only allowed in a web request*" $RESULT]}
+}
+# With --http the command line makes a reply, and a redirect to a full
+# URL is sent as "302".
+fossil_raw test-th-eval --http "redirect http://other.example/x"
+test cgi-th1-redirect-http-option {$CODE == 0
+    && [string match "HTTP/1.0 302 *" $RESULT]
+    && [string match "*\r\nLocation: http://other.example/x\r\n*" $RESULT]}
+
+# The TH1 command "verifyCsrf" from the command line: with no request
+# there is no origin to compare, so it refuses.
+fossil_raw test-th-eval verifyCsrf
+test cgi-th1-verifycsrf-no-request {$CODE == 1
+    && [string match "*possible CSRF attack*" $RESULT]}
+
+###############################################################################
+# An ad unit for the right-hand side is used on a page that allows one
+# and has no table in its content; a page with a table gets the ad unit
+# for the top of the page.
+
+fossil sql "REPLACE INTO config(name,value,mtime) VALUES
+    ('adunit-right','<b>ADRIGHT</b>',now()),('adunit','<b>ADTOP</b>',now())"
+set cgiReply [cgi_admin [cgi_get /sitemap]]
+test cgi-adunit-right {[string match "*ADRIGHT*" $cgiReply]
+    && ![string match "*ADTOP*" $cgiReply]}
+set cgiReply [cgi_admin [cgi_get /brlist]]
+test cgi-adunit-top-with-table {[string match "*ADTOP*" $cgiReply]
+    && ![string match "*ADRIGHT*" $cgiReply]}
+fossil sql "DELETE FROM config WHERE name IN ('adunit-right','adunit')"
+
+###############################################################################
+# Pages that add a query parameter to the request they were given.
+# /file with no file name lists the files of the check-in "tip", and
+# its links carry "ci=tip".  /timeline with "r=BRANCH" shows the branch
+# and what is related to it, and its form keeps that as "t=BRANCH" and
+# "rel".
+
+set cgiReply [cgi_admin [cgi_get /file]]
+test cgi-file-no-name {[cgi_status $cgiReply] eq "HTTP/1.0 200 OK"
+    && [string match "*Top-level Files of tip*" $cgiReply]
+    && [string match "*ci=tip*" $cgiReply]}
+set cgiReply [cgi_admin [cgi_get /timeline?r=trunk]]
+test cgi-timeline-r {[cgi_status $cgiReply] eq "HTTP/1.0 200 OK"
+    && [string match "*name=\"rel\" value=\"1\"*" $cgiReply]
+    && [string match "*name=\"t\" value=\"trunk\"*" $cgiReply]}
+
+###############################################################################
+# An unversioned file whose time of change is too far in the future to
+# be written as a date is sent all the same, with an empty Last-Modified
+# header.
+
+write_file late.css "p{}\n"
+fossil uv add late.css
+fossil sql "UPDATE unversioned SET mtime=1000000000000000000
+    WHERE name='late.css'"
+set cgiReply [cgi_send [cgi_get /uv/late.css] --ipaddr 127.0.0.1]
+test cgi-last-modified-out-of-range {
+    [cgi_status $cgiReply] eq "HTTP/1.0 200 OK"
+    && [string match "*\r\nLast-Modified: \r\n*" $cgiReply]
+    && [cgi_body $cgiReply] eq "p{}\n"}
+fossil uv rm late.css
+
+###############################################################################
+# "fossil server" itself, where it listens with its own code (not on
+# Windows).  A server that cannot listen where it was told says why and
+# stops.
+
+if {$::tcl_platform(platform) eq "unix" && [loopback_available]} {
+  # A port on ADDRESS with a listener on it.  Returns the listener and
+  # the port.
+  proc cgi_busy_port {address} {
+    set listener [socket -server {apply {{c a p} {close $c}}} \
+        -myaddr $address 0]
+    return [list $listener [lindex [fconfigure $listener -sockname] 2]]
+  }
+  # A port on 127.0.0.1 that was free a moment ago.
+  proc cgi_free_port {} {
+    lassign [cgi_busy_port 127.0.0.1] listener port
+    close $listener
+    return $port
+  }
+  write_file notsocket "a file\n"
+  lassign [cgi_busy_port 127.0.0.1] cgiListener cgiPort
+  foreach {cgiName cgiOptions cgiError} [list \
+      bad-ipv4       {--port 999.9.9.9:8111} \
+                     "not a valid IPv4 address: 999.9.9.9" \
+      bad-ipv6       {--port {[zz::1]:8111}} \
+                     "not a valid IPv6 address: zz::1" \
+      other-ipv4     {--port 192.0.2.1:8111} \
+                     "cannot open a listening socket on 192.0.2.1:8111" \
+      other-ipv6     {--port {[2001:db8::1]:8111}} \
+                     "cannot open a listening socket on \\\[2001:db8::1\\\]:8111" \
+      port-in-use    [list --localhost --port $cgiPort] \
+                     "no available TCP ports in the range $cgiPort..$cgiPort" \
+      socket-name-long [list --socket-name [string repeat s 200]] \
+                     "name of unix socket too big" \
+      socket-name-taken {--socket-name notsocket} \
+                     "cannot name socket \"notsocket\" because another object" \
+  ] {
+    fossil_raw -seconds 30 server {*}$cgiOptions $cgiRepo
+    test cgi-server-refused-$cgiName {$CODE == 1
+        && [string match "*$cgiError*" $RESULT]}
+  }
+  close $cgiListener
+
+  # Send REQUEST to HOST and PORT and return the reply, waiting at most
+  # ten seconds for the end of it.  With "unix" for HOST, PORT is the
+  # name of a unix socket, and the program "nc" carries the request.
+  proc cgi_client {host port request} {
+    if {$host eq "unix"} {
+      return [exec nc -w 10 -U $port << $request]
+    }
+    set sock [socket $host $port]
+    fconfigure $sock -translation binary -blocking 0
+    puts -nonewline $sock $request
+    flush $sock
+    set reply ""
+    for {set i 0} {$i < 200 && ![eof $sock]} {incr i} {
+      append reply [read $sock]
+      after 50
+    }
+    close $sock
+    return $reply
+  }
+  # Start a server with OPTIONS that answers one request and stops, send
+  # it REQUEST at HOST and PORT, and return what the server printed and
+  # the reply.  The server is killed if it has not stopped by itself.
+  proc cgi_serve_once {options host port request {command server}} {
+    global fossilexe cgiRepo
+    file delete server.out
+    set pid [exec $fossilexe $command --debug-nofork --localauth {*}$options \
+        $cgiRepo >& server.out &]
+    set reply ""
+    for {set i 0} {$i < 100} {incr i} {
+      after 100
+      if {[string match "*Listening for*" [read_file server.out]]} {
+        after 300
+        catch {set reply [cgi_client $host $port $request]}
+        break
+      }
+    }
+    for {set i 0} {$i < 50 && ![catch {exec kill -0 $pid}]} {incr i} {
+      after 100
+    }
+    catch {exec kill -9 $pid}
+    return [list [string trim [read_file server.out]] $reply]
+  }
+
+  # An IPv4 address, by number and as "localhost".
+  foreach {cgiName cgiHost} {ipv4 127.0.0.1 localhost localhost} {
+    set cgiPort [cgi_free_port]
+    lassign [cgi_serve_once [list --port $cgiHost:$cgiPort] 127.0.0.1 \
+        $cgiPort [cgi_get /test-env]] cgiPrinted cgiReply
+    test_eq cgi-server-$cgiName-printed $cgiPrinted \
+        "Listening for HTTP requests on TCP port 127.0.0.1:$cgiPort"
+    test cgi-server-$cgiName-reply {
+        [cgi_status $cgiReply] eq "HTTP/1.0 200 OK"
+        && [cgi_param $cgiReply REMOTE_ADDR] eq "127.0.0.1"}
+  }
+  # "fossil ui" starts the browser on the address it listens on.  The
+  # browser here is "echo".
+  fossil settings web-browser echo
+  fossil settings web-browser
+  if {[string match "*echo*" $RESULT]} {
+    set cgiPort [cgi_free_port]
+    lassign [cgi_serve_once [list --port 127.0.0.1:$cgiPort] 127.0.0.1 \
+        $cgiPort [cgi_get /test-env] ui] cgiPrinted cgiReply
+    test cgi-server-ui-browser {
+        [string match "*\nhttp://127.0.0.1:$cgiPort/*" \n$cgiPrinted]
+        && [cgi_status $cgiReply] eq "HTTP/1.0 200 OK"}
+  }
+  # SCGI in place of HTTP.
+  set cgiPort [cgi_free_port]
+  lassign [cgi_serve_once [list --scgi --port 127.0.0.1:$cgiPort] 127.0.0.1 \
+      $cgiPort [cgi_scgi {
+        CONTENT_LENGTH 0 SCGI 1 REQUEST_METHOD GET SCRIPT_NAME {}
+        REQUEST_URI /test-env?viascgi=1 QUERY_STRING viascgi=1 SERVER_NAME x
+        SERVER_PORT 80 REMOTE_ADDR 127.0.0.1
+      }]] cgiPrinted cgiReply
+  test_eq cgi-server-scgi-printed $cgiPrinted \
+      "Listening for SCGI requests on TCP port 127.0.0.1:$cgiPort"
+  test_eq cgi-server-scgi-reply [cgi_param $cgiReply viascgi] 1
+
+  if {![catch {cgi_busy_port ::1} cgiBusy]} {
+    close [lindex $cgiBusy 0]
+    # An IPv6 address.
+    set cgiPort [cgi_free_port]
+    lassign [cgi_serve_once [list --port \[::1\]:$cgiPort] ::1 $cgiPort \
+        [cgi_get /test-env]] cgiPrinted cgiReply
+    test_eq cgi-server-ipv6-printed $cgiPrinted \
+        "Listening for HTTP requests on \[::1\]:$cgiPort"
+    test cgi-server-ipv6-reply {[cgi_status $cgiReply] eq "HTTP/1.0 200 OK"
+        && [cgi_param $cgiReply REMOTE_ADDR] eq "::1"}
+    # With no address the server listens on both kinds of loopback
+    # address, or on IPv4 alone if the port is taken for IPv6.
+    set cgiPort [cgi_free_port]
+    lassign [cgi_serve_once [list --localhost --port \[\]:$cgiPort] ::1 \
+        $cgiPort [cgi_get /test-env]] cgiPrinted cgiReply
+    test_eq cgi-server-both-printed $cgiPrinted \
+        "Listening for HTTP requests on TCP port localhost:$cgiPort, IPv4 and IPv6"
+    test_eq cgi-server-both-reply [cgi_param $cgiReply REMOTE_ADDR] ::1
+    lassign [cgi_busy_port ::1] cgiListener cgiPort
+    lassign [cgi_serve_once [list --localhost --port $cgiPort] 127.0.0.1 \
+        $cgiPort [cgi_get /test-env]] cgiPrinted cgiReply
+    close $cgiListener
+    test_eq cgi-server-ipv4-only-printed $cgiPrinted \
+        "Listening for HTTP requests on TCP port localhost:$cgiPort, IPv4 only"
+    test_eq cgi-server-ipv4-only-reply [cgi_status $cgiReply] "HTTP/1.0 200 OK"
+    # With a port and neither an address nor --localhost the server
+    # listens on every address of the machine.
+    set cgiPort [cgi_free_port]
+    lassign [cgi_serve_once [list --port $cgiPort] 127.0.0.1 \
+        $cgiPort [cgi_get /login]] cgiPrinted cgiReply
+    test_eq cgi-server-any-address-printed $cgiPrinted \
+        "Listening for HTTP requests on TCP port $cgiPort, IPv4 and IPv6"
+    test_eq cgi-server-any-address-reply [cgi_status $cgiReply] "HTTP/1.0 200 OK"
+  }
+
+  # A unix socket in place of a port.  The server makes the socket, and
+  # takes the place of a socket of the same name that is left from an
+  # earlier server.  --socket-owner names the owner of the socket.
+  catch {exec nc -h} cgiNcHelp
+  if {[string match "*-U*" $cgiNcHelp]} {
+    set cgiUser [exec id -un]
+    foreach {cgiName cgiOptions} [list \
+        new       {--socket-name sock1} \
+        replaced  {--socket-name sock1} \
+        owner     [list --socket-owner $cgiUser --socket-name sock1] \
+    ] {
+      lassign [cgi_serve_once $cgiOptions unix sock1 [cgi_get /login]] \
+          cgiPrinted cgiReply
+      test cgi-server-unix-$cgiName {
+          $cgiPrinted eq "Listening for HTTP requests on unix socket sock1"
+          && [cgi_status $cgiReply] eq "HTTP/1.0 200 OK"
+          && [file type sock1] eq "socket"
+          && [file attributes sock1 -owner] eq $cgiUser}
+    }
+    # --socket-mode gives the permissions of the socket; without it they
+    # are 0660.
+    foreach {cgiName cgiOptions cgiMode} {
+      mode     {--socket-mode 0600 --socket-name sock2}  600
+      default  {--socket-name sock2}                     660
+    } {
+      file delete sock2
+      lassign [cgi_serve_once $cgiOptions unix sock2 [cgi_get /login]] \
+          cgiPrinted cgiReply
+      test cgi-server-unix-$cgiName {
+          $cgiPrinted eq "Listening for HTTP requests on unix socket sock2"
+          && [cgi_status $cgiReply] eq "HTTP/1.0 200 OK"
+          && [format %o [expr {[file attributes sock2 -permissions] & 0o777}]]
+              eq $cgiMode}
+    }
+    fossil_raw -seconds 30 server --socket-mode rw --socket-name sock3 $cgiRepo
+    test cgi-server-unix-mode-not-a-number {$CODE == 1 && [string match \
+        "*cannot change permissions on sock3 to \"rw\"*" $RESULT]}
+  } else {
+    test_skip_part "no nc program for unix sockets: the unix socket tests"
+  }
+
+  # A server that gives each request to a process of its own.  Start
+  # one with OPTIONS, as COMMAND, and return its process id once it
+  # listens.  What it prints goes to server.out and server.err.  WRAP,
+  # if given, is a list of words to put before the command.
+  proc cgi_serve_start {options {command server} {wrap {}}} {
+    global fossilexe cgiRepo
+    file delete server.out server.err
+    set pid [exec {*}$wrap $fossilexe $command --localauth {*}$options \
+        $cgiRepo > server.out 2> server.err &]
+    for {set i 0} {$i < 100} {incr i} {
+      after 100
+      if {[string match "*Listening for*" [read_file server.out]]} break
+    }
+    after 300
+    return $pid
+  }
+  # Stop the server with process id PID: ask it to end, and kill it if
+  # it has not ended after five seconds.
+  proc cgi_serve_stop {pid} {
+    catch {exec kill $pid}
+    for {set i 0} {$i < 50 && ![catch {exec kill -0 $pid}]} {incr i} {
+      after 100
+    }
+    catch {exec kill -9 $pid}
+  }
+
+  # A process that handles a request is killed before the request is
+  # complete.  The server goes on to answer the next request, and one
+  # that traces its work reports the signal that ended the process.
+  if {[auto_execok pgrep] ne ""} {
+    foreach {cgiName cgiOptions cgiReport} {
+      traced  --httptrace  {*Child * exited on signal 9 *}
+      quiet   {}           {}
+    } {
+      set cgiPort [cgi_free_port]
+      set cgiPid [cgi_serve_start [list --port 127.0.0.1:$cgiPort \
+          {*}$cgiOptions]]
+      set cgiReply ""
+      catch {
+        set cgiSock [socket 127.0.0.1 $cgiPort]
+        fconfigure $cgiSock -translation binary
+        puts -nonewline $cgiSock "GET /login HTTP/1.1\r\n"
+        flush $cgiSock
+        after 500
+        exec kill -9 {*}[exec pgrep -P $cgiPid]
+        after 500
+        close $cgiSock
+        set cgiReply [cgi_client 127.0.0.1 $cgiPort [cgi_get /login]]
+      }
+      cgi_serve_stop $cgiPid
+      test cgi-server-child-killed-$cgiName {
+          [cgi_status $cgiReply] eq "HTTP/1.0 200 OK"
+          && ($cgiReport eq ""
+              ? ![string match "*exited on signal*" [read_file server.err]]
+              : [string match $cgiReport [read_file server.err]])}
+    }
+    foreach cgiLog [glob -nocomplain httplog-*.txt] { file delete $cgiLog }
+  } else {
+    test_skip_part "no pgrep program: the killed server process tests"
+  }
+
+  # A server that is not allowed another process cannot start the
+  # browser and says so, and closes a connection without a reply
+  # because it cannot start a process for the request.  It goes on
+  # listening all the same.
+  fossil settings web-browser
+  if {[string match "*echo*" $RESULT] && [exec id -u] != 0
+      && [auto_execok bash] ne ""} {
+    set cgiPort [cgi_free_port]
+    set cgiPid [cgi_serve_start [list --port 127.0.0.1:$cgiPort] ui \
+        [list bash -c {ulimit -u 1 && exec "$@"} bash]]
+    set cgiReply unset
+    catch {set cgiReply [cgi_client 127.0.0.1 $cgiPort [cgi_get /login]]}
+    set cgiAlive [expr {![catch {exec kill -0 $cgiPid}]}]
+    cgi_serve_stop $cgiPid
+    test cgi-server-no-process-browser {[string match \
+        "*cannot start browser: echo*" [read_file server.err]]}
+    test cgi-server-no-process-request {$cgiReply eq "" && $cgiAlive}
+  }
+}
+
+###############################################################################
+
+test_cleanup

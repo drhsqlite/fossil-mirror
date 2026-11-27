@@ -1,0 +1,914 @@
+#
+# "fossil rebuild" with each of its options, "fossil repack", "fossil
+# deconstruct" and "fossil reconstruct", "fossil detach", the prompt of
+# "fossil scrub", and the cluster test commands.  None of them may change
+# what a repository holds: after each, the artifacts, the timeline and the
+# links between check-ins and files are compared with what was there
+# before, and the repository must still be sound.
+#
+
+# These tests run only in a long pass: -assurance stress.
+if {[test_assurance] ne "stress"} {
+  test_skip "runs only with -assurance stress"
+}
+
+require_no_open_checkout
+
+test_setup
+
+proc rebuild_sql {sql {repo .rep.fossil}} {
+  fossil sql -R $repo $sql
+  return [string trim $::RESULT]
+}
+
+# What a repository holds, by hash rather than by record number: the
+# artifacts with their private flag, the timeline, the parent links, the
+# files of each check-in, the leaves and the tags.
+#
+proc rebuild_state {{repo .rep.fossil}} {
+  return [rebuild_sql {
+    SELECT 'blob', uuid, rid IN private FROM blob WHERE size>=0
+    UNION ALL
+    SELECT 'event', b.uuid, e.type || ' ' || ifnull(e.comment,'')
+      FROM event e JOIN blob b ON b.rid=e.objid
+    UNION ALL
+    SELECT 'plink', p.uuid, c.uuid FROM plink
+      JOIN blob p ON p.rid=plink.pid JOIN blob c ON c.rid=plink.cid
+    UNION ALL
+    SELECT 'mlink', m.uuid, f.uuid || ' ' || fn.name FROM mlink
+      JOIN blob m ON m.rid=mlink.mid JOIN blob f ON f.rid=mlink.fid
+      JOIN filename fn ON fn.fnid=mlink.fnid
+    UNION ALL
+    SELECT 'leaf', uuid, '' FROM leaf JOIN blob USING(rid)
+    UNION ALL
+    SELECT 'tag', b.uuid, t.tagname || '=' || ifnull(x.value,'')
+      FROM tagxref x JOIN tag t USING(tagid) JOIN blob b ON b.rid=x.rid
+     WHERE x.tagtype>0
+    ORDER BY 1, 2, 3
+  } $repo]
+}
+
+# The rows that are in one state and not in the other, marked "-" for
+# the first and "+" for the second.  Empty when the two are the same.
+#
+proc rebuild_diff {a b} {
+  set la [split $a \n]
+  set lb [split $b \n]
+  set out {}
+  foreach x $la { if {[lsearch -exact $lb $x] < 0} { lappend out "- $x" } }
+  foreach x $lb { if {[lsearch -exact $la $x] < 0} { lappend out "+ $x" } }
+  return [join $out \n]
+}
+
+proc rebuild_sound {name {repo .rep.fossil}} {
+  fossil test-integrity -R $repo
+  test $name-integrity {$::CODE == 0}
+  fossil test-missing -R $repo
+  test $name-missing {$::CODE == 0}
+}
+
+proc rebuild_hash {comment} {
+  return [rebuild_sql "SELECT uuid FROM blob, event
+      WHERE objid=rid AND comment='$comment'"]
+}
+
+proc rebuild_file_hash {checkin file {repo .rep.fossil}} {
+  return [rebuild_sql "SELECT f.uuid FROM mlink
+      JOIN blob m ON m.rid=mlink.mid JOIN blob f ON f.rid=mlink.fid
+      JOIN filename fn ON fn.fnid=mlink.fnid
+     WHERE m.uuid='$checkin' AND fn.name='$file'" $repo]
+}
+
+# The hashes of the artifacts a repository has the content of, in order;
+# WHERE narrows them.
+proc rebuild_hashes {repo {where 1}} {
+  return [split [rebuild_sql "SELECT uuid FROM blob
+      WHERE size>=0 AND $where ORDER BY uuid" $repo] \n]
+}
+
+# Text of LENGTH characters that has nothing in common with the text for
+# another SEED, so that neither is stored as a delta of the other.
+proc rebuild_noise {seed length} {
+  set x [expr {$seed*7919 + 17}]
+  set out ""
+  for {set i 0} {$i < $length} {incr i} {
+    set x [expr {($x*1103515245 + 12345) % 2147483648}]
+    append out [format %c [expr {33 + ($x >> 16) % 90}]]
+    if {$i % 60 == 59} {append out \n}
+  }
+  return "$out\n"
+}
+
+# The files below DIR whose names do not begin with a dot, each as its
+# path below DIR.
+proc rebuild_files {dir {below ""}} {
+  set out {}
+  foreach f [lsort [glob -nocomplain -tails -directory \
+      [file join $dir $below] *]] {
+    if {$below eq ""} {set rel $f} else {set rel $below/$f}
+    if {[file isdirectory [file join $dir $rel]]} {
+      lappend out {*}[rebuild_files $dir $rel]
+    } else {
+      lappend out $rel
+    }
+  }
+  return $out
+}
+
+# The names a deconstruct into DIR gave the artifacts, with the directory
+# part folded back into the hash, in order.
+proc rebuild_names {dir} {
+  set out {}
+  foreach f [rebuild_files $dir] { lappend out [string map {/ ""} $f] }
+  return [lsort $out]
+}
+
+###############################################################################
+# Seven check-ins on trunk.  Each has a new version of a.txt, which is
+# stored as deltas, and a new n.txt that has nothing in common with the
+# one before.  A branch off the third with a file of its own; a tag, a
+# wiki page and a ticket; and a private branch of two check-ins.
+
+fossil settings autosync off
+set rebuildText ""
+for {set rebuildI 0} {$rebuildI < 60} {incr rebuildI} {
+  append rebuildText "line $rebuildI of a file that is stored as deltas\n"
+}
+set rebuildTrunk {}
+for {set rebuildI 1} {$rebuildI <= 7} {incr rebuildI} {
+  append rebuildText "version $rebuildI\n"
+  write_file a.txt $rebuildText
+  write_file n.txt [rebuild_noise $rebuildI 1500]
+  if {$rebuildI == 1} {fossil add a.txt n.txt}
+  fossil commit -m rebuild-trunk-$rebuildI --no-warnings
+  lappend rebuildTrunk [rebuild_hash rebuild-trunk-$rebuildI]
+  set rebuildTrunkText($rebuildI) $rebuildText
+}
+fossil update [lindex $rebuildTrunk 2]
+fossil branch new side current
+fossil update side
+write_file b.txt "a file only the branch has\n"
+fossil add b.txt
+fossil commit -m rebuild-side-1 --no-warnings
+set rebuildSide [rebuild_hash rebuild-side-1]
+fossil update trunk
+fossil tag add rebuild-tag [lindex $rebuildTrunk 1]
+write_file page.txt "A wiki page.\n"
+fossil wiki create RebuildPage page.txt
+fossil ticket add title "a ticket" status Open
+set rebuildSecretText ""
+for {set rebuildI 0} {$rebuildI < 60} {incr rebuildI} {
+  append rebuildSecretText "line $rebuildI of private content\n"
+}
+write_file secret.txt $rebuildSecretText
+fossil add secret.txt
+fossil commit -m rebuild-secret-1 --no-warnings --private --branch secret
+set rebuildSecret1 [rebuild_hash rebuild-secret-1]
+write_file secret.txt "${rebuildSecretText}one more\n"
+fossil commit -m rebuild-secret-2 --no-warnings
+set rebuildSecret2 [rebuild_hash rebuild-secret-2]
+set rebuildSecretFile1 [rebuild_file_hash $rebuildSecret1 secret.txt]
+set rebuildSecretFile2 [rebuild_file_hash $rebuildSecret2 secret.txt]
+fossil update trunk
+
+rebuild_sound rebuild-start
+set rebuildStart [rebuild_state]
+set rebuildAll [rebuild_hashes .rep.fossil]
+set rebuildPublic [rebuild_hashes .rep.fossil "rid NOT IN private"]
+test rebuild-start-setup {[llength $rebuildAll] > [llength $rebuildPublic] &&
+    [rebuild_sql "SELECT count(*) FROM delta"] > 0}
+file copy .rep.fossil full.fossil
+
+###############################################################################
+# Rebuild with each option, one after another on one copy.  Each row is a
+# name, the options, a pattern the output must match, a query, and the
+# answer the query must give afterwards.  After every one the repository
+# holds what it held and is sound.
+
+file copy full.fossil r.fossil
+set rebuildCheckins [rebuild_sql "SELECT count(*) FROM event WHERE type='ci'"]
+foreach {rebuildName rebuildOpts rebuildOut rebuildQuery rebuildWant} [list \
+  plain {} \
+    "*100.0% complete*" \
+    "SELECT count(*) FROM event WHERE type='ci'" $rebuildCheckins \
+  quiet {--quiet} \
+    "" \
+    "SELECT count(*) FROM event WHERE type='ci'" $rebuildCheckins \
+  cluster {--cluster} \
+    "*100.0% complete*" \
+    "SELECT count(*) FROM tagxref WHERE tagid=(SELECT tagid FROM tag
+       WHERE tagname='cluster')" 0 \
+  noverify {--noverify} \
+    "*100.0% complete*" \
+    "SELECT count(*) FROM event WHERE type='ci'" $rebuildCheckins \
+  force {--force} \
+    "*100.0% complete*" \
+    "SELECT count(*) FROM event WHERE type='ci'" $rebuildCheckins \
+  analyze {--analyze} \
+    "*Analyzing the database... done*" \
+    "SELECT count(*) FROM sqlite_schema WHERE name='sqlite_stat1'" 1 \
+  vacuum {--vacuum} \
+    "*Vacuuming the database... done*" \
+    "PRAGMA repository.freelist_count" 0 \
+  pagesize {--pagesize 8192} \
+    "*Vacuuming the database... done*" \
+    "PRAGMA repository.page_size" 8192 \
+  wal {--wal} \
+    "*100.0% complete*" \
+    "PRAGMA repository.journal_mode" wal \
+  pagesize-in-wal {--pagesize 2048} \
+    "*Vacuuming the database... done*" \
+    "PRAGMA repository.page_size; PRAGMA repository.journal_mode" \
+    "2048\nwal" \
+  stats {--stats} \
+    "*Artifacts:*Manifests:*Clusters:*Tags:*Wikis:*Tickets:*Other:*" \
+    "SELECT count(*) FROM event WHERE type='ci'" $rebuildCheckins \
+  compress {--compress} \
+    "*100.0% complete*Extra delta compression... *" \
+    "SELECT count(*) FROM event WHERE type='ci'" $rebuildCheckins \
+  compress-only {--compress-only} \
+    "Extra delta compression... *" \
+    "SELECT count(*) FROM event WHERE type='ci'" $rebuildCheckins \
+] {
+  fossil rebuild r.fossil {*}$rebuildOpts
+  test rebuild-$rebuildName {$CODE == 0 &&
+      [string match $rebuildOut $RESULT]}
+  test_eq rebuild-$rebuildName-effect [rebuild_sql $rebuildQuery r.fossil] \
+      $rebuildWant
+  test_eq rebuild-$rebuildName-state \
+      [rebuild_diff $rebuildStart [rebuild_state r.fossil]] ""
+  rebuild_sound rebuild-$rebuildName r.fossil
+}
+
+# --deanalyze removes the statistics that --analyze made.  The file is
+# read with --no-repository, because a command that opens the repository
+# runs PRAGMA optimize when it closes it, which makes them again.
+test_eq rebuild-deanalyze-setup [rebuild_sql "SELECT count(*)
+    FROM sqlite_schema WHERE name='sqlite_stat1'" r.fossil] 1
+fossil rebuild r.fossil --deanalyze
+test rebuild-deanalyze {$CODE == 0}
+fossil sql --no-repository r.fossil \
+    "SELECT count(*) FROM sqlite_schema WHERE name='sqlite_stat1'"
+test_eq rebuild-deanalyze-effect [string trim $RESULT] 0
+test_eq rebuild-deanalyze-state \
+    [rebuild_diff $rebuildStart [rebuild_state r.fossil]] ""
+
+# --stats counts each kind of artifact.
+fossil rebuild r.fossil --stats
+set rebuildStats $RESULT
+foreach {rebuildName rebuildLabel rebuildType} {
+  manifests Manifests ci
+  tags      Tags      g
+  wikis     Wikis     w
+  tickets   Tickets   t
+} {
+  set rebuildCount ""
+  regexp -line "^$rebuildLabel: +(\\d+)" $rebuildStats -> rebuildCount
+  test_eq rebuild-stats-$rebuildName $rebuildCount [rebuild_sql "SELECT
+      count(*) FROM event WHERE type='$rebuildType'" full.fossil]
+}
+
+# A page size that is too small, too large, or not a power of two is
+# refused and nothing is rebuilt.
+fossil sql -R r.fossil "UPDATE config SET mtime=1 WHERE name='rebuilt'"
+foreach rebuildSize {256 131072 1000 abc} {
+  fossil rebuild r.fossil --pagesize $rebuildSize -expectError
+  test rebuild-pagesize-$rebuildSize-refused {$CODE != 0 &&
+      [string match "*page size must be a power of two*" $RESULT]}
+}
+test_eq rebuild-pagesize-refused-unchanged [rebuild_sql "PRAGMA
+    repository.page_size; SELECT mtime FROM config WHERE name='rebuilt'" \
+    r.fossil] "2048\n1"
+
+# --ifneeded does nothing when the schema is the current one, and
+# rebuilds when the repository says it has an older one.
+set rebuildSchema [rebuild_sql "SELECT value FROM config
+    WHERE name='aux-schema'" r.fossil]
+fossil rebuild r.fossil --ifneeded
+test rebuild-ifneeded-not-needed {$CODE == 0 && $RESULT eq ""}
+test_eq rebuild-ifneeded-not-needed-untouched [rebuild_sql "SELECT mtime
+    FROM config WHERE name='rebuilt'" r.fossil] 1
+fossil sql -R r.fossil "UPDATE config SET value='2011-04-25 19:50'
+    WHERE name='aux-schema'"
+fossil rebuild r.fossil --ifneeded
+test rebuild-ifneeded-needed {$CODE == 0 &&
+    [string match "*100.0% complete*" $RESULT]}
+test_eq rebuild-ifneeded-needed-schema [rebuild_sql "SELECT value FROM config
+    WHERE name='aux-schema'" r.fossil] $rebuildSchema
+test rebuild-ifneeded-needed-rebuilt {[rebuild_sql "SELECT mtime FROM config
+    WHERE name='rebuilt'" r.fossil] > 1}
+test_eq rebuild-ifneeded-needed-state \
+    [rebuild_diff $rebuildStart [rebuild_state r.fossil]] ""
+
+# Two repository names are one too many.  Without a name, the repository
+# of the check-out is rebuilt.
+fossil rebuild r.fossil full.fossil -expectError
+test rebuild-usage {$CODE != 0 && [string match "*Usage:*" $RESULT]}
+fossil rebuild
+test rebuild-checkout {$CODE == 0}
+test_eq rebuild-checkout-state [rebuild_diff $rebuildStart [rebuild_state]] ""
+
+###############################################################################
+# A repository with the table definitions of an old Fossil: no baseid in
+# plink (before 2014-11-28), no pmid and isaux in mlink (before
+# 2015-01-24), no mtime in user, config, shun, reportfmt and concealed
+# (before 2011-04-27), no jx in user and reportfmt, and a blob table that
+# takes only hashes of 40 characters (before 2.0).  It is made from a new
+# one by dropping the columns and editing the stored definition with SQL.
+# Rebuild brings every table up to date and loses none of their rows.
+
+file copy full.fossil old.fossil
+fossil sql -R old.fossil "
+  INSERT INTO concealed(hash,content,mtime)
+       VALUES('abc','someone@example.invalid',1);
+  INSERT INTO shun(uuid,mtime,scom)
+       VALUES('[string repeat b 64]',1,'a reason');
+  ALTER TABLE plink DROP COLUMN baseid;
+  DROP INDEX mlink_i4;
+  ALTER TABLE mlink DROP COLUMN isaux;
+  ALTER TABLE mlink DROP COLUMN pmid;
+  ALTER TABLE user DROP COLUMN jx;
+  ALTER TABLE user DROP COLUMN mtime;
+  ALTER TABLE shun DROP COLUMN mtime;
+  ALTER TABLE shun DROP COLUMN scom;
+  ALTER TABLE reportfmt DROP COLUMN jx;
+  ALTER TABLE reportfmt DROP COLUMN mtime;
+  ALTER TABLE concealed DROP COLUMN mtime;
+  ALTER TABLE config DROP COLUMN mtime;
+"
+fossil sql -R old.fossil ".dbconfig defensive off" \
+  "PRAGMA writable_schema=ON" \
+  "UPDATE repository.sqlite_schema
+      SET sql=replace(sql,'length(uuid)>=40','length(uuid)==40')
+    WHERE name='blob'" \
+  "PRAGMA writable_schema=OFF"
+proc rebuild_columns {repo} {
+  return [rebuild_sql "
+    SELECT group_concat(m.name || '.' || p.name, ' ') FROM (
+      SELECT 'plink' AS name UNION ALL SELECT 'mlink' UNION ALL
+      SELECT 'user' UNION ALL SELECT 'config' UNION ALL SELECT 'shun'
+      UNION ALL SELECT 'reportfmt' UNION ALL SELECT 'concealed') AS m,
+      pragma_table_info(m.name, 'repository') AS p
+     WHERE m.name || '.' || p.name IN ('plink.baseid', 'mlink.pmid',
+           'mlink.isaux', 'user.mtime', 'user.jx', 'config.mtime',
+           'shun.mtime', 'shun.scom', 'reportfmt.mtime', 'reportfmt.jx',
+           'concealed.mtime')" $repo]
+}
+proc rebuild_blob_check {repo} {
+  return [rebuild_sql "SELECT sql LIKE '%length(uuid)>=40%'
+      FROM repository.sqlite_schema WHERE name='blob'" $repo]
+}
+test_eq rebuild-old-schema-setup-columns [rebuild_columns old.fossil] ""
+test_eq rebuild-old-schema-setup-blob [rebuild_blob_check old.fossil] 0
+set rebuildUsers [rebuild_sql "SELECT group_concat(login || '/' || cap, ' ')
+    FROM (SELECT login, cap FROM user ORDER BY login)" full.fossil]
+set rebuildCode [rebuild_sql "SELECT value FROM config
+    WHERE name='project-code'" full.fossil]
+set rebuildReports [rebuild_sql "SELECT group_concat(title, '|')
+    FROM (SELECT title FROM reportfmt ORDER BY rn)" full.fossil]
+fossil rebuild old.fossil
+test rebuild-old-schema {$CODE == 0}
+test_eq rebuild-old-schema-columns [lsort [rebuild_columns old.fossil]] \
+    [lsort [rebuild_columns full.fossil]]
+test_eq rebuild-old-schema-blob [rebuild_blob_check old.fossil] 1
+test_eq rebuild-old-schema-users [rebuild_sql "SELECT group_concat(login
+    || '/' || cap, ' ') FROM (SELECT login, cap FROM user ORDER BY login)" \
+    old.fossil] $rebuildUsers
+test_eq rebuild-old-schema-users-dated [rebuild_sql "SELECT count(*) FROM user
+    WHERE mtime IS NULL" old.fossil] 0
+test_eq rebuild-old-schema-config [rebuild_sql "SELECT value, mtime>1
+    FROM config WHERE name='project-code'" old.fossil] "$rebuildCode|1"
+test_eq rebuild-old-schema-shun [rebuild_sql "SELECT uuid, mtime>1 FROM shun" \
+    old.fossil] "[string repeat b 64]|1"
+test_eq rebuild-old-schema-reports [rebuild_sql "SELECT group_concat(title, '|')
+    FROM (SELECT title FROM reportfmt ORDER BY rn)" old.fossil] $rebuildReports
+test_eq rebuild-old-schema-reports-dated [rebuild_sql "SELECT count(*)
+    FROM reportfmt WHERE mtime IS NULL" old.fossil] 0
+test_eq rebuild-old-schema-concealed [rebuild_sql "SELECT hash, content,
+    mtime>1 FROM concealed" old.fossil] "abc|someone@example.invalid|1"
+test_eq rebuild-old-schema-state \
+    [rebuild_diff $rebuildStart [rebuild_state old.fossil]] ""
+rebuild_sound rebuild-old-schema old.fossil
+
+###############################################################################
+# When the main-branch setting names a branch that no check-in has,
+# rebuild puts the first check-in on it.  Everything that was there stays.
+
+file copy full.fossil main.fossil
+fossil sql -R main.fossil "REPLACE INTO config(name,value,mtime)
+    VALUES('main-branch','primary',now())"
+set rebuildRoot [rebuild_sql "SELECT uuid FROM blob WHERE rid=(SELECT pid
+    FROM plink AS x WHERE NOT EXISTS(SELECT 1 FROM plink
+    WHERE cid=x.pid))" main.fossil]
+fossil rebuild main.fossil
+test rebuild-main-branch {$CODE == 0}
+test_eq rebuild-main-branch-tagged [rebuild_sql "SELECT count(*)
+    FROM tagxref JOIN tag USING(tagid) JOIN blob USING(rid)
+   WHERE tagname='sym-primary' AND tagtype=2 AND srcid>0
+     AND uuid='$rebuildRoot'" main.fossil] 1
+# The two artifacts that carry the new tags are all that is added.
+set rebuildAdded [rebuild_diff [join $rebuildAll \n] \
+    [join [rebuild_hashes main.fossil] \n]]
+test rebuild-main-branch-kept {[regexp -all -line {^\+ } $rebuildAdded] == 2 &&
+    [regexp -all -line {^- } $rebuildAdded] == 0}
+rebuild_sound rebuild-main-branch main.fossil
+# A second rebuild finds the branch and adds nothing.
+set rebuildCount [rebuild_sql "SELECT count(*) FROM blob" main.fossil]
+fossil rebuild main.fossil
+test_eq rebuild-main-branch-once [rebuild_sql "SELECT count(*) FROM blob" \
+    main.fossil] $rebuildCount
+
+###############################################################################
+# Rebuild of a repository damaged with SQL: an artifact stored as a delta
+# whose own row is gone, or has become a phantom.  The rebuild finishes,
+# every check-in is still in the timeline, and the artifact is listed as
+# a phantom.
+
+set rebuildDeltaFile "(SELECT delta.rid FROM delta JOIN mlink
+    ON mlink.fid=delta.rid JOIN filename USING(fnid)
+    WHERE name='a.txt' ORDER BY delta.rid LIMIT 1)"
+foreach {rebuildName rebuildDamage} [list \
+  delta-row-gone \
+    "DELETE FROM blob WHERE rid=$rebuildDeltaFile" \
+  delta-is-a-phantom \
+    "UPDATE blob SET size=-1, content=NULL WHERE rid=$rebuildDeltaFile" \
+] {
+  file copy -force full.fossil damaged.fossil
+  fossil sql -R damaged.fossil $rebuildDamage
+  fossil rebuild damaged.fossil
+  test rebuild-damage-$rebuildName {$CODE == 0}
+  test_eq rebuild-damage-$rebuildName-checkins [rebuild_sql "SELECT count(*)
+      FROM event WHERE type='ci'" damaged.fossil] $rebuildCheckins
+  test_eq rebuild-damage-$rebuildName-phantoms [rebuild_sql "SELECT count(*)
+      FROM phantom" damaged.fossil] 1
+  fossil cat a.txt -r [lindex $rebuildTrunk 6] -R damaged.fossil
+  test_eq rebuild-damage-$rebuildName-newest-readable "$RESULT\n" \
+      $rebuildTrunkText(7)
+}
+file delete damaged.fossil
+
+###############################################################################
+# The full-text search index.  Rebuild drops it and builds it again;
+# --noindex leaves it out; --index adds one; --compress-only leaves it
+# alone.
+
+file copy full.fossil fts.fossil
+proc rebuild_indexed {repo} {
+  if {[rebuild_sql "SELECT count(*) FROM sqlite_schema
+      WHERE name='ftsdocs'" $repo] == 0} {return none}
+  return [rebuild_sql "SELECT count(*) FROM ftsdocs" $repo]
+}
+test_eq rebuild-index-setup-none [rebuild_indexed fts.fossil] none
+fossil rebuild fts.fossil --index
+test rebuild-index {$CODE == 0}
+set rebuildDocs [rebuild_indexed fts.fossil]
+test rebuild-index-made {$rebuildDocs ne "none"}
+fossil fts-config enable cdtwe -R fts.fossil
+fossil rebuild fts.fossil
+test rebuild-index-kept {$CODE == 0}
+set rebuildDocs [rebuild_indexed fts.fossil]
+test rebuild-index-kept-filled {$rebuildDocs ne "none" && $rebuildDocs > 0}
+fossil sql -R fts.fossil "DELETE FROM ftsdocs"
+fossil rebuild fts.fossil --compress-only
+test rebuild-index-compress-only {$CODE == 0}
+test_eq rebuild-index-compress-only-untouched [rebuild_indexed fts.fossil] 0
+fossil rebuild fts.fossil
+test_eq rebuild-index-refilled [rebuild_indexed fts.fossil] $rebuildDocs
+fossil search rebuild-side-1 -R fts.fossil
+test rebuild-index-search {[string match "*rebuild-side-1*" $RESULT]}
+# --compress-only with --index, when there is an index already, builds it
+# again.
+fossil sql -R fts.fossil "DELETE FROM ftsdocs"
+fossil rebuild fts.fossil --compress-only --index
+test rebuild-index-compress-only-index {$CODE == 0}
+test_eq rebuild-index-compress-only-index-filled \
+    [rebuild_indexed fts.fossil] $rebuildDocs
+fossil rebuild fts.fossil --noindex
+test rebuild-noindex {$CODE == 0}
+test_eq rebuild-noindex-gone [rebuild_indexed fts.fossil] none
+test_eq rebuild-index-state \
+    [rebuild_diff $rebuildStart [rebuild_state fts.fossil]] ""
+# --compress-only with --index on a repository that has no index makes one.
+fossil rebuild fts.fossil --compress-only --index
+test rebuild-compress-only-index-new {$CODE == 0 &&
+    [rebuild_indexed fts.fossil] ne "none"}
+
+###############################################################################
+# Extra compression.  "fossil repack" and "rebuild --compress-only" store
+# more artifacts as deltas and say how many; what the artifacts are does
+# not change.  One or two file versions are stored whole again before
+# each run, so that there is that much to find.
+
+fossil repack r.fossil full.fossil -expectError
+test rebuild-repack-usage {$CODE != 0 && [string match "*Usage:*" $RESULT]}
+fossil repack
+test rebuild-repack-checkout {$CODE == 0}
+fossil repack
+test rebuild-repack-nothing {$CODE == 0 &&
+    [string match "*no new compression opportunities found*" $RESULT] &&
+    ![string match "*Vacuuming*" $RESULT]}
+fossil rebuild --compress
+test rebuild-compress-nothing {$CODE == 0 &&
+    [string match "*Extra delta compression... none found*" $RESULT]}
+proc rebuild_store_whole {count} {
+  foreach rid [split [rebuild_sql "SELECT delta.rid FROM delta JOIN mlink
+      ON mlink.fid=delta.rid JOIN filename USING(fnid)
+     WHERE name='a.txt' GROUP BY delta.rid ORDER BY delta.rid
+     LIMIT $count"] \n] {
+    fossil test-content-undelta $rid
+  }
+}
+foreach {rebuildName rebuildCmd rebuildCount rebuildOut} {
+  repack-one    {repack}             1 "*1 new delta saves *Vacuuming*"
+  repack-two    {repack}             2 "*2 new deltas save *Vacuuming*"
+  compress-one  {rebuild --compress-only} 1 "*1 new delta saves *Vacuuming*"
+  compress-two  {rebuild --compress-only} 2 "*2 new deltas save *Vacuuming*"
+} {
+  set rebuildDeltas [rebuild_sql "SELECT count(*) FROM delta"]
+  rebuild_store_whole $rebuildCount
+  test_eq rebuild-$rebuildName-setup [rebuild_sql "SELECT count(*)
+      FROM delta"] [expr {$rebuildDeltas - $rebuildCount}]
+  fossil {*}$rebuildCmd
+  test rebuild-$rebuildName {$CODE == 0 &&
+      [string match $rebuildOut $RESULT]}
+  test_eq rebuild-$rebuildName-deltas [rebuild_sql "SELECT count(*)
+      FROM delta"] $rebuildDeltas
+  test_eq rebuild-$rebuildName-state \
+      [rebuild_diff $rebuildStart [rebuild_state]] ""
+  rebuild_sound rebuild-$rebuildName
+}
+for {set rebuildI 1} {$rebuildI <= 7} {incr rebuildI} {
+  fossil cat n.txt -r [lindex $rebuildTrunk [expr {$rebuildI-1}]]
+  test_eq rebuild-compress-content-$rebuildI "$RESULT\n" \
+      [rebuild_noise $rebuildI 1500]
+}
+
+###############################################################################
+# Detach asks first.  "n" changes nothing; a capital Y is a yes.
+
+file copy full.fossil detach.fossil
+fossil_raw -input "n\n" detach detach.fossil
+test rebuild-detach-declined {$CODE == 0}
+test_eq rebuild-detach-declined-same-code [rebuild_sql "SELECT value
+    FROM config WHERE name='project-code'" detach.fossil] $rebuildCode
+fossil_raw -input "Y\n" detach detach.fossil
+test rebuild-detach-capital {$CODE == 0 &&
+    [string match "*New project code: *" $RESULT]}
+test rebuild-detach-capital-new-code {[rebuild_sql "SELECT value FROM config
+    WHERE name='project-code'" detach.fossil] ne $rebuildCode}
+test_eq rebuild-detach-capital-parent [rebuild_sql "SELECT value FROM config
+    WHERE name='parent-project-code'" detach.fossil] $rebuildCode
+test_eq rebuild-detach-capital-state \
+    [rebuild_diff $rebuildStart [rebuild_state detach.fossil]] ""
+
+###############################################################################
+# Scrub asks first.  "y" and "Y" are both a yes.
+
+proc rebuild_pw {repo} {
+  return [rebuild_sql "SELECT count(*) FROM user WHERE pw<>''" $repo]
+}
+foreach {rebuildName rebuildAnswer} {small y capital Y} {
+  file copy -force full.fossil scrub.fossil
+  test rebuild-scrub-$rebuildName-setup {[rebuild_pw scrub.fossil] > 0}
+  fossil_raw -input "$rebuildAnswer\n" scrub scrub.fossil
+  test rebuild-scrub-$rebuildName {$CODE == 0}
+  test_eq rebuild-scrub-$rebuildName-passwords [rebuild_pw scrub.fossil] 0
+  test_eq rebuild-scrub-$rebuildName-state \
+      [rebuild_diff $rebuildStart [rebuild_state scrub.fossil]] ""
+}
+file delete scrub.fossil
+
+###############################################################################
+# Deconstruct writes each artifact to a file named by its hash; private
+# ones only when asked.  Reconstruct makes a repository of the same
+# artifacts from the files.
+
+file mkdir d-public
+fossil deconstruct -R full.fossil d-public
+test rebuild-deconstruct {$CODE == 0}
+test_eq rebuild-deconstruct-public-only [rebuild_names d-public] $rebuildPublic
+test rebuild-deconstruct-two-letter-directories {[lsearch -not -regexp \
+    [rebuild_files d-public] {^[0-9a-f]{2}/[0-9a-f]+$}] < 0}
+test_eq rebuild-deconstruct-no-lists \
+    [glob -nocomplain -directory d-public .rid1 .private] ""
+fossil artifact [lindex $rebuildTrunk 0] -R full.fossil one.txt
+test rebuild-deconstruct-content {[same_file one.txt [file join d-public \
+    [string range [lindex $rebuildTrunk 0] 0 1] \
+    [string range [lindex $rebuildTrunk 0] 2 end]]]}
+fossil reconstruct r-public.fossil d-public
+test rebuild-reconstruct {$CODE == 0 &&
+    [string match "*project-id: *server-id: *admin-user: *" $RESULT]}
+test_eq rebuild-reconstruct-artifacts [rebuild_hashes r-public.fossil] \
+    $rebuildPublic
+test_eq rebuild-reconstruct-checkins [rebuild_sql "SELECT count(*) FROM event
+    WHERE type='ci'" r-public.fossil] [expr {$rebuildCheckins - 2}]
+test_eq rebuild-reconstruct-none-private [rebuild_sql "SELECT count(*)
+    FROM private" r-public.fossil] 0
+rebuild_sound rebuild-reconstruct r-public.fossil
+
+# --quiet says nothing.
+file mkdir d-quiet
+fossil deconstruct -R full.fossil d-quiet --quiet
+test rebuild-deconstruct-quiet {$CODE == 0 && $RESULT eq ""}
+test_eq rebuild-deconstruct-quiet-files [rebuild_names d-quiet] $rebuildPublic
+
+# --private writes the private artifacts too.  A repository made from the
+# files has them all, and none is private.
+file mkdir d-private
+fossil deconstruct -R full.fossil d-private --private
+test rebuild-deconstruct-private {$CODE == 0}
+test_eq rebuild-deconstruct-private-all [rebuild_names d-private] $rebuildAll
+test_eq rebuild-deconstruct-private-no-lists \
+    [glob -nocomplain -directory d-private .rid1 .private] ""
+
+# -P writes them and lists them in .private; -K names the file of the
+# first artifact in .rid1.  Reconstruct with -P and -K reads both lists:
+# the same artifacts are private, the first artifact is the first again,
+# and everything else is as it was.  An empty line, a comment and a line
+# that is not a hash are added to the lists first, and are passed over.
+file mkdir d-keep
+fossil deconstruct -R full.fossil d-keep -P -K
+test rebuild-deconstruct-keep {$CODE == 0}
+test_eq rebuild-deconstruct-keep-all [rebuild_names d-keep] $rebuildAll
+set rebuildFirst [rebuild_sql "SELECT uuid FROM blob WHERE rid=1" full.fossil]
+test_eq rebuild-deconstruct-keep-rid1 \
+    [lindex [split [string trim [read_file d-keep/.rid1]] \n] end] \
+    "[string range $rebuildFirst 0 1]/[string range $rebuildFirst 2 end]"
+set rebuildPrivate [rebuild_hashes full.fossil "rid IN private"]
+test_eq rebuild-deconstruct-keep-private [lsort [lrange [split \
+    [string trim [read_file d-keep/.private]] \n] 1 end]] $rebuildPrivate
+write_file d-keep/.private \
+    "\n# one more comment\nnot-a-hash\n[read_file d-keep/.private]"
+write_file d-keep/.rid1 "\n[read_file d-keep/.rid1]"
+fossil reconstruct r-keep.fossil d-keep -K -P
+test rebuild-reconstruct-keep {$CODE == 0}
+test_eq rebuild-reconstruct-keep-rid1 [rebuild_sql "SELECT uuid FROM blob
+    WHERE rid=1" r-keep.fossil] $rebuildFirst
+test_eq rebuild-reconstruct-keep-private \
+    [rebuild_hashes r-keep.fossil "rid IN private"] $rebuildPrivate
+test_eq rebuild-reconstruct-keep-state \
+    [rebuild_diff $rebuildStart [rebuild_state r-keep.fossil]] ""
+fossil test-missing -R r-keep.fossil
+test rebuild-reconstruct-keep-missing {$CODE == 0}
+fossil test-integrity -R r-keep.fossil
+test rebuild-reconstruct-keep-integrity {$CODE == 0}
+
+# Without -P every artifact in the directory becomes public.
+fossil reconstruct r-private.fossil d-private
+test rebuild-reconstruct-private {$CODE == 0}
+test_eq rebuild-reconstruct-private-all [rebuild_hashes r-private.fossil] \
+    $rebuildAll
+test_eq rebuild-reconstruct-private-none-private [rebuild_sql "SELECT count(*)
+    FROM private" r-private.fossil] 0
+rebuild_sound rebuild-reconstruct-private r-private.fossil
+
+# -L sets how many letters of the hash name the directory: none, or five.
+# With none, .rid1 names a file in the directory itself.
+file mkdir d-flat d-five
+fossil deconstruct -R full.fossil d-flat -L 0 -K
+test rebuild-deconstruct-flat {$CODE == 0}
+test_eq rebuild-deconstruct-flat-files [rebuild_files d-flat] $rebuildPublic
+test_eq rebuild-deconstruct-flat-rid1 \
+    [lindex [split [string trim [read_file d-flat/.rid1]] \n] end] \
+    $rebuildFirst
+fossil reconstruct r-flat.fossil d-flat -K
+test rebuild-reconstruct-flat {$CODE == 0}
+test_eq rebuild-reconstruct-flat-artifacts [rebuild_hashes r-flat.fossil] \
+    $rebuildPublic
+test_eq rebuild-reconstruct-flat-rid1 [rebuild_sql "SELECT uuid FROM blob
+    WHERE rid=1" r-flat.fossil] $rebuildFirst
+fossil deconstruct -R full.fossil d-five --prefixlength 5
+test rebuild-deconstruct-five {$CODE == 0}
+test_eq rebuild-deconstruct-five-names [rebuild_names d-five] $rebuildPublic
+test rebuild-deconstruct-five-directories {[lsearch -not -regexp \
+    [rebuild_files d-five] {^[0-9a-f]{5}/[0-9a-f]+$}] < 0}
+
+# What deconstruct refuses: a prefix length that is not one digit, no
+# destination or two, and a destination that is empty or missing.
+file mkdir d-none
+foreach {rebuildName rebuildArgs rebuildOut} {
+  prefix-below-digits  {d-none -L /}     "*not a valid prefix length*"
+  prefix-letter        {d-none -L x}     "*not a valid prefix length*"
+  prefix-two-digits    {d-none -L 10}    "*not a valid prefix length*"
+  no-destination       {}                "*Usage:*"
+  two-destinations     {d-none d-flat}   "*Usage:*"
+  empty-destination    {{}}              "*is not a directory*"
+  missing-destination  {d-missing}       "*is not a directory*"
+} {
+  fossil deconstruct -R full.fossil {*}$rebuildArgs -expectError
+  test rebuild-deconstruct-$rebuildName {$CODE != 0 &&
+      [string match $rebuildOut $RESULT]}
+}
+test_eq rebuild-deconstruct-refused-wrote-nothing [rebuild_files d-none] ""
+
+# A destination that is a file is refused, and the file is kept.
+write_file d-file.txt "a file, not a directory\n"
+fossil deconstruct -R full.fossil d-file.txt -expectError
+test rebuild-deconstruct-file-destination {$CODE != 0 &&
+    [string match "*is not a directory*" $RESULT]}
+test rebuild-deconstruct-file-destination-kept \
+    {[file isfile d-file.txt]}
+
+# A destination that cannot be written to, where the system can make one.
+catch {file attributes d-none -permissions 0555}
+if {![file writable d-none]} {
+  fossil deconstruct -R full.fossil d-none -expectError
+  test rebuild-deconstruct-not-writable {$CODE != 0 &&
+      [string match "*is not writeable*" $RESULT]}
+}
+catch {file attributes d-none -permissions 0755}
+
+# What reconstruct refuses: too few names, and a directory that is not one.
+fossil reconstruct r-none.fossil -expectError
+test rebuild-reconstruct-usage {$CODE != 0 &&
+    [string match "*Usage:*" $RESULT]}
+fossil reconstruct r-none.fossil one.txt -expectError
+test rebuild-reconstruct-not-a-directory {$CODE != 0 &&
+    [string match "*is not a directory*Usage:*" $RESULT]}
+test rebuild-reconstruct-refused-made-nothing {![file exists r-none.fossil]}
+
+# -K when .rid1 names no file, and when there is no .rid1.
+write_file d-flat/.rid1 "# nothing but a comment\n\n"
+fossil reconstruct r-rid1-empty.fossil d-flat -K -expectError
+test rebuild-reconstruct-rid1-empty {$CODE != 0 &&
+    [string match "*error occurred while reading or parsing*" $RESULT]}
+file delete d-flat/.rid1
+fossil reconstruct r-rid1-missing.fossil d-flat -K -expectError
+test rebuild-reconstruct-rid1-missing {$CODE != 0 &&
+    [string match "*no such file*" $RESULT]}
+
+# A directory below that cannot be read, where the system can make one.
+file mkdir d-five/locked
+write_file d-five/locked/file.txt "out of reach\n"
+catch {file attributes d-five/locked -permissions 0000}
+if {![file readable d-five/locked]} {
+  fossil reconstruct r-locked.fossil d-five -expectError
+  test rebuild-reconstruct-unreadable-directory {$CODE != 0 &&
+      [string match "*encountered error*while trying to open*" $RESULT]}
+}
+catch {file attributes d-five/locked -permissions 0755}
+
+###############################################################################
+# Artifacts named by SHA1.  Reconstruct stores each file under the kind
+# of hash its name has; a file whose name is no hash is stored as well.
+
+fossil init --sha1 sha1.fossil
+write_file sha1-content.txt "content stored under a SHA1 hash\n"
+fossil test-content-put sha1-content.txt -R sha1.fossil
+set rebuildSha1 [rebuild_hashes sha1.fossil]
+test rebuild-sha1-setup {[llength $rebuildSha1] >= 2 &&
+    [lsearch -not -regexp $rebuildSha1 {^[0-9a-f]{40}$}] < 0}
+file mkdir d-sha1
+fossil deconstruct -R sha1.fossil d-sha1
+test_eq rebuild-sha1-deconstruct [rebuild_names d-sha1] $rebuildSha1
+write_file d-sha1/notes "a file whose name is not a hash\n"
+fossil sha1sum d-sha1/notes
+set rebuildNote1 [lindex $RESULT 0]
+fossil sha3sum d-sha1/notes
+set rebuildNote3 [lindex $RESULT 0]
+fossil reconstruct r-sha1.fossil d-sha1
+test rebuild-sha1-reconstruct {$CODE == 0}
+test_eq rebuild-sha1-reconstruct-same-hashes [rebuild_hashes r-sha1.fossil \
+    "length(uuid)=40 AND uuid<>'$rebuildNote1'"] $rebuildSha1
+test_eq rebuild-sha1-reconstruct-other-file [rebuild_sql "SELECT count(*)
+    FROM blob WHERE uuid IN ('$rebuildNote1','$rebuildNote3')" r-sha1.fossil] 1
+test_eq rebuild-sha1-reconstruct-count [llength [rebuild_hashes \
+    r-sha1.fossil]] [expr {[llength $rebuildSha1] + 1}]
+
+###############################################################################
+# Deconstruct of repositories that lack content.
+
+# A check-in whose parent and files are not there: they are phantoms, and
+# only what has content is written.
+fossil init phantom.fossil
+fossil artifact $rebuildSide -R full.fossil side.txt
+fossil test-content-put --crosslink side.txt -R phantom.fossil
+test rebuild-phantom-setup {[rebuild_sql "SELECT count(*) FROM phantom" \
+    phantom.fossil] > 0}
+file mkdir d-phantom
+fossil deconstruct -R phantom.fossil d-phantom
+test rebuild-deconstruct-phantom {$CODE == 0}
+test_eq rebuild-deconstruct-phantom-files [rebuild_names d-phantom] \
+    [rebuild_hashes phantom.fossil]
+test rebuild-deconstruct-phantom-has-checkin \
+    {[lsearch -exact [rebuild_names d-phantom] $rebuildSide] >= 0}
+
+# A public artifact stored as a delta from a private one, which "fossil
+# publish" of the older of two private check-ins leaves.  Without
+# --private the public one is written and the private one is not.
+file copy full.fossil publish.fossil
+fossil publish $rebuildSecret1 -R publish.fossil
+test rebuild-public-from-private-setup {[rebuild_sql "SELECT count(*)
+    FROM delta
+   WHERE rid=(SELECT rid FROM blob WHERE uuid='$rebuildSecretFile1')
+     AND srcid=(SELECT rid FROM blob WHERE uuid='$rebuildSecretFile2')
+     AND rid NOT IN private AND srcid IN private" publish.fossil] == 1}
+file mkdir d-publish
+fossil deconstruct -R publish.fossil d-publish
+test rebuild-deconstruct-public-from-private {$CODE == 0}
+test_eq rebuild-deconstruct-public-from-private-files \
+    [rebuild_names d-publish] \
+    [rebuild_hashes publish.fossil "rid NOT IN private"]
+test rebuild-deconstruct-public-from-private-written \
+    {[lsearch -exact [rebuild_names d-publish] $rebuildSecretFile1] >= 0 &&
+     [lsearch -exact [rebuild_names d-publish] $rebuildSecretFile2] < 0}
+
+# A repository damaged with SQL: the artifact that others are deltas of
+# is gone.  Deconstruct finishes; it writes what can still be read and
+# nothing for what cannot.
+file copy full.fossil damaged.fossil
+set rebuildSource [rebuild_sql "SELECT uuid FROM blob WHERE rid=(SELECT srcid
+    FROM delta JOIN mlink ON mlink.fid=delta.rid JOIN filename USING(fnid)
+   WHERE name='a.txt' AND srcid NOT IN (SELECT rid FROM delta))" \
+   damaged.fossil]
+set rebuildLost [rebuild_sql "WITH RECURSIVE lost(rid) AS (
+      SELECT rid FROM blob WHERE uuid='$rebuildSource'
+      UNION SELECT delta.rid FROM delta, lost WHERE delta.srcid=lost.rid)
+    SELECT group_concat(uuid, ' ') FROM blob WHERE rid IN lost" \
+    damaged.fossil]
+test rebuild-damage-source-setup {[llength $rebuildLost] > 1}
+fossil sql -R damaged.fossil "DELETE FROM blob WHERE uuid='$rebuildSource'"
+file mkdir d-damaged
+fossil deconstruct -R damaged.fossil d-damaged
+test rebuild-deconstruct-damage-source-gone {$CODE == 0}
+set rebuildWant {}
+foreach rebuildH $rebuildPublic {
+  if {[lsearch -exact $rebuildLost $rebuildH] < 0} {
+    lappend rebuildWant $rebuildH
+  }
+}
+test_eq rebuild-deconstruct-damage-source-gone-files \
+    [rebuild_names d-damaged] $rebuildWant
+file delete damaged.fossil
+
+###############################################################################
+# Clusters.  test-create-clusters makes one when a hundred or more
+# artifacts are in no cluster yet; test-clusters says whether every
+# artifact can be reached through them.
+
+proc rebuild_clusters {{repo .rep.fossil}} {
+  return [rebuild_sql "SELECT count(*) FROM tagxref WHERE tagid=(SELECT tagid
+      FROM tag WHERE tagname='cluster')" $repo]
+}
+proc rebuild_many_files {dir} {
+  file mkdir $dir
+  for {set i 0} {$i < 110} {incr i} {
+    write_file $dir/f$i.txt "file $i in $dir\n"
+  }
+  fossil add $dir
+  fossil commit -m rebuild-$dir --no-warnings
+}
+fossil test-create-clusters r.fossil full.fossil -expectError
+test rebuild-create-clusters-usage {$CODE != 0 &&
+    [string match "*Usage:*" $RESULT]}
+fossil test-create-clusters
+test rebuild-create-clusters-too-few {$CODE == 0}
+test_eq rebuild-create-clusters-too-few-none [rebuild_clusters] 0
+fossil test-clusters
+test rebuild-clusters-none {$CODE == 0 &&
+    [string match "*all artifacts reachable through clusters*" $RESULT]}
+rebuild_many_files many1
+fossil test-create-clusters .rep.fossil
+test rebuild-create-clusters {$CODE == 0}
+test_eq rebuild-create-clusters-one [rebuild_clusters] 1
+test_eq rebuild-create-clusters-one-left [rebuild_sql "SELECT count(*)
+    FROM unclustered"] 1
+fossil test-clusters
+test rebuild-clusters-one {$CODE == 0 &&
+    [string match "*all artifacts reachable through clusters*" $RESULT]}
+# A second cluster lists the first.
+rebuild_many_files many2
+fossil test-create-clusters .rep.fossil
+test_eq rebuild-create-clusters-two [rebuild_clusters] 2
+fossil test-clusters -R .rep.fossil
+test rebuild-clusters-two {$CODE == 0 &&
+    [string match "*all artifacts reachable through clusters*" $RESULT]}
+rebuild_sound rebuild-clusters
+
+# When the newest cluster is purged, what it listed is in no cluster and
+# test-clusters lists each such artifact.
+set rebuildNewest [rebuild_sql "SELECT uuid FROM blob WHERE rid=(SELECT
+    max(rid) FROM tagxref WHERE tagid=(SELECT tagid FROM tag
+    WHERE tagname='cluster'))"]
+file copy .rep.fossil cluster.fossil
+fossil purge artifacts $rebuildNewest -R cluster.fossil
+fossil test-clusters -R cluster.fossil
+set rebuildCount 0
+regexp {(\d+) unreachable artifacts:} $RESULT -> rebuildCount
+test rebuild-clusters-unreachable {$CODE == 0 && $rebuildCount > 100}
+test_eq rebuild-clusters-unreachable-listed \
+    [regexp -all -line {^ +\d+ [0-9a-f]{64}$} $RESULT] $rebuildCount
+
+# A cluster whose content has been replaced with SQL by that of a file.
+file copy -force .rep.fossil cluster.fossil
+fossil sql -R cluster.fossil "UPDATE blob
+    SET content=(SELECT content FROM blob WHERE uuid='[rebuild_file_hash \
+        $rebuildSide b.txt]')
+  WHERE uuid='$rebuildNewest'"
+fossil test-clusters -R cluster.fossil -expectError
+test rebuild-clusters-bad-cluster {$CODE != 0 &&
+    [string match "*bad cluster: rid=*" $RESULT]}
+
+###############################################################################
+
+test_cleanup

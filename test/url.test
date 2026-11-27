@@ -1,0 +1,1709 @@
+#
+# URLs of remote repositories, and the HTTP exchange of the sync client.
+#
+# The first part gives URLs to "fossil test-urlparser" and
+# "fossil test-url-basename" and checks each part of the result, and
+# checks how a saved remote, the parent project and a proxy are read.
+#
+# The second part gives "fossil test-httpmsg", "fossil clone" and
+# "fossil pull" a server made by this file, which answers each
+# connection with a reply that the test wrote.  A well-formed reply must
+# be accepted.  A malformed one must be refused with a message and exit
+# status 1.
+#
+# The third part does the same over the ssh: transport.  Nothing here
+# connects to another machine: "ssh" is a script written by this file,
+# which writes down its arguments and prints a reply that the test wrote.
+#
+# http.test tests whole clones over HTTP and HTTPS.  ssh.test tests what
+# goes on an ssh command line.
+#
+
+# These tests run only in a long pass: -assurance stress.
+if {[test_assurance] ne "stress"} {
+  test_skip "runs only with -assurance stress"
+}
+
+require_no_open_checkout
+
+if {![loopback_available]} {
+  test_skip "the tests need a TCP connection over the loopback interface"
+}
+
+# fossil must not use a proxy from the environment of the test run.
+foreach urlVar {http_proxy HTTP_PROXY https_proxy HTTPS_PROXY all_proxy
+                ALL_PROXY} {
+  if {[info exists env($urlVar)]} {
+    set urlSavedEnv($urlVar) $env($urlVar)
+    unset env($urlVar)
+  }
+}
+
+test_setup
+set urlRepo [file join [pwd] .rep.fossil]
+set urlDir [pwd]
+
+###############################################################################
+# The parts of a URL.
+
+# Runs "fossil test-urlparser URL" with the options in ARGS and returns
+# a dictionary of what it printed for the URL as given: the name after
+# "g.url." and the value.  url_full(g.url) is under the key "full".
+#
+proc url_parse {url args} {
+  fossil_raw test-urlparser $url --proxy off {*}$args
+  set fields [dict create]
+  foreach urlLine [split $::RESULT \n] {
+    if {[string match "\\*\\*\\*\\**" $urlLine]} break
+    if {[regexp {^g\.url\.(\w+) *= (.*)$} $urlLine -> key value]} {
+      dict set fields $key $value
+    } elseif {[regexp {^url_full\(g\.url\) = (.*)$} $urlLine -> value]} {
+      dict set fields full $value
+    }
+  }
+  return $fields
+}
+
+# Test NAME passes when "fossil test-urlparser URL" with the options
+# OPTIONS gives each part in EXPECTED the value that follows it there.
+#
+proc url_parse_test {name url options expected {constraints ""}} {
+  set fields [url_parse $url {*}$options]
+  set actual [list]
+  foreach {urlKey urlValue} $expected {
+    if {[dict exists $fields $urlKey]} {
+      lappend actual $urlKey [dict get $fields $urlKey]
+    } else {
+      lappend actual $urlKey (missing)
+    }
+  }
+  test_eq $name $actual [list {*}$expected] $constraints
+}
+
+foreach {urlName urlText urlExpected} {
+  http-plain http://example.com
+  {isFile 0 isHttps 0 isSsh 0 protocol http name example.com port 80
+   dfltPort 80 hostname example.com path {} user {} passwd {}
+   canonical http://example.com fossil {} flags 0x0000
+   full http://example.com}
+  https-upper-case HTTPS://Example.COM:8443/a/b
+  {isHttps 1 protocol https name example.com port 8443 dfltPort 443
+   hostname example.com:8443 path /a/b
+   canonical https://example.com:8443/a/b}
+  https-default-port-given https://h:443/x
+  {port 443 hostname h:443 canonical https://h/x}
+  http-port-zero http://h:0/x
+  {port 0 hostname h:0 canonical http://h:0/x}
+  http-port-largest http://h:65535
+  {port 65535 hostname h:65535 path {} canonical http://h:65535}
+  http-port-then-query http://h:81?x=1
+  {port 81 path {} canonical http://h:81}
+  http-port-then-fragment http://h:81#top
+  {port 81 path {} canonical http://h:81}
+  http-port-empty http://h:/x
+  {port 0 hostname h:0 path /x}
+  http-user-password http://u:p@h/x
+  {name h user u passwd p canonical http://u@h/x full http://u:p@h/x}
+  http-user-only http://u@h:81/x
+  {user u passwd {} canonical http://u@h:81/x full http://u@h:81/x}
+  http-user-empty-password http://u:@h/x
+  {user u passwd {} canonical http://u@h/x full http://u@h/x}
+  http-user-escapes http://a%40b:p%3Aq%2Fr@h/
+  {user a@b passwd p:q/r canonical http://a%40b@h/
+   full http://a%40b:p%3Aq%2Fr@h/}
+  http-user-bad-escape http://%@h/
+  {user % canonical http://%25@h/}
+  http-password-colons http://u:p:q@h/
+  {user u passwd p:q}
+  http-at-in-path http://h/a@b
+  {name h user {} path /a@b canonical http://h/a%40b}
+  http-at-in-query http://h?x=a@b
+  {name h user {} path {} canonical http://h}
+  http-at-in-fragment http://h#a@b
+  {name h user {} path {} canonical http://h}
+  http-fragment-dropped http://h/a/b#frag
+  {path /a/b canonical http://h/a/b}
+  http-query-dropped http://h/a?x=1&y=2
+  {path /a canonical http://h/a fossil {}}
+  http-query-no-value http://h/a?x&y
+  {path /a canonical http://h/a fossil {}}
+  http-path-escapes {http://h/a%20b/c%2Bd}
+  {path {/a b/c+d} canonical http://h/a+b/c%2Bd}
+  http-path-bad-escape http://h/a%zz
+  {path /a%zz canonical http://h/a%25zz}
+  http-host-escape http://loc%61lhost/x
+  {name localhost}
+  http-host-upper-case http://LOCALHOST/X
+  {name localhost path /X}
+  http-ipv6 {http://[::1]/x}
+  {name ::1 port 80 hostname {[::1]} canonical {http://[::1]/x}}
+  http-ipv6-port {http://[2001:DB8::1]:8080/x}
+  {name 2001:db8::1 port 8080 hostname {[2001:db8::1]:8080}
+   canonical {http://[2001:db8::1]:8080/x}}
+  http-ipv6-user {http://u:p@[::1]:81/x}
+  {name ::1 user u full {http://u:p@[::1]:81/x}}
+  http-brackets-one-letter {http://[a]/x}
+  {name a hostname a}
+  http-bracket-not-closed {http://[ab/x}
+  {name {[ab} path /x}
+  http-user-empty http://@h/x
+  {user {} name h canonical http://@h/x full http://@h/x}
+  http-host-one-letter http://h
+  {name h hostname h}
+  ssh-plain ssh://h/dir/r.fossil
+  {isSsh 1 protocol ssh name h port 22 dfltPort 22 hostname h
+   path dir/r.fossil fossil fossil canonical ssh://h/dir/r.fossil
+   flags 0x0000}
+  ssh-upper-case-user-port SSH://U@H:2222/dir/r.fossil
+  {isSsh 1 name h user U port 2222 hostname h:2222 path dir/r.fossil
+   canonical ssh://U@h:2222/dir/r.fossil}
+  ssh-absolute-path ssh://h//abs/r.fossil
+  {path /abs/r.fossil canonical ssh://h//abs/r.fossil}
+  ssh-root-path ssh://h/
+  {path / canonical ssh://h/}
+  ssh-fossil-parameter ssh://h/r.fossil?fossil=/opt/bin/fossil
+  {path r.fossil fossil /opt/bin/fossil
+   canonical ssh://h/r.fossil?fossil=/opt/bin/fossil flags 0x0400}
+  ssh-fossil-parameter-escaped ssh://h/r.fossil?fossil=/opt/my%20bin/fossil
+  {fossil {/opt/my bin/fossil}
+   canonical ssh://h/r.fossil?fossil=/opt/my+bin/fossil}
+  ssh-fossil-parameter-among-others ssh://h/r.fossil?a=b&fossil=/x/fossil&c
+  {path r.fossil fossil /x/fossil
+   canonical ssh://h/r.fossil?fossil=/x/fossil}
+  ssh-fossil-parameter-empty ssh://h/r.fossil?fossil=
+  {fossil {} flags 0x0400}
+  ssh-ipv6 {ssh://[::1]/r.fossil}
+  {name ::1 hostname ::1 canonical {ssh://[::1]/r.fossil}}
+  ssh-ipv6-port {ssh://[::1]:2222/r.fossil}
+  {name ::1 port 2222 hostname ::1:2222
+   canonical {ssh://[::1]:2222/r.fossil}}
+  ssh-user-password ssh://u:p@h/r.fossil
+  {user u passwd p canonical ssh://u@h/r.fossil}
+  file-three-slashes file:///nosuchdir/r.fossil
+  {isFile 1 protocol file name /nosuchdir/r.fossil path {}
+   canonical file:///nosuchdir/r.fossil full file:///nosuchdir/r.fossil}
+  file-one-slash file:/nosuchdir/r.fossil
+  {isFile 1 name /nosuchdir/r.fossil}
+  file-upper-case FILE:///nosuchdir/r.fossil
+  {isFile 1 name /nosuchdir/r.fossil}
+  file-escaped-space file:///nosuchdir/my%20r.fossil
+  {isFile 1 name {/nosuchdir/my r.fossil}
+   canonical file:///nosuchdir/my+r.fossil}
+} {
+  url_parse_test url-parse-$urlName $urlText {} $urlExpected
+}
+
+# A file: URL with a relative name, the name of a repository file, and
+# the name of a directory that holds a file named FOSSIL, are all the
+# absolute name of the file.
+#
+file mkdir holder emptydir
+file copy $urlRepo holder/FOSSIL
+url_parse_test url-parse-file-relative file:.rep.fossil {} \
+    [list isFile 1 name $urlRepo canonical file://$urlRepo]
+url_parse_test url-parse-file-name .rep.fossil {} \
+    [list isFile 1 protocol file name $urlRepo]
+url_parse_test url-parse-directory holder {} \
+    [list isFile 1 name [file join $urlDir holder FOSSIL]]
+
+# What is not a URL, a file or a directory with a repository is refused,
+# and so is a port that is too large or is followed by other text.
+#
+foreach {urlName urlText urlMessage} {
+  no-scheme         nosuchfile            {unknown repository: nosuchfile}
+  empty             {}                    {unknown repository: }
+  other-scheme      ftp://h/x             {unknown repository: ftp://h/x}
+  scheme-no-slashes http:h/x              {unknown repository: http:h/x}
+  directory-empty   emptydir              {unknown repository: emptydir}
+  port-too-large    http://h:65536/x      {port number too large in url}
+  port-huge         http://h:99999999999999999999/x
+                                          {port number too large in url}
+  port-negative     http://h:-1/x         {url missing '/' after port number}
+  port-letters      http://h:80x/         {url missing '/' after port number}
+  port-ipv6-junk    {http://[::1]:8x}     {url missing '/' after port number}
+} {
+  fossil_raw test-urlparser $urlText --proxy off
+  test url-parse-refused-$urlName \
+      {$CODE == 1 && [string first $urlMessage $RESULT] >= 0}
+}
+
+# An ssh: URL with a host and no path has an empty path, and fossil
+# prints nothing but the parts of the URL.
+#
+foreach {urlName urlText urlExpected} {
+  host       ssh://host
+  {isSsh 1 name host port 22 hostname host user {} path {}
+   canonical ssh://host}
+  user-host  ssh://u@h
+  {isSsh 1 name h port 22 user u path {} canonical ssh://u@h}
+  host-port  ssh://h:22
+  {isSsh 1 name h port 22 hostname h:22 path {} canonical ssh://h}
+  user-host-port ssh://u@h:2222
+  {isSsh 1 name h port 2222 path {} canonical ssh://u@h:2222}
+  scheme-only ssh://
+  {isSsh 1 name {} path {} canonical ssh://}
+} {
+  url_parse_test url-parse-ssh-no-path-$urlName $urlText {} $urlExpected
+  test url-parse-ssh-no-path-$urlName-output {$CODE == 0 &&
+      [regexp -all -line {^(g\.url\.\w+ +|url_full\(g\.url\) )= } $RESULT] ==
+          [llength [split [string trim $RESULT] \n]]}
+}
+
+# The complete URL of an ssh: remote has the "/" between the host and
+# the path.
+#
+url_parse_test url-parse-ssh-full ssh://u@h/dir/r.fossil {} \
+    {full ssh://u@h/dir/r.fossil}
+
+# A second fossil= parameter is refused.
+#
+fossil_raw test-urlparser ssh://h/r.fossil?fossil=/a/fossil&fossil=/b/fossil \
+    --proxy off
+test url-parse-ssh-fossil-twice {$CODE == 1 &&
+    [string match "*more than one fossil= query parameter*" $RESULT]}
+
+# A very long user name, password, host and path.  The four together stay
+# under the 128 KB that Linux allows for one argument.
+#
+set urlLong [string repeat a 30000]
+url_parse_test url-parse-long http://$urlLong:$urlLong@$urlLong/$urlLong {} \
+    [list user $urlLong passwd $urlLong name $urlLong path /$urlLong]
+
+# test-urlparser takes one or two arguments.
+#
+fossil_raw test-urlparser
+test url-parse-usage-none {$CODE == 1 && [string match "*Usage:*URL*" $RESULT]}
+fossil_raw test-urlparser http://h/ extra more
+test url-parse-usage-many {$CODE == 1 && [string match "*Usage:*URL*" $RESULT]}
+url_parse_test url-parse-two-arguments http://h/x extra {name h path /x}
+
+###############################################################################
+# Flags of the parser: --remember, --prompt-pw.  Standard input is not a
+# terminal here, so fossil cannot ask for a password.
+
+url_parse_test url-flag-remember http://h/x --remember {flags 0x0002}
+url_parse_test url-flag-remember-password http://u:p@h/x --remember \
+    {user u passwd p flags 0x0006}
+url_parse_test url-flag-remember-password-ssh ssh://u:p@h/x --remember \
+    {user u passwd p flags 0x0002}
+url_parse_test url-flag-prompt-has-password http://u:p@h/x --prompt-pw \
+    {user u passwd p flags 0x0001}
+url_parse_test url-flag-prompt-no-user http://h/x --prompt-pw \
+    {user {} flags 0x0001}
+url_parse_test url-flag-prompt-ssh ssh://u@h/x --prompt-pw \
+    {user u passwd {} flags 0x0001}
+url_parse_test url-flag-prompt-file file:///nosuchdir/x --prompt-pw \
+    {isFile 1 flags 0x0001}
+fossil_raw test-urlparser http://u@h/x --proxy off --prompt-pw
+test url-flag-prompt-no-terminal {$CODE == 1 && [string first \
+    {missing or incorrect password for user "u"} $RESULT] >= 0}
+
+###############################################################################
+# Saved remotes.  --use-config reads the URL "default" from the
+# last-sync-url setting and any other name from the remote of that name,
+# with the saved password.  --use-parent reads the parent project.
+
+proc url_config {name value} {
+  fossil sql "REPLACE INTO config(name,value,mtime) VALUES('$name',$value,0)"
+}
+
+url_parse_test url-config-default-unset default --use-config \
+    {protocol {} name {} canonical {} isFile 0}
+url_parse_test url-config-parent-unset default --use-parent \
+    {protocol {} name {} canonical {}}
+url_config last-sync-url 'http://u@h/last'
+url_config last-sync-pw obscure('lastpw')
+url_parse_test url-config-default default --use-config \
+    {name h user u passwd ************ pwConfig last-sync-pw
+     canonical http://u@h/last flags 0x0040}
+url_parse_test url-config-default-show default {--use-config --show-pw} \
+    {name h user u passwd lastpw pwConfig last-sync-pw}
+url_parse_test url-config-parent-falls-back default --use-parent \
+    {user u passwd ************ pwConfig last-sync-pw
+     canonical http://u@h/last flags 0x00c0}
+url_config parent-project-url 'http://pu@ph/parent'
+url_config parent-project-pw obscure('parentpw')
+url_parse_test url-config-parent default {--use-parent --show-pw} \
+    {name ph user pu passwd parentpw pwConfig parent-project-pw
+     canonical http://pu@ph/parent}
+url_parse_test url-config-default-not-parent default {--use-config --show-pw} \
+    {name h passwd lastpw}
+
+fossil remote add east http://eu:eastpw@eh:81/east
+url_parse_test url-config-named east {--use-config --show-pw} \
+    {name eh port 81 user eu passwd eastpw pwConfig sync-pw:east
+     canonical http://eu@eh:81/east flags 0x0048}
+url_parse_test url-config-named-hidden east --use-config \
+    {user eu passwd ************}
+url_parse_test url-config-url-not-a-name http://x/y --use-config \
+    {name x path /y pwConfig {} flags 0x0040}
+fossil_raw test-urlparser nosuchremote --proxy off --use-config
+test url-config-unknown-name {$CODE == 1 &&
+    [string first "unknown repository: nosuchremote" $RESULT] >= 0}
+url_parse_test url-config-name-without-flag east {} \
+    {protocol (missing)}
+test url-config-name-without-flag-refused {$CODE == 1 &&
+    [string first "unknown repository: east" $RESULT] >= 0}
+
+# "fossil remote" saves the URL without the password.  It does not save
+# the password when it cannot ask whether to.
+#
+fossil remote http://ru:remotepw@rh/remote
+fossil remote
+test_eq url-remember-url [string trim $RESULT] http://ru@rh/remote
+url_parse_test url-remember-no-password default {--use-config --show-pw} \
+    {name rh user ru passwd {}}
+
+# "fossil remote hyperlink" prints the URL of the remote without the user.
+#
+fossil_raw remote hyperlink
+test_match url-nouser-hyperlink $RESULT {^http://rh/remote/info/[0-9a-f]+\s*$}
+fossil remote http://ru:remotepw@rh:8081/remote
+fossil_raw remote hyperlink
+test_match url-nouser-hyperlink-port $RESULT \
+    {^http://rh:8081/remote/info/[0-9a-f]+\s*$}
+fossil remote {http://ru:remotepw@[::1]/remote}
+fossil_raw remote hyperlink
+test_match url-nouser-hyperlink-ipv6 $RESULT \
+    {^http://\[::1\]/remote/info/[0-9a-f]+\s*$}
+fossil remote http://rh/remote
+fossil_raw remote hyperlink
+test_match url-nouser-hyperlink-no-user $RESULT \
+    {^http://rh/remote/info/[0-9a-f]+\s*$}
+url_config last-sync-url 'http://@rh/remote'
+fossil_raw remote hyperlink
+test_match url-nouser-hyperlink-empty-user $RESULT \
+    {^http://@rh/remote/info/[0-9a-f]+\s*$}
+fossil remote off
+
+# The SQL function url_nouser() gives a URL without its user and
+# password, and NULL for NULL.
+#
+foreach {urlName urlSql urlExpected} {
+  http       {url_nouser('http://u:p@h:81/x')}     http://h:81/x
+  no-user    {url_nouser('https://h/x')}           https://h/x
+  ssh        {url_nouser('ssh://u@h/dir/r.fossil')} ssh://h/dir/r.fossil
+  file       {url_nouser('file:///nosuchdir/r')}   file:///nosuchdir/r
+  null       {coalesce(url_nouser(NULL),'null')}   null
+} {
+  fossil sql "SELECT $urlSql"
+  test_eq url-nouser-sql-$urlName [string trim $RESULT] $urlExpected
+}
+
+# The /urllist page links each saved remote to its URL without the user.
+#
+write_file urllist.txt "GET /urllist HTTP/1.0\r\n\r\n"
+fossil_raw http --in urllist.txt --ipaddr 127.0.0.1 $urlRepo --localauth
+test url-nouser-urllist {[string first "HTTP/1.0 200 OK" $RESULT] == 0 &&
+    [string first "<a href='http://eh:81/east'>http://eu@eh:81/east</a>" \
+        $RESULT] >= 0}
+
+###############################################################################
+# A proxy.  test-urlparser prints the URL again as it is used through
+# the proxy from --proxy, the "proxy" setting or the http_proxy
+# environment variable, after a line of stars.
+
+# Returns what test-urlparser printed after "Using proxy:", or "none" if
+# it named no proxy.
+proc url_proxy {url args} {
+  fossil_raw test-urlparser $url {*}$args
+  if {[regexp -line {^Using proxy: (.*)$} $::RESULT -> proxy]} {
+    return $proxy
+  }
+  return none
+}
+test_eq url-proxy-option [url_proxy http://h/x --proxy http://pu:pp@ph:3128] \
+    http://pu@ph:3128
+test_eq url-proxy-off [url_proxy http://h/x --proxy off] none
+test_eq url-proxy-empty [url_proxy http://h/x --proxy ""] none
+test_eq url-proxy-none-set [url_proxy http://h/x] none
+test_eq url-proxy-ssh-url [url_proxy ssh://h/x --proxy http://ph:3128] none
+test_eq url-proxy-file-url \
+    [url_proxy file:///nosuchdir/x --proxy http://ph:3128] none
+set env(http_proxy) http://envproxy:3128
+test_eq url-proxy-environment [url_proxy http://h/x] http://envproxy:3128
+test_eq url-proxy-option-over-environment \
+    [url_proxy http://h/x --proxy http://ph:3128] http://ph:3128
+fossil settings proxy http://setproxy:3128
+test_eq url-proxy-setting [url_proxy http://h/x] http://setproxy:3128
+fossil settings proxy off
+test_eq url-proxy-setting-off [url_proxy http://h/x] none
+fossil unset proxy
+unset env(http_proxy)
+fossil_raw test-urlparser http://h/x --proxy nosuchproxy
+test url-proxy-not-a-url {$CODE == 1 &&
+    [string first "unknown repository: nosuchproxy" $RESULT] >= 0}
+
+# The other network options of a sync command are accepted.
+#
+foreach urlOption {--nosync --ipv4 --ipv6 --accept-any-cert} {
+  url_parse_test url-proxy-option$urlOption http://h/x $urlOption {name h}
+}
+
+###############################################################################
+# The name for a clone of a URL.
+
+foreach {urlName urlText urlExpected} {
+  path-tail          http://h/a/b/repo            repo
+  suffix-dropped     http://h/a/repo.fossil       repo
+  trailing-slash     http://h/a/repo/             repo
+  query-dropped      http://h/a/repo?x=/y         repo
+  host-only          http://example.com           example
+  host-www           http://www.example.com       example
+  host-www-upper     http://WWW.example.com       example
+  host-www-suffix    http://www.com               www
+  host-port          http://example.com:8080      example
+  host-www-port      http://www.example.org:8080/ example
+  user-at-host       ssh://u@host                 host
+  user-host-path     ssh://u@host/dir/r.fossil    r
+  no-separator       nosuchthing                  {}
+  slash-only         /                            {}
+  at-only            @                            {}
+  empty              {}                           {}
+  dot-first          http://h/.hidden             {}
+  www-dot-only       http://www.                  www
+  colon-in-tail      host/a:b                     a
+} {
+  fossil test-url-basename $urlText
+  test_eq url-basename-$urlName [string trim $RESULT] \
+      [string trim "$urlText -> $urlExpected"]
+}
+fossil test-url-basename http://h/one http://h/two
+test_eq url-basename-two [string trim $RESULT] \
+    "http://h/one -> one\nhttp://h/two -> two"
+fossil test-url-basename
+test_eq url-basename-none $RESULT ""
+
+###############################################################################
+# The HTTP exchange.
+
+set urlServers [list]
+set urlRequests [list]
+
+# Listens on a port on 127.0.0.1 that the system chooses, and returns
+# the port.  Connection N is answered with item N of REPLIES, and the
+# last item answers every later connection.  "PORT" in a reply stands for
+# the port.  Each request is appended to the list urlRequests.
+#
+proc url_listen {replies} {
+  set ::urlRequests [list]
+  set server [socket -server [list url_accept $replies] -myaddr 127.0.0.1 0]
+  lappend ::urlServers $server
+  return [lindex [fconfigure $server -sockname] 2]
+}
+proc url_accept {replies chan address port} {
+  fconfigure $chan -translation binary -blocking 0
+  set ::urlRequest($chan) ""
+  fileevent $chan readable [list url_receive $replies $chan]
+}
+proc url_receive {replies chan} {
+  append ::urlRequest($chan) [read $chan]
+  set request $::urlRequest($chan)
+  set end [string first "\r\n\r\n" $request]
+  set length 0
+  regexp -nocase -line {^content-length:\s*(\d+)} $request -> length
+  if {![eof $chan] &&
+      ($end < 0 || [string length $request] < $end + 4 + $length)} {
+    return
+  }
+  unset ::urlRequest($chan)
+  fileevent $chan readable {}
+  fconfigure $chan -blocking 1
+  set number [llength $::urlRequests]
+  lappend ::urlRequests $request
+  if {$number >= [llength $replies]} {set number end}
+  set port [lindex [fconfigure $chan -sockname] 2]
+  catch {
+    puts -nonewline $chan [string map [list PORT $port] \
+                               [lindex $replies $number]]
+  }
+  catch {close $chan}
+}
+proc url_listen_stop {} {
+  update
+  foreach urlServer $::urlServers {close $urlServer}
+  set ::urlServers [list]
+}
+
+# Returns TEXT with each line end changed to CR LF.
+proc url_crlf {text} {
+  return [string map [list \n \r\n] $text]
+}
+
+# Returns the request line of request NUMBER of the last exchange.
+proc url_request_line {number} {
+  return [lindex [split [lindex $::urlRequests $number] \r] 0]
+}
+
+# Returns the value of the header NAME in request NUMBER of the last
+# exchange, or "(none)".
+proc url_request_header {number name} {
+  if {[regexp -nocase -line "^$name: (\[^\r\]*)" \
+           [lindex $::urlRequests $number] -> value]} {
+    return $value
+  }
+  return (none)
+}
+
+# Returns the body of request NUMBER of the last exchange.
+proc url_request_body {number} {
+  set request [lindex $::urlRequests $number]
+  return [string range $request [expr {[string first "\r\n\r\n" $request]+4}] \
+              end]
+}
+
+# Runs "fossil test-httpmsg" on the path /x of a server that answers
+# with REPLIES, with the options and further arguments in ARGS.
+#
+proc url_httpmsg {replies args} {
+  set port [url_listen $replies]
+  fossil_raw -seconds 60 test-httpmsg http://127.0.0.1:$port/x {*}$args
+  url_listen_stop
+}
+
+# Replies that are accepted.  Each row is a name, the reply header, the
+# reply body and the body that test-httpmsg must print.
+#
+set urlBig [string repeat 0123456789 500]
+foreach {urlName urlHeader urlBody urlExpected} [list \
+  content-length "HTTP/1.1 200 OK\nContent-Length: 5\n\n" hello hello \
+  content-length-zero "HTTP/1.1 200 OK\nContent-Length: 0\n\n" "" "" \
+  content-length-spaces "HTTP/1.1 200 OK\nContent-Length:  5  \n\n" hello \
+      hello \
+  content-length-twice-same \
+      "HTTP/1.1 200 OK\nContent-Length: 5\nContent-Length: 5\n\n" hello \
+      hello \
+  bytes-after-length "HTTP/1.1 200 OK\nContent-Length: 2\n\n" hello he \
+  no-length "HTTP/1.1 200 OK\n\n" hello hello \
+  no-length-large "HTTP/1.1 200 OK\n\n" $urlBig $urlBig \
+  no-length-empty "HTTP/1.1 200 OK\n\n" "" "" \
+  header-cut-short "HTTP/1.1 200 OK\nContent-Length: 0\n" "" "" \
+  status-line-only "HTTP/1.1 200" "" "" \
+  http-1.0 "HTTP/1.0 200 OK\nContent-Length: 5\n\n" hello hello \
+  header-lower-case "HTTP/1.1 200 ok\ncontent-length: 5\n\n" hello hello \
+  connection-close \
+      "HTTP/1.1 200 OK\nConnection: close\nContent-Length: 5\n\n" hello \
+      hello \
+  connection-keep-alive \
+      "HTTP/1.0 200 OK\nConnection: Keep-Alive\nContent-Length: 5\n\n" \
+      hello hello \
+  connection-other \
+      "HTTP/1.1 200 OK\nConnection: upgrade\nContent-Length: 5\n\n" hello \
+      hello \
+  location-with-200 \
+      "HTTP/1.1 200 OK\nLocation: http://127.0.0.1:1/\nContent-Length: 5\n\n" \
+      hello hello \
+  content-type-other \
+      "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 5\n\n" \
+      hello hello \
+  content-type-debug \
+      "HTTP/1.1 200 OK\nContent-Type: application/x-fossil-debug\nContent-Length: 5\n\n" \
+      hello hello \
+  content-type-uncompressed \
+      "HTTP/1.1 200 OK\nContent-Type: application/x-fossil-uncompressed\nContent-Length: 5\n\n" \
+      hello hello \
+  interim-100 \
+      "HTTP/1.1 100 Continue\n\nHTTP/1.1 200 OK\nContent-Length: 5\n\n" \
+      hello hello \
+  interim-with-headers \
+      "HTTP/1.1 103 Early Hints\nLink: </x>\n\nHTTP/1.1 200 OK\nContent-Length: 5\n\n" \
+      hello hello \
+  interim-twice \
+      "HTTP/1.1 100 Continue\n\nHTTP/1.1 102 Processing\n\nHTTP/1.1 200 OK\nContent-Length: 5\n\n" \
+      hello hello \
+  interim-four-blank-lines \
+      "HTTP/1.1 100 Continue\n\n\n\n\n\nHTTP/1.1 200 OK\nContent-Length: 5\n\n" \
+      hello hello \
+  chunked "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\n\n" \
+      "3\r\nhel\r\n2\r\nlo\r\n0\r\n\r\n" hello \
+  chunked-upper-case "HTTP/1.1 200 OK\nTransfer-Encoding:CHUNKED\n\n" \
+      "A\r\n0123456789\r\n0\r\n\r\n" 0123456789 \
+  chunked-hex-letters "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\n\n" \
+      "a\r\n0123456789\r\n00\r\n\r\n" 0123456789 \
+  chunked-extension "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\n\n" \
+      "5;name=value\r\nhello\r\n0\r\n\r\n" hello \
+  chunked-extension-spaces "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\n\n" \
+      "5 \t; \tname\r\nhello\r\n0 \r\n\r\n" hello \
+  chunked-extension-punctuation \
+      "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\n\n" \
+      "5;!x\r\nhello\r\n0\r\n\r\n" hello \
+  chunked-trailer "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\n\n" \
+      "5\r\nhello\r\n0\r\nTrailer: x\r\nOther: y\r\n\r\n" hello \
+  chunked-trailer-cut-short "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\n\n" \
+      "5\r\nhello\r\n0\r\nTrailer: x" hello \
+  chunked-empty "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\n\n" \
+      "0\r\n\r\n" "" \
+] {
+  url_httpmsg [list [url_crlf $urlHeader]$urlBody]
+  test url-http-accepted-$urlName {$CODE == 0 && $RESULT eq $urlExpected}
+}
+
+# Replies that are refused.  Each row is a name, the reply, and what
+# "fossil test-httpmsg -v" must say.
+#
+foreach {urlName urlReply urlMessage} [list \
+  nothing "" {server did not reply} \
+  not-http "hello\r\n\r\n" {server did not reply} \
+  status-bad-version "HTTP/1.x 200 OK\n\n" {Read: \[HTTP/1.x 200 OK\]\s*$} \
+  status-no-code "HTTP/1.1\n\n" {Read: \[HTTP/1.1\]\s*$} \
+  status-lower-case "http/1.1 200 OK\nContent-Length: 0\n\n" \
+      {Read: \[http/1.1 200 OK\]\s*$} \
+  status-500 "HTTP/1.1 500 Server   Error\n\n" \
+      {server says: 500 Server   Error} \
+  status-500-no-reason "HTTP/1.1 500\n\n" {server says: 500\n} \
+  status-tab "HTTP/1.1\t500\n\n" {server says: \n} \
+  status-404 "HTTP/1.1 404 Not Found\nContent-Length: 0\n\n" \
+      {server says: 404 Not Found} \
+  status-negative "HTTP/1.1 -200 OK\n\n" {server says: -200 OK} \
+  status-huge "HTTP/1.1 99999999999999999999 OK\n\n" {server says: } \
+  status-204 "HTTP/1.1 204 No Content\n\n" {server says: 204 No Content} \
+  folded-space "HTTP/1.1 200 OK\nX-A: b\n c\n\n" \
+      {server sent a folded header line} \
+  folded-tab "HTTP/1.1 200 OK\nX-A: b\n\tc\n\n" \
+      {server sent a folded header line} \
+  interim-only "HTTP/1.1 100 Continue\n\n" {server did not reply} \
+  interim-cut-short "HTTP/1.1 100 Continue\nX-A: b\n" {server did not reply} \
+  interim-five-blank-lines \
+      "HTTP/1.1 100 Continue\n\n\n\n\n\n\nHTTP/1.1 200 OK\n\n" \
+      {server did not reply} \
+  content-length-none "HTTP/1.1 200 OK\nContent-Length:\n\n" \
+      {server sent a bad content-length: Content-Length:} \
+  content-length-negative "HTTP/1.1 200 OK\nContent-Length: -5\n\nhello" \
+      {server sent a bad content-length} \
+  content-length-plus "HTTP/1.1 200 OK\nContent-Length: +5\n\nhello" \
+      {server sent a bad content-length} \
+  content-length-hex "HTTP/1.1 200 OK\nContent-Length: 0x5\n\nhello" \
+      {server sent a bad content-length} \
+  content-length-two-numbers "HTTP/1.1 200 OK\nContent-Length: 5 5\n\nhello" \
+      {server sent a bad content-length} \
+  content-length-list "HTTP/1.1 200 OK\nContent-Length: 5,5\n\nhello" \
+      {server sent a bad content-length} \
+  content-length-2147483648 \
+      "HTTP/1.1 200 OK\nContent-Length: 2147483648\n\nhello" \
+      {server sent a bad content-length} \
+  content-length-twice-different \
+      "HTTP/1.1 200 OK\nContent-Length: 5\nContent-Length: 4\n\nhello" \
+      {server sent two different content-length values} \
+  content-length-zero-then-other \
+      "HTTP/1.1 200 OK\nContent-Length: 0\nContent-Length: 5\n\nhello" \
+      {server sent two different content-length values} \
+  content-length-too-long "HTTP/1.1 200 OK\nContent-Length: 6\n\nhello" \
+      {response truncated: got 5 bytes of 6} \
+  transfer-encoding-gzip "HTTP/1.1 200 OK\nTransfer-Encoding: gzip\n\n" \
+      {unsupported transfer-encoding:  gzip} \
+  transfer-encoding-gzip-chunked \
+      "HTTP/1.1 200 OK\nTransfer-Encoding: gzip, chunked\n\n" \
+      {unsupported transfer-encoding:  gzip, chunked} \
+  transfer-encoding-chunked-more \
+      "HTTP/1.1 200 OK\nTransfer-Encoding: chunked, gzip\n\n" \
+      {unsupported transfer-encoding:  chunked, gzip} \
+  transfer-encoding-empty "HTTP/1.1 200 OK\nTransfer-Encoding:\n\n" \
+      {unsupported transfer-encoding: } \
+  transfer-encoding-twice \
+      "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\nTransfer-Encoding: chunked\n\n0\n\n" \
+      {server sent two transfer-encoding headers} \
+  transfer-encoding-and-length \
+      "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\nContent-Length: 5\n\n5\nhello\n0\n\n" \
+      {reply has both content-length and transfer-encoding} \
+  length-and-transfer-encoding \
+      "HTTP/1.1 200 OK\nContent-Length: 0\nTransfer-Encoding: chunked\n\n0\n\n" \
+      {reply has both content-length and transfer-encoding} \
+  chunk-no-body "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\n\n" \
+      {chunked reply ended without terminator} \
+  chunk-blank-line "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\n\n\n" \
+      {chunked reply ended without terminator} \
+  chunk-size-letters "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\n\nzz\n" \
+      {chunked reply: missing or malformed chunk size} \
+  chunk-size-negative \
+      "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\n\n-5\nhello\n0\n\n" \
+      {chunked reply: missing or malformed chunk size} \
+  chunk-size-0x \
+      "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\n\n0x5\nhello\n0\n\n" \
+      {chunked reply: malformed chunk size line} \
+  chunk-size-space-first \
+      "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\n\n 5\nhello\n0\n\n" \
+      {chunked reply: missing or malformed chunk size} \
+  chunk-size-80000000 \
+      "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\n\n80000000\nhello\n0\n\n" \
+      {chunked reply: invalid chunk size} \
+  chunk-size-twenty-digits \
+      "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\n\nFFFFFFFFFFFFFFFFFFFF\nhello\n0\n\n" \
+      {chunked reply: invalid chunk size} \
+  chunk-size-then-text \
+      "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\n\n5 x\nhello\n0\n\n" \
+      {chunked reply: malformed chunk size line} \
+  chunk-extension-no-name \
+      "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\n\n5;\nhello\n0\n\n" \
+      {chunked reply: malformed chunk size line} \
+  chunk-extension-equals \
+      "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\n\n5; =v\nhello\n0\n\n" \
+      {chunked reply: malformed chunk size line} \
+  chunk-cut-short "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\n\n5\nhel" \
+      {chunked reply truncated} \
+  chunk-no-data "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\n\n5\n" \
+      {chunked reply truncated} \
+  chunk-too-long \
+      "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\n\n3\nhello\n0\n\n" \
+      {chunked reply: no line end after chunk data} \
+  chunk-no-line-end "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\n\n5\nhello" \
+      {chunked reply ended without terminator} \
+  chunk-no-terminator \
+      "HTTP/1.1 200 OK\nTransfer-Encoding: chunked\n\n5\nhello\n" \
+      {chunked reply ended without terminator} \
+  redirect-no-location "HTTP/1.1 302 Found\nContent-Length: 0\n\n" \
+      {"location:" missing from 302 redirect reply} \
+  redirect-301-no-location "HTTP/1.1 301 Moved\n\n" \
+      {"location:" missing from 301 redirect reply} \
+  redirect-307-no-location "HTTP/1.1 307 Temporary\n\n" \
+      {"location:" missing from 307 redirect reply} \
+  redirect-308-no-location "HTTP/1.1 308 Permanent\n\n" \
+      {"location:" missing from 308 redirect reply} \
+  redirect-empty-location "HTTP/1.1 302 Found\nLocation:\n\n" \
+      {malformed redirect: Location:} \
+  redirect-blank-location "HTTP/1.1 302 Found\nLocation:    \n\n" \
+      {malformed redirect: Location:} \
+  redirect-to-file \
+      "HTTP/1.1 302 Found\nLocation: file:///nosuchdir/r.fossil\n\n" \
+      {cannot redirect to file:///nosuchdir/r.fossil} \
+  redirect-to-ssh "HTTP/1.1 302 Found\nLocation: ssh://h/r.fossil\n\n" \
+      {cannot redirect to ssh://h/r.fossil} \
+  redirect-to-other-scheme "HTTP/1.1 302 Found\nLocation: ftp://h/x\n\n" \
+      {unknown repository: ftp://h/x} \
+  redirect-to-bad-port "HTTP/1.1 302 Found\nLocation: http://h:99999/\n\n" \
+      {port number too large in url} \
+  redirect-loop "HTTP/1.1 302 Found\nLocation: http://127.0.0.1:PORT/x\n\n" \
+      {redirect limit exceeded} \
+  redirect-only-xfer "HTTP/1.1 302 Found\nLocation: /xfer\n\n" \
+      {unknown repository: \n} \
+  status-401 "HTTP/1.1 401 Unauthorized\n\n" \
+      {server says: 401 Unauthorized} \
+] {
+  url_httpmsg [list [url_crlf $urlReply]] -v
+  test_match url-http-refused-$urlName "$CODE $RESULT" "^1 (?:.*\n)*.*$urlMessage"
+  url_httpmsg [list [url_crlf $urlReply]]
+  test url-http-refused-quiet-$urlName {$CODE == 1}
+}
+
+# A redirect to an ssh: URL with no path is refused.
+#
+url_httpmsg [list [url_crlf "HTTP/1.1 302 Found\nLocation: ssh://h\n\n"]] -v
+test_match url-http-refused-redirect-to-ssh-no-path "$CODE $RESULT" \
+    {^1 (?:.*\n)*.*cannot redirect to ssh://h}
+
+# A status line that test-httpmsg prints an error for without -v only
+# when it is not told to be quiet: it is quiet when it prints the reply
+# on standard output, and it is not when the reply goes to a file.
+#
+foreach {urlName urlReply urlMessage} [list \
+  status-500 "HTTP/1.1 500 Server Error\n\n" {server says: 500 Server Error} \
+  no-reply "" {server did not reply} \
+  redirect-no-location "HTTP/1.1 302 Found\n\n" \
+      {"location:" missing from 302 redirect reply} \
+  redirect-loop "HTTP/1.1 302 Found\nLocation: http://127.0.0.1:PORT/x\n\n" \
+      {redirect limit exceeded} \
+  redirect-to-file "HTTP/1.1 302 Found\nLocation: file:///nosuchdir/r\n\n" \
+      {cannot redirect to file:///nosuchdir/r} \
+] {
+  file delete out.txt
+  url_httpmsg [list [url_crlf $urlReply]] --out out.txt
+  test url-http-message-$urlName {$CODE == 1 && [string first $urlMessage $RESULT] >= 0}
+  url_httpmsg [list [url_crlf $urlReply]]
+  test url-http-message-quiet-$urlName {$CODE == 1 && $RESULT eq ""}
+}
+
+# A reply that is shorter than its Content-Length is an error, and only
+# the bytes that came are printed.
+#
+set urlShort [url_crlf "HTTP/1.1 200 OK\nContent-Length: 6\n\nhello"]
+file delete out.txt
+url_httpmsg [list $urlShort] --out out.txt
+test url-http-message-truncated {$CODE == 1 &&
+    [string first "response truncated: got 5 bytes of 6" $RESULT] >= 0}
+url_httpmsg [list $urlShort]
+test url-http-message-quiet-truncated {$CODE == 1}
+test url-http-truncated-bytes {$RESULT eq "hello"}
+
+# A redirect is followed three times, with the same method and payload,
+# and the fourth is refused.  301, 302, 307 and 308 are followed.  A
+# Location that ends in /xfer is used without that ending.
+#
+foreach urlStatus {301 302 307 308} {
+  url_httpmsg [list \
+      [url_crlf "HTTP/1.1 $urlStatus Moved\nLocation: http://127.0.0.1:PORT/b\n\n"] \
+      [url_crlf "HTTP/1.1 200 OK\nContent-Length: 5\n\nhello"]]
+  test url-http-redirect-$urlStatus {$CODE == 0 && $RESULT eq "hello" &&
+      [url_request_line 0] eq "GET /x HTTP/1.1" &&
+      [url_request_line 1] eq "GET /b HTTP/1.1"}
+}
+write_file payload.txt "payload text\n"
+url_httpmsg [list \
+    [url_crlf "HTTP/1.1 302 Found\nLocation: http://127.0.0.1:PORT/b\n\n"] \
+    [url_crlf "HTTP/1.1 302 Found\nLocation: http://127.0.0.1:PORT/c\n\n"] \
+    [url_crlf "HTTP/1.1 302 Found\nLocation: http://127.0.0.1:PORT/d/xfer\n\n"] \
+    [url_crlf "HTTP/1.1 200 OK\nContent-Length: 5\n\nhello"]] payload.txt
+test url-http-redirect-three {$CODE == 0 && $RESULT eq "hello" &&
+    [llength $urlRequests] == 4 &&
+    [url_request_line 3] eq "POST /d HTTP/1.1" &&
+    [url_request_body 3] eq "payload text\n"}
+url_httpmsg [list \
+    [url_crlf "HTTP/1.1 302 Found\nLocation: http://127.0.0.1:PORT/b\n\n"]]
+test url-http-redirect-four {$CODE == 1 && [llength $urlRequests] == 4}
+url_httpmsg [list \
+    [url_crlf "HTTP/1.1 302 Found\nX-Other: 1\nLOCATION:http://127.0.0.1:PORT/b\n\n"] \
+    [url_crlf "HTTP/1.1 200 OK\nContent-Length: 5\n\nhello"]] -v
+test url-http-redirect-after-other-header {$CODE == 0 &&
+    [string first "redirect with status 302 to http://127.0.0.1:" $RESULT] >= 0}
+
+# A Location that ends in /xfer loses only the last one, so that a
+# repository whose own path ends in /xfer is still found.
+#
+url_httpmsg [list \
+    [url_crlf "HTTP/1.1 302 Found\nLocation: http://127.0.0.1:PORT/d/xfer/xfer\n\n"] \
+    [url_crlf "HTTP/1.1 200 OK\nContent-Length: 5\n\nhello"]]
+test_eq url-http-redirect-xfer-twice [url_request_line 1] "GET /d/xfer HTTP/1.1"
+
+# A 401 reply is asked for again twice, and then is an error.  Standard
+# input is not a terminal, so fossil cannot ask for credentials.
+#
+url_httpmsg [list [url_crlf "HTTP/1.1 401 Unauthorized\n\n"]] -v
+test url-http-401-three-requests {$CODE == 1 && [llength $urlRequests] == 3 &&
+    [string first "server says: 401 Unauthorized" $RESULT] >= 0}
+url_httpmsg [list [url_crlf "HTTP/1.1 401 Unauthorized\n\n"] \
+                 [url_crlf "HTTP/1.1 200 OK\nContent-Length: 5\n\nhello"]]
+test url-http-401-then-200 {$CODE == 0 && $RESULT eq "hello" &&
+    [llength $urlRequests] == 2}
+
+###############################################################################
+# The request.
+
+set urlOk [url_crlf "HTTP/1.1 200 OK\nContent-Length: 2\n\nok"]
+
+url_httpmsg [list $urlOk]
+test url-request-get {[url_request_line 0] eq "GET /x HTTP/1.1" &&
+    [string match 127.0.0.1:* [url_request_header 0 Host]] &&
+    [url_request_header 0 Connection] eq "close" &&
+    [string match "Fossil/*" [url_request_header 0 User-Agent]] &&
+    [url_request_header 0 Content-Type] eq "(none)" &&
+    [url_request_header 0 Content-Length] eq "(none)" &&
+    [url_request_header 0 X-Fossil-Transport] eq "(none)" &&
+    [url_request_header 0 Authorization] eq "(none)" &&
+    [url_request_header 0 Proxy-Authorization] eq "(none)" &&
+    [url_request_header 0 Cookie] eq "(none)"}
+
+set urlPort [url_listen [list $urlOk]]
+fossil_raw -seconds 60 test-httpmsg http://127.0.0.1:$urlPort
+test_eq url-request-no-path [url_request_line 0] "GET / HTTP/1.1"
+url_listen_stop
+
+url_httpmsg [list $urlOk] payload.txt
+test url-request-post {[url_request_line 0] eq "POST /x HTTP/1.1" &&
+    [url_request_header 0 Content-Type] eq "text/plain" &&
+    [url_request_header 0 Content-Length] eq "13" &&
+    [url_request_body 0] eq "payload text\n"}
+
+write_file empty.txt ""
+url_httpmsg [list $urlOk] empty.txt
+test_eq url-request-empty-payload [url_request_line 0] "GET /x HTTP/1.1"
+
+url_httpmsg [list $urlOk] payload.txt --mimetype application/x-test
+test_eq url-request-mimetype [url_request_header 0 Content-Type] \
+    application/x-test
+
+set urlPort [url_listen [list $urlOk]]
+fossil_raw -seconds 60 -input "from standard input" \
+    test-httpmsg http://127.0.0.1:$urlPort/x -
+test url-request-standard-input {
+    [url_request_header 0 Content-Type] eq "application/x-unknown" &&
+    [url_request_body 0] eq "from standard input"}
+url_listen_stop
+
+# --compress sends the payload compressed and expects a compressed
+# reply: four bytes of size and then a zlib stream.
+#
+proc url_compress {text} {
+  return [binary format I [string length $text]][zlib compress $text]
+}
+proc url_uncompress {bytes} {
+  if {[catch {zlib decompress [string range $bytes 4 end]} text]} {
+    return "(not compressed)"
+  }
+  binary scan $bytes I size
+  if {$size != [string length $text]} {return "(wrong size)"}
+  return $text
+}
+set urlPort [url_listen [list [url_crlf "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: [string length [url_compress "compressed reply"]]\n\n"][url_compress "compressed reply"]]]
+fossil_raw -seconds 60 test-httpmsg http://127.0.0.1:$urlPort/x payload.txt \
+    --compress
+test url-request-compress {$CODE == 0 && $RESULT eq "compressed reply" &&
+    [url_uncompress [url_request_body 0]] eq "payload text\n"}
+url_listen_stop
+
+# The reply goes to the file named by --out or by the third argument,
+# but not by both.
+#
+file delete out.txt
+url_httpmsg [list $urlOk] --out out.txt
+test url-request-out-option {$CODE == 0 && $RESULT eq "" &&
+    [read_file out.txt] eq "ok"}
+file delete out.txt
+url_httpmsg [list $urlOk] payload.txt out.txt
+test url-request-out-argument {$CODE == 0 && [read_file out.txt] eq "ok"}
+file delete out.txt
+url_httpmsg [list $urlOk] payload.txt out.txt --out other.txt
+test url-request-out-twice {$CODE == 1 && ![file exists out.txt] &&
+    [string first "output file specified twice" $RESULT] >= 0}
+url_httpmsg [list $urlOk] -v
+test url-request-verbose {$CODE == 0 &&
+    [string first "Sending " $RESULT] >= 0 &&
+    [string first "Read: \[HTTP/1.1 200 OK\]" $RESULT] >= 0 &&
+    [string first "Reply received: 2 of 2 bytes" $RESULT] >= 0}
+url_httpmsg [list [url_crlf "HTTP/1.1 200 OK\n\n"]hello] -v
+test url-request-verbose-no-length {$CODE == 0 && [string first \
+    "Reply received: 5 bytes (w/o content-length)" $RESULT] >= 0}
+
+foreach urlOption {--ipv4 --no-cert-verify} {
+  url_httpmsg [list $urlOk] $urlOption
+  test url-request-option$urlOption {$CODE == 0 && $RESULT eq "ok"}
+}
+# --ipv6 asks for an IPv6 address of the test server, which listens on
+# 127.0.0.1: macOS reaches it through a mapped address, Linux refuses it.
+url_httpmsg [list $urlOk] --ipv6
+test url-request-option--ipv6 {($CODE == 0 && $RESULT eq "ok") ||
+    [string first "getaddrinfo() fails" $RESULT] >= 0}
+fossil_raw test-httpmsg
+test url-request-usage-none {$CODE == 1 && [string match "*Usage:*URL*" $RESULT]}
+fossil_raw test-httpmsg http://127.0.0.1:1/ a b c
+test url-request-usage-many {$CODE == 1 && [string match "*Usage:*URL*" $RESULT]}
+fossil_raw test-httpmsg file://$urlRepo
+test url-request-file-needs-subpath {$CODE == 1 && [string first \
+    "the --subpath option is required for file://" $RESULT] >= 0}
+
+# --httptrace writes each request and reply to a numbered file, and
+# sends the payload with the debug content type.
+#
+file mkdir trace
+cd trace
+url_httpmsg [list $urlOk] ../payload.txt --httptrace
+test url-request-httptrace {$CODE == 0 &&
+    [url_request_header 0 Content-Type] eq "text/plain" &&
+    [string match "POST /x HTTP/1.1\r\n*\r\n\r\npayload text\n" \
+        [read_file http-request-1.txt]] &&
+    [string match "HTTP/1.1 200 OK\r\n*" [read_file http-reply-1.txt]]}
+cd ..
+
+# --httptrace in a directory where the files cannot be made does not
+# stop the exchange.
+#
+file mkdir readonly
+file attributes readonly -permissions 0555
+if {$is_windows || [file writable readonly]} {
+  test_skip_part "cannot make a directory that fossil cannot write in"
+} else {
+  cd readonly
+  url_httpmsg [list $urlOk] ../payload.txt --httptrace
+  test url-request-httptrace-read-only {
+      [string match "*\nok" $RESULT] &&
+      [url_request_body 0] eq "payload text\n" &&
+      [glob -nocomplain http-re*] eq ""}
+  cd ..
+}
+file attributes readonly -permissions 0755
+
+###############################################################################
+# The login card of a sync request.  test-httpmsg --xfer sends the
+# payload as a sync message: with a login card when the URL names a
+# user, and expecting an application/x-fossil reply.  The card is
+#
+#     login USER NONCE SIGNATURE
+#
+# where NONCE is the SHA1 hash of the rest of the message and SIGNATURE
+# is the SHA1 hash of NONCE followed by the shared secret.  test-httpmsg
+# opens no repository, so the shared secret is the password as given.
+
+# Returns the login card for USER with the shared secret SECRET, for a
+# message BODY.
+proc url_login_card {user secret body} {
+  set nonce [sha1_text $body]
+  return "login $user $nonce [sha1_text $nonce$secret]"
+}
+set urlSyncOk [url_crlf "HTTP/1.1 200 OK\nContent-Type: application/x-fossil-uncompressed\nContent-Length: 2\n\n"]ok
+set urlCard "[url_login_card bob secret "payload text\n"]\npayload text\n"
+
+# Runs test-httpmsg --xfer for the user and password in USERINFO, which
+# is empty or ends with "@", and further options in ARGS.
+proc url_xfer {userinfo args} {
+  set port [url_listen [list $::urlSyncOk]]
+  fossil_raw -seconds 60 test-httpmsg http://${userinfo}127.0.0.1:$port/x \
+      payload.txt --xfer {*}$args
+  url_listen_stop
+}
+
+url_xfer bob:secret@
+test url-login-password {$CODE == 0 && $RESULT eq "ok" &&
+    [url_request_header 0 Content-Type] eq "application/x-fossil" &&
+    [url_request_body 0] eq $urlCard}
+url_xfer b%20ob:secret@
+test_eq url-login-user-space [url_request_body 0] \
+    "[string map {{login b ob} {login b\sob}} \
+        [url_login_card "b ob" secret "payload text\n"]]\npayload text\n"
+url_xfer bob:@
+test_eq url-login-empty-password [url_request_body 0] \
+    "[url_login_card bob "" "payload text\n"]\npayload text\n"
+url_xfer ""
+test url-login-no-user {$CODE == 0 &&
+    [url_request_body 0] eq "payload text\n"}
+url_xfer anonymous:secret@
+test url-login-anonymous {$CODE == 0 &&
+    [url_request_body 0] eq "payload text\n"}
+url_xfer bob@
+test url-login-no-password {$CODE == 1 && [url_request_line 0] eq "" &&
+    [string first {missing or incorrect password for user "bob"} $RESULT] >= 0}
+url_xfer bob:secret@ --httptrace
+test url-login-httptrace {$CODE == 0 &&
+    [url_request_header 0 Content-Type] eq "application/x-fossil-debug" &&
+    [url_request_body 0] eq $urlCard}
+file delete http-request-1.txt http-reply-1.txt
+url_xfer bob:secret@ --compress
+test url-login-compress {$CODE == 0 &&
+    [url_uncompress [url_request_body 0]] eq $urlCard}
+
+# A pull from an open check-out signs the card with the SHA1 hash of
+# PROJECTCODE/USER/PASSWORD.  A password of 40 hex digits is that hash
+# already.
+#
+fossil sql "SELECT value FROM config WHERE name='project-code'"
+set urlProject [string trim $RESULT]
+set urlSecret [sha1_text $urlProject/bob/secret]
+set urlPullOk [url_crlf "HTTP/1.1 200 OK\nContent-Type: application/x-fossil-uncompressed\nContent-Length: 41\n\n"]
+append urlPullOk "# timestamp 2026-01-01T00:00:00 errors 0\n"
+
+# Returns 1 if request NUMBER of the last exchange begins with the login
+# card for USER and the shared secret SECRET, and 0 otherwise.
+proc url_login_ok {number user secret} {
+  set body [url_request_body $number]
+  set end [string first \n $body]
+  set rest [string range $body [expr {$end + 1}] end]
+  return [expr {[string range $body 0 [expr {$end - 1}]] eq
+                [url_login_card $user $secret $rest]}]
+}
+
+# Runs "fossil pull" with --httptrace, which sends the request as plain
+# text, and the options in ARGS, from the URL with USERINFO.
+proc url_pull {userinfo args} {
+  set port [url_listen [list $::urlPullOk]]
+  fossil_raw -seconds 60 pull http://${userinfo}127.0.0.1:$port/repo \
+      --httptrace {*}$args
+  url_listen_stop
+  file delete {*}[glob -nocomplain http-request-*.txt http-reply-*.txt]
+  return $port
+}
+url_pull bob:secret@ --once
+test url-login-project-code {$CODE == 0 && [url_login_ok 0 bob $urlSecret]}
+url_pull bob:$urlSecret@ --once
+test url-login-password-is-hash {$CODE == 0 &&
+    [url_login_ok 0 bob $urlSecret]}
+set urlNotHex [string repeat g 40]
+url_pull bob:$urlNotHex@ --once
+test url-login-password-forty-letters {$CODE == 0 &&
+    [url_login_ok 0 bob [sha1_text $urlProject/bob/$urlNotHex]]}
+url_pull bob:[string range $urlSecret 1 end]@ --once
+test url-login-password-thirty-nine-digits {$CODE == 0 && [url_login_ok 0 bob \
+    [sha1_text $urlProject/bob/[string range $urlSecret 1 end]]]}
+
+# With --login-card-header the card goes in a cookie, not in the payload.
+#
+url_xfer bob:secret@ --login-card-header
+test url-login-cookie {$CODE == 0 &&
+    [url_request_body 0] eq "payload text\n" &&
+    [url_request_header 0 Cookie] eq "x-f-l-c=[string map {{ } +} \
+        [url_login_card bob secret "payload text\n"]]"}
+url_xfer "" --login-card-header
+test url-login-cookie-no-user {$CODE == 0 &&
+    [url_request_body 0] eq "payload text\n" &&
+    [url_request_header 0 Cookie] eq "(none)"}
+url_xfer bob:secret@ --login-card-header --httptrace
+test url-login-cookie-httptrace {$CODE == 0 &&
+    [url_request_body 0] eq "payload text\n" &&
+    [string match "x-f-l-c=login+bob+*" [url_request_header 0 Cookie]]}
+file delete http-request-1.txt http-reply-1.txt
+url_xfer bob:secret@ --login-card-header --compress
+test url-login-cookie-compress {
+    [url_uncompress [url_request_body 0]] eq "payload text\n" &&
+    [string match "x-f-l-c=login+bob+*" [url_request_header 0 Cookie]]}
+set urlPort [url_listen [list $urlOk]]
+fossil_raw -seconds 60 test-httpmsg http://bob:secret@127.0.0.1:$urlPort/x \
+    --xfer --login-card-header
+test url-login-cookie-no-payload {
+    [url_request_line 0] eq "GET /x HTTP/1.1" &&
+    [url_request_header 0 Cookie] eq "(none)"}
+url_listen_stop
+
+# A sync reply of another content type is an error message from the
+# server.  It is printed without its HTML tags.
+#
+proc url_xfer_reply {type body args} {
+  set port [url_listen [list [url_crlf "HTTP/1.1 200 OK\nContent-Type: $type\nContent-Length: [string length $body]\n\n"]$body]]
+  fossil_raw -seconds 60 test-httpmsg http://127.0.0.1:$port/x \
+      payload.txt --xfer {*}$args
+  url_listen_stop
+}
+url_xfer_reply text/html "<p>no <b>such</b> page</p>" -v
+test url-xfer-error-verbose {$CODE == 1 &&
+    [string first "server sends error: no such page" $RESULT] >= 0}
+url_xfer_reply text/html "plain text, no tags" -v
+test url-xfer-error-plain-text {$CODE == 1 &&
+    [string first "server sends error: plain text, no tags" $RESULT] >= 0}
+url_xfer_reply text/html "cut short <b" -v
+test url-xfer-error-open-tag {$CODE == 1 &&
+    [string first "server sends error: cut short " $RESULT] >= 0}
+file delete out.txt
+url_xfer_reply text/html "<p>no such page</p>" --out out.txt
+test url-xfer-error-to-file {$CODE == 1 &&
+    [string first "server sends error" $RESULT] >= 0 &&
+    [string first "no such page" $RESULT] < 0}
+url_xfer_reply text/html "<p>no such page</p>"
+test url-xfer-error-quiet {$CODE == 1 &&
+    [string first "server sends error" $RESULT] < 0}
+url_xfer_reply application/x-fossil-debug "debug reply"
+test url-xfer-reply-debug {$CODE == 0 && $RESULT eq "debug reply"}
+url_xfer_reply application/x-fossil [url_compress "compressed reply"]
+test url-xfer-reply-compressed {$CODE == 0 && $RESULT eq "compressed reply"}
+url_xfer_reply APPLICATION/X-FOSSIL-UNCOMPRESSED "plain reply"
+test url-xfer-reply-uncompressed {$CODE == 0 && $RESULT eq "plain reply"}
+
+###############################################################################
+# The file: transport.  test-httpmsg sends the request for the path
+# given by --subpath to "fossil http" on the repository file.
+
+fossil_raw -seconds 60 test-httpmsg file://$urlRepo --subpath /test-env
+test url-file-page {$CODE == 0 &&
+    [string first "<title>" $RESULT] >= 0 &&
+    [string first "Environment Test" $RESULT] >= 0}
+fossil_raw -seconds 60 test-httpmsg file://$urlRepo --subpath /nosuchpage -v
+test url-file-not-found {$CODE == 1 &&
+    [string first "server says: 404 Not Found" $RESULT] >= 0}
+fossil_raw -seconds 60 test-httpmsg file://$urlRepo --subpath / -v
+test url-file-redirect {$CODE == 1 &&
+    [string first "cannot redirect from file://$urlRepo to " $RESULT] >= 0}
+fossil_raw -seconds 60 test-httpmsg file://$urlRepo --subpath /
+test url-file-redirect-quiet {$CODE == 1 && $RESULT eq ""}
+
+###############################################################################
+# Clone, pull and sync against the server of this file.
+
+# Returns the reply header for a sync reply with the body BODY.
+proc url_sync_reply {body} {
+  return [url_crlf "HTTP/1.1 200 OK\nContent-Type: application/x-fossil-uncompressed\nContent-Length: [string length $body]\n\n"]$body
+}
+set urlNotFound [url_crlf "HTTP/1.1 404 Not Found\nContent-Length: 0\n\n"]
+
+# Runs "fossil VERB URL" with the options in ARGS, where "PORT" in URL
+# and in ARGS stands for the port of a server that answers with REPLIES.
+proc url_sync {verb url replies args} {
+  set port [url_listen $replies]
+  set map [list PORT $port]
+  fossil_raw -seconds 60 $verb [string map $map $url] {*}[string map $map $args]
+  url_listen_stop
+  return $port
+}
+
+# A proxy gets the whole URL in the request line and its own user and
+# password in a Proxy-Authorization header.
+#
+url_sync pull http://example.invalid:81/repo [list $urlNotFound] --once \
+    --proxy http://pu:p%40p@127.0.0.1:PORT
+test url-sync-proxy {$CODE == 1 &&
+    [string first "via proxy: http://pu@127.0.0.1:" $RESULT] >= 0 &&
+    [url_request_line 0] eq "POST http://example.invalid:81/repo HTTP/1.1" &&
+    [url_request_header 0 Host] eq "example.invalid:81" &&
+    [url_request_header 0 Proxy-Authorization] eq
+        "Basic [binary encode base64 pu:p@p]"}
+url_sync pull http://example.invalid/repo [list $urlNotFound] --once \
+    --proxy http://127.0.0.1:PORT
+test url-sync-proxy-no-user {$CODE == 1 &&
+    [url_request_line 0] eq "POST http://example.invalid/repo HTTP/1.1" &&
+    [url_request_header 0 Proxy-Authorization] eq "(none)"}
+url_sync pull http://example.invalid/repo [list $urlNotFound] --once \
+    --proxy http://pu@127.0.0.1:PORT
+test url-sync-proxy-user-no-password {$CODE == 1 &&
+    [url_request_header 0 Proxy-Authorization] eq
+        "Basic [binary encode base64 pu:]"}
+
+# A redirect received through a proxy is followed through the proxy.
+#
+url_sync pull http://example.invalid/repo [list \
+    [url_crlf "HTTP/1.1 302 Found\nLocation: http://127.0.0.1:PORT/moved\n\n"] \
+    $urlNotFound] --once --proxy http://127.0.0.1:PORT
+test url-sync-proxy-redirect {[llength $urlRequests] == 2 &&
+    [string match "POST http://127.0.0.1:*/moved HTTP/1.1" \
+        [url_request_line 1]]}
+
+# A proxy is an http: or https: URL.  With any other value fossil must
+# not talk to the repository that the value names in place of the
+# remote.
+#
+file delete proxyclone.fossil
+fossil_raw -seconds 60 clone http://example.invalid/repo proxyclone.fossil \
+    --proxy file://$urlRepo
+test url-sync-proxy-file {$CODE == 1 && ![file exists proxyclone.fossil]}
+file delete proxyclone.fossil
+
+# A pull through a proxy remembers the URL of the remote, not of the
+# proxy.  A proxy is not used for a file: URL.
+#
+fossil remote off
+url_sync pull http://example.invalid/repo [list $urlPullOk] \
+    --proxy http://127.0.0.1:PORT
+fossil remote
+test_eq url-sync-proxy-remembered [string trim $RESULT] \
+    http://example.invalid/repo
+fossil remote off
+fossil_raw -seconds 60 pull file://[file join $urlDir holder FOSSIL] --once \
+    --proxy http://127.0.0.1:1
+test url-sync-proxy-file-url {$CODE == 0 &&
+    [string first "via proxy" $RESULT] < 0}
+
+# --httpauth gives the user and password for HTTP Basic authorization.
+# They are not sent again after a 401 reply to them.
+#
+url_sync pull http://127.0.0.1:PORT/repo [list $urlNotFound] --once \
+    --httpauth hu:hp
+test_eq url-sync-httpauth [url_request_header 0 Authorization] \
+    "Basic [binary encode base64 hu:hp]"
+url_sync pull http://127.0.0.1:PORT/repo \
+    [list [url_crlf "HTTP/1.1 401 Unauthorized\n\n"]] --once --httpauth hu:hp
+test url-sync-httpauth-401 {$CODE == 1 && [llength $urlRequests] == 3 &&
+    [url_request_header 0 Authorization] eq
+        "Basic [binary encode base64 hu:hp]" &&
+    [url_request_header 1 Authorization] eq "(none)" &&
+    [string first "server says: 401 Unauthorized" $RESULT] >= 0}
+url_sync pull http://127.0.0.1:PORT/repo [list \
+    [url_crlf "HTTP/1.1 302 Found\nLocation: http://127.0.0.1:PORT/moved\n\n"] \
+    $urlNotFound] --once --httpauth hu:hp
+test url-sync-httpauth-redirect {[llength $urlRequests] == 2 &&
+    [url_request_line 1] eq "POST /moved HTTP/1.1" &&
+    [url_request_header 0 Authorization] eq
+        "Basic [binary encode base64 hu:hp]" &&
+    [url_request_header 1 Authorization] eq "(none)"}
+
+# A pull that is redirected with 301 or 308 remembers the new URL.  One
+# that is redirected with 302 or 307 does not.
+#
+foreach {urlStatus urlRemembered} {301 1 308 1 302 0 307 0} {
+  fossil remote off
+  set urlPort [url_sync pull http://127.0.0.1:PORT/old [list \
+      [url_crlf "HTTP/1.1 $urlStatus Moved\nLocation: http://127.0.0.1:PORT/new\n\n"] \
+      $urlNotFound]]
+  fossil remote
+  test_eq url-sync-redirect-$urlStatus-remembered [string trim $RESULT] \
+      [expr {$urlRemembered ? "http://127.0.0.1:$urlPort/new" : "off"}]
+}
+fossil remote off
+set urlPort [url_sync pull http://127.0.0.1:PORT/old [list \
+    [url_crlf "HTTP/1.1 301 Moved\nLocation: http://127.0.0.1:PORT/new\n\n"] \
+    $urlNotFound] --once]
+fossil remote
+test_eq url-sync-redirect-301-once [string trim $RESULT] off
+
+# A pull that succeeds remembers the URL.  It does not remember the
+# password when it cannot ask whether to.
+#
+fossil remote off
+set urlPort [url_pull bob:secret@]
+fossil remote
+test_eq url-sync-remembered-url [string trim $RESULT] \
+    http://bob@127.0.0.1:$urlPort/repo
+url_parse_test url-sync-password-not-remembered default \
+    {--use-config --show-pw} {user bob passwd {} pwConfig last-sync-pw}
+fossil remote off
+
+# A pull from a saved remote sends the saved password, and saves it
+# again as its hash for this project.
+#
+fossil remote add saved http://bob:secret@127.0.0.1:1/repo
+url_parse_test url-sync-saved-password saved {--use-config --show-pw} \
+    {user bob passwd secret pwConfig sync-pw:saved}
+set urlPort [url_listen [list $urlPullOk]]
+url_config sync-url:saved 'http://bob@127.0.0.1:$urlPort/repo'
+fossil_raw -seconds 60 pull saved --once --httptrace
+url_listen_stop
+file delete {*}[glob -nocomplain http-request-*.txt http-reply-*.txt]
+test url-sync-saved-remote {$CODE == 0 && [url_login_ok 0 bob $urlSecret]}
+url_parse_test url-sync-saved-password-hashed saved {--use-config --show-pw} \
+    [list user bob passwd $urlSecret]
+fossil remote delete saved
+
+# A pull from the parent project signs the login card with the project
+# code of the parent.
+#
+url_config parent-project-code 'parentcode'
+url_pull bob:secret@ --from-parent-project --once
+test url-sync-parent-login {$CODE == 0 &&
+    [url_login_ok 0 bob [sha1_text parentcode/bob/secret]]}
+fossil sql "DELETE FROM config WHERE name GLOB 'parent-project-*'"
+
+# A pull from the parent project by the name of a saved remote
+# remembers the URL and the password as those of the parent project.
+#
+fossil remote add saved http://bob:secret@127.0.0.1:1/repo
+set urlPort [url_listen [list $urlPullOk]]
+url_config sync-url:saved 'http://bob@127.0.0.1:$urlPort/repo'
+url_config parent-project-code 'parentcode'
+fossil_raw -seconds 60 pull saved --from-parent-project
+url_listen_stop
+url_parse_test url-sync-parent-remembered default {--use-parent --show-pw} \
+    [list name 127.0.0.1 port $urlPort user bob \
+         passwd [sha1_text parentcode/bob/secret] pwConfig parent-project-pw]
+fossil remote
+test_eq url-sync-parent-not-default [string trim $RESULT] off
+fossil remote delete saved
+fossil sql "DELETE FROM config WHERE name GLOB 'parent-project-*'"
+
+# A clone that fails with --httptrace prints the last reply.  When there
+# is no reply it prints none.
+#
+file delete traceclone.fossil
+url_sync clone http://127.0.0.1:PORT/repo [list \
+    [url_sync_reply "error not\\sallowed\\shere\n"]] traceclone.fossil \
+    --httptrace
+test url-sync-clone-httptrace {$CODE == 1 &&
+    ![file exists traceclone.fossil] &&
+    [string first "server returned an error - clone aborted" $RESULT] >= 0 &&
+    [regexp {clone aborted\s+HTTP/1.1 200 OK} $RESULT]}
+file delete {*}[glob -nocomplain http-request-*.txt http-reply-*.txt]
+set urlPort [url_listen {}]
+url_listen_stop
+fossil_raw -seconds 60 clone http://127.0.0.1:$urlPort/repo traceclone.fossil \
+    --httptrace
+test url-sync-clone-httptrace-no-reply {$CODE == 1 &&
+    ![file exists traceclone.fossil] &&
+    [string first "cannot connect to host 127.0.0.1:$urlPort" $RESULT] >= 0}
+test url-sync-clone-httptrace-no-reply-message \
+    {[string first "server returned an error - clone aborted" $RESULT] >= 0}
+file delete {*}[glob -nocomplain http-request-*.txt http-reply-*.txt]
+
+# --transport-command with --httptrace prints the command.  A command
+# that fails, or writes no reply, is an error.
+#
+if {!$is_windows} {
+  write_file transport-fail.sh "#!/bin/sh\nexit 3\n"
+  file attributes transport-fail.sh -permissions 0755
+  fossil_raw pull http://u:p@h:81/x --once \
+      --transport-command [file join $urlDir transport-fail.sh] --httptrace
+  test url-transport-fails {$CODE == 1 &&
+      [string first "Transport command failed: " $RESULT] >= 0 &&
+      [regexp -line {^RUN .*transport-fail.sh '?http://u:p@h:81/x'? } $RESULT]}
+  fossil_raw pull {http://u:p@[::1]/x} --once \
+      --transport-command [file join $urlDir transport-fail.sh] --httptrace
+  test url-transport-url-ipv6 {
+      [regexp -line {^RUN .*transport-fail.sh '?http://u:p@\[::1\]/x'? } $RESULT]}
+  fossil_raw pull file://$urlRepo --once \
+      --transport-command [file join $urlDir transport-fail.sh] --httptrace
+  test url-transport-url-file {[regexp -line \
+      "^RUN .*transport-fail.sh '?file://$urlRepo'? " $RESULT]}
+}
+
+###############################################################################
+# The sync button of the /xfersetup page syncs with the saved remote.  A
+# remote with a user and no saved password gets a message, not a login
+# card.
+
+write_file xfersetup.txt [url_crlf "POST /xfersetup HTTP/1.0\nHost: localhost\nReferer: http://localhost/xfersetup\nContent-Type: application/x-www-form-urlencoded\nContent-Length: 6\n\nsync=1"]
+set urlPort [url_listen [list $urlPullOk]]
+url_config last-sync-url 'http://bob@127.0.0.1:$urlPort/repo'
+url_config last-sync-pw obscure('secret')
+fossil_raw -seconds 60 http --in xfersetup.txt --ipaddr 127.0.0.1 $urlRepo \
+    --localauth
+url_listen_stop
+test url-web-sync {[string first "HTTP/1.0 200 OK" $RESULT] == 0 &&
+    [llength $urlRequests] == 1 &&
+    [string first "Sync done" $RESULT] >= 0}
+set urlPort [url_listen [list $urlPullOk]]
+fossil sql "DELETE FROM config WHERE name='last-sync-pw'"
+url_config last-sync-url 'http://bob@127.0.0.1:$urlPort/repo'
+fossil_raw -seconds 60 http --in xfersetup.txt --ipaddr 127.0.0.1 $urlRepo \
+    --localauth
+url_listen_stop
+test url-web-sync-no-password {[string first "HTTP/1.0 200 OK" $RESULT] == 0 &&
+    [string first "incorrect or missing password for user bob" $RESULT] >= 0}
+fossil sql "DELETE FROM config WHERE name GLOB 'last-sync-*'"
+
+###############################################################################
+# Links that web pages build from their own query parameters.  Each row
+# is a page and regular expressions for links that the page must have.
+
+file mkdir sub
+write_file sub/a.txt "one\n"
+write_file sub/doc.md "# title\n"
+fossil add sub
+fossil commit -m one --no-warnings
+write_file sub/a.txt "one\ntwo\n"
+fossil commit -m two --no-warnings
+write_file sub/a.txt "one\ntwo\nthree\n"
+fossil commit -m three --no-warnings
+
+foreach {urlName urlPage urlLinks} {
+  dir /dir?name=sub&ci=tip
+  {{href="/dir\?ci=tip"} {href="/dir\?ci=tip&amp;name=sub&amp;type=tree"}}
+  dir-flat /tree?name=sub&ci=tip&type=flat
+  {{href="/dir\?ci=tip&amp;type=flat"}
+   {href="/dir\?ci=tip&amp;name=sub&amp;type=tree"}}
+  tree /tree?name=sub&ci=tip&type=tree
+  {{ci=tip}}
+  leaves-all /leaves?all&ng&brbg
+  {{href="/leaves\?ng&amp;brbg"} {href="/leaves\?ng&amp;brbg&amp;closed"}}
+  leaves-closed /leaves?closed&nohidden&ubg
+  {{href="/leaves\?nohidden&amp;ubg"}
+   {href="/leaves\?nohidden&amp;ubg&amp;all"}}
+  leaves-open /leaves?onlyhidden
+  {{href="/leaves\?onlyhidden&amp;all"}
+   {href="/leaves\?onlyhidden&amp;closed"}}
+  timeline /timeline?n=1
+  {{href="/timeline\?n=1&amp;advm=1&amp;udc=1"}
+   {href="/timeline\?n=1&amp;b=[0-9-]+\+[0-9:]+"}}
+  timeline-after /timeline?n=1&a=2020-01-01
+  {{href="/timeline\?a=2020-01-01&amp;n=1&amp;advm=1&amp;udc=1"}
+   {href="/timeline\?a=[0-9-]+\+[0-9:]+&amp;n=1"}}
+  timeline-before-circa /timeline?n=1&b=2030-01-01&c=2026-01-01
+  {{href="/timeline\?b=2030-01-01&amp;n=1&amp;advm=1&amp;udc=1"}
+   {href="/timeline\?b=[0-9-]+\+[0-9:]+&amp;n=1"}}
+  timeline-after-before /timeline?n=1&a=2020-01-01&b=2030-01-01&c=2026-01-01
+  {{href="/timeline\?a=2020-01-01&amp;b=2030-01-01&amp;n=1&amp;advm=1&amp;udc=1"}}
+  timeline-advanced /timeline?n=1&advm=1
+  {{href="/timeline\?advm=0&amp;n=1&amp;udc=1"}}
+  timeline-month /timeline?ym=2026-11
+  {{href="/timeline\?ym=2026-11&amp;advm=1&amp;udc=1"}}
+  file-markdown /file?name=sub/doc.md&ci=tip
+  {{href="/file\?name=sub/doc.md&amp;ci=tip&amp;txt=1"}}
+  file-markdown-text /file?name=sub/doc.md&ci=tip&txt=1
+  {{href="/file\?name=sub/doc.md&amp;ci=tip"}}
+  finfo /finfo?name=sub/a.txt&brbg&ubg&n=1
+  {{sub/a.txt}}
+  annotate /annotate?filename=sub/a.txt&checkin=tip&limit=1
+  {{sub/a.txt}}
+  annotate-no-limit /annotate?filename=sub/a.txt&checkin=tip
+  {{sub/a.txt}}
+} {
+  write_file page.txt "GET $urlPage HTTP/1.0\r\n\r\n"
+  fossil_raw http --in page.txt --ipaddr 127.0.0.1 $urlRepo --localauth
+  set urlMissing [list]
+  if {[string first "HTTP/1.0 200 OK" $RESULT] != 0} {
+    lappend urlMissing "status 200"
+  }
+  foreach urlLink $urlLinks {
+    if {![regexp -- $urlLink $RESULT]} {lappend urlMissing $urlLink}
+  }
+  test_eq url-links-$urlName $urlMissing {}
+}
+
+###############################################################################
+# The ssh: transport.
+
+if {$is_windows} {
+  test_skip_part "the stand-in for ssh is a shell script"
+} else {
+  set urlSshDir [file join $urlDir ssh-standin]
+  file mkdir $urlSshDir
+  set urlSshStub [file join $urlSshDir ssh]
+  write_file $urlSshStub {#!/bin/sh
+# Stands in for ssh.  Appends each of its arguments to the file
+# $URL_SSH_DIR/args, on a line of its own inside <>.  Run N prints the
+# file $URL_SSH_DIR/reply.N and then reads its input to the end.  Where
+# there is no such file it exits with status 1 at once.
+for argument in "$@"; do
+  printf '<%s>\n' "$argument"
+done >> "$URL_SSH_DIR/args"
+count=$(cat "$URL_SSH_DIR/count" 2>/dev/null || echo 0)
+count=$((count + 1))
+echo $count > "$URL_SSH_DIR/count"
+if test -f "$URL_SSH_DIR/reply.$count"; then
+  cat "$URL_SSH_DIR/reply.$count"
+  cat > /dev/null
+  exit 0
+fi
+exit 1
+}
+  file attributes $urlSshStub -permissions 0755
+  set env(URL_SSH_DIR) $urlSshDir
+  set urlSavedPath $env(PATH)
+  set env(PATH) "$urlSshDir:$env(PATH)"
+}
+
+# The stand-in must be what "ssh" means from here on.  If it is not, run
+# nothing that could start the real one.  Tcl remembers where it last
+# found a program, so forget that first.
+unset -nocomplain ::auto_execs(ssh)
+if {!$is_windows && [lindex [auto_execok ssh] 0] ne $urlSshStub} {
+  set env(PATH) $urlSavedPath
+  test_skip_part "cannot put a stand-in for ssh first on the PATH"
+} elseif {!$is_windows} {
+
+  # Runs fossil with the arguments ARGS.  Run N of the stand-in prints
+  # item N of REPLIES, where an empty item makes it exit at once.  Sets
+  # urlSshArgs to the arguments of each run.
+  proc url_ssh {replies args} {
+    global urlSshDir urlSshArgs
+    file delete {*}[glob -nocomplain -directory $urlSshDir reply.* count args]
+    set number 0
+    foreach reply $replies {
+      incr number
+      if {$reply ne ""} {
+        write_file [file join $urlSshDir reply.$number] $reply
+      }
+    }
+    fossil_raw -seconds 60 {*}$args
+    set urlSshArgs ""
+    if {[file exists [file join $urlSshDir args]]} {
+      set urlSshArgs [read_file [file join $urlSshDir args]]
+    }
+  }
+  # Returns how many times the stand-in ran in the last url_ssh.
+  proc url_ssh_runs {} {
+    set file [file join $::urlSshDir count]
+    return [expr {[file exists $file] ? [string trim [read_file $file]] : 0}]
+  }
+
+  set urlSshOk [url_crlf "Status: 200 OK\nContent-Type: text/plain\nContent-Length: 5\n\n"]hello
+
+  # The reply of "fossil test-http" on the server begins with a Status
+  # line.  The request says that it comes over ssh.
+  #
+  url_ssh [list $urlSshOk] test-httpmsg ssh://hh/dir/r.fossil --subpath /x
+  test url-ssh-reply {$CODE == 0 && $RESULT eq "hello" &&
+      [url_ssh_runs] == 1 &&
+      [holds_strings $urlSshArgs \
+          [list "<-->\n<hh>\n<fossil>\n<test-http>\n<dir/r.fossil>"]]}
+  url_ssh [list [url_crlf "HTTP/1.1 200 OK\nContent-Length: 5\n\n"]hello] \
+      test-httpmsg ssh://hh/dir/r.fossil --subpath /x
+  test url-ssh-reply-http-status {$CODE == 0 && $RESULT eq "hello"}
+  url_ssh [list [url_crlf "STATUS: 200\ncontent-length: 5\n\n"]hello] \
+      test-httpmsg ssh://hh/dir/r.fossil?fossil=/opt/fossil --subpath /x
+  test url-ssh-reply-upper-case-refused {$CODE == 1}
+  url_ssh [list [url_crlf "HTTP/1.1 200 OK\nStatus: 200 OK\nContent-Length: 5\n\n"]hello] \
+      test-httpmsg ssh://hh/dir/r.fossil --subpath /x
+  test url-ssh-reply-both-status-lines {$CODE == 0 && $RESULT eq "hello"}
+
+  foreach {urlName urlReply urlMessage} [list \
+    status-500 "Status: 500 Server Error\n\n" {server says: 500 Server Error} \
+    status-404 "Status: 404\n\n" {server says: 404} \
+    status-tab "Status:\t500\n\n" {server says: \n} \
+    status-no-code "Status: none\n\n" {Read: \[Status: none\]\s*$} \
+    status-301-no-location "Status: 301 Moved\nContent-Length: 0\n\n" \
+        {"location:" missing from 301 redirect reply} \
+    status-302 "Status: 302 Found\nLocation: http://127.0.0.1:1/x\n\n" \
+        {cannot redirect from ssh://hh/dir/r.fossil\?fossil=/opt/fossil to http://127.0.0.1:1/x} \
+    status-307 "Status: 307 Temporary\nLocation: http://127.0.0.1:1/x\n\n" \
+        {cannot redirect from ssh://hh/dir/r.fossil\?fossil=/opt/fossil to http://127.0.0.1:1/x} \
+    status-308 "Status: 308 Permanent\nLocation: http://127.0.0.1:1/x\n\n" \
+        {cannot redirect from ssh://hh/dir/r.fossil\?fossil=/opt/fossil to http://127.0.0.1:1/x} \
+  ] {
+    url_ssh [list [url_crlf $urlReply]] \
+        test-httpmsg ssh://hh/dir/r.fossil?fossil=/opt/fossil --subpath /x -v
+    test_match url-ssh-refused-$urlName "$CODE $RESULT" \
+        "^1 (?:.*\n)*.*$urlMessage"
+  }
+  url_ssh [list [url_crlf "Status: 302 Found\nLocation: http://127.0.0.1:1/x\n\n"]] \
+      test-httpmsg ssh://hh/dir/r.fossil --subpath /x
+  test url-ssh-redirect-quiet {$CODE == 1 && $RESULT eq ""}
+
+  # A sync request over ssh has no login card.
+  #
+  url_ssh [list [url_crlf "Status: 200 OK\nContent-Type: application/x-fossil-uncompressed\nContent-Length: 2\n\n"]ok] \
+      test-httpmsg ssh://bob:secret@hh/dir/r.fossil --subpath /x \
+      payload.txt --xfer -v
+  test url-ssh-no-login-card {$CODE == 0 &&
+      [string first "13 byte payload" $RESULT] >= 0 &&
+      [string first "<bob@hh>" $urlSshArgs] >= 0}
+
+  # When the server does not reply, fossil tries once more with a PATH=
+  # argument before the name of the fossil program on the server.  It
+  # does not when the URL names that program.
+  #
+  url_ssh [list "" $urlSshOk] test-httpmsg ssh://hh/dir/r.fossil --subpath /x \
+      --out out.txt
+  test url-ssh-retry-with-path {$CODE == 0 && [url_ssh_runs] == 2 &&
+      [read_file out.txt] eq "hello" &&
+      [string first "First attempt to run fossil on hh using SSH failed" \
+          $RESULT] >= 0 &&
+      [string first "Retrying with the PATH= argument" $RESULT] >= 0 &&
+      [regexp {<hh>\n<fossil>\n<test-http>\n(?:.*\n)*<hh>\n<PATH=[^\n]*>\n<fossil>\n<test-http>} \
+          $urlSshArgs]}
+  url_ssh [list "" $urlSshOk] test-httpmsg ssh://hh/dir/r.fossil --subpath /x
+  test url-ssh-retry-quiet {$CODE == 0 && [url_ssh_runs] == 2 &&
+      $RESULT eq "hello"}
+  url_ssh [list "" ""] test-httpmsg ssh://hh/dir/r.fossil --subpath /x \
+      --out out.txt
+  test url-ssh-retry-fails {$CODE == 1 && [url_ssh_runs] == 2 &&
+      [string first "server did not reply:  rerun with --sshtrace" \
+          $RESULT] >= 0}
+  url_ssh [list "" ""] test-httpmsg ssh://hh/dir/r.fossil --subpath /x
+  test url-ssh-retry-fails-quiet {$CODE == 1 && [url_ssh_runs] == 2 &&
+      $RESULT eq ""}
+  url_ssh [list "" ""] test-httpmsg ssh://hh/dir/r.fossil --subpath /x \
+      --out out.txt --sshtrace
+  test url-ssh-retry-fails-sshtrace {$CODE == 1 && [url_ssh_runs] == 2 &&
+      [regexp -line {^server did not reply$} $RESULT]}
+  url_ssh [list "" $urlSshOk] \
+      test-httpmsg ssh://hh/dir/r.fossil?fossil=/opt/fossil --subpath /x \
+      --out out.txt
+  test url-ssh-no-retry-with-fossil-parameter {$CODE == 1 &&
+      [url_ssh_runs] == 1 && [string first "server did not reply" $RESULT] >= 0}
+
+  # A sync from an open check-out remembers that the host needed the
+  # PATH= argument and uses it at once the next time.  When that fails
+  # and the attempt without it works, the host is forgotten again.
+  #
+  set urlSshPull [string map {"HTTP/1.1 200 OK" "Status: 200 OK"} $urlPullOk]
+  fossil test-ssh-needs-path hh
+  test_match url-ssh-path-unknown-host $RESULT {^hh +no$}
+  url_ssh [list "" $urlSshPull] pull ssh://hh/dir/r.fossil --once
+  test url-ssh-path-pull-retry {$CODE == 0 && [url_ssh_runs] == 2}
+  fossil test-ssh-needs-path hh
+  test_match url-ssh-path-remembered $RESULT {^hh +yes$}
+  fossil test-ssh-needs-path
+  test_match url-ssh-path-list $RESULT {^hh +yes$}
+  url_ssh [list $urlSshPull] pull ssh://hh/dir/r.fossil --once
+  test url-ssh-path-used {$CODE == 0 && [url_ssh_runs] == 1 &&
+      [regexp {<hh>\n<PATH=[^\n]*>\n<fossil>} $urlSshArgs]}
+  url_ssh [list "" $urlSshPull] pull ssh://hh/dir/r.fossil --once
+  test url-ssh-path-pull-retry-without {$CODE == 0 && [url_ssh_runs] == 2 &&
+      [string first "Retrying without the PATH= argument" $RESULT] >= 0}
+  fossil test-ssh-needs-path hh
+  test_match url-ssh-path-forgotten $RESULT {^hh +no$}
+  fossil test-ssh-needs-path
+  test_eq url-ssh-path-list-empty $RESULT ""
+  url_ssh [list "" ""] pull ssh://hh/dir/r.fossil --once
+  test url-ssh-path-pull-fails {$CODE == 1 && [url_ssh_runs] == 2}
+  fossil test-ssh-needs-path hh
+  test_match url-ssh-path-not-remembered-on-failure $RESULT {^hh +no$}
+
+  # test-ssh-needs-path HOST BOOLEAN sets the answer for the host.
+  #
+  fossil test-ssh-needs-path other.example yes
+  test_match url-ssh-path-set $RESULT {^other.example +yes$}
+  fossil test-ssh-needs-path other.example
+  test_match url-ssh-path-set-read $RESULT {^other.example +yes$}
+  fossil test-ssh-needs-path other.example no
+  test_match url-ssh-path-clear $RESULT {^other.example +no$}
+  fossil test-ssh-needs-path other.example
+  test_match url-ssh-path-clear-read $RESULT {^other.example +no$}
+
+  # A proxy is not used for an ssh: URL, and a proxy that is an ssh: URL
+  # does not make fossil run ssh.
+  #
+  url_ssh [list $urlSshPull] pull ssh://hh/dir/r.fossil --once \
+      --proxy http://127.0.0.1:1
+  test url-ssh-proxy-not-used {$CODE == 0 && [url_ssh_runs] == 1 &&
+      [string first "via proxy" $RESULT] < 0}
+  url_ssh [list] pull http://example.invalid/repo --once --proxy ssh://hh/x
+  test url-ssh-proxy-is-ssh-url {[url_ssh_runs] == 0}
+
+  set env(PATH) $urlSavedPath
+  unset env(URL_SSH_DIR)
+}
+
+###############################################################################
+
+url_listen_stop
+array set env [array get urlSavedEnv]
+test_cleanup

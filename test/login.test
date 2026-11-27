@@ -1,0 +1,1549 @@
+#
+# Authentication: how the server in src/login.c reads a request and decides
+# who the user is.  Requests are written to a file and handed to "fossil http
+# REPO --in", which serves one request and writes the reply to a file, the way
+# test/cgi.test does.  The /test-env page reports g.zLogin, g.isRobot and the
+# capabilities the server granted.  Several command-line test entry points in
+# login.c are exercised directly.
+#
+
+# These tests run only in a long pass: -assurance stress.
+if {[test_assurance] ne "stress"} {
+  test_skip "runs only with -assurance stress"
+}
+
+require_no_open_checkout
+
+test_setup
+
+set loginRepo [file join [pwd] .rep.fossil]
+
+# A user with Read, Write and Password capability, and a Setup user.
+fossil user new loginbob bob@ex.com bobpw
+fossil user capabilities loginbob i
+fossil user new loginsue sue@ex.com suepw
+fossil user capabilities loginsue s
+
+# Let any request see the /test-env page, which reports the login the server
+# settled on, the robot flag and the granted capabilities.
+fossil sql "REPLACE INTO config(name,value,mtime)
+            VALUES('test_env_enable','1',0)"
+
+# Send TEXT (a byte string) to the server and return the whole reply.  ARGS are
+# extra "fossil http" options.
+proc login_send {text args} {
+  global loginRepo
+  write_file lreq.txt $text
+  file delete lreply.txt
+  fossil_raw http $loginRepo --in lreq.txt --out lreply.txt --ipaddr 9.9.9.9 \
+      {*}$args
+  if {[file exists lreply.txt]} { return [read_file lreply.txt] }
+  return ""
+}
+
+# A GET request for PATH carrying the header lines in HEADERS, a list.
+proc login_get {path {headers {}}} {
+  set text "GET $path HTTP/1.1\r\nHost: x\r\n"
+  foreach line $headers { append text $line "\r\n" }
+  return [login_send "$text\r\n"]
+}
+
+# A POST of url-encoded BODY to PATH, with a Referer matching the base URL so
+# that the same-origin CSRF check passes.
+proc login_post {path body {headers {}}} {
+  set text "POST $path HTTP/1.1\r\nHost: x\r\nReferer: http://x/login\r\n"
+  append text "Content-Type: application/x-www-form-urlencoded\r\n"
+  append text "Content-Length: [string length $body]\r\n"
+  foreach line $headers { append text $line "\r\n" }
+  append text "\r\n$body"
+  return [login_send $text]
+}
+
+# The status line of a reply.
+proc login_status {reply} {
+  return [string trim [lindex [split $reply \n] 0]]
+}
+
+# The value of the first header NAME in a reply, or "-" if there is none.
+proc login_header {reply name} {
+  set end [string first "\r\n\r\n" $reply]
+  foreach line [split [string range $reply 0 $end] \n] {
+    if {[string match -nocase "$name: *" $line]} {
+      return [string trim [string range $line [string length $name]+1 end]]
+    }
+  }
+  return -
+}
+
+# The login name that /test-env reports for a reply.  The server writes an
+# empty value for the "nobody" user, so report that as "nobody".
+proc login_who {reply} {
+  if {[regexp {g\.zLogin = ([^<]*)<br>} $reply all who]} {
+    if {$who eq ""} { return nobody }
+    return $who
+  }
+  return -
+}
+
+# The capability string /test-env reports.
+proc login_caps {reply} {
+  if {[regexp {capabilities = ([^<]*)<br>} $reply all caps]} { return $caps }
+  return -
+}
+
+###############################################################################
+# HTTP Basic authentication.  The "http_authentication_ok" setting must be on.
+# Correct credentials establish the user; wrong credentials give a 401; a
+# header that is not well-formed Basic auth is ignored and the request falls
+# through to the "nobody" user.
+
+fossil sql "REPLACE INTO config(name,value,mtime)
+            VALUES('http_authentication_ok','1',0)"
+proc login_basic {creds} {
+  return [login_get /test-env [list "Authorization: Basic [binary encode base64 $creds]"]]
+}
+
+test_eq login-basic-good [login_who [login_basic loginbob:bobpw]] loginbob
+test login-basic-good-caps {[string match "*i*" [login_caps [login_basic loginbob:bobpw]]]}
+
+set loginReply [login_basic loginbob:wrongpw]
+test login-basic-badpw {[string match "HTTP/1.0 401*" [login_status $loginReply]]}
+
+# A value with no colon names no password: the request is served as "nobody".
+test_eq login-basic-nocolon [login_who [login_basic nocolonhere]] nobody
+
+# Header that does not begin with "Basic " is ignored.
+set loginReply [login_get /test-env {"Authorization: Bearer abc"}]
+test_eq login-basic-notbasic [login_who $loginReply] nobody
+
+# Leading whitespace before and after "Basic" is skipped.
+set loginReply [login_get /test-env \
+    [list "Authorization:   Basic   [binary encode base64 loginbob:bobpw]"]]
+test_eq login-basic-leading-space [login_who $loginReply] loginbob
+
+# An email address in place of the login name resolves to that user.
+fossil sql "UPDATE user SET info='Bob <bob@ex.com>' WHERE login='loginbob'"
+test_eq login-basic-email [login_who [login_basic bob@ex.com:bobpw]] loginbob
+fossil sql "DELETE FROM config WHERE name='http_authentication_ok'"
+
+###############################################################################
+# The "resid"/"token" query parameters carry an (optionally obscured) login and
+# password.  Both the obscured and the plain forms log the user in.
+
+fossil test-obscure loginbob
+regexp -- {-> ([0-9a-f]+)} $::RESULT all loginObUser
+fossil test-obscure bobpw
+regexp -- {-> ([0-9a-f]+)} $::RESULT all loginObPw
+test_eq login-resid-obscured \
+    [login_who [login_get "/test-env?resid=$loginObUser&token=$loginObPw"]] \
+    loginbob
+test_eq login-resid-plain \
+    [login_who [login_get "/test-env?resid=loginbob&token=bobpw"]] loginbob
+# A token that names no user leaves the request as "nobody".
+test_eq login-resid-unknown \
+    [login_who [login_get "/test-env?resid=nosuch&token=nopw"]] nobody
+
+###############################################################################
+# A form login with correct credentials sets a login cookie; presenting that
+# cookie on a later request re-establishes the user.  A wrong password gives a
+# 401 and no cookie.
+
+proc login_form {user pw {extra ""}} {
+  return [login_post /login "u=$user&p=$pw&in=Login&$extra"]
+}
+set loginReply [login_form loginbob bobpw]
+test login-form-status {[string match "HTTP/1.0 302*" [login_status $loginReply]]}
+set loginCookie [login_header $loginReply Set-Cookie]
+test login-form-cookie {[string match "fossil-*=*loginbob;*HttpOnly;*" $loginCookie]}
+regexp {(fossil-[0-9a-f]+=[^;]+)} $loginCookie all loginCookiePair
+test_eq login-cookie-reuse \
+    [login_who [login_get /test-env [list "Cookie: $loginCookiePair"]]] loginbob
+
+set loginReply [login_form loginbob nope]
+test login-form-badpw {[string match "HTTP/1.0 401*" [login_status $loginReply]]}
+test login-form-badpw-nocookie {[login_header $loginReply Set-Cookie] eq "-"}
+
+# "remember me" controls whether the cookie is persistent (has max-age) or
+# lasts only for the browser session.
+set loginReply [login_form loginbob bobpw remember=1]
+test login-cookie-persistent \
+    {[string match "*max-age=*" [login_header $loginReply Set-Cookie]]}
+set loginReply [login_form loginbob bobpw]
+test login-cookie-session \
+    {![string match "*max-age=*" [login_header $loginReply Set-Cookie]]}
+
+###############################################################################
+# The "g" goto parameter is always rendered relative to the repository root:
+# an absolute URL given in "g" is prefixed and so cannot leave the site.
+
+set loginReply [login_form loginbob bobpw "g=/doc/trunk/x"]
+test_eq login-goto-relative [login_header $loginReply Location] http://x//doc/trunk/x
+
+###############################################################################
+# Logout.  A logged-in user who POSTs "out" with a matching Referer and the
+# Anti-CSRF token from the form has the login cookie cleared (an empty value
+# with a past expiry).
+
+set loginReply [login_form loginbob bobpw]
+regexp {(fossil-[0-9a-f]+=[^;]+)} [login_header $loginReply Set-Cookie] \
+    all loginLogoutPair
+set loginReply [login_get /login [list "Cookie: $loginLogoutPair"]]
+regexp {name="csrf" value="([^"]+)"} $loginReply all loginCsrf
+set loginReply [login_post /login "out=Logout&csrf=$loginCsrf" \
+    [list "Cookie: $loginLogoutPair"]]
+test login-logout-clears \
+    {[string match "fossil-*=; *" [login_header $loginReply Set-Cookie]]}
+
+###############################################################################
+# Robot detection.  With no login, g.isRobot is set from the User-Agent: a
+# self-identified bot is a robot, a current browser is not.
+
+proc login_isrobot {agent} {
+  set reply [login_get /test-env [list "User-Agent: $agent"]]
+  regexp {g\.isRobot = ([01])<br>} $reply all r
+  return $r
+}
+test_eq login-robot-bot [login_isrobot "Googlebot/2.1"] 1
+test_eq login-robot-browser [login_isrobot "Mozilla/5.0 Firefox/122.0"] 0
+test_eq login-robot-noagent [login_isrobot ""] 1
+# The "isrobot" query parameter forces the robot flag on.
+set loginReply [login_get "/test-env?isrobot=1" {"User-Agent: Mozilla/5.0 Firefox/122.0"}]
+test login-robot-forced {[regexp {g\.isRobot = 1<br>} $loginReply]}
+
+###############################################################################
+# test-ishuman labels User-Agent strings read from standard input.
+
+proc login_ishuman {agent} {
+  write_file agent.txt "$agent\n"
+  set ::RESULT [exec $::fossilexe test-ishuman < agent.txt]
+  return [lindex [split [string trim $::RESULT]] 0]
+}
+test_eq login-ishuman-firefox [login_ishuman "Mozilla/5.0 Firefox/122"] HUMAN
+test_eq login-ishuman-spider [login_ishuman "something spider"] ROBOT
+test_eq login-ishuman-url [login_ishuman "agent http://x"] ROBOT
+test_eq login-ishuman-lynx [login_ishuman "Lynx/2.9"] HUMAN
+test_eq login-ishuman-oldmozilla [login_ishuman "Mozilla/3.0"] ROBOT
+
+###############################################################################
+# test-resetpw-url builds a /resetpw suffix for a user and verifies that it is
+# accepted straight away, and that an altered suffix is rejected.
+
+set loginUid [string trim [fossil sql \
+    "SELECT uid FROM user WHERE login='loginbob'"]]
+fossil test-resetpw-url $loginUid
+test login-resetpw-valid \
+    {[regexp "/resetpw/\[0-9a-f-\]+ +$loginUid \\(loginbob\\)" $::RESULT]}
+
+###############################################################################
+# test-email-used reports which user owns an email address.
+
+fossil test-email-used bob@ex.com never@nowhere.invalid
+test login-email-used-known {[string match "*bob@ex.com:  UID*loginbob*" $::RESULT]}
+test login-email-used-unknown \
+    {[string match "*never@nowhere.invalid:  not used*" $::RESULT]}
+
+###############################################################################
+# Login groups.  Two repositories are joined into a group, the membership is
+# shown, then one leaves.
+
+set loginRepo2 [file join [pwd] grp2.fossil]
+fossil new $loginRepo2
+fossil user capabilities loginsue s
+fossil sql -R $loginRepo2 \
+    "INSERT INTO user(login,pw,cap) VALUES('loginsue','suepw','s')"
+
+test login-group-none-start \
+    {![catch {fossil login-group} m] && [string match "*Not currently*" $::RESULT]}
+fossil login-group join --name loggrp $loginRepo2
+fossil login-group
+test login-group-joined {[string match "*login-group \"loggrp\"*grp2.fossil*" $::RESULT]}
+test_eq login-group-name-fn [string trim [fossil sql \
+    "SELECT value FROM config WHERE name='login-group-name'"]] loggrp
+fossil login-group leave
+fossil login-group
+test login-group-left {[string match "*Not currently*" $::RESULT]}
+
+# An unknown subcommand is an error.
+fossil_raw login-group bogus
+test login-group-bad {$CODE != 0
+    && [string match "*unknown command*" $RESULT]}
+
+###############################################################################
+# Changing a password through the /login form.  A logged-in user with the
+# Password capability supplies the old password and two copies of a new one,
+# together with the Anti-CSRF token from the form.  A correct change
+# redirects; afterwards the new password authenticates and the old does not.
+# A mismatch or a wrong old password leaves the password unchanged.
+
+fossil user capabilities loginbob op
+fossil sql "REPLACE INTO config(name,value,mtime)
+            VALUES('http_authentication_ok','1',0)"
+
+# Log in as loginbob and return a two-element list {cookie-pair csrf-token}.
+proc login_session {user pw} {
+  set reply [login_form $user $pw]
+  regexp {(fossil-[0-9a-f]+=[^;]+)} [login_header $reply Set-Cookie] all pair
+  set reply [login_get /login [list "Cookie: $pair"]]
+  regexp {name="csrf" value="([^"]+)"} $reply all tok
+  return [list $pair $tok]
+}
+
+set loginSess [login_session loginbob bobpw]
+set loginPair [lindex $loginSess 0]
+set loginTok [lindex $loginSess 1]
+
+set loginReply [login_post /login \
+    "p=bobpw&n1=newbobpw&n2=newbobpw&csrf=$loginTok" [list "Cookie: $loginPair"]]
+test login-pwchange-ok {[string match "HTTP/1.0 302*" [login_status $loginReply]]}
+test_eq login-pwchange-newpw-works \
+    [login_who [login_basic loginbob:newbobpw]] loginbob
+test login-pwchange-oldpw-fails \
+    {[string match "HTTP/1.0 401*" [login_status [login_basic loginbob:bobpw]]]}
+
+set loginReply [login_post /login \
+    "p=newbobpw&n1=aaaaaa&n2=bbbbbb&csrf=$loginTok" [list "Cookie: $loginPair"]]
+test login-pwchange-mismatch {[string match "*do not match*" $loginReply]}
+
+set loginReply [login_post /login \
+    "p=totallywrong&n1=cccccc&n2=cccccc&csrf=$loginTok" [list "Cookie: $loginPair"]]
+test login-pwchange-badold {[string match "*incorrect old password*" $loginReply]}
+
+###############################################################################
+# Self-registration through /register.  The captcha answer is derived the same
+# way the server derives it: the first 8 hex digits of sha1("SECRET-SEEDHEX").
+# A complete, valid form creates the account; each validation rule rejects the
+# form with its own message.
+
+fossil sql "REPLACE INTO config(name,value,mtime) VALUES('self-register','1',0)"
+fossil sql "REPLACE INTO config(name,value,mtime) VALUES('default-perms','u',0)"
+
+# Return {seed captcha csrf} scraped from a freshly rendered /register form.
+proc login_register_tokens {} {
+  set reply [login_get /register]
+  regexp {name="captchaseed" value="([0-9]+)"} $reply all seed
+  regexp {name="csrf" value="([^"]+)"} $reply all csrf
+  set secret [string trim [fossil sql \
+      "SELECT value FROM config WHERE name='captcha-secret'"]]
+  set fd [open capin.txt wb]
+  puts -nonewline $fd "$secret-[format %x $seed]"
+  close $fd
+  fossil sha1sum capin.txt
+  set captcha [string range [lindex $::RESULT 0] 0 7]
+  return [list $seed $captcha $csrf]
+}
+set loginRegTok [login_register_tokens]
+set loginSeed [lindex $loginRegTok 0]
+set loginCap [lindex $loginRegTok 1]
+set loginRCsrf [lindex $loginRegTok 2]
+set loginRegBase "new=1&captchaseed=$loginSeed&captcha=$loginCap&csrf=$loginRCsrf"
+
+# POST a registration form whose user-supplied fields are FIELDS.
+proc login_register {fields} {
+  global loginRegBase
+  return [login_post /register "$loginRegBase&$fields"]
+}
+
+set loginReply [login_register "u=realuser&dn=Real&ea=real@ex.com&p=longpw9&cp=longpw9"]
+test login-register-ok {[string match "HTTP/1.0 302*" [login_status $loginReply]]}
+test login-register-created \
+    {[string trim [fossil sql "SELECT login FROM user WHERE login='realuser'"]] eq "realuser"}
+
+test login-register-short-uid \
+    {[string match "*User ID too short*" [login_register \
+        "u=abc&dn=Real&ea=a@ex.com&p=longpw9&cp=longpw9"]]}
+test login-register-reserved \
+    {[string match "*reserved*" [login_register \
+        "u=anonymousx&dn=Real&ea=a@ex.com&p=longpw9&cp=longpw9"]]}
+test login-register-no-dname \
+    {[string match "*Required*" [login_register \
+        "u=gooduser&dn=&ea=a@ex.com&p=longpw9&cp=longpw9"]]}
+test login-register-bad-email \
+    {[string match "*Not a valid email*" [login_register \
+        "u=gooduser&dn=Real&ea=notmail&p=longpw9&cp=longpw9"]]}
+test login-register-short-pw \
+    {[string match "*at least 6 characters*" [login_register \
+        "u=gooduser&dn=Real&ea=a@ex.com&p=sh&cp=sh"]]}
+test login-register-mismatch \
+    {[string match "*do not match*" [login_register \
+        "u=gooduser&dn=Real&ea=a@ex.com&p=longpw9&cp=other99"]]}
+test login-register-taken \
+    {[string match "*already taken*" [login_register \
+        "u=realuser&dn=Real&ea=fresh@ex.com&p=longpw9&cp=longpw9"]]}
+# A bad captcha is rejected before any field is examined.
+test login-register-bad-captcha \
+    {[string match "*Incorrect CAPTCHA*" [login_post /register \
+        "new=1&captchaseed=$loginSeed&captcha=00000000&csrf=$loginRCsrf&u=whoever&dn=R&ea=a@ex.com&p=longpw9&cp=longpw9"]]}
+
+###############################################################################
+# Capability letters from the user record.  With "nobody" and "anonymous"
+# stripped of all capability and auto-hyperlink off, the capabilities the
+# server grants are exactly the expansion of the user's own capability string,
+# including the recursive inheritance of "reader" (u) and "developer" (v).
+
+fossil sql "UPDATE user SET cap='' WHERE login IN ('nobody','anonymous')"
+fossil sql "UPDATE user SET cap='j' WHERE login='reader'"
+fossil sql "UPDATE user SET cap='b' WHERE login='developer'"
+fossil sql "REPLACE INTO config(name,value,mtime) VALUES('auto-hyperlink','0',0)"
+proc login_capexpand {cap} {
+  fossil sql "UPDATE user SET cap='$cap' WHERE login='loginbob'"
+  return [login_caps [login_basic loginbob:newbobpw]]
+}
+test_eq login-cap-wiki [login_capexpand kv] bjkmL
+test_eq login-cap-tkt  [login_capexpand w]  cnrwL
+test_eq login-cap-reader [login_capexpand u] jL
+test_eq login-cap-read [login_capexpand ojf] fjoL
+
+###############################################################################
+# isHuman recognises several current browsers and several bot tells.  Each row
+# is a User-Agent string and the label test-ishuman must give it.
+foreach {loginIhName loginIhAgent loginIhWant} {
+  chrome   "Mozilla/5.0 (X11) Chrome/120.0"                 HUMAN
+  msie     "Mozilla/5.0 (compatible; MSIE 9.0; Windows)"    HUMAN
+  trident  "Mozilla/5.0 (Windows; Trident/7.0; rv:11.0)"    HUMAN
+  webkit   "Mozilla/5.0 AppleWebKit/605.1 (KHTML, like)"    HUMAN
+  palemoon "Mozilla/5.0 Goanna PaleMoon/32.0"               HUMAN
+  opera    "Opera/9.80 (Windows)"                           HUMAN
+  safari   "Safari/537.36"                                  HUMAN
+  netsurf  "NetSurf/3.10 (Linux)"                           HUMAN
+  crawler  "Mozilla/5.0 compatible crawler"                 ROBOT
+  googai   "Mozilla/5.0 GoogleOther)"                       ROBOT
+  walker   "Mozilla/5.0 Safari/537.36Mozilla/5.0"           ROBOT
+  plain5   "Mozilla/5.0 (unknown engine)"                   ROBOT
+} {
+  test_eq login-ishuman-$loginIhName [login_ishuman $loginIhAgent] $loginIhWant
+}
+
+###############################################################################
+# Capability expansion for the privilege letters that grant many flags at once:
+# "s" (Setup) unlocks everything, and the forum digits accumulate.
+set loginSetupCaps [login_capexpand s]
+test login-cap-setup {[string match "*a*" $loginSetupCaps]
+    && [string match "*s*" $loginSetupCaps] && [string match "*D*" $loginSetupCaps]}
+test_eq login-cap-forum6 [login_capexpand 6] 23456L
+test_eq login-cap-forum3 [login_capexpand 3] 23L
+
+###############################################################################
+# Login cookies that are not of the form HASH/ARG/USER, or that name a user
+# with a hash that is not that user's: the page is served as usual and the
+# visitor is "nobody".
+
+regexp {^(fossil-[0-9a-f]+)=} $loginCookiePair all loginCookieName
+foreach {loginCkName loginCkValue} {
+  slash        /
+  end-slash    abcdef/
+  two-parts    a/b/
+  no-slash     abcdef
+  empty        {}
+  wrong-hash   0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF01/0123456789abcdef/loginbob
+  special-user 0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF01/0123456789abcdef/nobody
+} {
+  set loginReply [login_get /test-env \
+      [list "Cookie: $loginCookieName=$loginCkValue"]]
+  test login-cookie-bad-$loginCkName {$CODE == 0
+      && [login_status $loginReply] eq "HTTP/1.0 200 OK"
+      && [login_who $loginReply] eq "nobody"}
+}
+
+###############################################################################
+# Where a login goes afterwards when the request carries "fossil-goto", as a
+# query parameter, a form field or a cookie: to that address if it is on this
+# site, and to the home page if it is anywhere else.  A value that is not an
+# absolute http: or https: address, such as "timeline" or "//evil.example/",
+# is taken as a page of this site.  The same holds for an
+# anonymous login and for the answer to the robot captcha at /ityaar.
+
+set loginHome [login_header [login_form loginbob newbobpw] Location]
+test login-goto-home {[string match "http://x/*" $loginHome]}
+fossil sql "UPDATE user SET cap='h' WHERE login='anonymous'"
+set loginAnon "u=anonymous&p=$loginCap&cs=$loginSeed"
+set loginRobot "captchaseed=$loginSeed&captcha=$loginCap"
+
+foreach {loginGoName loginGoTarget loginGoWant} [list \
+  other-site   https://evil.example/x     $loginHome \
+  host-prefix  http://x.evil.example/y    $loginHome \
+  no-scheme    //evil.example/            http://x//evil.example/ \
+  relative     timeline                   http://x/timeline \
+  same-site    http://x/timeline          http://x/timeline \
+] {
+  set loginReply [login_get \
+      "/login?u=loginbob&p=newbobpw&fossil-goto=$loginGoTarget"]
+  test login-goto-query-$loginGoName \
+      {[login_header $loginReply Location] eq $loginGoWant}
+  set loginReply [login_form loginbob newbobpw "fossil-goto=$loginGoTarget"]
+  test login-goto-form-$loginGoName \
+      {[login_header $loginReply Location] eq $loginGoWant}
+  set loginReply [login_post /login "u=loginbob&p=newbobpw&in=Login" \
+      [list "Cookie: fossil-goto=$loginGoTarget"]]
+  test login-goto-cookie-$loginGoName \
+      {[login_header $loginReply Location] eq $loginGoWant}
+  set loginReply [login_get "/login?$loginAnon&fossil-goto=$loginGoTarget"]
+  test login-goto-anonymous-$loginGoName \
+      {[string match "*anonymous*" [login_header $loginReply Set-Cookie]]
+       && [login_header $loginReply Location] eq $loginGoWant}
+  set loginReply [login_get "/ityaar?$loginRobot&fossil-goto=$loginGoTarget"]
+  test login-goto-ityaar-$loginGoName \
+      {[login_header $loginReply Location] eq $loginGoWant}
+}
+
+# The captcha page at /honeypot remembers the address asked for in a
+# "fossil-goto" cookie, and a right answer sent with that cookie goes there.
+set loginReply [login_get /honeypot?x=1]
+test login-honeypot-cookie {[string match "*X-Robot: 1*" $loginReply]
+    && [string match "*Set-Cookie: fossil-goto=http%3A%2F%2Fx%2Fhoneypot*" $loginReply]}
+set loginReply [login_get "/ityaar?$loginRobot" \
+    {"Cookie: fossil-goto=http%3A%2F%2Fx%2Fhoneypot%3Fx%3D1"}]
+test_eq login-honeypot-return [login_header $loginReply Location] \
+    http://x/honeypot?x=1
+# A wrong answer shows the captcha again.
+set loginReply [login_get "/ityaar?captchaseed=$loginSeed&captcha=zzzzzzzz"]
+test login-ityaar-wrong {[string match "*Prove that you are human*" $loginReply]}
+
+###############################################################################
+# Helpers for the cases below.
+
+# A GET or POST to the repository REPO instead of the main one.
+proc login_get_at {repo path {headers {}}} {
+  global loginRepo
+  set saved $loginRepo
+  set loginRepo $repo
+  set reply [login_get $path $headers]
+  set loginRepo $saved
+  return $reply
+}
+proc login_post_at {repo path body {headers {}}} {
+  global loginRepo
+  set saved $loginRepo
+  set loginRepo $repo
+  set reply [login_post $path $body $headers]
+  set loginRepo $saved
+  return $reply
+}
+
+# The NAME=VALUE of the login cookie set by a reply, or "".
+proc login_cookie_pair {reply} {
+  if {[regexp {Set-Cookie: (fossil-[0-9a-f]+=[^;]+)} $reply all pair]} {
+    return $pair
+  }
+  return ""
+}
+
+# The authentication method /test-env reports: COOKIE, LOCAL, PW, ENV or HTTP.
+proc login_method {reply} {
+  if {[regexp {g\.eAuthMethod = [0-9]+ \(([A-Z]+)\)} $reply all m]} {
+    return $m
+  }
+  return -
+}
+
+# The SHA1 hash of TEXT, in lower-case hex.
+proc login_sha1 {text} {
+  set fd [open sha1in.txt wb]
+  puts -nonewline $fd $text
+  close $fd
+  fossil sha1sum sha1in.txt
+  return [lindex $::RESULT 0]
+}
+
+# Set the repository setting NAME to VALUE, or remove it when VALUE is "".
+proc login_config {name value} {
+  if {$value eq ""} {
+    fossil sql "DELETE FROM config WHERE name='$name'"
+  } else {
+    fossil sql "REPLACE INTO config(name,value,mtime) VALUES('$name','$value',0)"
+  }
+}
+
+###############################################################################
+# The capability letters not shown above each grant their own capability.
+# "anonymous", whose capabilities every logged-in user also has, is given
+# none for these cases.
+fossil sql "UPDATE user SET cap='' WHERE login='anonymous'"
+test_eq login-cap-letters [login_capexpand celmnqtxyzB7ACD] celmnqtxyz7ACDL
+
+###############################################################################
+# auto-hyperlink.  A logged-in user without the Hyperlink capability is
+# given it when the setting is 1 (with links written by script) or 2, and
+# is not given it when the setting is 0.
+fossil sql "UPDATE user SET cap='o' WHERE login='loginbob'"
+foreach {loginAlName loginAlValue loginAlCaps loginAlJs} {
+  off     0  oL   0
+  script  1  hoL  1
+  plain   2  hoL  0
+} {
+  login_config auto-hyperlink $loginAlValue
+  set loginReply [login_basic loginbob:newbobpw]
+  test login-autolink-$loginAlName {[login_caps $loginReply] eq $loginAlCaps
+      && [string match "*g.jsHref = $loginAlJs<br>*" $loginReply]}
+}
+login_config auto-hyperlink 0
+fossil sql "UPDATE user SET cap='h' WHERE login='anonymous'"
+
+###############################################################################
+# public-pages.  A request for a page that matches one of its globs is
+# given the "default-perms" capabilities; a request for another page is
+# not.
+login_config default-perms r
+login_config public-pages /test-env*
+test_eq login-public-match [login_caps [login_get /test-env]] r
+login_config public-pages /other*,/x*
+test_eq login-public-nomatch [login_caps [login_get /test-env]] ""
+login_config public-pages ""
+login_config default-perms u
+
+###############################################################################
+# With no user named "nobody", a request without credentials is served as
+# user id -1 with no capabilities.
+fossil sql "UPDATE user SET login='nobody-saved' WHERE login='nobody'"
+set loginReply [login_get /test-env]
+test login-no-nobody {[login_status $loginReply] eq "HTTP/1.0 200 OK"
+    && [string match "*g.userUid = -1<br>*" $loginReply]
+    && [login_caps $loginReply] eq ""}
+fossil sql "UPDATE user SET login='nobody' WHERE login='nobody-saved'"
+
+###############################################################################
+# REMOTE_USER.  Under CGI, the REMOTE_USER the web server sets names the
+# user when the "remote_user_ok" setting is on, and is ignored when it is
+# off.
+
+fossil settings backoffice-disable 1
+write_file login.ctl "repository: [file nativename $loginRepo]\n"
+proc login_cgi {user} {
+  set vars [list REQUEST_METHOD GET SCRIPT_NAME "" PATH_INFO /test-env \
+      REMOTE_ADDR 9.9.9.9 REMOTE_USER $user]
+  foreach {name value} $vars { set ::env($name) $value }
+  fossil_raw cgi login.ctl
+  foreach {name value} $vars { unset ::env($name) }
+  return $::RESULT
+}
+test_eq login-remote-user-off [login_who [login_cgi loginbob]] nobody
+login_config remote_user_ok 1
+set loginReply [login_cgi loginbob]
+test login-remote-user-on {[login_who $loginReply] eq "loginbob"
+    && [login_method $loginReply] eq "ENV"}
+test_eq login-remote-user-unknown [login_who [login_cgi nosuchuser]] nobody
+login_config remote_user_ok ""
+
+###############################################################################
+# Local authentication.  A request from 127.0.0.1 to "fossil http
+# --localauth" is served as the first user with Setup capability, or,
+# when the repository is the open check-out's, as the check-out's default
+# user.  With the "localauth" setting on, the request is served as
+# "nobody".
+
+proc login_local {args} {
+  write_file lreq.txt "GET /test-env HTTP/1.1\r\nHost: x\r\n\r\n"
+  file delete lreply.txt
+  fossil_raw http {*}$args --in lreq.txt --out lreply.txt \
+      --ipaddr 127.0.0.1 --localauth
+  if {[file exists lreply.txt]} { return [read_file lreply.txt] }
+  return ""
+}
+set loginSetupUser [string trim [fossil sql \
+    "SELECT login FROM user WHERE cap LIKE '%s%' ORDER BY uid LIMIT 1"]]
+set loginReply [login_local $loginRepo]
+test login-local {[login_who $loginReply] eq $loginSetupUser
+    && [login_method $loginReply] eq "LOCAL"
+    && [string match "*s*" [login_caps $loginReply]]}
+fossil user default
+set loginDefaultUser [string trim $RESULT]
+fossil user default loginbob
+test_eq login-local-default-user [login_who [login_local]] loginbob
+fossil user default $loginDefaultUser
+fossil settings localauth 1
+test_eq login-local-setting [login_who [login_local $loginRepo]] nobody
+fossil unset localauth
+
+###############################################################################
+# With --httptrace, the login and its capability string are written to
+# standard error.
+write_file lreq.txt "GET /test-env HTTP/1.1\r\nHost: x\r\nAuthorization: Basic [binary encode base64 loginbob:newbobpw]\r\n\r\n"
+fossil_raw http $loginRepo --in lreq.txt --out lreply.txt --ipaddr 9.9.9.9 \
+    --httptrace
+test login-httptrace \
+    {[string first {# login: [loginbob] with capabilities [o]} $RESULT] >= 0}
+
+###############################################################################
+# Anonymous login cookies, HASH/TIME/anonymous.  Sent back with the same
+# User-Agent, the cookie logs in as "anonymous"; with another User-Agent,
+# past the anonymous cookie lifespan, or with anonymous logins turned off
+# it is ignored.  A cookie or a captcha answer made with the previous
+# captcha secret is accepted.
+
+set loginUAText "Mozilla/5.0 Firefox/122.0"
+set loginUA "User-Agent: $loginUAText"
+set loginReply [login_get "/login?$loginAnon" [list $loginUA]]
+set loginAnonPair [login_cookie_pair $loginReply]
+test login-anon-cookie {[string match "fossil-*=*%2Fanonymous" $loginAnonPair]}
+test login-anon-cookie-session \
+    {![string match "*max-age=*" [login_header $loginReply Set-Cookie]]}
+set loginReply [login_get /test-env [list "Cookie: $loginAnonPair" $loginUA]]
+test login-anon-cookie-reuse {[login_who $loginReply] eq "anonymous"
+    && [login_method $loginReply] eq "COOKIE"}
+test_eq login-anon-cookie-other-agent [login_who [login_get /test-env \
+    [list "Cookie: $loginAnonPair" "User-Agent: Mozilla/5.0 Chrome/120.0"]]] \
+    nobody
+set loginReply [login_get "/login?$loginAnon&remember=1"]
+test login-anon-cookie-persistent \
+    {[string match "*%2Fanonymous;*max-age=*" [login_header $loginReply Set-Cookie]]}
+
+set loginSecret [string trim [fossil sql \
+    "SELECT value FROM config WHERE name='captcha-secret'"]]
+fossil sql "REPLACE INTO config(name,value,mtime)
+            VALUES('captcha-secret-1','oldsecret',unixepoch())"
+set loginNow [string trim [fossil sql "SELECT julianday('now')"]]
+set loginOldHash [login_sha1 "$loginNow/$loginUAText/oldsecret"]
+test_eq login-anon-cookie-old-secret [login_who [login_get /test-env \
+    [list "Cookie: $loginCookieName=$loginOldHash/$loginNow/anonymous" $loginUA]]] \
+    anonymous
+set loginStaleHash [login_sha1 "2400000.5/$loginUAText/$loginSecret"]
+test_eq login-anon-cookie-expired [login_who [login_get /test-env \
+    [list "Cookie: $loginCookieName=$loginStaleHash/2400000.5/anonymous" $loginUA]]] \
+    nobody
+set loginOldPw [string range \
+    [login_sha1 "oldsecret-[format %x $loginSeed]"] 0 7]
+set loginReply [login_get "/login?u=anonymous&p=$loginOldPw&cs=$loginSeed"]
+test login-anon-old-secret \
+    {[string match "*%2Fanonymous*" [login_header $loginReply Set-Cookie]]}
+set loginReply [login_get "/login?u=anonymous&p=00000000&cs=$loginSeed"]
+test login-anon-wrong {[string match "HTTP/1.0 401*" [login_status $loginReply]]
+    && [login_header $loginReply Set-Cookie] eq "-"}
+fossil sql "DELETE FROM config WHERE name='captcha-secret-1'"
+
+login_config anon-cookie-lifespan 0
+test_eq login-anon-cookie-off [login_who [login_get /test-env \
+    [list "Cookie: $loginAnonPair" $loginUA]]] nobody
+set loginReply [login_get "/login?$loginAnon"]
+test login-anon-login-off {[string match "HTTP/1.0 401*" [login_status $loginReply]]
+    && [login_header $loginReply Set-Cookie] eq "-"}
+login_config anon-cookie-lifespan ""
+
+###############################################################################
+# The /login page.  "anon=1" with "g" asks only for the captcha for an
+# anonymous login; "g" alone names the page asked for, without its query
+# string; a logged-in user is asked for a login with more privilege;
+# "anon=2" ignores the login cookie; "noanon" leaves out the anonymous
+# login; "self" goes to /register.
+
+set loginReply [login_get "/login?anon=1&g=timeline"]
+test login-page-anon {[string match {*name="anon" value="1"*} $loginReply]
+    && [string match "*Verify that you are human*" $loginReply]
+    && [string match "*Verify that I am human*" $loginReply]}
+set loginReply [login_get "/login?g=timeline%3fn=5"]
+test login-page-goto \
+    {[string match "*Login as a named user to access page <b>timeline</b>*" $loginReply]}
+set loginSess [login_session loginbob newbobpw]
+set loginPair [lindex $loginSess 0]
+set loginReply [login_get "/login?g=timeline" [list "Cookie: $loginPair"]]
+test login-page-goto-loggedin {[string match \
+    "*greater privilege than <b>loginbob</b>*to access <b>timeline</b>*" $loginReply]}
+set loginReply [login_get "/login?anon=2" [list "Cookie: $loginPair"]]
+test login-page-anon2 {![string match "*Currently logged in*" $loginReply]
+    && [string match "*Verify that I am human*" $loginReply]}
+set loginReply [login_get /login]
+test login-page-visitors {[string match "*Visitors may enter*" $loginReply]
+    && [string match "*Create A New Account*" $loginReply]}
+test login-page-noanon \
+    {![string match "*Visitors may enter*" [login_get "/login?noanon=1"]]}
+test_eq login-page-self [login_header [login_get "/login?self=1"] Location] \
+    http://x/register
+
+# A logout sent with "anon=2", which skips the login check, redirects and
+# clears no cookie.
+set loginReply [login_post /login "anon=2&out=Logout&csrf="]
+test login-logout-anon2 {[string match "HTTP/1.0 302*" [login_status $loginReply]]
+    && [login_header $loginReply Set-Cookie] eq "-"}
+
+# With "https-login" on, the login form is sent to the https: address of
+# the site, unless the server is run with --nossl.
+login_config https-login 1
+test login-page-https \
+    {[string match "*data-action='https://x/login'*" [login_get /login]]}
+write_file lreq.txt "GET /login HTTP/1.1\r\nHost: x\r\n\r\n"
+set loginReply [login_send [read_file lreq.txt] --nossl]
+test login-page-nossl {![string match "*'https://x/login'*" $loginReply]}
+login_config https-login ""
+
+# With "auto-captcha" on, the page offers a button that fills in the
+# anonymous password.
+login_config auto-captcha 1
+test login-page-autocaptcha {[string match "*Fill out captcha*" [login_get /login]]}
+login_config auto-captcha ""
+
+# "nobody" with the Password capability is refused a password change.
+fossil sql "UPDATE user SET cap='p' WHERE login='nobody'"
+regexp {name="csrf" value="([^"]+)"} [login_get /login] all loginNbCsrf
+set loginReply [login_post /login "p=x&n1=yyyyyy&n2=yyyyyy&csrf=$loginNbCsrf"]
+test login-pwchange-nobody \
+    {[string match "*cannot be changed for this type of login*" $loginReply]}
+fossil sql "UPDATE user SET cap='' WHERE login='nobody'"
+
+###############################################################################
+# /register: user names with special characters, a missing email address,
+# addresses not allowed by "auth-sub-email" (compared ignoring case), an
+# address of an existing user, a "g" parameter kept in the form, and the
+# page when self-registration is off.
+
+test login-register-special {[string match "*may not contain spaces*" \
+    [login_register "u=bad+user1&dn=Real&ea=a@ex.com&p=longpw9&cp=longpw9"]]}
+test login-register-no-email {[regexp {Email Address:.*Required} \
+    [login_register "u=gooduser&dn=Real&ea=&p=longpw9&cp=longpw9"]]}
+login_config auth-sub-email *@ok.example
+test login-register-unauthorized {[string match "*Not an authorized email*" \
+    [login_register "u=gooduser&dn=Real&ea=a@bad.example&p=longpw9&cp=longpw9"]]}
+test login-register-authorized {[string match "*Passwords do not match*" \
+    [login_register "u=gooduser&dn=Real&ea=a@OK.example&p=longpw9&cp=other99"]]}
+login_config auth-sub-email ""
+test login-register-email-used {[string match "*already associated with a user*" \
+    [login_register "u=gooduser&dn=Real&ea=bob@ex.com&p=longpw9&cp=longpw9"]]}
+test login-register-goto \
+    {[string match {*name="g" value="timeline"*} [login_get "/register?g=timeline"]]}
+login_config self-register ""
+test login-register-off \
+    {[string match "*Registration not possible*" [login_get /register]]}
+login_config self-register 1
+
+###############################################################################
+# Email.  The alert tables are created and outgoing email is written to
+# files in the directory lmail.
+
+file mkdir lmail
+fossil alerts status
+fossil settings email-send-method dir
+fossil settings email-send-dir [file join [pwd] lmail]
+proc login_mail_count {} {
+  return [llength [glob -nocomplain -directory lmail *]]
+}
+proc login_mail_clear {} {
+  foreach f [glob -nocomplain -directory lmail *] { file delete $f }
+}
+
+# The registration form asks about email alerts when "default-perms"
+# includes "7" or "selfreg-verify" is on.
+test login-register-alerts-none \
+    {![string match "*Email&nbsp;Alerts?*" [login_get /register]]}
+login_config default-perms 7u
+test login-register-alerts-perms \
+    {[string match "*Email&nbsp;Alerts?*" [login_get /register]]}
+login_config default-perms u
+login_config selfreg-verify 1
+test login-register-alerts-verify \
+    {[string match "*Email&nbsp;Alerts?*" [login_get /register]]}
+
+# With "selfreg-verify", a new user starts with capability 7 only and is
+# made a subscriber, and a verification email is sent.  Without an
+# "email-self" address the email cannot be sent and the page says so.
+proc login_user_cap {login} {
+  return [string trim [fossil sql "SELECT cap FROM user WHERE login='$login'"]]
+}
+proc login_ssub {email} {
+  return [string trim [fossil sql \
+      "SELECT ssub FROM subscriber WHERE semail='$email'"]]
+}
+set loginReply [login_register "u=verify1&dn=V&ea=v1@ex.com&p=longpw9&cp=longpw9"]
+test login-register-verify-noself {[string match "*Internal Error*" $loginReply]
+    && [login_user_cap verify1] eq "7" && [login_ssub v1@ex.com] eq "aw"}
+fossil settings email-self noreply@ex.com
+login_config default-perms o2rj
+set loginReply [login_register \
+    "u=verify2&dn=V&ea=v2@ex.com&p=longpw9&cp=longpw9&g=timeline"]
+test login-register-verify-sent \
+    {[string match {*An email has been sent to "v2@ex.com"*} $loginReply]
+     && [string match "*href='timeline'>Continue*" $loginReply]
+     && [login_mail_count] == 1 && [login_ssub v2@ex.com] eq "acftw"}
+login_config default-perms u
+# With alerts=0 there is no subscription and no email.
+set loginReply [login_register \
+    "u=verify3&dn=V&ea=v3@ex.com&p=longpw9&cp=longpw9&alerts=0"]
+test login-register-noalerts {[string match "HTTP/1.0 302*" [login_status $loginReply]]
+    && [login_ssub v3@ex.com] eq "" && [login_mail_count] == 1}
+# An address that is already a verified subscriber needs no verification.
+fossil sql "INSERT INTO subscriber(semail,sverified,sdonotcall,sdigest,ssub)
+            VALUES('v4@ex.com',1,0,0,'a')"
+set loginReply [login_register "u=verify4&dn=V&ea=v4@ex.com&p=longpw9&cp=longpw9"]
+test login-register-verified {[string match "HTTP/1.0 302*" [login_status $loginReply]]
+    && [string trim [fossil sql \
+        "SELECT suname FROM subscriber WHERE semail='v4@ex.com'"]] eq "verify4"
+    && [login_mail_count] == 1}
+login_config selfreg-verify ""
+
+# The /login page of a user with capability 7 links to the email alerts
+# page; once the repository has a forum it also links to the user's forum
+# posts.
+fossil sql "UPDATE user SET cap='o7' WHERE login='loginbob'"
+set loginPair [lindex [login_session loginbob newbobpw] 0]
+set loginReply [login_get /login [list "Cookie: $loginPair"]]
+test login-page-alerts-link {[string match "*Email Alerts</a>*" $loginReply]
+    && ![string match "*post timeline</a>*" $loginReply]}
+write_file lpost.txt "A post.\n"
+fossil forum new --title Hello --content lpost.txt
+set loginReply [login_get /login [list "Cookie: $loginPair"]]
+test login-page-forum-link \
+    {[string match "*post timeline</a> for user <b>loginbob</b>*" $loginReply]}
+
+###############################################################################
+# test-email-used: an address of a user with Setup capability, or that is
+# not the first address in the user's contact information, has no
+# password reset; a verified subscriber's address names that subscriber's
+# user.  Both test commands need an argument.
+
+fossil sql "UPDATE user SET info='Sue <sue@ex.com>' WHERE login='loginsue'"
+fossil sql "UPDATE user SET info='Ann <first@ex.com> <dup@ex.com>'
+            WHERE login='verify3'"
+fossil sql "INSERT INTO subscriber(semail,suname,sverified,sdonotcall,sdigest,ssub)
+            VALUES('subonly@ex.com','verify2',1,0,0,'a'),
+                  ('suesub@ex.com','loginsue',1,0,0,'a'),
+                  ('unverified@ex.com','verify2',0,0,0,'a')"
+fossil test-email-used sue@ex.com dup@ex.com subonly@ex.com suesub@ex.com \
+    unverified@ex.com
+test login-email-used-setup \
+    {[string match "*sue@ex.com:  used but no password reset*" $RESULT]}
+test login-email-used-second \
+    {[string match "*dup@ex.com:  used but no password reset*" $RESULT]}
+test login-email-used-subscriber \
+    {[string match "*subonly@ex.com:  UID*(verify2)*" $RESULT]}
+test login-email-used-subscriber-setup \
+    {[string match "*suesub@ex.com:  used but no password reset*" $RESULT]}
+test login-email-used-unverified \
+    {[string match "*unverified@ex.com:  not used*" $RESULT]}
+fossil_raw test-email-used
+test login-email-used-usage {$CODE != 0 && [string match "*Usage:*" $RESULT]}
+fossil_raw test-resetpw-url
+test login-resetpw-url-usage {$CODE != 0 && [string match "*Usage:*" $RESULT]}
+
+###############################################################################
+# /reqpwreset.  With "self-pw-reset" on, it takes an email address and a
+# captcha answer and emails a /resetpw link to a user who may reset a
+# password.  Bad input, an unknown address, and users with Setup or Admin
+# capability (directly or inherited) or without the Password capability
+# are refused with a message.
+
+test login-reqpw-off \
+    {[string match "*does not allow users to reset*" [login_get /reqpwreset]]}
+login_config self-pw-reset 1
+test login-reqpw-form \
+    {[string match {*name="reqpwreset" value="1"*} [login_get /reqpwreset]]}
+test login-reqpw-from-login \
+    {[string match {*name="reqpwreset" value="1"*} [login_get "/login?pwreset=1"]]}
+test login-reqpw-from-register \
+    {[string match {*name="reqpwreset" value="1"*} [login_get "/register?pwreset=1"]]}
+test login-page-reset-button \
+    {[string match "*Reset My Password*" [login_get /login]]}
+test login-register-reset-button {[string match "*Request Password Reset For*" \
+    [login_register "u=gooduser&dn=Real&ea=bob@ex.com&p=longpw9&cp=longpw9"]]}
+
+proc login_reqpw {fields} {
+  global loginSeed loginCap
+  return [login_post /reqpwreset \
+      "reqpwreset=1&captchaseed=$loginSeed&captcha=$loginCap&$fields"]
+}
+test login-reqpw-badcaptcha {[string match "*Incorrect CAPTCHA*" [login_post \
+    /reqpwreset "reqpwreset=1&captchaseed=$loginSeed&captcha=00000000&ea=bob@ex.com"]]}
+fossil sql "UPDATE user SET cap='vp' WHERE login='loginbob'"
+fossil sql "UPDATE user SET cap='a' WHERE login='developer'"
+foreach {loginRqName loginRqAddr loginRqWant} {
+  empty     {}                       {*Required*}
+  invalid   notmail                  {*Not a valid email*}
+  unknown   nobody@nowhere.invalid   {*not associated with a user*}
+  setup     sue@ex.com               {*not associated with a user*}
+  inherited bob@ex.com               {*not associated with a user*}
+} {
+  test login-reqpw-$loginRqName \
+      {[string match $loginRqWant [login_reqpw ea=$loginRqAddr]]}
+}
+fossil sql "UPDATE user SET cap='b' WHERE login='developer'"
+fossil sql "UPDATE user SET cap='o' WHERE login='loginbob'"
+test login-reqpw-nopw \
+    {[string match "*not associated with a user*" [login_reqpw ea=bob@ex.com]]}
+fossil sql "UPDATE user SET cap='op' WHERE login='loginbob'"
+login_config auth-sub-email *@ok.example
+test login-reqpw-unauthorized \
+    {[string match "*Not an authorized email*" [login_reqpw ea=bob@ex.com]]}
+login_config auth-sub-email ""
+
+login_mail_clear
+fossil unset email-self
+test login-reqpw-noself \
+    {[string match "*Internal Error*" [login_reqpw ea=bob@ex.com]]}
+fossil settings email-self noreply@ex.com
+set loginReply [login_reqpw ea=bob@ex.com]
+test login-reqpw-sent {[string match {*has been sent to "bob@ex.com"*} $loginReply]
+    && [login_mail_count] == 1}
+set loginMail [read_file [lindex [glob -directory lmail *] 0]]
+test login-reqpw-mail {[string match "*To: <bob@ex.com>*" $loginMail]
+    && [string match "*Password reset for http://x*" $loginMail]}
+
+###############################################################################
+# /resetpw/UID-TIMESTAMP-HASH.  A valid suffix gives a form that sets the
+# user's password.  A suffix that is malformed, names no user, is more than
+# an hour old or has the wrong hash is refused, and so is a valid suffix
+# for "nobody", for a user with Setup capability or for a user without the
+# Password capability.
+
+proc login_reset_suffix {login} {
+  set uid [string trim [fossil sql "SELECT uid FROM user WHERE login='$login'"]]
+  fossil test-resetpw-url $uid
+  regexp {/resetpw/([0-9a-f-]+)} $::RESULT all suffix
+  return $suffix
+}
+set loginRName [login_reset_suffix loginbob]
+test login-resetpw-form {[string match "*Change Password for user <b>loginbob</b>*" \
+    [login_get /resetpw/$loginRName]]}
+test login-resetpw-mismatch {[string match "*do not match*" \
+    [login_post /resetpw "name=$loginRName&n1=aaaaaa&n2=bbbbbb"]]}
+test login-resetpw-changed {[string match "*Password changed successfully*" \
+    [login_post /resetpw "name=$loginRName&n1=resetpw1&n2=resetpw1"]]}
+test_eq login-resetpw-works [login_who [login_basic loginbob:resetpw1]] loginbob
+
+set loginBobUid [string trim [fossil sql \
+    "SELECT uid FROM user WHERE login='loginbob'"]]
+set loginHash [string repeat 0 64]
+set loginNowHex [format %x [clock seconds]]
+foreach {loginRbName loginRbSuffix} [list \
+  short      1-2-3 \
+  no-uid     [string repeat x 70] \
+  no-time    "1--$loginHash$loginHash" \
+  uid-zero   "0-$loginNowHex-$loginHash" \
+  no-user    "ffff-$loginNowHex-$loginHash" \
+  expired    "[format %x $loginBobUid]-1-$loginHash" \
+  wrong-hash "[format %x $loginBobUid]-$loginNowHex-$loginHash" \
+] {
+  test login-resetpw-bad-$loginRbName {[string match "*URL is invalid*" \
+      [login_get /resetpw/$loginRbSuffix]]}
+}
+foreach loginRrUser {loginsue nobody} {
+  test login-resetpw-refused-$loginRrUser {[string match \
+      "*Cannot change the password for user*" \
+      [login_get /resetpw/[login_reset_suffix $loginRrUser]]]}
+}
+fossil sql "UPDATE user SET cap='o' WHERE login='loginbob'"
+test login-resetpw-refused-nopw {[string match \
+    "*Cannot change the password for user*" \
+    [login_get /resetpw/[login_reset_suffix loginbob]]]}
+fossil sql "UPDATE user SET cap='op' WHERE login='loginbob'"
+
+###############################################################################
+# A password change sets the password in every repository of the login
+# group.  A member that is not a repository database is reported on the
+# page; a member whose file is gone is dropped from the group.
+
+write_file ljunk.fossil "This is not a database.\n"
+login_config peer-repo-0000000000000000 [file join [pwd] ljunk.fossil]
+login_config peer-repo-1111111111111111 [file join [pwd] gone.fossil]
+login_config peer-name-1111111111111111 gone
+set loginSess [login_session loginbob resetpw1]
+set loginReply [login_post /login \
+    "p=resetpw1&n1=groupnew1&n2=groupnew1&csrf=[lindex $loginSess 1]" \
+    [list "Cookie: [lindex $loginSess 0]"]]
+test login-group-pwchange-error {[string match "*ljunk.fossil: *" $loginReply]
+    && ![string match "HTTP/1.0 302*" [login_status $loginReply]]}
+test_eq login-group-gone-dropped [string trim [fossil sql \
+    "SELECT count(*) FROM config WHERE name GLOB 'peer-*-1111111111111111'"]] 0
+set loginRName [login_reset_suffix loginbob]
+test login-group-resetpw-error {[string match "*ljunk.fossil: *" \
+    [login_post /resetpw "name=$loginRName&n1=groupnew2&n2=groupnew2"]]}
+login_config peer-repo-0000000000000000 ""
+test_eq login-group-resetpw-works \
+    [login_who [login_basic loginbob:groupnew2]] loginbob
+
+###############################################################################
+# Login-group credentials.  A login cookie issued by one member of a group
+# logs in the same user at another member, which takes over the cookie.
+# If the other member has no user of that name, the cookie gives an
+# anonymous login.  A well-formed group cookie also keeps /ityaar from
+# replacing it with an anonymous cookie, and from asking again.
+
+fossil sql -R $loginRepo2 \
+    "INSERT INTO user(login,pw,cap,info) VALUES('grponly','gopw','o','')
+     ;UPDATE user SET info='' WHERE login='loginsue'"
+fossil login-group join --name loggrp2 $loginRepo2
+set loginGrpCookie fossil-[string range [string trim [fossil sql \
+    "SELECT value FROM config WHERE name='login-group-code'"]] 0 15]
+set loginReply [login_post_at $loginRepo2 /login "u=loginsue&p=suepw&in=Login"]
+set loginSuePair [login_cookie_pair $loginReply]
+test login-group-cookie-name \
+    {[string match "$loginGrpCookie=*%2Floginsue" $loginSuePair]}
+set loginReply [login_get /test-env [list "Cookie: $loginSuePair"]]
+test login-group-transfer {[login_who $loginReply] eq "loginsue"
+    && [login_method $loginReply] eq "COOKIE"}
+set loginReply [login_post_at $loginRepo2 /login "u=grponly&p=gopw&in=Login"]
+set loginGoPair [login_cookie_pair $loginReply]
+test_eq login-group-transfer-anon \
+    [login_who [login_get /test-env [list "Cookie: $loginGoPair"]]] anonymous
+
+set loginWellFormed "$loginGrpCookie=[string repeat a 50]/x"
+set loginReply [login_get "/ityaar?$loginRobot" [list "Cookie: $loginWellFormed"]]
+test login-group-ityaar-keeps {[string match "HTTP/1.0 302*" [login_status $loginReply]]
+    && ![string match "*%2Fanonymous*" $loginReply]}
+set loginReply [login_get "/ityaar?captchaseed=$loginSeed&captcha=zzzzzzzz" \
+    [list "Cookie: $loginWellFormed"]]
+test login-group-ityaar-no-captcha \
+    {![string match "*Prove that you are human*" $loginReply]}
+fossil login-group leave
+
+###############################################################################
+# login-group command errors: joining this repository itself, a file that
+# does not exist or is not a database, a wrong number of arguments.
+foreach {loginLgName loginLgArgs loginLgWant} [list \
+  self      [list join $loginRepo]                    {*same as this one*} \
+  missing   [list join [file join [pwd] nosuch.fossil]] {*does not exist*} \
+  junk      [list join [file join [pwd] ljunk.fossil]]  {*not a database*} \
+  join-args [list join]                               {*unexpected argument count*} \
+  leave-args [list leave extra]                       {*unknown extra arguments*} \
+] {
+  fossil_raw login-group {*}$loginLgArgs
+  test login-group-err-$loginLgName {$CODE != 0
+      && [string match $loginLgWant $RESULT]}
+}
+
+# The /setup_login_group page joins a group only when the login and
+# password given are those of a Setup user of the other repository.
+proc login_setup_join {pw} {
+  global loginRepo2
+  return [login_post /setup_login_group \
+      "repo=[file nativename $loginRepo2]&login=loginsue&pw=$pw&newname=webgrp&join=1" \
+      [list "Authorization: Basic [binary encode base64 loginsue:suepw]"]]
+}
+test login-setup-join-badpw {[string match "*does not correspond to a user*" \
+    [login_setup_join wrong]]}
+login_setup_join suepw
+fossil login-group
+test login-setup-join {[string match "*login-group \"webgrp\"*" $RESULT]}
+fossil login-group leave
+
+###############################################################################
+# Pages that need a capability "nobody" lacks redirect to /login, naming
+# the page and its query string, and adding "anon=1" when "anonymous" has
+# the capability.  With "redirect-to-https" set to 2 the redirect goes to
+# the https: address.
+fossil sql "UPDATE user SET cap='h' WHERE login='anonymous'"
+test_eq login-needed [login_header [login_get "/tktnew?x=1"] Location] \
+    http://x/login?g=tktnew%3fx%3D1
+fossil sql "UPDATE user SET cap='hn' WHERE login='anonymous'"
+test_eq login-needed-anon [login_header [login_get /tktnew] Location] \
+    http://x/login?g=tktnew&anon=1
+fossil sql "UPDATE user SET cap='h' WHERE login='anonymous'"
+
+# A page that shows hyperlinks only with the Hyperlink capability offers an
+# anonymous login when "anonymous" has that capability.
+fossil sql "UPDATE user SET cap='o' WHERE login='nobody'"
+test login-anonymous-available {[string match "*hyperlinks are disabled*" \
+    [login_get /leaves [list $loginUA]]]}
+
+# A page on the "robot-restrict" list asks a client without a login to
+# show that it is not a robot.
+login_config robot-restrict test-env
+set loginReply [login_get /test-env [list "User-Agent: Googlebot/2.1"]]
+test login-robot-restrict {[login_who $loginReply] eq "-"}
+login_config robot-restrict ""
+fossil sql "UPDATE user SET cap='' WHERE login='nobody'"
+
+# With "redirect-to-https" set to 1, the redirect to /login for such a page
+# goes to the https: address.
+login_config redirect-to-https 1
+test_eq login-needed-https [login_header [login_get /tktnew] Location] \
+    https://x/login?g=tktnew
+login_config redirect-to-https ""
+
+# A login cookie in a repository that is in no login group does not keep
+# /ityaar from asking again after a wrong answer.
+set loginReply [login_get "/ityaar?captchaseed=$loginSeed&captcha=zzzzzzzz" \
+    [list "Cookie: $loginCookieName=[string repeat a 50]/x"]]
+test login-ityaar-nogroup {[string match "*Prove that you are human*" $loginReply]}
+
+# A sync request whose login card names a user with a NULL capability
+# column logs in with no capabilities: its pull is refused.  The same
+# request for that user with Read capability is answered.
+fossil user new loginnocap nc@ex.com nocappw
+proc login_xfer_pull {user} {
+  set pc [string trim [fossil sql \
+      "SELECT value FROM config WHERE name='project-code'"]]
+  set sc [string trim [fossil sql \
+      "SELECT value FROM config WHERE name='server-code'"]]
+  set pw [string trim [fossil sql "SELECT pw FROM user WHERE login='$user'"]]
+  set tail "pull $sc $pc\n"
+  set nonce [login_sha1 $tail]
+  set sig [login_sha1 "$nonce$pw"]
+  set body "login $user $nonce $sig\n$tail"
+  return [login_send "POST /xfer HTTP/1.1\r\nHost: x\r\nContent-Type: application/x-fossil-uncompressed\r\nContent-Length: [string length $body]\r\n\r\n$body"]
+}
+fossil sql "UPDATE user SET cap=NULL WHERE login='loginnocap'"
+test login-xfer-null-cap \
+    {[string first {not\sauthorized\sto\sread} [login_xfer_pull loginnocap]] >= 0}
+fossil sql "UPDATE user SET cap='o' WHERE login='loginnocap'"
+set loginReply [login_xfer_pull loginnocap]
+test login-xfer-read-cap {[string match "*igot *" $loginReply]
+    && [string first {not\sauthorized} $loginReply] < 0}
+
+# test-resetpw-url for a user id that does not exist reports that the
+# suffix it made is not valid.
+fossil test-resetpw-url 99999
+test login-resetpw-url-nouser {[string match "*/resetpw/* 0 (???)*" $RESULT]}
+
+###############################################################################
+# A repository file that cannot be opened: a login-group member is
+# reported on a password change, and joining it is an error.  Skipped
+# where the file stays readable (as for root).
+
+write_file lnoperm.fossil "x\n"
+file attributes lnoperm.fossil -permissions 0000
+if {![file readable lnoperm.fossil]} {
+  login_config peer-repo-2222222222222222 [file join [pwd] lnoperm.fossil]
+  set loginSess [login_session loginbob groupnew2]
+  set loginReply [login_post /login \
+      "p=groupnew2&n1=groupnew3&n2=groupnew3&csrf=[lindex $loginSess 1]" \
+      [list "Cookie: [lindex $loginSess 0]"]]
+  test login-group-noperm-member {[string match "*lnoperm.fossil: *" $loginReply]}
+  login_config peer-repo-2222222222222222 ""
+  fossil_raw login-group join [file join [pwd] lnoperm.fossil]
+  test login-group-noperm-join {$CODE != 0
+      && [string match "*unable to open*" $RESULT]}
+} else {
+  test_skip_part "login-group-noperm-*: need a file the user running the tests cannot read"
+}
+file attributes lnoperm.fossil -permissions 0644
+
+###############################################################################
+# Pages that depend on the client.  A request with a "Mobi" User-Agent is
+# shown a unified diff and one with a desktop User-Agent a side-by-side
+# diff.  A tarball request referred from /login is answered with a
+# download button rather than the tarball.
+
+write_file lfile.txt "one\n"
+fossil add lfile.txt
+fossil commit -m one --no-warnings
+write_file lfile.txt "two\n"
+fossil commit -m two --no-warnings
+proc login_local_get {path headers} {
+  set text "GET $path HTTP/1.1\r\nHost: x\r\n"
+  foreach line $headers { append text $line "\r\n" }
+  write_file lreq.txt "$text\r\n"
+  file delete lreply.txt
+  fossil_raw http $::loginRepo --in lreq.txt --out lreply.txt \
+      --ipaddr 127.0.0.1 --localauth
+  return [read_file lreply.txt]
+}
+test login-mobile-diff {[string match {*class="diff udiff"*} \
+    [login_local_get /info/tip {"User-Agent: Mozilla/5.0 Mobi Firefox/122.0"}]]}
+test login-desktop-diff {[string match {*class="diff splitdiff"*} \
+    [login_local_get /info/tip [list $loginUA]]]}
+test login-tarball-from-login {[string match "*Tarball Download*" \
+    [login_local_get /tarball/tip/x.tar.gz {"Referer: http://x/login"}]]}
+test login-tarball-other {![string match "*Tarball Download*" \
+    [login_local_get /tarball/tip/x.tar.gz {"Referer: http://x/timeline"}]]}
+
+###############################################################################
+# Further /login requests, each varying one part of a request above.
+
+fossil user password loginbob bobfinal
+fossil sql "UPDATE user SET cap='op' WHERE login='loginbob'"
+set loginSess [login_session loginbob bobfinal]
+set loginPair [lindex $loginSess 0]
+set loginTok [lindex $loginSess 1]
+
+# "fossil-goto" that is empty goes to the home page; one that is the base
+# URL itself is followed; one that only starts with the base URL is not.
+foreach {loginFgName loginFgTarget loginFgWant} [list \
+  empty     {}          $loginHome \
+  base      http://x    http://x \
+  base-more http://xy   $loginHome \
+  other     http://y/   $loginHome \
+] {
+  test_eq login-goto-$loginFgName [login_header [login_get \
+      "/login?u=loginbob&p=bobfinal&fossil-goto=$loginFgTarget"] Location] \
+      $loginFgWant
+}
+
+# A GET with "out" does not log out.
+test login-logout-get {[string match "*Currently logged in as <b>loginbob</b>*" \
+    [login_get "/login?out=1" [list "Cookie: $loginPair"]]]}
+
+# A password change without the second copy of the new password, without
+# the first, or without the Anti-CSRF token changes nothing.
+foreach {loginPcName loginPcBody} [list \
+  no-n2   "p=bobfinal&n1=changed1&csrf=$loginTok" \
+  no-n1   "p=bobfinal&n2=changed1&csrf=$loginTok" \
+  no-csrf "p=bobfinal&n1=changed1&n2=changed1" \
+] {
+  set loginReply [login_post /login $loginPcBody [list "Cookie: $loginPair"]]
+  test login-pwchange-$loginPcName \
+      {![string match "HTTP/1.0 302*" [login_status $loginReply]]
+       && [login_who [login_basic loginbob:bobfinal]] eq "loginbob"}
+}
+
+# A user name with no password, or an empty password, shows the form and
+# sets no cookie.
+foreach {loginNpName loginNpQuery} {no-p u=loginbob empty-p u=loginbob&p=} {
+  set loginReply [login_get "/login?$loginNpQuery"]
+  test login-form-$loginNpName {[login_status $loginReply] eq "HTTP/1.0 200 OK"
+      && [login_header $loginReply Set-Cookie] eq "-"}
+}
+
+# "g" with "noanon" does not name the page asked for.
+test login-page-goto-noanon {![string match "*access page*" \
+    [login_get "/login?g=timeline&noanon=1"]]}
+
+# "pwreset" when self password reset is off shows the usual page.
+login_config self-pw-reset ""
+test login-page-pwreset-off {[string match {*name="u"*} \
+    [login_get "/login?pwreset=1"]]}
+test login-register-pwreset-off {[string match {*name="captchaseed"*} \
+    [login_get "/register?pwreset=1"]]
+    && ![string match {*name="reqpwreset"*} [login_get "/register?pwreset=1"]]}
+
+# A request over https: has no warning about sending the password in the
+# clear, and its login form goes to the same address even with
+# "https-login" on.
+login_config https-login 1
+set loginReply [login_send "GET /login HTTP/1.1\r\nHost: x\r\n\r\n" --https]
+test login-page-over-https {![string match "*sent in the clear*" $loginReply]
+    && ![string match "*data-action='https:*" $loginReply]}
+login_config https-login ""
+
+# "auto-captcha" has no effect on the captcha-only page of "anon=1".
+login_config auto-captcha 1
+test login-page-autocaptcha-anon \
+    {![string match "*Fill out captcha*" [login_get "/login?anon=1"]]}
+login_config auto-captcha ""
+
+# A user with capability 7 is not offered email alerts when email is off.
+fossil sql "UPDATE user SET cap='op7' WHERE login='loginbob'"
+fossil settings email-send-method off
+test login-page-alerts-off {![string match "*Email Alerts</a>*" \
+    [login_get /login [list "Cookie: $loginPair"]]]}
+fossil settings email-send-method dir
+fossil sql "UPDATE user SET cap='op' WHERE login='loginbob'"
+
+# An anonymous login is not offered a password change.
+set loginAnonPair [login_cookie_pair [login_get "/login?$loginAnon" [list $loginUA]]]
+set loginReply [login_get /login [list "Cookie: $loginAnonPair" $loginUA]]
+test login-page-anonymous {[string match "*Currently logged in as <b>anonymous</b>*" $loginReply]
+    && ![string match "*Change Password*" $loginReply]}
+
+###############################################################################
+# Further credential checks.
+
+# "resid" without "token" logs no one in; "resid" naming a user with no
+# password does not match any token.
+test_eq login-resid-no-token [login_who [login_get "/test-env?resid=loginbob"]] nobody
+test_eq login-resid-no-pw \
+    [login_who [login_get "/test-env?resid=nobody&token=x"]] nobody
+
+# A user whose login name is empty is served with that user's capabilities
+# but without "L", the mark of a logged-in user.
+fossil sql "INSERT INTO user(login,pw,cap,info) VALUES('','emptypw','o','')"
+set loginReply [login_get "/test-env?resid=&token=emptypw"]
+test login-empty-name {[string match "*g.zLogin = <br>*" $loginReply]
+    && [string match "*o*" [login_caps $loginReply]]
+    && ![string match "*L*" [login_caps $loginReply]]}
+fossil sql "UPDATE user SET cap='op' WHERE login=''"
+test login-empty-name-page {![string match "*Change Password*" \
+    [login_get "/login?resid=&token=emptypw"]]}
+fossil sql "DELETE FROM user WHERE login=''"
+
+# --httptrace writes no login line for a request served with no "nobody"
+# user.
+fossil sql "UPDATE user SET login='nobody-saved' WHERE login='nobody'"
+write_file lreq.txt "GET /test-env HTTP/1.1\r\nHost: x\r\n\r\n"
+fossil_raw http $loginRepo --in lreq.txt --out lreply.txt --ipaddr 9.9.9.9 \
+    --httptrace
+fossil sql "UPDATE user SET login='nobody' WHERE login='nobody-saved'"
+test login-httptrace-no-nobody {[string first {# login:} $RESULT] < 0}
+
+# A request from 127.0.0.1 without --localauth, or over https: with it, is
+# not logged in.  A request over the fossil ssh transport with --localauth
+# is, whatever the client's address.
+write_file lreq.txt "GET /test-env HTTP/1.1\r\nHost: x\r\n\r\n"
+fossil_raw http $loginRepo --in lreq.txt --out lreply.txt --ipaddr 127.0.0.1
+test_eq login-loopback-no-localauth [login_who [read_file lreply.txt]] nobody
+set ::env(REMOTE_HOST) 127.0.0.1
+test_eq login-local-https [login_who [login_local $loginRepo --https]] nobody
+unset ::env(REMOTE_HOST)
+write_file lreq.txt "GET /test-env HTTP/1.1\r\nHost: x\r\nX-Fossil-Transport: SSH\r\n\r\n"
+set ::env(SSH_CONNECTION) "9.9.9.9 5000 127.0.0.1 22"
+fossil_raw http $loginRepo --in lreq.txt --out lreply.txt --localauth
+unset ::env(SSH_CONNECTION)
+set loginReply [read_file lreply.txt]
+test login-local-ssh {[login_method $loginReply] eq "LOCAL"
+    && [string match "*REMOTE_ADDR = 9.9.9.9*" $loginReply]}
+
+# Under CGI with no QUERY_STRING, the redirect to /login names only the page.
+proc login_cgi_path {path} {
+  set vars [list REQUEST_METHOD GET SCRIPT_NAME "" PATH_INFO $path \
+      REMOTE_ADDR 9.9.9.9]
+  foreach {name value} $vars { set ::env($name) $value }
+  fossil_raw cgi login.ctl
+  foreach {name value} $vars { unset ::env($name) }
+  return $::RESULT
+}
+test login-needed-cgi {[string match "*\nLocation: http*/login?g=tktnew\r\n*" \
+    [login_cgi_path /tktnew]]}
+
+# The offer of an anonymous login is not made when "anonymous" lacks the
+# Hyperlink capability or anonymous logins are off.
+fossil sql "UPDATE user SET cap='o' WHERE login='nobody'"
+fossil sql "UPDATE user SET cap='' WHERE login='anonymous'"
+test login-anonymous-available-nocap {![string match "*hyperlinks are disabled*" \
+    [login_get /leaves [list $loginUA]]]}
+fossil sql "UPDATE user SET cap='h' WHERE login='anonymous'"
+login_config anon-cookie-lifespan 0
+test login-anonymous-available-off {![string match "*hyperlinks are disabled*" \
+    [login_get /leaves [list $loginUA]]]}
+login_config anon-cookie-lifespan ""
+fossil sql "UPDATE user SET cap='' WHERE login='nobody'"
+
+###############################################################################
+# Further /register and /reqpwreset requests.
+
+# The reserved names "nobody", "reader" and "developer", with anything
+# after them, are refused.
+foreach loginRsName {nobody1 reader1 developer1} {
+  test login-register-reserved-$loginRsName {[string match "*reserved*" \
+      [login_register "u=$loginRsName&dn=R&ea=r@ex.com&p=longpw9&cp=longpw9"]]}
+}
+# A GET with "new" shows the form and creates no user.
+set loginReply [login_get "/register?$loginRegBase&u=getuser1&dn=G&ea=g@ex.com&p=longpw9&cp=longpw9"]
+test login-register-get {[string match {*name="captchaseed"*} $loginReply]
+    && [login_user_cap getuser1] eq ""}
+# An "auth-sub-email" setting that is empty allows any address.
+fossil sql "REPLACE INTO config(name,value,mtime) VALUES('auth-sub-email','',0)"
+test login-register-auth-empty {[string match "*Passwords do not match*" \
+    [login_register "u=gooduser&dn=Real&ea=a@any.example&p=longpw9&cp=other99"]]}
+login_config auth-sub-email ""
+
+login_config self-pw-reset 1
+# The address of the "nobody" user is refused even with the Password
+# capability.
+fossil sql "UPDATE user SET cap='p', info='N <nb@ex.com>' WHERE login='nobody'"
+test login-reqpw-nobody \
+    {[string match "*not associated with a user*" [login_reqpw ea=nb@ex.com]]}
+fossil sql "UPDATE user SET cap='', info='' WHERE login='nobody'"
+# A POST without "reqpwreset" shows the form.
+set loginReply [login_post /reqpwreset \
+    "captchaseed=$loginSeed&captcha=$loginCap&ea=bob@ex.com"]
+test login-reqpw-no-flag {[string match {*name="reqpwreset"*} $loginReply]
+    && ![string match "*has been sent*" $loginReply]}
+
+###############################################################################
+# Further /resetpw requests: a suffix whose first or second field ends in a
+# character other than "-", a POST with only one copy of the password, and
+# valid suffixes for a user with Admin capability and for "nobody" with the
+# Password capability.
+
+set loginBadTail [string repeat 0 70]
+foreach {loginRb2Name loginRb2Suffix} [list \
+  uid-end  "1x$loginBadTail" \
+  time-end "1-2x$loginBadTail" \
+] {
+  test login-resetpw-bad-$loginRb2Name {[string match "*URL is invalid*" \
+      [login_get /resetpw/$loginRb2Suffix]]}
+}
+set loginRName [login_reset_suffix loginbob]
+test login-resetpw-one-copy {[string match "*Change Password for user*" \
+    [login_post /resetpw "name=$loginRName&n1=changed1"]]}
+fossil sql "UPDATE user SET cap='a' WHERE login='verify3'"
+test login-resetpw-refused-admin {[string match \
+    "*Cannot change the password for user*" \
+    [login_get /resetpw/[login_reset_suffix verify3]]]}
+fossil sql "UPDATE user SET cap='p' WHERE login='nobody'"
+test login-resetpw-refused-nobody-p {[string match \
+    "*Cannot change the password for user*" \
+    [login_get /resetpw/[login_reset_suffix nobody]]]}
+fossil sql "UPDATE user SET cap='' WHERE login='nobody'"
+
+###############################################################################
+# Further login-group checks.  A cookie naming a peer whose file is not a
+# repository, or naming a peer that has no such cookie, logs no one in.
+# In a group, /ityaar treats as well-formed only a cookie of more than 48
+# hex digits, a slash and at least one more character.
+
+login_config peer-repo-3333333333333333 [file join [pwd] ljunk.fossil]
+login_config peer-repo-4444444444444444 $loginRepo2
+set loginFakeHash [string repeat A 50]
+foreach {loginPeName loginPeCode} {junk 3333333333333333 nocookie 4444444444444444} {
+  test_eq login-transfer-$loginPeName [login_who [login_get /test-env \
+      [list "Cookie: $loginCookieName=$loginFakeHash/$loginPeCode/loginsue"]]] \
+      nobody
+}
+login_config peer-repo-3333333333333333 ""
+login_config peer-repo-4444444444444444 ""
+
+fossil login-group join --name loggrp3 $loginRepo2
+set loginGrpCookie fossil-[string range [string trim [fossil sql \
+    "SELECT value FROM config WHERE name='login-group-code'"]] 0 15]
+foreach {loginWfName loginWfValue} [list \
+  short     "[string repeat a 48]/x" \
+  no-slash  "[string repeat a 50]x" \
+  end-slash "[string repeat a 50]/" \
+] {
+  set loginReply [login_get "/ityaar?captchaseed=$loginSeed&captcha=zzzzzzzz" \
+      [list "Cookie: $loginGrpCookie=$loginWfValue"]]
+  test login-group-wellformed-$loginWfName \
+      {[string match "*Prove that you are human*" $loginReply]}
+}
+fossil login-group leave
+
+# An empty login-group subcommand is unknown.
+fossil_raw login-group ""
+test login-group-err-empty {$CODE != 0 && [string match "*unknown command*" $RESULT]}
+
+###############################################################################
+# Further cases, each varying one input of a case above.
+
+# An email address with a wrong password is refused.
+test login-form-email-badpw \
+    {[string match "HTTP/1.0 401*" [login_status [login_form bob@ex.com wrongpw]]]}
+
+# With "access-log" off, a login is not recorded.
+login_config access-log 0
+set loginLogCount [string trim [fossil sql "SELECT count(*) FROM accesslog"]]
+login_form loginbob bobfinal
+test_eq login-accesslog-off \
+    [string trim [fossil sql "SELECT count(*) FROM accesslog"]] $loginLogCount
+login_config access-log ""
+
+# A negative "anon-cookie-lifespan" turns anonymous logins off.
+login_config anon-cookie-lifespan -5
+set loginReply [login_get "/login?$loginAnon"]
+test login-anon-negative-lifespan \
+    {[string match "HTTP/1.0 401*" [login_status $loginReply]]
+     && [login_header $loginReply Set-Cookie] eq "-"}
+login_config anon-cookie-lifespan ""
+
+# Login cookies that name the special users "developer" and "reader" are
+# not accepted.
+foreach loginSpUser {developer reader} {
+  test_eq login-cookie-special-$loginSpUser [login_who [login_get /test-env \
+      [list "Cookie: $loginCookieName=[string repeat A 50]/0123456789abcdef/$loginSpUser"]]] \
+      nobody
+}
+
+# The forum capabilities 5 and 4 grant those below them; "u" or "v" given
+# twice inherits once.
+fossil user password loginbob newbobpw
+fossil sql "UPDATE user SET cap='' WHERE login='anonymous'"
+test_eq login-cap-forum5 [login_capexpand 5] 2345L
+test_eq login-cap-forum4 [login_capexpand 4] 234L
+test_eq login-cap-reader-twice [login_capexpand uu] jL
+test_eq login-cap-developer-twice [login_capexpand vv] bL
+fossil sql "UPDATE user SET cap='h' WHERE login='anonymous'"
+
+# Self password reset is not offered by a repository without the email
+# alert tables.
+fossil sql -R $loginRepo2 "REPLACE INTO config(name,value,mtime)
+                           VALUES('self-pw-reset','1',0)"
+test login-reqpw-no-tables {[string match "*does not allow users to reset*" \
+    [login_get_at $loginRepo2 /reqpwreset]]}
+
+# "login-group leave" outside a group shows that there is no group.
+fossil login-group leave
+test login-group-leave-none {[string match "*Not currently*" $RESULT]}
+
+# With no User-Agent, a diff is shown side by side; a tarball request with
+# no Referer is answered with the tarball.
+test login-diff-no-agent {[string match {*class="diff splitdiff"*} \
+    [login_local_get /info/tip {}]]}
+test login-tarball-no-referer {![string match "*Tarball Download*" \
+    [login_local_get /tarball/tip/x.tar.gz {}]]}
+
+###############################################################################
+test_cleanup

@@ -96,6 +96,7 @@ Tests are skipped when their requirements are missing:
 | `openssl` and a Fossil built with TLS support | the HTTPS tests in `http` |
 | `python3` | the tests in `http` that run `http-relay.py` |
 | a C compiler (`cc`, or `CC`), `LD_PRELOAD`, `tools/powerloss/powerloss.c` from the source tree, and a Fossil that isn't statically linked | `powerloss` |
+| a Unix shell | `ssh`, `xfer-client`, and the no-reply and merge-tool tests in `sync` and `regress` |
 | `configure --json` | `json` |
 | `configure --with-th1-docs` | `th1-docs` |
 | `configure --with-th1-hooks` | `th1-hooks` |
@@ -124,6 +125,9 @@ means every run, and `ci` means `ci` and `stress`.
 | TH1 scripting | `th1`, `th1-docs`, `th1-hooks`, `th1-repo`, `th1-taint`, `th1-tcl` | `smoke` |
 | JSON API | `json` | `smoke` |
 | Parsing and file utilities | `cmdline`, `contains-selector`, `file1`, `glob`, `reserved-names`, `utf` | `smoke` |
+
+## Fuzz inputs and run-time checking
+
 | Git export and import, bundles, patches, ZIP and tarball archives | `roundtrip` |
 
 ## Writing new tests
@@ -198,4 +202,4 @@ A test marked `knownBug` should fail on every applicable system. If the fault on
 * `update-test-1.sh` and `update-test-2.sh` run `fossil update` scenarios in an empty directory.
 * `link-tester.html` steps through a list of links in `fossil ui`, for checking each page by eye.
 
-The remaining files are helper scripts and test data.
+`http.test` runs `http-relay.py`, and `tools/testbuild.sh` reads `coverage-marks.txt`. The remaining files are helper scripts and test data.

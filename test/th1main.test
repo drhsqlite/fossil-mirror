@@ -1,0 +1,1146 @@
+#
+# Fossil's own TH1 commands and the template renderer: src/th_main.c.
+# Scripts are run with "fossil test-th-eval", templates with
+# "fossil test-th-render" and "fossil test-th-source", and a ticket page
+# that holds TH1 is asked for through "fossil http --in".
+#
+
+# These tests run only in a long pass: -assurance stress.
+if {[test_assurance] ne "stress"} {
+  test_skip "runs only with -assurance stress"
+}
+
+test_setup
+
+write_file a.txt "hello\n"
+write_file f83.txt "line 83\n"
+write_file f100.txt "line 100\n"
+fossil add a.txt f83.txt f100.txt
+fossil commit -m "three files"
+fossil user new u1 "" pw1
+set th1mainRepo [file join [pwd] .rep.fossil]
+
+# Run SCRIPT with "fossil test-th-eval" and the options in ARGS.  Returns
+# what fossil printed, without the final newline.
+#
+# A build with TH1 hooks runs th1-setup and opens the checkout before the
+# command itself; these tests are of the commands, so they turn hooks off.
+fossil test-th-eval "hasfeature th1Hooks"
+set th1mainNoHook [expr {[string trim $RESULT] eq "1" ? "--no-th-hook" : ""}]
+
+proc th1main_eval {script args} {
+  fossil_raw -seconds 60 test-th-eval {*}$::th1mainNoHook {*}$args $script
+  return [string trimright $::RESULT \n]
+}
+
+# Test NAME passes if ACTUAL is as EXPECTED says.  MODE is "eq" for an
+# exact value, "re" for a regular expression, or "has" for a list of
+# strings that must all be there (one that begins with "!" must not).
+#
+proc th1main_check {name actual mode expected {constraints ""}} {
+  switch -- $mode {
+    eq  { test_eq $name $actual $expected $constraints }
+    re  { test_match $name $actual $expected $constraints }
+    has { test $name {[holds_strings $actual $expected]} $constraints }
+  }
+}
+
+# Run each row of TABLE: a test name, options for test-th-eval, a
+# script, a mode and an expected value as th1main_check takes them.
+#
+proc th1main_table {table} {
+  foreach {name opts script mode expected} $table {
+    set got [th1main_eval $script {*}$opts]
+    th1main_check th1main-$name $got $mode $expected
+  }
+}
+
+###############################################################################
+# Every command refuses a call with too few or too many arguments.  Each
+# row is a call and the usage text of the error.
+
+foreach {th1mainName th1mainCall th1mainUsage} {
+  dir-few          {dir}                    {dir CHECKIN ?GLOB? ?DETAILS?}
+  dir-many         {dir a b 1 d}            {dir CHECKIN ?GLOB? ?DETAILS?}
+  httpize-few      {httpize}                {httpize STRING}
+  httpize-many     {httpize a b}            {httpize STRING}
+  output-few       {enable_output}          {enable_output [LABEL] BOOLEAN}
+  output-many      {enable_output a 1 c}    {enable_output [LABEL] BOOLEAN}
+  nonce-many       {nonce a}                {nonce}
+  puts-few         {puts}                   {puts STRING}
+  puts-many        {puts a b}               {puts STRING}
+  html-few         {html}                   {puts STRING}
+  redirect-few     {redirect}               {redirect URL ?withMethod?}
+  redirect-many    {redirect a 1 c}         {redirect URL ?withMethod?}
+  insertcsrf-many  {insertCsrf a}           {insertCsrf}
+  verifycsrf-many  {verifyCsrf a}           {verifyCsrf}
+  login-few        {verifyLogin a}          {verifyLogin userName password}
+  login-many       {verifyLogin a b c}      {verifyLogin userName password}
+  markdown-few     {markdown}               {markdown STRING}
+  markdown-many    {markdown a b}           {markdown STRING}
+  wiki-few         {wiki}                   {wiki STRING}
+  wiki-many        {wiki a b}               {wiki STRING}
+  decorate-few     {decorate}               {wiki STRING}
+  assoc-few        {wiki_assoc a}           {wiki_assoc STRING STRING}
+  assoc-many       {wiki_assoc a b c}       {wiki_assoc STRING STRING}
+  htmlize-few      {htmlize}                {htmlize STRING}
+  htmlize-many     {htmlize a b}            {htmlize STRING}
+  encode64-few     {encode64}               {encode64 STRING}
+  encode64-many    {encode64 a b}           {encode64 STRING}
+  hascap-few       {hascap}                 {hascap STRING ...}
+  anoncap-few      {anoncap}                {hascap STRING ...}
+  capexpr-few      {capexpr}                {capexpr EXPR}
+  capexpr-many     {capexpr a b}            {capexpr EXPR}
+  searchable-few   {searchable}             {hascap STRING ...}
+  hasfeature-few   {hasfeature}             {hasfeature STRING}
+  hasfeature-many  {hasfeature a b}         {hasfeature STRING}
+  tclready-many    {tclReady a}             {tclReady}
+  anycap-few       {anycap}                 {anycap STRING}
+  anycap-many      {anycap a b}             {anycap STRING}
+  combobox-few     {combobox a b}           {combobox NAME TEXT-LIST NUMLINES}
+  combobox-many    {combobox a b 1 d}       {combobox NAME TEXT-LIST NUMLINES}
+  copybtn-few      {copybtn a 0}            {copybtn TARGETID FLIPPED TEXT ?COPYLENGTH?}
+  copybtn-many     {copybtn a 0 c 1 e}      {copybtn TARGETID FLIPPED TEXT ?COPYLENGTH?}
+  linecount-few    {linecount a 1}          {linecount STRING MAX MIN}
+  linecount-many   {linecount a 1 2 3}      {linecount STRING MAX MIN}
+  repository-many  {repository 1 2}         {repository ?BOOLEAN?}
+  checkout-many    {checkout 1 2}           {checkout ?BOOLEAN?}
+  trace-few        {trace}                  {trace STRING}
+  trace-many       {trace a b}              {trace STRING}
+  state-few        {globalState}            {globalState NAME ?DEFAULT?}
+  state-many       {globalState a b c}      {globalState NAME ?DEFAULT?}
+  getparam-few     {getParameter}           {getParameter NAME ?DEFAULT?}
+  getparam-many    {getParameter a b c}     {getParameter NAME ?DEFAULT?}
+  setparam-few     {setParameter a}         {setParameter NAME VALUE}
+  setparam-many    {setParameter a b c}     {setParameter NAME VALUE}
+  reinit-many      {reinitialize 1 2}       {reinitialize ?FLAGS?}
+  render-few       {render}                 {render STRING}
+  render-many      {render a b}             {render STRING}
+  defheader-many   {defHeader a}            {defHeader}
+  header-few       {styleHeader}            {styleHeader TITLE}
+  header-many      {styleHeader a b}        {styleHeader TITLE}
+  footer-many      {styleFooter a}          {styleFooter}
+  script-many      {styleScript a b}        {styleScript ?BUILTIN_NAME?}
+  submenu-few      {submenu link a}         {submenu link LABEL URL}
+  submenu-many     {submenu link a b c}     {submenu link LABEL URL}
+  submenu-word     {submenu lin a b}        {submenu link LABEL URL}
+  submenu-longer   {submenu links a b}      {submenu link LABEL URL}
+  requestjs-few    {builtin_request_js}     {builtin_request_js NAME}
+  requestjs-many   {builtin_request_js a b} {builtin_request_js NAME}
+  artifact-few     {artifact}               {artifact ID ?FILENAME?}
+  artifact-many    {artifact a b c}         {artifact ID ?FILENAME?}
+  headerline-few   {cgiHeaderLine}          {cgiHeaderLine line}
+  headerline-many  {cgiHeaderLine a b}      {cgiHeaderLine line}
+  uvcontent-few    {unversioned content}    {unversioned content FILENAME}
+  uvcontent-many   {unversioned content a b} {unversioned content FILENAME}
+  uvlist-many      {unversioned list a}     {unversioned list}
+  taint-few        {taint}                  {STRING}
+  taint-many       {taint a b}              {STRING}
+  untaint-few      {untaint}                {STRING}
+  untaint-many     {untaint a b}            {STRING}
+  randhex-many     {randhex 1 2}            {randhex ?N?}
+  query-few        {query a}                {query SQL CODE}
+  query-many       {query a b c}            {query SQL CODE}
+  query-option-many {query -nocomplain a b c} {query SQL CODE}
+  setting-few      {setting}                {setting ?-strict? ?--? name}
+  setting-many     {setting a b c d}        {setting ?-strict? ?--? name}
+  setting-two      {setting -- a b}         {setting ?-strict? ?--? name}
+  setting-strict-two {setting -strict -- a b} {setting ?-strict? ?--? name}
+  glob-few         {glob_match a}           {glob_match ?-one? ?--? patternList string}
+  glob-many        {glob_match -one -- a b c} {glob_match ?-one? ?--? patternList string}
+  glob-three       {glob_match a b c}       {glob_match ?-one? ?--? patternList string}
+  regexp-few       {regexp a}               {regexp ?-nocase? ?--? exp string}
+  regexp-many      {regexp -nocase -- a b c} {regexp ?-nocase? ?--? exp string}
+  regexp-three     {regexp -- a b c}        {regexp ?-nocase? ?--? exp string}
+  regexp-one       {regexp -nocase -- a}    {regexp ?-nocase? ?--? exp string}
+  http-few         {http}                   {http ?-asynchronous? ?--? url ?payload?}
+  http-many        {http -asynchronous -- a b c} {http ?-asynchronous? ?--? url ?payload?}
+  http-none        {http --}                {http ?-asynchronous? ?--? url ?payload?}
+  http-three       {http -- a b c}          {http ?-asynchronous? ?--? url ?payload?}
+  capture-few      {captureTh1}             {captureTh1 STRING}
+  capture-many     {captureTh1 a b}         {captureTh1 STRING}
+} {
+  test_eq th1main-args-$th1mainName [th1main_eval $th1mainCall] \
+      "TH_ERROR: wrong # args: should be \"$th1mainUsage\""
+}
+
+###############################################################################
+# What the commands return and write.  A script that writes ends with
+# "set x {}" so that only what it wrote is printed.
+
+th1main_table {
+  httpize {} {httpize {a b/c?d&e=f%"<>}} eq {a+b%2Fc%3Fd%26e%3Df%25%22%3C%3E}
+  htmlize {} {htmlize {<a href="x">&'</a>}}
+      eq {&lt;a href=&quot;x&quot;&gt;&amp;&#39;&lt;/a&gt;}
+  encode64 {} {encode64 {hello, world}} eq aGVsbG8sIHdvcmxk
+  encode64-empty {} {encode64 {}} eq {}
+  markdown {} {markdown "# Title\n\nbody *text*"}
+      has {{<div class="markdown">} {<p>body <em>text</em></p>}}
+  markdown-title {} {lindex [markdown "# Title\n\nbody *text*"] 0} eq Title
+  markdown-empty {} {lindex [markdown {}] 0} eq {}
+
+  puts-escapes {} {puts "<b>&"; html "<i>"; set x {}} eq {&lt;b&gt;&amp;<i>}
+  html-tainted {} {html [taint <i>]}
+      eq {TH_ERROR: tainted output string: "<i>"}
+  puts-tainted {} {puts [taint <i>]; set x {}} eq {&lt;i&gt;}
+  html-empty {} {html {}; set x done} eq done
+  untaint {} {string is tainted [untaint [taint abc]]} eq 0
+  taint-length {} {string length [taint abc]} eq 3
+
+  hasfeature-markdown {} {hasfeature markdown} eq 1
+  hasfeature-case {} {hasfeature MARKDOWN} eq 1
+  hasfeature-unknown {} {hasfeature nosuch} eq 0
+  hasfeature-empty {} {hasfeature {}} eq 0
+  hasfeature-longer {} {hasfeature markdownx} eq 0
+  tclready {} {tclReady} eq 0
+
+  anycap-empty {} {anycap {}} eq 0
+  anycap-first {--set-user-caps} {anycap sz} eq 1
+  anycap-second {--set-user-caps} {anycap zs} eq 1
+  anycap-none {} {anycap sz} eq 0
+  hascap-empty {} {hascap {}} eq 1
+  hascap-all {--set-user-caps} {hascap s x} eq 1
+  hascap-none {} {hascap s} eq 0
+  anoncap-all {--set-anon-caps} {anoncap s x} eq 1
+  anoncap-user-only {--set-user-caps} {anoncap s} eq 0
+  capexpr-empty {} {capexpr {}} eq 0
+  capexpr-star {} {capexpr {*}} eq 1
+  capexpr-not {} {capexpr {!s}} eq 1
+  capexpr-not-held {--set-user-caps} {capexpr {!s}} eq 0
+  capexpr-anon {} {capexpr {@s}} eq 0
+  capexpr-anon-held {--set-anon-caps} {capexpr {@s}} eq 1
+  capexpr-second {} {capexpr {zz !zz}} eq 1
+  capexpr-held {--set-user-caps} {capexpr {z sx}} eq 1
+
+  linecount-max {} {linecount "a\nb\nc\nd" 3 1} eq 3
+  linecount-min {} {linecount "a\nb" 10 5} eq 5
+  linecount-between {} {linecount "a\nb\nc" 10 1} eq 3
+  linecount-empty {} {linecount {} 0 0} eq 0
+  linecount-negative {} {linecount "a\nb\nc" -5 -9} eq -5
+  linecount-widest {} {linecount "a\nb\nc" 2147483647 -2147483648} eq 3
+  linecount-bad-max {} {linecount x a 1}
+      eq {TH_ERROR: expected integer, got: "a"}
+  linecount-bad-min {} {linecount x 1 b}
+      eq {TH_ERROR: expected integer, got: "b"}
+  linecount-too-big {} {linecount x 99999999999 1} eq 1
+
+  combobox {} {set nm b; combobox nm {a b <c>} 3; set x {}}
+      eq {<select id="nm" name="nm" size="3"><option value="a">a</option><option value="b" selected="selected">b</option><option value="&lt;c&gt;">&lt;c&gt;</option></select>}
+  combobox-same-length {} {set nm x; combobox nm {a b} 1; set x {}}
+      eq {<select id="nm" name="nm" size="1"><option value="a">a</option><option value="b">b</option></select>}
+  combobox-other-length {} {set nm bb; combobox nm {a b} 1; set x {}}
+      eq {<select id="nm" name="nm" size="1"><option value="a">a</option><option value="b">b</option></select>}
+  combobox-no-variable {} {combobox {n"m} {a} 1; set x {}}
+      eq {<select id="n&quot;m" name="n&quot;m" size="1"><option value="a">a</option></select>}
+  combobox-no-values {} {set nm x; combobox nm {} 1; set x {}}
+      eq {<select id="nm" name="nm" size="1"></select>}
+  combobox-bad-lines {} {combobox nm {a b} x}
+      eq {TH_ERROR: expected integer, got: "x"}
+
+  output-off {} {enable_output 0; puts hidden; html hidden;
+      combobox nm {a b} 1; copybtn id 0 text; wiki {[x]}; decorate {[x]}
+      enable_output 1; puts shown; set x {}} eq shown
+  output-label {} {enable_output lbl 0; puts hidden; enable_output lbl 1
+      puts shown; set x {}} eq shown
+  output-bad {} {enable_output lbl xyz}
+      eq {TH_ERROR: expected integer, got: "xyz"}
+  output-off-error {} {enable_output 0; render {<th1>error shown</th1>}
+      set x {}} has {{ERROR: shown}}
+
+  copybtn {} {copybtn cid 0 text; set x {}}
+      has {{data-copytarget="cid"} {data-copylength="0"}
+           {<span id="cid">text</span>} !copy-button-flipped}
+  copybtn-flipped {} {copybtn cid 1 {<t>} 3; set x {}}
+      has {{data-copylength="3"} copy-button-flipped
+           {<span id="cid">&lt;t&gt;</span>}}
+  copybtn-bad-flipped {} {copybtn cid x text}
+      eq {TH_ERROR: expected integer, got: "x"}
+  copybtn-bad-length {} {copybtn cid 0 text x}
+      eq {TH_ERROR: expected integer, got: "x"}
+
+  repository {} {repository} re {/\.rep\.fossil$}
+  repository-0 {} {repository 0} re {/\.rep\.fossil$}
+  repository-1 {} {repository 1} re {/\.rep\.fossil$}
+  repository-bad {} {repository x} eq {TH_ERROR: expected integer, got: "x"}
+  checkout {} {checkout} re {/th1main\.test/$}
+  checkout-0 {} {checkout 0} re {/th1main\.test/$}
+  checkout-1 {} {checkout 1} re {/th1main\.test/$}
+  checkout-bad {} {checkout x} eq {TH_ERROR: expected integer, got: "x"}
+
+  state-unknown {} {globalState nosuch}
+      eq {TH_ERROR: unsupported global state: nosuch}
+  state-checkout {} {globalState checkout dflt} re {/th1main\.test/$}
+  state-case {} {globalState CHECKOUT} re {/th1main\.test/$}
+  state-longer {} {globalState checkouts}
+      eq {TH_ERROR: unsupported global state: checkouts}
+  state-configuration {--open-config} {globalState configuration dflt}
+      re {fossil}
+  state-executable {} {globalState executable dflt} re {fossil[^/]*$}
+  state-flags {} {globalState flags} eq 0
+  state-flags-config {--open-config} {expr {[globalState flags] & 0x600}}
+      eq 1024
+  state-log {} {globalState log dflt} eq dflt
+  state-log-set {--errorlog th1main-errors.log} {globalState log dflt}
+      re {th1main-errors\.log$}
+  state-repository {} {globalState repository dflt} re {/\.rep\.fossil$}
+  state-top {} {globalState top dflt} eq dflt
+  state-user {} {globalState user dflt} eq dflt
+  state-vfs {} {globalState vfs dflt} eq dflt
+  state-vfs-set {--vfs unix-none} {globalState vfs dflt} eq unix-none
+
+  reinit {} {reinitialize; globalState flags} eq 0
+  reinit-reset {} {reinitialize 4; globalState flags} eq 4
+  reinit-setup {} {reinitialize 8; globalState flags} eq 8
+  reinit-no-tcl {} {reinitialize 31; globalState flags} eq 29
+  reinit-bad {} {reinitialize x} eq {TH_ERROR: expected integer, got: "x"}
+  reinit-keeps-procs {} {proc p {} {return kept}; reinitialize 4; p} eq kept
+
+  render {} {set v 5; render {a $v <th1>puts [expr {$v+1}]</th1> b}
+      set x {}} eq {a 5 6 b}
+  render-error {} {render {<th1>error inner</th1>}; puts after}
+      eq {<hr><p class="thmainError">ERROR: inner</p>TH_ERROR: }
+  submenu-no-label {} {submenu link {} /url}
+      eq {TH_ERROR: link's LABEL is empty}
+  submenu-no-url {} {submenu link label {}} eq {TH_ERROR: link's URL is empty}
+  defheader {} {defHeader} has {<html> {$<title>}}
+
+  dir {} {dir tip} eq {a.txt f100.txt f83.txt}
+  dir-glob {} {dir tip {f*}} eq {f100.txt f83.txt}
+  dir-glob-none {} {dir tip nomatch} eq {}
+  dir-details {} {dir tip {a*} 1}
+      re {^\{a\.txt 6 \{\d{4}-\d\d-\d\d \d\d:\d\d:\d\d\}\}$}
+  dir-details-0 {} {dir tip {a*} 0} eq a.txt
+  dir-details-bad {} {dir tip * x} eq {TH_ERROR: expected integer, got: "x"}
+  dir-unknown {} {dir nosuch} eq {}
+  dir-empty-name {} {dir {}} eq {}
+
+  artifact-file {} {artifact tip a.txt} eq hello
+  artifact-checkin {} {artifact tip} has {{C three\sfiles} {F a.txt }}
+  artifact-unknown {} {artifact nosuch} eq {TH_ERROR: name not found}
+  artifact-empty-name {} {artifact {}} eq {TH_ERROR: }
+  artifact-unknown-checkin {} {artifact nosuch a.txt}
+      eq {TH_ERROR: manifest not found}
+  artifact-not-a-checkin {} {artifact [lindex [artifact tip] 6] a.txt}
+      re {^TH_ERROR: }
+  artifact-unknown-file {} {artifact tip nosuch}
+      eq {TH_ERROR: file name not found in manifest}
+
+  glob-list {} {glob_match {*.txt,*.c} a.c} eq 2
+  glob-list-none {} {glob_match {*.txt,*.c} a.h} eq 0
+  glob-empty {} {glob_match {} x}
+      eq {TH_ERROR: unable to create glob from pattern list}
+  glob-one {} {glob_match -one {*.c} a.c} eq 1
+  glob-one-none {} {glob_match -one {*.c} a.h} eq 0
+  glob-one-dashes {} {glob_match -one -- -one -one} eq 1
+  glob-dashes {} {glob_match -- {*.c} a.h} eq 0
+
+  regexp {} {regexp {^a+b$} aaab} eq 1
+  regexp-case {} {regexp {^a+b$} AAAB} eq 0
+  regexp-nocase {} {regexp -nocase {^a+b$} AAAB} eq 1
+  regexp-dashes {} {regexp -nocase -- -nocase -NOCASE} eq 1
+  regexp-empty {} {regexp {} {}} eq 1
+  regexp-unclosed {} {regexp {((a} x} eq {TH_ERROR: unmatched '('}
+  regexp-bracket {} {regexp {[} x} eq {TH_ERROR: unclosed '['}
+  regexp-too-big {} {regexp [string repeat {(a|b)*} 2000] x}
+      eq {TH_ERROR: REGEXP pattern too big}
+
+  setting {} {setting autosync} re {^(on|off|0|1)?$}
+  setting-unknown {} {setting th1main-no-such-setting} eq {}
+  setting-strict-unknown {} {setting -strict th1main-no-such-setting}
+      eq {TH_ERROR: no value for setting "th1main-no-such-setting"}
+
+  capture {} {captureTh1 {puts <b>; html <i>}} eq {&lt;b&gt;<i>}
+  capture-error {} {captureTh1 {puts lost; error boom}} eq {TH_ERROR: boom}
+  capture-return {} {captureTh1 {return 9}} eq {TH_RETURN: 9}
+  capture-nested {} {puts a; set r [captureTh1 {puts b
+      puts [captureTh1 {puts c}]}]; puts d; set r} eq adbc
+  capture-render {} {set v <b>; captureTh1 {render {x<th1>puts y</th1>$<v>z}}}
+      eq {xy&lt;b&gt;z}
+  capture-render-error {} {captureTh1 {render {x$<nosuch>z}}} eq {TH_ERROR: }
+  capture-widgets {} {set nm a; captureTh1 {combobox nm {a} 1
+      copybtn cid 0 t}} has {{<select id="nm"} {<span id="cid">t</span>}}
+
+  login-good {} {verifyLogin u1 pw1} eq 1
+  login-wrong-password {} {verifyLogin u1 wrong} eq 0
+  login-unknown-user {} {verifyLogin nosuch pw1} eq 0
+  login-empty {} {verifyLogin {} {}} eq 0
+
+  date {} {date} re {^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d$}
+  date-other-option {} {date -utc} re {^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d$}
+  date-longer-option {} {date -localx} re {^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d$}
+  date-same-length-option {} {date -locax}
+      re {^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d$}
+  utime {} {utime} re {^\d+$}
+  stime {} {stime} re {^\d+$}
+
+  randhex {} {randhex} re {^[0-9a-f]{20}$}
+  randhex-3 {} {randhex 3} re {^[0-9a-f]{6}$}
+  randhex-0 {} {randhex 0} re {^[0-9a-f]{2}$}
+  randhex-negative {} {randhex -5} re {^[0-9a-f]{2}$}
+  randhex-49 {} {randhex 49} re {^[0-9a-f]{98}$}
+  randhex-bad {} {randhex x} eq {TH_ERROR: expected integer, got: "x"}
+
+  query {} {query {SELECT 1 AS a, 'x' AS b UNION ALL SELECT 2, 'y'} {
+      puts "$a$b "}; set x {}} eq {1x 2y }
+  query-variables {} {set v 7; set w {it's}
+      query {SELECT $v+1 AS a, $w='it''s' AS b, $nosuch IS NULL AS c,
+             :v IS NULL AS d, ?5 IS NULL AS e, ? IS NULL AS f} {
+      puts "$a/$b/$c/$d/$e/$f"}; set x {}} eq {8/1/1/1/1/1}
+  query-null-and-blob {} {query {SELECT NULL AS a, x'410042' AS b} {
+      puts "[string length $a]/[string length $b]"}; set x {}} eq 0/3
+  query-values-tainted {} {query {SELECT 'v' AS a} {
+      puts [string is tainted $a]}; set x {}} eq 1
+  query-column-names {} {query {SELECT 1 AS "", 2 AS "a(b", 3 AS "a b"} {
+      puts ran}; set x {}} eq ran
+  query-no-rows {} {query {SELECT 1 WHERE 0} {puts never}; set x none}
+      eq none
+  query-empty {} {query {} {puts never}; set x none} eq none
+  query-spaces {} {query {  } {puts never}; set x none} eq none
+  query-semicolon {} {query {;} {puts never}; set x none} eq none
+  query-break {} {query {SELECT 1 AS a UNION ALL SELECT 2} {
+      puts $a; break}; set x {}} eq 12
+  query-continue {} {query {SELECT 1 AS a UNION ALL SELECT 2} {
+      puts $a; continue; puts never}; set x {}} eq 12
+  query-return {} {query {SELECT 1 AS a UNION ALL SELECT 2} {
+      puts $a; return 7}} eq {1TH_RETURN: 7}
+  query-error {} {query {SELECT 1 AS a UNION ALL SELECT 2} {
+      puts $a; error boom}} eq {1TH_ERROR: boom}
+  query-nested {} {query {SELECT 1 AS a} {query {SELECT 2 AS b} {
+      puts $a$b}}; set x {}} eq 12
+  query-bad-sql {} {query {SELECT nosuch} {puts never}}
+      eq {TH_ERROR: SQL error:  no such column: nosuch}
+  query-bad-sql-quiet {} {query -nocomplain {SELECT nosuch} {puts never}
+      set x quiet} eq quiet
+  query-quiet {} {query -nocomplain {SELECT 4 AS a} {puts $a}; set x {}} eq 4
+  query-delete {} {query {DELETE FROM user} {puts never}}
+      eq {TH_ERROR: SQL error:  not authorized}
+  query-delete-quiet {} {query -nocomplain {DELETE FROM user} {puts never}
+      set x quiet} eq quiet
+  query-update {} {query {UPDATE config SET value=1} {puts never}}
+      eq {TH_ERROR: SQL error:  not authorized}
+  query-password {} {query {SELECT pw FROM user} {puts never}}
+      re {^TH_ERROR: SQL error: }
+  query-step-error {} {query {SELECT abs(-9223372036854775807-1) AS a} {
+      puts never}} eq {TH_ERROR: SQL error:  integer overflow}
+  query-step-error-quiet {} {
+      query -nocomplain {SELECT abs(-9223372036854775807-1) AS a} {puts never}
+      set x quiet} eq quiet
+  query-option-as-sql {} {query -nocomplain {puts never}}
+      eq {TH_ERROR: SQL error:  near "-": syntax error}
+  query-option-misspelt {} {query -nocomplaix {SELECT 1} {puts never}}
+      eq {TH_ERROR: wrong # args: should be "query SQL CODE"}
+  query-tainted {} {query [taint {SELECT 1}] {puts never}}
+      eq {TH_ERROR: tainted query SQL: "SELECT 1"}
+  query-undefined {} {query $nosuch {}} eq {TH_ERROR: no such variable: nosuch}
+
+  code-break {} {break} re {^TH_BREAK: }
+  code-continue {} {continue} re {^TH_CONTINUE: }
+  code-return {} {return x} eq {TH_RETURN: x}
+  code-return2 {} {return -code 5 x} eq {TH_RETURN2: x}
+  code-other {} {return -code 99 x} eq {TH1 return code 99: x}
+}
+
+test_eq th1main-capexpr-not-list [th1main_eval "capexpr \"\{\""] \
+    "TH_ERROR: Expected list, got: \"\{\""
+
+# With capability "o" alone for the user and "h" alone for anonymous.
+set env(TH1_TEST_USER_CAPS) o
+set env(TH1_TEST_ANON_CAPS) h
+th1main_table {
+  caps-hascap {--set-user-caps} {hascap o} eq 1
+  caps-hascap-first-missing {--set-user-caps} {hascap z o} eq 0
+  caps-hascap-last-missing {--set-user-caps} {hascap o z} eq 0
+  caps-hascap-one-word {--set-user-caps} {hascap oz} eq 0
+  caps-anycap-first {--set-user-caps} {anycap oz} eq 1
+  caps-anycap-second {--set-user-caps} {anycap zo} eq 1
+  caps-anycap-none {--set-user-caps} {anycap zh} eq 0
+  caps-anoncap {--set-anon-caps} {anoncap h} eq 1
+  caps-anoncap-missing {--set-anon-caps} {anoncap h o} eq 0
+  caps-capexpr-not {--set-user-caps} {capexpr {!o}} eq 0
+  caps-capexpr-not-other {--set-user-caps} {capexpr {!h}} eq 1
+  caps-capexpr-second {--set-user-caps} {capexpr {z o}} eq 1
+  caps-capexpr-both-needed {--set-user-caps} {capexpr {oz}} eq 0
+  caps-capexpr-anon {--set-anon-caps} {capexpr {@h}} eq 1
+  caps-capexpr-anon-missing {--set-anon-caps} {capexpr {@o}} eq 0
+}
+unset env(TH1_TEST_USER_CAPS) env(TH1_TEST_ANON_CAPS)
+
+# The users still exist after the queries that tried to change them.
+fossil sql "SELECT count(*) FROM user WHERE login='u1'"
+test_eq th1main-query-users-kept [string trim $RESULT] 1
+
+# hasfeature answers 1 for a feature the program is built with.
+fossil version -vv
+set th1mainVersion $RESULT
+foreach {th1mainName th1mainOption} {
+  legacyMvRm FOSSIL_ENABLE_LEGACY_MV_RM
+  dynamicBuild FOSSIL_DYNAMIC_BUILD
+  json {JSON (API}
+  unicodeCmdLine UNICODE_COMMAND_LINE
+  th1Hooks FOSSIL_ENABLE_TH1_HOOKS
+} {
+  set th1mainBuilt [expr {[string first $th1mainOption $th1mainVersion] >= 0}]
+  test_eq th1main-hasfeature-$th1mainName \
+      [th1main_eval "hasfeature $th1mainName"] $th1mainBuilt
+}
+
+# With timeline-utc off, "date -local" gives the time of the zone in TZ.
+fossil settings timeline-utc 0
+set th1mainSavedTz [expr {[info exists env(TZ)] ? $env(TZ) : ""}]
+set env(TZ) XXX-5
+set th1mainDates [split [th1main_eval {puts "[date]|[date -local]"; set x {}}] |]
+if {$th1mainSavedTz eq ""} { unset env(TZ) } else { set env(TZ) $th1mainSavedTz }
+fossil settings timeline-utc 1
+set th1mainDiff [expr {[clock scan [lindex $th1mainDates 1] -gmt 1]
+    - [clock scan [lindex $th1mainDates 0] -gmt 1]}]
+test th1main-date-local {$th1mainDiff >= 17999 && $th1mainDiff <= 18001}
+
+# A script given as the name of a file is read from the file.
+write_file script.th1 "puts from-file; set x {}\n"
+test_eq th1main-eval-file [th1main_eval script.th1] from-file
+
+fossil_raw test-th-eval
+test th1main-eval-usage {$CODE == 1 && [string match "Usage: *" $RESULT]}
+fossil_raw test-th-eval a b
+test th1main-eval-usage-many {$CODE == 1 && [string match "Usage: *" $RESULT]}
+
+###############################################################################
+# Unversioned files.
+
+# In a repository that has never held an unversioned file, "unversioned
+# list" gives an empty list and "unversioned content" a script error.
+set th1mainGot [th1main_eval {unversioned list}]
+test th1main-uv-list-none {$CODE == 0 && $th1mainGot eq ""}
+set th1mainGot [th1main_eval {unversioned content nosuch}]
+test th1main-uv-content-none \
+    {$CODE == 0 && [string match "TH_ERROR:*" $th1mainGot]}
+
+write_file u.txt "data\n"
+write_file v.txt "more\n"
+fossil uv add u.txt v.txt
+fossil uv rm v.txt
+th1main_table {
+  uv-list {} {unversioned list} eq u.txt
+  uv-content {} {unversioned content u.txt} eq data
+  uv-content-unknown {} {unversioned content nosuch} re {^TH_ERROR: }
+  uv-unknown {} {unversioned nosuch}
+      eq {TH_ERROR: Expected sub-command, got: nosuch}
+}
+
+# knownBug: the content of a removed file is given as an empty string;
+# "unversioned list" does not list the file.
+test_match th1main-uv-content-removed \
+    [th1main_eval {unversioned content v.txt}] {^TH_ERROR: } knownBug
+
+###############################################################################
+# Calls that end fossil.
+
+# The hashes of f83.txt and f100.txt begin with the same four digits.
+# "artifact" given those digits is a script error, with or without a
+# file name.
+fossil sql "SELECT substr(uuid,1,4) FROM blob GROUP BY 1 HAVING count(*)>1"
+set th1mainPrefix [string trim $RESULT]
+test_eq th1main-ambiguous-setup $th1mainPrefix 2b06
+set th1mainGot [th1main_eval "artifact $th1mainPrefix"]
+test th1main-artifact-ambiguous \
+    {$CODE == 0 && $th1mainGot eq "TH_ERROR: ambiguous name"}
+set th1mainGot [th1main_eval "artifact $th1mainPrefix a.txt"]
+test th1main-artifact-ambiguous-checkin \
+    {$CODE == 0 && [string match "TH_ERROR: *" $th1mainGot]}
+test_eq th1main-dir-ambiguous [th1main_eval "dir $th1mainPrefix"] {}
+
+# "setting -strict" and "http -asynchronous" with nothing after the
+# option, and "http" with an empty first argument, give a script error.
+foreach {th1mainName th1mainCall th1mainUsage} {
+  setting-strict-alone {setting -strict} {setting ?-strict? ?--? name}
+  http-option-alone {http -asynchronous} {http ?-asynchronous? ?--? url ?payload?}
+  http-empty {http {}} {http ?-asynchronous? ?--? url ?payload?}
+} {
+  set th1mainGot [th1main_eval $th1mainCall]
+  test th1main-args-$th1mainName {$CODE == 0 && [string match \
+      "TH_ERROR: *" $th1mainGot]}
+}
+
+# combobox with a second argument that is not a list gives a script error.
+set th1mainGot [th1main_eval "combobox nm \"\{\" 1"]
+test th1main-combobox-not-list \
+    {$CODE == 0 && [string match "*TH_ERROR: *" $th1mainGot]}
+
+# A query runs each of its statements once.
+foreach {th1mainName th1mainSql} {
+  two   {SELECT 1 AS a; SELECT 2 AS a}
+  space {SELECT 1 AS a; }
+} {
+  fossil_raw -seconds 10 test-th-eval \
+      "set n 0; query {$th1mainSql} {set n \[expr {\$n+1}\]; if {\$n>50} {error endless}}; set n"
+  test th1main-query-statements-$th1mainName \
+      {$CODE == 0 && [string trim $RESULT] eq [dict get {two 2 space 1} $th1mainName]}
+}
+
+# builtin_request_js with a name that is not a built-in file gives a
+# script error.
+set th1mainGot [th1main_eval {builtin_request_js nosuch.js}]
+test th1main-requestjs-unknown {$CODE == 0}
+
+# randhex gives at most 50 bytes, 100 digits.
+test_match th1main-randhex-50 [th1main_eval {randhex 50}] {^[0-9a-f]{100}$}
+test th1main-randhex-50-exit {$CODE == 0}
+test_match th1main-randhex-over [th1main_eval {randhex 1000}] {^[0-9a-f]{100}$}
+
+# http with text that is not a URL gives a script error.
+set th1mainGot [th1main_eval {http not-a-url}]
+test th1main-http-not-url \
+    {$CODE == 0 && [string match "TH_ERROR: *" $th1mainGot]}
+
+# A phantom: an artifact whose content the repository does not hold.
+set th1mainPhantom abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789
+fossil sql "INSERT INTO blob(rcvid,size,uuid) VALUES(0,-1,'$th1mainPhantom');
+            INSERT INTO phantom SELECT rid FROM blob WHERE size=-1;"
+test_match th1main-artifact-phantom \
+    [th1main_eval "artifact $th1mainPhantom"] {^TH_ERROR: }
+
+###############################################################################
+# The http command.  Only a URL that matches the th1-uri-regexp setting
+# is allowed, and only an asynchronous request is implemented.
+
+th1main_table {
+  http-ssh {} {http ssh://host/path}
+      eq {TH_ERROR: url must be http:// or https:// }
+  http-file {} {http file:///tmp/x}
+      eq {TH_ERROR: url must be http:// or https:// }
+  http-no-setting {} {http http://localhost/x} eq {TH_ERROR: url not allowed}
+  http-no-setting-async {} {http -asynchronous -- http://localhost/x}
+      eq {TH_ERROR: url not allowed}
+}
+fossil test-var-set th1-uri-regexp ""
+test_eq th1main-http-empty-setting [th1main_eval {http http://localhost/x}] \
+    {TH_ERROR: url not allowed}
+fossil settings th1-uri-regexp {((}
+test_eq th1main-http-bad-setting [th1main_eval {http http://localhost/x}] \
+    {TH_ERROR: unmatched '('}
+fossil settings th1-uri-regexp {^http://127\.0\.0\.1[:/]}
+th1main_table {
+  http-other-host {} {http -asynchronous http://localhost/x}
+      eq {TH_ERROR: url not allowed}
+  http-synchronous {} {http http://127.0.0.1/x}
+      eq {TH_ERROR: synchronous requests are not yet implemented }
+  http-synchronous-post {} {http -- http://127.0.0.1/x payload}
+      eq {TH_ERROR: synchronous requests are not yet implemented }
+}
+
+# A server that keeps what each request sent in th1mainHeard.
+proc th1main_accept {channel address port} {
+  fconfigure $channel -translation binary -blocking 0
+  fileevent $channel readable [list th1main_listen $channel]
+}
+proc th1main_listen {channel} {
+  append ::th1mainHeard [read $channel]
+  if {[eof $channel]} { close $channel }
+}
+if {![loopback_available]} {
+  test_skip_part "the http command needs the loopback network"
+} else {
+  set th1mainServer [socket -server th1main_accept -myaddr 127.0.0.1 0]
+  set th1mainPort [lindex [fconfigure $th1mainServer -sockname] 2]
+  set th1mainUrl 127.0.0.1:$th1mainPort
+
+  # Run SCRIPT and give the server time to read the request.
+  proc th1main_http {script} {
+    set ::th1mainHeard ""
+    set got [th1main_eval $script]
+    after 300 {set ::th1mainWaited 1}
+    vwait ::th1mainWaited
+    return $got
+  }
+
+  set th1mainGot [th1main_http \
+      "http -asynchronous http://$th1mainUrl/dir/page?a=b; set x sent"]
+  test_eq th1main-http-get $th1mainGot sent
+  test th1main-http-get-request {[holds_strings $th1mainHeard [list \
+      "GET /dir/page?a=b HTTP/1.0\r\n" "Host: $th1mainUrl\r\n" \
+      "User-Agent: " "!Content-Length" "!Authorization"]]}
+
+  set th1mainGot [th1main_http \
+      "http -asynchronous -- http://$th1mainUrl/post {some payload}; set x sent"]
+  test_eq th1main-http-post $th1mainGot sent
+  test th1main-http-post-request {[holds_strings $th1mainHeard [list \
+      "POST /post HTTP/1.0\r\n" "Content-Length: 12\r\n\r\nsome payload" \
+      "Content-Type: application/x-www-form-urlencoded\r\n"]]}
+
+  # No path: the request is for "/".
+  th1main_http "http -asynchronous http://$th1mainUrl"
+  test th1main-http-no-path {[string match "GET / HTTP/1.0\r\n*" $th1mainHeard]}
+
+  # A user and a password in the URL are sent as basic authorization
+  # when the password begins with "#", written %23 in a URL.
+  fossil settings th1-uri-regexp {^http://}
+  th1main_http "http -asynchronous http://me:%23secret@$th1mainUrl/x"
+  test th1main-http-authorization {[holds_strings $th1mainHeard [list \
+      "Authorization: Basic [binary encode base64 me:secret]\r\n"]]}
+  th1main_http "http -asynchronous http://me:secret@$th1mainUrl/x"
+  test th1main-http-password-plain {[holds_strings $th1mainHeard \
+      {{GET /x HTTP/1.0} !Authorization}]}
+  th1main_http "http -asynchronous http://me@$th1mainUrl/x"
+  test th1main-http-user-only {[holds_strings $th1mainHeard \
+      {{GET /x HTTP/1.0} !Authorization}]}
+
+  close $th1mainServer
+  # Nothing listens on the port any more.
+  set th1mainGot [th1main_eval "http -asynchronous http://$th1mainUrl/x"]
+  test_match th1main-http-refused $th1mainGot {^TH_ERROR: .}
+}
+fossil unset th1-uri-regexp
+
+###############################################################################
+# Tracing: --th-trace prints a log of what the commands did.
+
+foreach {th1mainName th1mainOpts th1mainScript th1mainWanted} {
+  output {} {enable_output lbl 1} {{enable_output {lbl} -> 1<br>}}
+  hascap {--set-user-caps} {hascap s x} {{[hascap s x] => 1<br>}}
+  hascap-missing {} {hascap s x} {{[hascap s] => 0<br>}}
+  anycap {--set-user-caps} {anycap zs} {{[anycap zs] => 1<br>}}
+  searchable {} {searchable cdtw} {{[searchable cdtw] => 0<br>}}
+  hasfeature {} {hasfeature markdown} {{[hasfeature markdown] => 1<br>}}
+  tclready {} {tclReady} {{[tclReady] => 0<br>}}
+  trace {} {trace {a message}} {{a message}}
+  setting {} {setting th1main-no-such-setting}
+      {{[setting th1main-no-such-setting] => 0<br>}}
+  setting-strict {} {setting -strict th1main-no-such-setting}
+      {{[setting strict th1main-no-such-setting] => 1<br>}}
+  query {} {query {SELECT 1 AS a} {set y <$a>}}
+      {{query_eval {<pre>set y &lt;$a&gt;</pre>}<br>}
+       {[query_eval] => TH_OK {&lt;1&gt;}<br>}}
+  render {} {render {<th1>set y <b></th1>}}
+      {{render_eval {<pre>set y &lt;b&gt;</pre>}<br>}
+       {[render_eval] => TH_OK {&lt;b&gt;}<br>}}
+  init {} {reinitialize 12} {{th1-init 0x0 => 0x0<br>} {th1-init 0x0 => 0xc<br>}
+       {th1-setup {} => TH_OK<br>}}
+  header {--cgi} {styleHeader {A Title}} {{set title {A Title}<br>}
+       {maybe_set default_csp } {set project_name [taint }}
+} {
+  set th1mainGot [th1main_eval $th1mainScript --th-trace {*}$th1mainOpts]
+  test th1main-trace-$th1mainName {[holds_strings $th1mainGot [concat \
+      {{------------------ BEGIN TRACE LOG ------------------}} \
+      $th1mainWanted]]}
+}
+
+###############################################################################
+# Templates: text with TH1 between <th1> and </th1>, $name for the value
+# of a variable as it is and $<name> for its value escaped for HTML.
+
+# Render TEXT with "fossil test-th-render" and the options in ARGS.
+proc th1main_render {text args} {
+  write_file template.th1 $text
+  fossil_raw -seconds 60 test-th-render {*}$args template.th1
+  return $::RESULT
+}
+
+set th1mainNoVar {no such variable: }
+set th1mainErr {<hr><p class="thmainError">ERROR: }
+foreach {th1mainName th1mainText th1mainExpected} [list \
+  plain {no markup at all} {no markup at all} \
+  empty {} {} \
+  script {a<th1>puts b</th1>c} abc \
+  script-upper {<TH1>puts 1</TH1><Th1>puts 2</tH1><tH1>puts 3</Th1>} 123 \
+  script-unclosed {a<th1>puts b} ab \
+  script-empty-unclosed {a<th1>} a \
+  script-half-closed {a<th1></th1} "a${th1mainErr}no such command:  &lt;/th1</p>" \
+  not-tags {<t><th><th1 ><th2>x</t></th></th1 ></th2></th1x<xh1><tx1>} \
+      {<t><th><th1 ><th2>x</t></th></th1 ></th2></th1x<xh1><tx1>} \
+  end-tag-alone {a</th1>b} {a</th1>b} \
+  end-tag-look-alikes {<th1>set y {<x </x </tx </thx </th1x}; puts $y</th1>} \
+      {&lt;x &lt;/x &lt;/tx &lt;/thx &lt;/th1x} \
+  dollar-end {a$} {a$} \
+  dollar-bracket-end {a$<} {a$<} \
+  dollar-bracket-unclosed {a$<v b} {a$<v b} \
+  dollar-digit {a$1 $_ $: $:: $::1 $<1> ${v}} {a$1 $_ $: $:: $::1 $<1> ${v}} \
+  variables {<th1>set v {<b>&}; set ::g G; set v_2 two</th1>[$v][$<v>][$::g][$<::g>][$v_2]} \
+      {[<b>&][&lt;b&gt;&amp;][G][G][two]} \
+  variable-then-text {<th1>set v 1</th1>$v.$v-$<v>x} {1.1-1x} \
+  variable-unknown {a$nosuch b} "a${th1mainNoVar}nosuch${th1mainErr}no such variable: nosuch</p>" \
+  variable-unknown-escaped {a$<nosuch>b} "a${th1mainNoVar}nosuch${th1mainErr}no such variable: nosuch</p>" \
+  variable-unknown-then-known {<th1>set v 1</th1>a$nosuch b$v c} "a${th1mainNoVar}nosuch b1 c" \
+  variable-tainted {<th1>set t [taint <i>]</th1>[$t][$<t>]end} {[][&lt;i&gt;]end} \
+  error {a<th1>error boom</th1>after} "a${th1mainErr}boom</p>" \
+  error-escaped {<th1>error <b></th1>} "${th1mainErr}&lt;b&gt;</p>" \
+  nested {<th1>set v 2; render {b$<v>|}; render {c$v}</th1>d} {b2|c2d} \
+  nested-error {<th1>render {b$<v>|}; puts never</th1>d} \
+      "b${th1mainNoVar}v${th1mainErr}no such variable: v</p>${th1mainErr}</p>" \
+  output-off {<th1>enable_output 0</th1>hidden $<v><th1>enable_output 1</th1>shown} shown \
+] {
+  test_eq th1main-render-$th1mainName [th1main_render $th1mainText] \
+      $th1mainExpected
+  test th1main-render-$th1mainName-exit {$CODE == 0}
+}
+
+# A script that ends with break, continue or return ends the template;
+# nothing of the block is written to the output.
+foreach {th1mainName th1mainText} {
+  break {a<th1>break</th1>after}
+  continue {a<th1>continue</th1>after}
+  return {a<th1>return 5</th1>after}
+} {
+  test_eq th1main-render-$th1mainName [th1main_render $th1mainText] a
+}
+
+# Text after a zero byte in the file is not rendered.
+test_eq th1main-render-zero-byte [th1main_render "a\0b<th1>puts c</th1>"] a
+
+set th1mainGot [th1main_render {<th1>puts hello</th1>} --cgi]
+test th1main-render-cgi {[holds_strings $th1mainGot [list \
+    "Status: 200 OK\r\n" "Content-Length: 5\r\n" "\r\n\r\nhello"]]}
+set th1mainGot [th1main_render {<th1>error boom</th1>} --http]
+test th1main-render-http {[holds_strings $th1mainGot [list \
+    "HTTP/1.0 200 OK\r\n" "${th1mainErr}boom</p>"]]}
+test_match th1main-render-open-config \
+    [th1main_render {<th1>puts [globalState configuration none]</th1>} \
+         --open-config] {fossil}
+test_eq th1main-render-user-caps \
+    [th1main_render {<th1>puts [hascap s][anoncap s]</th1>} --set-user-caps] 10
+test_eq th1main-render-anon-caps \
+    [th1main_render {<th1>puts [anoncap s]</th1>} --set-anon-caps] 1
+set env(TH1_TEST_USER_CAPS) o
+set env(TH1_TEST_ANON_CAPS) h
+test_eq th1main-render-caps-from-environment \
+    [th1main_render {<th1>puts [hascap o][hascap s][anoncap h][anoncap s]</th1>} \
+         --set-user-caps --set-anon-caps] 1010
+test_eq th1main-eval-caps-from-environment \
+    [th1main_eval {puts [hascap o][hascap s][anoncap h][anoncap s]; set x {}} \
+         --set-user-caps --set-anon-caps] 1010
+unset env(TH1_TEST_USER_CAPS) env(TH1_TEST_ANON_CAPS)
+set th1mainGot [th1main_render {<th1>trace seen</th1>} --th-trace]
+test th1main-render-trace {[holds_strings $th1mainGot \
+    {{BEGIN TRACE LOG} seen {[render_eval] => TH_OK}}]}
+fossil_raw test-th-render
+test th1main-render-usage {$CODE == 1 && [string match "Usage: *" $RESULT]}
+
+###############################################################################
+# test-th-source runs a file as a script.  It opens no repository of
+# its own.
+
+# Run TEXT with "fossil test-th-source" and the options in ARGS.
+proc th1main_source {text args} {
+  write_file source.th1 $text
+  fossil_raw -seconds 60 test-th-source {*}$::th1mainNoHook {*}$args source.th1
+  return [string trimright $::RESULT \n]
+}
+
+test_eq th1main-source [th1main_source {puts a; set x b}] ab
+test_eq th1main-source-error [th1main_source {error boom}] {TH_ERROR: boom}
+test_eq th1main-source-no-result \
+    [th1main_source {puts a; set x b} --no-print-result] a
+test_eq th1main-source-no-database \
+    [th1main_source {query {SELECT 1 AS a} {puts $a}}] \
+    {TH_ERROR: database is not open }
+test_eq th1main-source-no-database-quiet \
+    [th1main_source {query -nocomplain {SELECT 1 AS a} {puts $a}; set x quiet}] \
+    quiet
+test_eq th1main-source-no-repository [th1main_source {repository}] {}
+test_match th1main-source-repository [th1main_source {repository 1}] \
+    {/\.rep\.fossil$}
+test_match th1main-source-checkout [th1main_source {checkout 1}] \
+    {/th1main\.test/$}
+test_eq th1main-source-checkout-not-opened [th1main_source {checkout 0}] {}
+test_match th1main-source-open-config \
+    [th1main_source {globalState configuration none} --open-config] {fossil}
+test_eq th1main-source-user-caps \
+    [th1main_source {puts [hascap s][anoncap s]; set x {}} --set-user-caps] 10
+test_eq th1main-source-anon-caps \
+    [th1main_source {anoncap s} --set-anon-caps] 1
+set env(TH1_TEST_USER_CAPS) o
+set env(TH1_TEST_ANON_CAPS) h
+test_eq th1main-source-caps-from-environment \
+    [th1main_source {puts [hascap o][hascap s][anoncap h][anoncap s]; set x {}} \
+         --set-user-caps --set-anon-caps] 1010
+unset env(TH1_TEST_USER_CAPS) env(TH1_TEST_ANON_CAPS)
+set th1mainGot [th1main_source {puts hello; set x {}} --cgi]
+test th1main-source-cgi {[holds_strings $th1mainGot [list \
+    "Status: 200 OK\r\n" "\r\n\r\nhello"]]}
+set th1mainGot [th1main_source {puts hello; set x {}} --http]
+test th1main-source-http {[holds_strings $th1mainGot [list \
+    "HTTP/1.0 200 OK\r\n" "\r\n\r\nhello"]]}
+fossil_raw test-th-source
+test th1main-source-usage {$CODE == 1 && [string match "Usage: *" $RESULT]}
+
+###############################################################################
+# The th1-setup setting holds a script that runs before any other.
+
+fossil settings th1-setup {proc from_setup {} {return made-by-setup}
+  if {[info exists ::runs]} {set ::runs 2} else {set ::runs 1}}
+test_eq th1main-setup [th1main_eval {from_setup}] made-by-setup
+test_eq th1main-setup-once [th1main_eval {set ::runs}] 1
+# reinitialize with flag 8 runs the script again.
+test_eq th1main-setup-again [th1main_eval {reinitialize 8; set ::runs}] 2
+set th1mainGot [th1main_eval {from_setup} --th-trace]
+test th1main-setup-trace {[holds_strings $th1mainGot [list \
+    "th1-setup \{proc from_setup \{\} \{return made-by-setup\}" \
+    "=> TH_OK<br>"]]}
+
+fossil settings th1-setup {error {setup <failed>}}
+test_eq th1main-setup-error [th1main_eval {set x after}] \
+    "ERROR: setup &lt;failed&gt;\nafter"
+set th1mainGot [th1main_eval {set x after} --cgi]
+test th1main-setup-error-cgi {[holds_strings $th1mainGot \
+    {{<hr><p class="thmainError">ERROR: setup &lt;failed&gt;</p>}}]}
+set th1mainGot [th1main_eval {set x after} --th-trace]
+test th1main-setup-error-trace {[holds_strings $th1mainGot \
+    {{th1-setup {error {setup &lt;failed&gt;}} => TH_ERROR<br>}}]}
+fossil unset th1-setup
+
+###############################################################################
+# TH1 in a page of the web interface.  The script of the "new ticket"
+# page is replaced and the page asked for as a local administrator.
+# The parameters of the request are variables of the script, tainted.
+
+# Make SCRIPT the new-ticket page, send REQUEST to the server and return
+# the reply.  ARGS are more options for "fossil http".
+#
+proc th1main_request {script request args} {
+  global th1mainRepo
+  write_file page.th1 $script
+  fossil test-var-set ticket-newpage --file page.th1
+  write_file request.txt $request
+  file delete reply.txt
+  fossil_raw -seconds 60 http $th1mainRepo --in request.txt --out reply.txt \
+      --ipaddr 127.0.0.1 --localauth {*}$args
+  if {[file exists reply.txt]} { return [read_file reply.txt] }
+  return ""
+}
+
+# The same for a GET of /tktnew with the query string QUERY.
+proc th1main_page {script {query ""} args} {
+  return [th1main_request $script \
+      "GET /tktnew$query HTTP/1.1\r\nHost: x\r\n\r\n" {*}$args]
+}
+
+fossil fts-config enable cdtw
+set th1mainGot [th1main_page {<th1>
+  puts "top=[globalState top none] user=[globalState user none]|"
+  puts "caps=[hascap s][anycap zs][anoncap s][capexpr {@s z}][capexpr {z s}]|"
+  puts "search=[searchable cdtw][searchable c d t w][searchable z][searchable c z][searchable z c][searchable {}]|"
+  puts "param=[getParameter p none][getParameter q none][getParameter q]|"
+  puts "tainted=[string is tainted [getParameter p]][string is tainted [getParameter q none]]|"
+  setParameter q set; puts "set=[getParameter q none]|"
+  puts "nonce=[nonce]|"
+  submenu link SubLabel /sublink
+  cgiHeaderLine "X-Th1main: yes\n"
+  wiki {[a] <b>wiki</b>}; decorate {[b] <i>decorated</i>}
+  copybtn cid 1 txt 7
+  builtin_request_js copybtn.js
+  styleScript copybtn.js
+  insertCsrf
+</th1>|T=$<title>|END} "?p=one&title=%3Cu%3E"]
+test_eq th1main-page-status [lindex [split $th1mainGot \r] 0] "HTTP/1.0 200 OK"
+regexp {nonce=([0-9a-f]+)\|} $th1mainGot -> th1mainNonce
+test th1main-page {[holds_strings $th1mainGot [list \
+    "top= user=" "!user=none" \
+    "caps=11111|" \
+    "search=110000|" \
+    "param=onenone|" \
+    "tainted=11|" \
+    "set=set|" \
+    "\nX-Th1main: yes\n" \
+    {>SubLabel</a>} {/sublink} \
+    {<b>wiki</b>} {[b] &lt;i&gt;decorated&lt;/i&gt;} \
+    {data-copylength="7"} \
+    {<input type="hidden" name="csrf" value="} \
+    "|T=&lt;u&gt;|END" \
+    "'nonce-$th1mainNonce'"]]}
+
+# The wiki page that belongs to a branch is shown by wiki_assoc.
+write_file trunk.md "About the trunk.\n"
+fossil wiki create branch/trunk trunk.md --mimetype text/x-markdown
+set th1mainGot [th1main_page {<th1>wiki_assoc branch trunk
+    wiki_assoc branch nosuch</th1>END}]
+test th1main-page-wiki-assoc {[holds_strings $th1mainGot \
+    {{About the trunk.} END}]}
+
+# styleScript without an argument renders the script of the skin, and
+# with the name of no built-in file renders nothing.
+set th1mainGot [th1main_page {S[<th1>styleScript nosuch.js</th1>]E}]
+test th1main-page-stylescript-unknown {[holds_strings $th1mainGot {{S[]E}}]}
+fossil test-var-set js {/* th1main skin script <th1>puts ran</th1> */}
+set th1mainGot [th1main_page {S[<th1>styleScript</th1>]E}]
+test th1main-page-stylescript-skin {[holds_strings $th1mainGot \
+    {{S[/* th1main skin script ran */]E}}]}
+
+# Redirects.
+set th1mainGot [th1main_page {<th1>redirect /elsewhere</th1>}]
+test th1main-page-redirect {[holds_strings $th1mainGot [list \
+    "HTTP/1.0 302 " "\r\nLocation: http://x/elsewhere\r\n"]]}
+set th1mainGot [th1main_page {<th1>redirect /elsewhere 1</th1>}]
+test th1main-page-redirect-method {[holds_strings $th1mainGot [list \
+    "HTTP/1.0 307 " "\r\nLocation: http://x/elsewhere\r\n"]]}
+set th1mainGot [th1main_page {<th1>redirect /elsewhere 0</th1>}]
+test th1main-page-redirect-no-method {[holds_strings $th1mainGot \
+    {{HTTP/1.0 302 }}]}
+set th1mainGot [th1main_page {<th1>redirect /elsewhere x</th1>END}]
+test th1main-page-redirect-bad-method {[holds_strings $th1mainGot \
+    {{HTTP/1.0 200 OK} {ERROR: expected integer, got: &quot;x&quot;}}]}
+
+# A redirect outside a web request is refused, whatever the URL.
+th1main_table {
+  redirect-no-request {} {redirect /elsewhere}
+      eq {TH_ERROR: redirect is only allowed in a web request }
+  redirect-no-request-http {} {redirect http://example.com/}
+      eq {TH_ERROR: redirect is only allowed in a web request }
+}
+set th1mainGot [th1main_eval {redirect http://example.com/a} --cgi]
+test th1main-redirect-cgi-http {[holds_strings $th1mainGot [list \
+    "Status: 302 " "Location: http://example.com/a\r\n"]]}
+set th1mainGot [th1main_eval {redirect https://example.com/a} --cgi]
+test th1main-redirect-cgi-https {[holds_strings $th1mainGot [list \
+    "Status: 302 " "Location: https://example.com/a\r\n"]]}
+set th1mainGot [th1main_eval {redirect /relative} --cgi]
+test th1main-redirect-cgi-relative {[holds_strings $th1mainGot \
+    {{redirect is only allowed in a web request} !Location}]}
+
+# verifyCsrf lets through only a POST from the same site that carries
+# the token insertCsrf wrote.
+set th1mainGot [th1main_page {<th1>insertCsrf</th1>}]
+regexp {name="csrf" value="([^"]+)"} $th1mainGot -> th1mainToken
+set th1mainGot [th1main_page {<th1>verifyCsrf; puts verified</th1>}]
+test th1main-page-csrf-get {[holds_strings $th1mainGot \
+    {{possible CSRF attack} !verified}]}
+proc th1main_post {script body args} {
+  set headers "Host: x\r\nReferer: http://x/tktnew\r\n"
+  append headers "Content-Type: application/x-www-form-urlencoded\r\n"
+  append headers "Content-Length: [string length $body]\r\n"
+  return [th1main_request $script \
+      "POST /tktnew HTTP/1.1\r\n$headers\r\n$body" {*}$args]
+}
+set th1mainGot [th1main_post {<th1>verifyCsrf; puts verified</th1>} \
+    "csrf=[string map {/ %2F} $th1mainToken]"]
+test th1main-page-csrf-post {[holds_strings $th1mainGot \
+    {verified {!possible CSRF attack}}]}
+set th1mainGot [th1main_post {<th1>verifyCsrf; puts verified</th1>} \
+    "csrf=wrong"]
+test th1main-page-csrf-wrong-token {[holds_strings $th1mainGot \
+    {{possible CSRF attack} !verified}]}
+
+# With --th-trace the log is at the foot of the page.
+set th1mainGot [th1main_page {<th1>set y 1</th1>} "?zzparam=zzvalue" --th-trace]
+test th1main-page-trace {[holds_strings $th1mainGot \
+    {{BEGIN_TKTNEW<br>} {set zzparam [taint {zzvalue}]<br>}
+     {maybe_set default_csp } {[render_eval] => TH_OK {1}<br>}}]}
+
+###############################################################################
+# A tainted value used where it could do harm.  The vuln-report setting
+# says what happens: the default "block" refuses the command, "log"
+# and "off" let it run, "fatal" shows an error page.  All but "off"
+# write to the error log.
+
+set th1mainTaintPage {A<th1>html "P=[getParameter p none]|"
+  puts went-on</th1>|B=$title|C=$<title>|<th1>
+  query "SELECT 1 AS n /* [getParameter p] */" {puts "n=$n"}
+  puts went-on</th1>|END}
+set th1mainTaintQuery "?p=%3Ci%3E&title=%3Cu%3E"
+set th1mainLog [file join [pwd] th1main-taint.log]
+
+# Ask for the page with the setting at VALUE.  Returns the reply; what
+# fossil logged is in th1mainLogged.
+proc th1main_taint {value} {
+  global th1mainTaintPage th1mainTaintQuery th1mainLog th1mainLogged
+  if {$value eq ""} {
+    fossil unset vuln-report
+  } else {
+    fossil settings vuln-report $value
+  }
+  file delete $th1mainLog
+  set reply [th1main_page $th1mainTaintPage $th1mainTaintQuery \
+      --errorlog $th1mainLog]
+  set th1mainLogged ""
+  if {[file exists $th1mainLog]} { set th1mainLogged [read_file $th1mainLog] }
+  return $reply
+}
+
+set th1mainGot [th1main_taint ""]
+test th1main-taint-block {[holds_strings $th1mainGot \
+    {{ERROR: tainted output string: &quot;P=&lt;i&gt;|&quot;} !P=<i>
+     !went-on !|END}]}
+test th1main-taint-block-log {[holds_strings $th1mainLogged \
+    {{possible TH1 XSS vulnerability due to tainted output string: "P=<i>|"}}]}
+
+set th1mainGot [th1main_taint log]
+test th1main-taint-log {[holds_strings $th1mainGot \
+    {{AP=<i>|went-on|B=<u>|C=&lt;u&gt;|n=1went-on|END} !thmainError}]}
+test th1main-taint-log-log {[holds_strings $th1mainLogged \
+    {{possible TH1 XSS vulnerability due to tainted output string: "P=<i>|"}
+     {possible TH1 XSS vulnerability due to tainted inline variable: "title"}
+     {possible TH1 SQL-injection vulnerability due to tainted query SQL: "SELECT 1 AS n /* <i> */"}}]}
+
+set th1mainGot [th1main_taint off]
+test th1main-taint-off {[holds_strings $th1mainGot \
+    {{AP=<i>|went-on|B=<u>|C=&lt;u&gt;|n=1went-on|END} !thmainError}]}
+test th1main-taint-off-log {![string match *vulnerability* $th1mainLogged]}
+
+set th1mainGot [th1main_taint fatal]
+test th1main-taint-fatal {[holds_strings $th1mainGot \
+    {{Configuration Error}
+     {Error in a TH1 configuration script:}
+     {tainted output string: "P=&lt;i&gt;|"} !|END}]}
+test th1main-taint-fatal-exit {$CODE == 1}
+test th1main-taint-fatal-log {[holds_strings $th1mainLogged \
+    {{tainted output string: "P=<i>|"}}]}
+
+# With "block", a tainted variable written as $name is left out and the
+# page goes on; a tainted query and a tainted redirect are refused.
+fossil unset vuln-report
+set th1mainGot [th1main_page {B=$title|C=$<title>|END} $th1mainTaintQuery]
+test th1main-taint-block-inline {[holds_strings $th1mainGot \
+    {{B=|C=&lt;u&gt;|END}}]}
+set th1mainGot [th1main_page {<th1>query "SELECT 1 AS n /* [getParameter p] */" {puts n=$n}</th1>END} $th1mainTaintQuery]
+test th1main-taint-block-query {[holds_strings $th1mainGot \
+    {{ERROR: tainted query SQL: &quot;SELECT 1 AS n /* &lt;i&gt; */&quot;} !n=1}]}
+set th1mainGot [th1main_page {<th1>redirect [getParameter u]</th1>END} \
+    "?u=/elsewhere"]
+test th1main-taint-block-redirect {[holds_strings $th1mainGot \
+    {{HTTP/1.0 200 OK}
+     {ERROR: tainted redirect URL: &quot;/elsewhere&quot;} !Location:}]}
+fossil settings vuln-report off
+set th1mainGot [th1main_page {<th1>redirect [getParameter u]</th1>END} \
+    "?u=/elsewhere"]
+test th1main-taint-off-redirect {[holds_strings $th1mainGot [list \
+    "HTTP/1.0 302 " "\r\nLocation: http://x/elsewhere\r\n"]]}
+fossil unset vuln-report
+
+###############################################################################
+# With no check-out and no repository.
+
+fossil close --force
+file delete .rep.fossil
+th1main_table {
+  none-repository {} {repository} eq {}
+  none-repository-1 {} {repository 1} eq {}
+  none-checkout-1 {} {checkout 1} eq {}
+  none-state-checkout {} {globalState checkout dflt} eq dflt
+  none-state-checkout-no-default {} {globalState checkout} eq {}
+  none-state-repository {} {globalState repository dflt} eq dflt
+  none-state-configuration {} {globalState configuration dflt} eq dflt
+  none-dir {} {dir tip} eq {TH_ERROR: repository unavailable}
+  none-artifact {} {artifact tip} eq {TH_ERROR: repository unavailable}
+  none-artifact-file {} {artifact tip a.txt}
+      eq {TH_ERROR: repository unavailable}
+  none-header {} {styleHeader title} eq {TH_ERROR: repository unavailable}
+  none-footer {} {styleFooter} eq {TH_ERROR: repository unavailable}
+  none-script {} {styleScript} eq {TH_ERROR: repository unavailable}
+  none-uv-list {} {unversioned list} eq {TH_ERROR: repository unavailable}
+  none-uv-content {} {unversioned content u.txt}
+      eq {TH_ERROR: repository unavailable}
+  none-open-config {--open-config} {expr {[globalState flags] & 0x600}} eq 512
+}
+test_eq th1main-none-render-open-config \
+    [th1main_render {<th1>puts [expr {[globalState flags] & 0x600}]</th1>} \
+         --open-config] 512
+
+# The configuration database cannot be opened when the home directory
+# cannot exist: the flag that says TH1 opened it stays off.
+set th1mainSavedHome $env(FOSSIL_HOME)
+set env(FOSSIL_HOME) [file join [pwd] a.txt home]
+test_eq th1main-none-open-config-no-home \
+    [th1main_eval {expr {[globalState flags] & 0x600}} --open-config] 0
+set env(FOSSIL_HOME) $th1mainSavedHome
+
+###############################################################################
+
+test_cleanup

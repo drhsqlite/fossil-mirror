@@ -1,0 +1,1570 @@
+#
+# Tests of "fossil configuration": the methods export, import, merge and
+# reset on every configuration area, the files they write and read, the
+# files they refuse, and the configuration that push, pull and sync carry
+# between repositories, with and without the capabilities the other side
+# asks for.  After each command the configuration of the area must be what
+# the command is documented to leave, and the rest of the repository must
+# be as it was.
+#
+
+# These tests run only in a long pass: -assurance stress.
+if {[test_assurance] ne "stress"} {
+  test_skip "runs only with -assurance stress"
+}
+
+require_no_open_checkout
+
+test_setup ""
+set configDir [pwd]
+set ::env(FOSSIL_USER) tester
+
+###############################################################################
+# Helpers.
+
+# Run SQL in repository REPO and return its output without the final
+# newline.
+proc configSql {repo sql} {
+  fossil sql -R $repo $sql
+  return [string trim $::RESULT]
+}
+
+# Make an empty repository FILE and give its settings a time long before
+# any that the tests write, so that a test sees only what it set.
+proc configNew {file} {
+  fossil new $file
+  fossil sql -R $file "UPDATE config SET mtime=1"
+  return $file
+}
+
+# Run "fossil" with ARGS and keep standard error in RESULT; CODE is the exit
+# status.
+proc configRun {args} {
+  fossil_raw -seconds 120 {*}$args
+}
+
+# The names, in each area, of the settings that sit in the CONFIG table.
+# The settings that "th1-uri-regexp" names belong to the skin, ticket and
+# transfer areas together.
+set configNames(skin) {
+  css header mainmenu footer details js default-skin logo-mimetype
+  logo-image background-mimetype background-image icon-mimetype icon-image
+  timeline-date-format timeline-default-style timeline-dwelltime
+  timeline-closetime timeline-hard-newlines timeline-max-comment
+  timeline-plaintext timeline-truncate-at-blank timeline-tslink-info
+  timeline-utc adunit adunit-omit-if-admin adunit-omit-if-user default-csp
+  sitemap-extra safe-html th1-uri-regexp
+}
+set configNames(css) {css}
+set configNames(project) {
+  project-name short-project-name project-description index-page manifest
+  binary-glob clean-glob ignore-glob keep-glob crlf-glob crnl-glob
+  encoding-glob empty-dirs dotfiles parent-project-code parent-project-name
+  hash-policy comment-format mimetypes forbid-delta-manifests mv-rm-files
+  forum-statuses path-to-tag
+}
+set configNames(ticket) {
+  ticket-table ticket-common ticket-change ticket-newpage ticket-viewpage
+  ticket-editpage ticket-reportlist ticket-report-template
+  ticket-key-template ticket-title-expr ticket-closed-expr th1-uri-regexp
+}
+set configNames(user) {user-color-map}
+set configNames(xfer) {
+  xfer-common-script xfer-push-script xfer-commit-script xfer-ticket-script
+  th1-uri-regexp
+}
+
+# The tables each area holds besides settings: rpt is the ticket
+# reports, usr the users, cnc the concealed email addresses, shn the shunned
+# artifacts, sub the subscribers.  alias and interwiki are settings whose
+# names have a fixed beginning.
+set configTables(skin) {}
+set configTables(css) {}
+set configTables(project) {}
+set configTables(ticket) rpt
+set configTables(user) usr
+set configTables(email) cnc
+set configTables(shun) shn
+set configTables(xfer) {}
+set configTables(alias) {}
+set configTables(interwiki) {}
+set configTables(subscriber) sub
+set configTables(all) {rpt usr cnc shn sub}
+set configAreas {skin css project ticket user email shun xfer alias interwiki
+                 subscriber all}
+
+# The SQL condition that selects the settings of AREA by name.
+proc configCond {area} {
+  global configNames
+  set parts {}
+  switch -- $area {
+    all {
+      foreach a {skin project ticket user xfer} {
+        lappend parts [configCond $a]
+      }
+      lappend parts [configCond alias] [configCond interwiki]
+    }
+    alias     {lappend parts "name GLOB 'walias:/*'"}
+    interwiki {lappend parts "name GLOB 'interwiki:*'"}
+    email - shun - subscriber {lappend parts 0}
+    default {
+      lappend parts "name IN ('[join $configNames($area) {','}]')"
+    }
+  }
+  return "([join $parts { OR }])"
+}
+
+# A setting that is empty or absent has no time that a test can know: the
+# repository makes a new "hash-policy" when it is opened.  MASK hides its time.
+# The SQL that lists what repository holds in the tables TABLES.  With
+# EXPORTED set, only the rows that an export sends: those with a time of
+# last change, and the verified subscribers.
+proc configTableSql {tables exported} {
+  set m [expr {$exported ? "WHERE mtime IS NOT NULL" : ""}]
+  set sql ""
+  foreach t $tables {
+    switch -- $t {
+      rpt {append sql "SELECT 'rpt', owner, title, mtime, quote(cols),
+          quote(sqlcode), quote(ifnull(jx,'{}')) FROM reportfmt $m ORDER BY title;"}
+      usr {append sql "SELECT 'usr', login, quote(pw), quote(cap),
+          quote(info), quote(photo), quote(ifnull(jx,'{}')), mtime FROM user $m
+          ORDER BY login;"}
+      cnc {append sql "SELECT 'cnc', hash, quote(content), mtime
+          FROM concealed $m ORDER BY hash;"}
+      shn {append sql "SELECT 'shn', uuid, quote(scom), mtime
+          FROM shun $m ORDER BY uuid;"}
+      sub {
+        append sql "SELECT 'sub', semail, quote(suname), quote(sdigest),
+          quote(sdonotcall), quote(ssub), quote(sctime), quote(smip), mtime
+          FROM subscriber WHERE sverified [expr {$exported ? {AND mtime
+          IS NOT NULL} : {}}] ORDER BY semail;"
+      }
+    }
+  }
+  return $sql
+}
+
+# What REPO holds for AREA: the settings and the tables.
+proc configState {repo area {exported 0} {mask 0}} {
+  global configTables
+  set t [expr {$mask ? "CASE WHEN name='hash-policy' THEN 0 ELSE mtime END"
+                     : "mtime"}]
+  set sql "SELECT 'cfg', name, quote(value), $t FROM config
+           WHERE [configCond $area] ORDER BY name;"
+  if {$area eq "subscriber" && ![configHasTable $repo subscriber]} {
+    set tables {}
+  } else {
+    set tables $configTables($area)
+  }
+  if {"sub" in $tables && ![configHasTable $repo subscriber]} {
+    set tables [lsearch -all -inline -not -exact $tables sub]
+  }
+  append sql [configTableSql $tables $exported]
+  return [configSql $repo $sql]
+}
+
+# What REPO holds outside AREA, to see that a command left it alone.
+proc configOutside {repo area} {
+  global configTables
+  set sql "SELECT 'cfg', name, quote(value), mtime FROM config
+           WHERE NOT [configCond $area] ORDER BY name;"
+  set tables {}
+  foreach t {rpt usr cnc shn sub} {
+    if {$t ni $configTables($area)} {lappend tables $t}
+  }
+  if {![configHasTable $repo subscriber]} {
+    set tables [lsearch -all -inline -not -exact $tables sub]
+  }
+  append sql [configTableSql $tables 0]
+  return [configSql $repo $sql]
+}
+
+proc configHasTable {repo table} {
+  return [configSql $repo "SELECT count(*) FROM sqlite_schema
+                           WHERE name='$table' AND type='table'"]
+}
+
+# The kinds of card that an export file holds, in order and without
+# repeats.
+proc configKinds {file} {
+  set kinds {}
+  foreach line [split [read_file $file] \n] {
+    if {[regexp {^config (/[a-z]+) [0-9]+$} $line -> kind]} {
+      lappend kinds $kind
+    }
+  }
+  return [lsort -unique $kinds]
+}
+
+# Insert settings into REPO.  ROWS is a list of names and SQL expressions;
+# the times of last change count up from MTIME.
+proc configPut {repo rows mtime} {
+  set sql ""
+  foreach {name expr} $rows {
+    append sql "INSERT OR REPLACE INTO config(name,value,mtime)
+                VALUES('$name',$expr,$mtime);"
+    incr mtime
+  }
+  fossil sql -R $repo $sql
+}
+
+###############################################################################
+# The repository whose configuration the tests export: every area has
+# something in it, with the awkward values that a configuration holds:
+# quotes, line ends, characters beyond ASCII and binary content.
+
+set configSkin {
+  css            {'body { color: #123; }'}
+  header         {'<html>
+<head><title>It''s "quoted"</title></head>
+'}
+  mainmenu       {'[["Home","/home"]]'}
+  footer         {'caf' || char(233) || ' ' || char(8364)}
+  details        {''}
+  js             {'var a = ''b'';'}
+  default-skin   {'plain'}
+  logo-mimetype  {'image/png'}
+  logo-image     {x'89504e470d0a1a0a0000'}
+  background-mimetype {'image/jpeg'}
+  background-image    {x'ffd8ffe000104a46'}
+  icon-mimetype  {'image/x-icon'}
+  icon-image     {x'00000100'}
+  timeline-date-format {'2'}
+  timeline-default-style {'compact'}
+  timeline-dwelltime {'8'}
+  timeline-closetime {'9'}
+  timeline-hard-newlines {'1'}
+  timeline-max-comment {'77'}
+  timeline-plaintext {'1'}
+  timeline-truncate-at-blank {'1'}
+  timeline-tslink-info {'1'}
+  timeline-utc   {'0'}
+  adunit         {'<b>an ad</b>'}
+  adunit-omit-if-admin {'1'}
+  adunit-omit-if-user  {'1'}
+  default-csp    {'default-src ''self'''}
+  sitemap-extra  {'3'}
+  safe-html      {'1'}
+  th1-uri-regexp {'/ok/*'}
+}
+set configProject {
+  project-name   {'Alpha'}
+  short-project-name {'AP'}
+  project-description {'The first line.
+The second line.'}
+  index-page     {'/home'}
+  manifest       {'on'}
+  binary-glob    {'*.bin,*.dat'}
+  clean-glob     {'*.o'}
+  ignore-glob    {'*.tmp'}
+  keep-glob      {'keep/*'}
+  crlf-glob      {'*.bat'}
+  crnl-glob      {'*.cmd'}
+  encoding-glob  {'*.txt'}
+  empty-dirs     {'docs'}
+  dotfiles       {'1'}
+  parent-project-code {'0123456789abcdef0123456789abcdef01234567'}
+  parent-project-name {'Parent'}
+  comment-format {'1'}
+  mimetypes      {'*.x=text/x-x'}
+  forbid-delta-manifests {'1'}
+  mv-rm-files    {'1'}
+  forum-statuses {'open,closed'}
+  path-to-tag    {'1'}
+}
+set configXfer {
+  xfer-common-script {'proc common {} {return 1}'}
+  xfer-push-script   {'proc push {} {return 2}'}
+  xfer-commit-script {'proc commit {} {return 3}'}
+  xfer-ticket-script {'proc ticket {} {return 4}'}
+}
+set configAlias {
+  walias:/docs   {'/doc/trunk/www/index.wiki'}
+  walias:/news   {'/forum'}
+}
+set configInterwiki {
+  interwiki:wp   {'https://en.wikipedia.org/wiki/%s'}
+  interwiki:gh   {'https://github.com/%s'}
+}
+
+# The ticket configuration needs a ticket table that works: the default
+# one with a column added.
+proc configTicketTable {repo} {
+  set sql [configSql $repo "SELECT group_concat(sql,';') FROM sqlite_schema
+      WHERE tbl_name IN ('ticket','ticketchng') AND sql IS NOT NULL"]
+  return [string map {"comment TEXT\n)" "comment TEXT,\n  zzz TEXT\n)"} $sql]
+}
+
+proc configFill {repo} {
+  global configSkin configProject configXfer configAlias configInterwiki
+  configPut $repo $configSkin 1700000000
+  configPut $repo $configProject 1700001000
+  configPut $repo $configXfer 1700002000
+  configPut $repo $configAlias 1700003000
+  configPut $repo $configInterwiki 1700004000
+  set table [string map {' ''} [configTicketTable $repo]]
+  configPut $repo [list \
+    ticket-table "'$table'" \
+    ticket-common {'set a 1'} \
+    ticket-change {'set b "x"'} \
+    ticket-newpage {'<h1>New</h1>'} \
+    ticket-viewpage {'<h1>View</h1>'} \
+    ticket-editpage {'<h1>Edit</h1>'} \
+    ticket-reportlist {'1'} \
+    ticket-report-template {'$a'} \
+    ticket-key-template {'k-%s'} \
+    ticket-title-expr {'title'} \
+    ticket-closed-expr {'status=''Closed'''} \
+    user-color-map {'alice=#ff0000'} \
+  ] 1700005000
+  fossil sql -R $repo "
+    UPDATE user SET mtime=1700006000 WHERE login='tester';
+    INSERT INTO user(login,pw,cap,info,photo,jx,mtime)
+      VALUES('alice','pw-alice','oj','Alice <alice@example.com>',
+             x'ffd8ffe0','{\"k\":1}',1700006001);
+    INSERT INTO user(login,pw,cap,info,photo,jx,mtime)
+      VALUES('bob',NULL,NULL,NULL,NULL,NULL,1700006002);
+    INSERT INTO shun(uuid,mtime,scom) VALUES
+      ('0123456789abcdef0123456789abcdef01234567',1700007000,'it''s spam'),
+      ('fedcba9876543210fedcba9876543210fedcba98',1700007001,NULL);
+    INSERT INTO concealed(hash,mtime,content) VALUES
+      ('aaaa1111',1700008000,'a@example.com'),
+      ('bbbb2222',1700008001,'b@example.com');
+    UPDATE reportfmt SET mtime=2440588 WHERE title='All Tickets';
+    INSERT INTO reportfmt(owner,title,mtime,cols,sqlcode,jx) VALUES
+      ('alice','Mine',2460000,'#ffffff Key:','SELECT 1 AS ''x''',
+       '{\"a\":2}'),
+      (NULL,'Theirs',2460001,NULL,'SELECT 2',NULL),
+      (NULL,'Bare',2460002,NULL,NULL,NULL);
+  "
+  # The subscribers arrive as cards, which create the table.
+  set card "1700009000 'a@example.com' suname 'alice' sdigest 0\
+            sdonotcall 0 ssub 'a' sctime 1700000000 smip '10.0.0.1'"
+  set card2 "1700009001 'b@example.com' suname NULL sdigest 1\
+             sdonotcall 1 ssub 'ctw' sctime 1700000001 smip NULL"
+  write_file subscribers.cfg "config /subscriber [string length $card]\n$card\n\
+      config /subscriber [string length $card2]\n$card2\n"
+  fossil config merge subscribers.cfg -R $repo
+  fossil sql -R $repo "INSERT INTO subscriber(semail,mtime,sverified)
+      VALUES('unverified@example.com',1700009002,0)"
+}
+
+configNew a.fossil
+configFill a.fossil
+fossil sql -R a.fossil "UPDATE config SET mtime=1700010000
+    WHERE name IN ('project-code')"
+test config-fill-complete {[configSql a.fossil "SELECT count(*) FROM config
+    WHERE name IN ('header','project-name','ticket-table','xfer-push-script',
+                   'walias:/docs','interwiki:wp','user-color-map')"] == 7}
+test config-fill-subscribers {[configSql a.fossil "SELECT count(*) FROM
+    subscriber"] == 3}
+
+###############################################################################
+# Export: each area writes a file that starts with a comment naming the area
+# and the repository, holds cards for that area only, and changes nothing.
+
+set configKindsOf(skin)       /config
+set configKindsOf(css)        /config
+set configKindsOf(project)    /config
+set configKindsOf(ticket)     {/config /reportfmt}
+set configKindsOf(user)       {/config /user}
+set configKindsOf(email)      /concealed
+set configKindsOf(shun)       /shun
+set configKindsOf(xfer)       /config
+set configKindsOf(alias)      /config
+set configKindsOf(interwiki)  /config
+set configKindsOf(subscriber) /subscriber
+set configKindsOf(all) {/concealed /config /reportfmt /shun /subscriber /user}
+
+set configBefore [configSql a.fossil "SELECT 'c',name,mtime FROM config
+    ORDER BY name"]
+foreach configArea $configAreas {
+  set configFile export-$configArea.cfg
+  configRun configuration export $configArea $configFile -R a.fossil
+  test config-export-$configArea {$CODE == 0 && $RESULT eq ""}
+  set configText [read_file $configFile]
+  test_match config-export-$configArea-header $configText \
+      "^# The \"$configArea\" configuration exported from\n# repository \"a.fossil\"\n# on \[0-9-\]+ \[0-9:\]+\n"
+  test_eq config-export-$configArea-cards [configKinds $configFile] \
+      [lsort $configKindsOf($configArea)]
+}
+test_eq config-export-changes-nothing [configSql a.fossil "SELECT 'c',name,mtime
+    FROM config ORDER BY name"] $configBefore
+
+###############################################################################
+# Import: an area exported from one repository and imported into another
+# makes the second hold what the first holds, in that area, with the times
+# of last change.  The tables of the area are replaced, so that a row that
+# only the importing side held is gone.  Nothing outside the area changes.
+# Reset: the area is back at its defaults, the command names a file that
+# restores what was there, and importing that file does so.
+
+# What an area has once it is reset.
+proc configDefaults {area} {
+  global configDefault
+  if {![info exists configDefault]} {
+    configNew defaults.fossil
+    foreach a {skin css project ticket user email shun xfer alias interwiki
+               subscriber all} {
+      set configDefault($a) [configState defaults.fossil $a 0 1]
+    }
+  }
+  return $configDefault($area)
+}
+
+# A row in the tables of AREA that the exporting repository lacks, for the
+# importing one.
+proc configDecoy {repo area} {
+  switch -- $area {
+    ticket    {fossil sql -R $repo "INSERT INTO reportfmt(owner,title,mtime)
+                   VALUES('x','Decoy',2450000)"}
+    user      {fossil sql -R $repo "INSERT INTO user(login,cap,mtime)
+                   VALUES('decoy','o',5)"}
+    email     {fossil sql -R $repo "INSERT INTO concealed(hash,mtime,content)
+                   VALUES('decoy',5,'d@example.com')"}
+    shun      {fossil sql -R $repo "INSERT INTO shun(uuid,mtime,scom)
+                   VALUES('decoy',5,'x')"}
+    subscriber {fossil sql -R $repo "INSERT INTO subscriber(semail,mtime)
+                   VALUES('decoy@example.com',5)"}
+    all {
+      foreach a {ticket user email shun subscriber} {configDecoy $repo $a}
+    }
+  }
+}
+
+foreach configArea $configAreas {
+  set configB b-$configArea.fossil
+  configNew $configB
+  if {$configArea eq "subscriber" || $configArea eq "all"} {
+    # A table that is there already, with a row only this side holds.
+    fossil config merge subscribers.cfg -R $configB
+    fossil sql -R $configB "DELETE FROM subscriber"
+  }
+  configDecoy $configB $configArea
+  set configOut [configOutside $configB $configArea]
+  set configExp [configState a.fossil $configArea 1]
+  test config-$configArea-has-content {$configExp ne ""}
+
+  configRun configuration import export-$configArea.cfg -R $configB
+  test config-import-$configArea {$CODE == 0 && $RESULT eq ""}
+  test_eq config-import-$configArea-same [configState $configB $configArea] $configExp
+  test_eq config-import-$configArea-outside [configOutside $configB $configArea] $configOut
+  if {$configArea eq "ticket" || $configArea eq "all"} {
+    # The ticket tables are rebuilt from the imported ticket-table.
+    test_eq config-import-$configArea-ticket-table [configSql $configB "SELECT
+        count(*) FROM pragma_table_info('ticket') WHERE name='zzz'"] 1
+  }
+  fossil test-integrity -R $configB
+  test config-import-$configArea-integrity {$CODE == 0}
+
+  # Reset.
+  set configPre [configState $configB $configArea]
+  set configOut [configOutside $configB $configArea]
+  configRun configuration reset $configArea -R $configB
+  test config-reset-$configArea {$CODE == 0 &&
+      [string first "Configuration reset to factory defaults." $RESULT] >= 0}
+  set configResetOut $RESULT
+  test_eq config-reset-$configArea-outside [configOutside $configB $configArea] $configOut
+  regexp {import (config-backup-[0-9.]+)} $configResetOut -> configBackup
+  test config-reset-$configArea-backup {[info exists configBackup] &&
+      [file exists $configBackup]}
+  if {$configArea eq "user" || $configArea eq "all"} {
+    # The default users come back, and the user who ran the command is
+    # their administrator.
+    test_eq config-reset-$configArea-users [configSql $configB "SELECT login, cap, mtime
+        FROM user ORDER BY login"] \
+        "anonymous|hz|\ndeveloper|ei|\nnobody|gjorz|\nreader|kptw|\ntester|s|"
+  }
+  if {$configArea ni {alias interwiki all user}} {
+    test_eq config-reset-$configArea-state [configState $configB $configArea 0 1] \
+        [configDefaults $configArea]
+  }
+  if {$configArea eq "ticket" || $configArea eq "all"} {
+    test_eq config-reset-$configArea-ticket-table [configSql $configB "SELECT
+        count(*) FROM pragma_table_info('ticket') WHERE name='zzz'"] 0
+  }
+  if {$configArea eq "subscriber" || $configArea eq "all"} {
+    test_eq config-reset-$configArea-subscribers [configSql $configB "SELECT count(*)
+        FROM subscriber"] 0
+  }
+  configRun configuration import $configBackup -R $configB
+  test config-reset-$configArea-recover {$CODE == 0}
+  test_eq config-reset-$configArea-recovered [configState $configB $configArea] $configPre
+  test_eq config-reset-$configArea-recovered-outside [configOutside $configB $configArea] \
+      $configOut
+}
+
+
+###############################################################################
+# Reset removes the URL aliases and the inter-wiki prefixes with their areas.
+
+foreach configArea {alias interwiki} {
+  configNew r-$configArea.fossil
+  configFill r-$configArea.fossil
+  configRun configuration reset $configArea -R r-$configArea.fossil
+  test config-reset-$configArea-removes {[configState r-$configArea.fossil $configArea 0 1] eq
+      [configDefaults $configArea]}
+}
+configNew r-all.fossil
+configFill r-all.fossil
+configRun configuration reset all -R r-all.fossil
+test config-reset-all-removes-aliases {[configSql r-all.fossil "SELECT count(*)
+    FROM config WHERE name GLOB 'walias:/*' OR name GLOB 'interwiki:*'"] == 0}
+test_eq config-reset-all-settings [configSql r-all.fossil "SELECT group_concat(
+    name) FROM (SELECT name FROM config WHERE NOT name GLOB 'walias:/*' AND
+    NOT name GLOB 'interwiki:*' ORDER BY name)"] \
+    "aux-schema,content-schema,hash-policy,project-code,rebuilt,server-code"
+
+# Reset on a repository that has no subscriber table is no error.
+configNew r-empty.fossil
+configRun configuration reset subscriber -R r-empty.fossil
+test config-reset-no-subscriber-table {$CODE == 0}
+configRun configuration reset all -R r-empty.fossil
+test config-reset-all-empty {$CODE == 0}
+foreach configPart {skin project ticket xfer alias interwiki email shun
+                    subscriber} {
+  test_eq config-reset-all-empty-$configPart \
+      [configState r-empty.fossil $configPart 0 1] [configDefaults $configPart]
+}
+test_eq config-reset-all-empty-users [configSql r-empty.fossil "SELECT
+    group_concat(login) FROM (SELECT login FROM user ORDER BY login)"] \
+    "anonymous,developer,nobody,reader,tester"
+test_eq config-reset-all-empty-reports [configSql r-empty.fossil "SELECT
+    group_concat(title) FROM reportfmt"] "All Tickets"
+configRun configuration export all r-empty.cfg -R r-empty.fossil
+test config-export-all-empty {$CODE == 0 &&
+    [configKinds r-empty.cfg] eq "/config /reportfmt"}
+configRun configuration export subscriber r-empty-sub.cfg -R r-empty.fossil
+test config-export-subscriber-no-table {$CODE == 0 &&
+    [configKinds r-empty-sub.cfg] eq ""}
+
+###############################################################################
+# A ticket report whose time of change has a fraction, as the time of the
+# default report has, comes back from an export.
+# knownBug: the card of such a report is refused, because its first token
+# must be a whole number.
+
+configNew f-a.fossil
+configNew f-b.fossil
+fossil sql -R f-a.fossil "INSERT INTO reportfmt(owner,title,mtime,cols,sqlcode)
+    VALUES('o','Fractional',julianday('now'),'','SELECT 1')"
+configRun configuration export ticket f-a.cfg -R f-a.fossil
+configRun configuration merge f-a.cfg -R f-b.fossil
+test config-merge-report-fraction {[configSql f-b.fossil "SELECT count(*)
+    FROM reportfmt WHERE title='Fractional'"] == 1} knownBug
+configRun configuration import f-a.cfg -R f-b.fossil
+test config-import-report-fraction {[configSql f-b.fossil "SELECT count(*)
+    FROM reportfmt WHERE title='Fractional'"] == 1} knownBug
+
+###############################################################################
+# Export of changes since a time: only what changed since then is written.
+
+configRun configuration export project since.cfg --since 2099-01-01 \
+    -R a.fossil
+test config-export-since-future {$CODE == 0 && [configKinds since.cfg] eq ""}
+configRun configuration export project since2.cfg --since 2000-01-01 \
+    -R a.fossil
+test config-export-since-past {$CODE == 0 &&
+    [configKinds since2.cfg] eq "/config"}
+
+###############################################################################
+# Names of areas and methods: an abbreviation that starts the name is
+# enough.  An unknown area lists the areas and writes nothing.
+
+foreach {configAbbrev configArea} {sk skin pro project t ticket u user e email sh shun
+                       a alias al alias all all su subscriber i interwiki
+                       x xfer c css} {
+  file delete abbrev.cfg
+  configRun configuration export $configAbbrev abbrev.cfg -R a.fossil
+  test config-area-abbrev-$configAbbrev {$CODE == 0 && [file exists abbrev.cfg]}
+  # Everything after the header, which names the area and the time.
+  test_eq config-area-abbrev-$configAbbrev-same \
+      [lrange [split [read_file abbrev.cfg] \n] 3 end] \
+      [lrange [split [read_file export-$configArea.cfg] \n] 3 end]
+}
+file delete abbrev.cfg
+foreach configBad {nosuch skinx ALL Skin} {
+  configRun configuration export $configBad abbrev.cfg -R a.fossil
+  test config-area-unknown-$configBad {$CODE == 1 &&
+      [string first "no such configuration area: \"$configBad\"" $RESULT] >= 0 &&
+      [string first "Available configuration areas:" $RESULT] >= 0 &&
+      [string first "  skin          Web interface appearance settings" \
+          $RESULT] >= 0 &&
+      ![file exists abbrev.cfg]}
+}
+foreach configMethod {reset pull push sync} {
+  configRun configuration $configMethod nosuch -R a.fossil
+  test config-area-unknown-$configMethod {$CODE == 1 &&
+      [string first "no such configuration area: \"nosuch\"" $RESULT] >= 0}
+}
+
+# The methods accept abbreviations too.
+foreach {configAbbrev configFull} {exp export e export ex export} {
+  file delete abbrev.cfg
+  configRun configuration $configAbbrev skin abbrev.cfg -R a.fossil
+  test config-method-abbrev-$configAbbrev {$CODE == 0 && [file exists abbrev.cfg]}
+}
+configNew m-abbrev.fossil
+foreach {configAbbrev configTag} {i import im import imp import m merge me merge mer merge} {
+  configRun configuration $configAbbrev export-skin.cfg -R m-abbrev.fossil
+  test config-method-abbrev-$configAbbrev {$CODE == 0 &&
+      [configSql m-abbrev.fossil "SELECT value FROM config
+                                  WHERE name='css'"] eq "body { color: #123; }"}
+  fossil sql -R m-abbrev.fossil "DELETE FROM config WHERE name='css'"
+}
+configRun configuration res skin -R m-abbrev.fossil
+test config-method-abbrev-res {$CODE == 0 &&
+    [string first "Configuration reset" $RESULT] >= 0}
+configRun configuration r skin -R m-abbrev.fossil
+test config-method-abbrev-r {$CODE == 0 &&
+    [string first "Configuration reset" $RESULT] >= 0}
+
+# Wrong numbers of arguments and unknown methods.
+foreach {configNm configArgs} {
+  none                {}
+  export-no-file      {export skin}
+  export-too-many     {export skin x.cfg y}
+  export-none         {export}
+  import-none         {import}
+  import-too-many     {import a b}
+  merge-none          {merge}
+  merge-too-many      {merge a b}
+  reset-none          {reset}
+  reset-too-many      {reset skin skin}
+  pull-none           {pull}
+  pull-too-many       {pull skin a b}
+  push-none           {push}
+  sync-none           {sync}
+} {
+  configRun configuration {*}$configArgs -R a.fossil
+  test config-usage-$configNm {$CODE == 1 && [string first "Usage:" $RESULT] >= 0}
+}
+configRun configuration frobnicate -R a.fossil
+test config-method-unknown {$CODE == 1 &&
+    [string first "METHOD should be one of: export import merge pull push reset"\
+        $RESULT] >= 0}
+configRun configuration -R a.fossil
+test config-method-missing {$CODE == 1 && [string first "Usage:" $RESULT] >= 0}
+configRun configuration import nosuchfile.cfg -R a.fossil
+test config-import-no-file {$CODE == 1}
+
+
+###############################################################################
+# Merge: a value that the file has is taken where the repository has none
+# or an older one; a value that the repository changed at the same time or
+# later is kept.  Nothing is removed.
+
+# A card for TABLE with TEXT as its content.
+proc configCard {table text} {
+  return "config /$table [string length $text]\n$text\n"
+}
+
+configNew m.fossil
+fossil config merge subscribers.cfg -R m.fossil
+fossil sql -R m.fossil "
+  INSERT INTO config(name,value,mtime) VALUES
+    ('css','local-css',1800000000),
+    ('header','local-header',5),
+    ('mainmenu','local-menu',1700000002),
+    ('walias:/docs','local-alias',1800000000),
+    ('walias:/only','only-here',5);
+  INSERT INTO user(login,pw,cap,info,mtime) VALUES
+    ('alice','local-pw','x','local',1800000000),
+    ('only','p','o','',5);
+  UPDATE user SET cap='o' WHERE login='tester';
+  INSERT INTO shun(uuid,mtime,scom) VALUES
+    ('0123456789abcdef0123456789abcdef01234567',5,'old'),
+    ('only',5,'only here');
+  INSERT INTO concealed(hash,mtime,content) VALUES
+    ('aaaa1111',1800000000,'local@example.com'),
+    ('only',5,'only@example.com');
+  INSERT INTO reportfmt(owner,title,mtime,cols,sqlcode) VALUES
+    ('local','Mine',2400000,'','SELECT 0'),
+    ('local','Only',2400000,'','SELECT 0');
+  UPDATE subscriber SET suname='local', mtime=1800000000
+    WHERE semail='a@example.com';
+  INSERT INTO subscriber(semail,mtime) VALUES('only@example.com',5);
+"
+configRun configuration merge export-all.cfg -R m.fossil
+test config-merge {$CODE == 0 && $RESULT eq ""}
+proc configMergeCheck {name sql expected} {
+  test_eq config-merge-$name [configSql m.fossil $sql] $expected
+}
+configMergeCheck newer-local-kept "SELECT value FROM config WHERE name='css'" \
+    local-css
+configMergeCheck older-local-replaced "SELECT value||'|'||mtime FROM config
+    WHERE name='header'" "<html>\n<head><title>It's \"quoted\"</title></head>\n|1700000001"
+configMergeCheck equal-time-local-kept "SELECT value FROM config
+    WHERE name='mainmenu'" local-menu
+configMergeCheck absent-added "SELECT value FROM config WHERE name='js'" \
+    "var a = 'b';"
+configMergeCheck alias-newer-local-kept "SELECT value FROM config
+    WHERE name='walias:/docs'" local-alias
+configMergeCheck alias-absent-added "SELECT value FROM config
+    WHERE name='walias:/news'" /forum
+configMergeCheck interwiki-added "SELECT value FROM config
+    WHERE name='interwiki:wp'" "https://en.wikipedia.org/wiki/%s"
+configMergeCheck local-only-alias-kept "SELECT value FROM config
+    WHERE name='walias:/only'" only-here
+configMergeCheck user-newer-local-kept "SELECT pw||cap||info FROM user
+    WHERE login='alice'" "local-pwxlocal"
+configMergeCheck user-absent-added "SELECT count(*) FROM user
+    WHERE login='bob' AND mtime=1700006002" 1
+configMergeCheck user-local-only-kept "SELECT count(*) FROM user
+    WHERE login='only'" 1
+configMergeCheck shun-older-local-replaced "SELECT scom||'|'||mtime FROM shun
+    WHERE uuid='0123456789abcdef0123456789abcdef01234567'" \
+    "it's spam|1700007000"
+configMergeCheck shun-absent-added "SELECT count(*) FROM shun
+    WHERE uuid='fedcba9876543210fedcba9876543210fedcba98' AND scom IS NULL" 1
+configMergeCheck shun-local-only-kept "SELECT count(*) FROM shun
+    WHERE uuid='only'" 1
+configMergeCheck concealed-newer-local-kept "SELECT content FROM concealed
+    WHERE hash='aaaa1111'" local@example.com
+configMergeCheck concealed-absent-added "SELECT content FROM concealed
+    WHERE hash='bbbb2222'" b@example.com
+configMergeCheck concealed-local-only-kept "SELECT count(*) FROM concealed
+    WHERE hash='only'" 1
+configMergeCheck report-older-local-replaced "SELECT owner||'|'||sqlcode FROM
+    reportfmt WHERE title='Mine'" "alice|SELECT 1 AS 'x'"
+configMergeCheck report-absent-added "SELECT count(*) FROM reportfmt
+    WHERE title='Theirs'" 1
+configMergeCheck report-local-only-kept "SELECT count(*) FROM reportfmt
+    WHERE title='Only'" 1
+configMergeCheck subscriber-newer-local-kept "SELECT suname FROM subscriber
+    WHERE semail='a@example.com'" local
+configMergeCheck subscriber-absent-added "SELECT ssub FROM subscriber
+    WHERE semail='b@example.com'" ctw
+configMergeCheck subscriber-local-only-kept "SELECT count(*) FROM subscriber
+    WHERE semail='only@example.com'" 1
+fossil test-integrity -R m.fossil
+test config-merge-integrity {$CODE == 0}
+
+# The same file merged again changes nothing.
+set configMerged [configState m.fossil all]
+configRun configuration merge export-all.cfg -R m.fossil
+test_eq config-merge-twice [configState m.fossil all] $configMerged
+
+# Merge into an empty repository is import.
+configNew m2.fossil
+configRun configuration merge export-all.cfg -R m2.fossil
+foreach configArea {skin project ticket xfer alias interwiki email shun subscriber} {
+  test_eq config-merge-empty-$configArea [configState m2.fossil $configArea] \
+      [configState a.fossil $configArea 1]
+}
+
+# Import and merge write only inside one transaction: a file that stops the
+# command leaves the repository as it was.  A file with a card that SQLite
+# cannot take (a repeated column) is such a file.
+configNew t.fossil
+configPut t.fossil {css {'kept'}} 1700000000
+set configTx [configState t.fossil all]
+set configTxCard "1700000100 'x' value 'v'"
+set configTxCard2 "1700000100 'alice' pw 'a' pw 'b' pw 'c' pw 'd' pw 'e' pw 'f' pw 'g'
+ pw 'h' pw 'i' pw 'j' pw 'k' pw 'l' pw 'm' pw 'n'"
+write_file tx.cfg "[configCard config "1700000100 'css' value 'changed'"]\
+[configCard user $configTxCard2]"
+configRun configuration merge tx.cfg -R t.fossil
+set configTxCode $CODE
+set configTxOut $RESULT
+test config-card-many-fields {$configTxCode == 0 || $configTxCode == 1}
+fossil test-integrity -R t.fossil
+test config-card-many-fields-integrity {$CODE == 0}
+
+###############################################################################
+# The literals of a card.  A value is a string, a blob in hexadecimal, an
+# integer or NULL; anything else is refused and the card does nothing.
+
+configNew l.fossil
+proc configLiteral {name value expected} {
+  fossil sql -R l.fossil "DELETE FROM config WHERE name='header'"
+  write_file lit.cfg [configCard config "1700000000 'header' value $value"]
+  configRun configuration merge lit.cfg -R l.fossil
+  set got [configSql l.fossil "SELECT quote(value) FROM config
+                               WHERE name='header'"]
+  test_eq config-literal-$name $got $expected
+  test config-literal-$name-exit {$::CODE == 0}
+}
+configLiteral string      {'plain'} {'plain'}
+configLiteral string-empty {''} {''}
+configLiteral string-quote {'it''s'} {'it''s'}
+configLiteral string-newline "'a\nb'" "'a\nb'"
+configLiteral blob        {x'41424344'} {X'41424344'}
+configLiteral blob-upper  {X'4a4B'} {X'4A4B'}
+configLiteral blob-empty  {x''} {X''}
+configLiteral integer     {12} {'12'}
+# Text after the closing quote of a string is a token of its own, which is
+# no field name, so it is skipped and the string stays the value.
+configLiteral string-trailing {'a'b'} {'a'}
+configLiteral string-concat {'a'||'b'} {'a'}
+configLiteral null        {NULL} {NULL}
+configLiteral null-lower  {null} {NULL}
+configLiteral null-mixed  {NuLl} {NULL}
+foreach {configNm configValue} {
+  bare-word        hello
+  float            1.5
+  negative         -5
+  digits-letters   12ab
+  expression       {1+1}
+  blob-odd         {x'abc'}
+  blob-not-hex     {x'zz'}
+  blob-open        {x'ab}
+  blob-no-quote    {xab}
+  blob-upper-no-quote {Xab}
+  blob-short       {x'}
+  string-open      {'abc}
+  string-open-doubled {'abc''}
+  string-lone      {'}
+  null-prefix      {NULLx}
+  not-null         {NUL}
+} {
+  fossil sql -R l.fossil "DELETE FROM config WHERE name='header'"
+  write_file lit.cfg [configCard config "1700000000 'header' value $configValue"]
+  configRun configuration merge lit.cfg -R l.fossil
+  test config-literal-refused-$configNm {$CODE == 0 &&
+      [configSql l.fossil "SELECT count(*) FROM config
+                           WHERE name='header'"] == 0}
+}
+
+
+###############################################################################
+# Files that are not well formed.  A line that is no card is skipped; a card
+# that is not well formed does nothing, and the cards after it are read as
+# if it were not there.  Nothing is written that the card did not name.
+
+# Everything that REPO holds, settings and tables, except the two settings
+# that a server of the repository writes for its own use.
+proc configDump {repo} {
+  global configTables
+  set sql "SELECT 'cfg', name, quote(value), mtime FROM config
+           WHERE name<>'backoffice' AND name NOT GLOB 'baseurl:*'
+           ORDER BY name;"
+  set tables {rpt usr cnc shn}
+  if {[configHasTable $repo subscriber]} {lappend tables sub}
+  append sql [configTableSql $tables 0]
+  return [configSql $repo $sql]
+}
+
+configNew c.fossil
+configPut c.fossil {css {'old'} js {'old'}} 1700000000
+set configGood [configCard config "1700000500 'footer' value 'good'"]
+set configCases 0
+
+# Run import and merge of TEXT into a copy of c.fossil.  Both must leave
+# the repository as it was, except that the card "footer" at the end of the
+# file, when GOOD is true, is read.
+proc configMalformed {name text good {code 0}} {
+  global configGood configCases
+  foreach method {merge import} {
+    set repo c-$method.fossil
+    file copy -force c.fossil $repo
+    set before [configDump $repo]
+    write_file bad.cfg [expr {$good ? "$text$configGood" : $text}]
+    configRun configuration $method bad.cfg -R $repo
+    set after [configDump $repo]
+    test config-malformed-$name-$method-exit {$::CODE == $code}
+    if {$good} {
+      set want [configSql $repo "SELECT value FROM config WHERE name='footer'"]
+      test_eq config-malformed-$name-$method-next-card $want good
+      fossil sql -R $repo "DELETE FROM config WHERE name='footer'"
+      set after [configDump $repo]
+    }
+    test_eq config-malformed-$name-$method-unchanged $after $before
+  }
+}
+set configBody "1700000600 'css' value 'new'\n"
+set configLen [string length $configBody]
+
+configMalformed empty-file "" 0
+configMalformed only-comments "# one\n# two\n\n\n" 0
+configMalformed junk-first-line "this is not a configuration file\n" 1
+configMalformed binary-junk "\x01\x02\x03\n\xff\xfe\n" 1
+configMalformed no-final-newline "config /config" 0
+configMalformed old-format "config css 5\nhello\n" 1
+configMalformed unknown-kind "config /nosuch $configLen\n$configBody\n" 1
+configMalformed upper-case "CONFIG /config $configLen\n$configBody\n" 1
+configMalformed first-char-of-kind "config Xconfig $configLen\n$configBody\n" 1
+configMalformed no-size "config /config\n$configBody\n" 1
+configMalformed no-kind "config\n$configBody\n" 1
+configMalformed negative-size "config /config -5\n$configBody\n" 1
+configMalformed size-letters "config /config 12ab\n$configBody\n" 1
+configMalformed size-plus "config /config +$configLen\n$configBody\n" 1
+configMalformed size-hex "config /config 0x10\n$configBody\n" 1
+configMalformed size-float "config /config 1.5\n$configBody\n" 1
+configMalformed size-too-big-for-int "config /config 99999999999\n$configBody\n" 1
+configMalformed size-extra-token "config /config $configLen extra\n$configBody\n" 1
+configMalformed size-zero "config /config 0\n\n" 1
+configMalformed size-short "config /config 10\n$configBody\n" 1
+configMalformed truncated-key "config /config 40\n1700000600 'cs" 0
+configMalformed truncated-literal "config /config 40\n1700000600 'css' value 'ne\n" 0
+foreach {configNm configCardBody} {
+  missing-mtime  "'css' value 'x'\n"
+  bare-name      "1700000600 css value 'x'\n"
+  name-only      "1700000600\n"
+  empty-card     "\n"
+  unknown-name   "1700000600 'nosuch' value 'x'\n"
+  zero-byte-time "\0001700000600 'css' value 'x'\n"
+  zero-byte-name "1700000600 \000'css' value 'x'\n"
+} {
+  configMalformed $configNm [configCard config $configCardBody] 1
+}
+foreach {configNm configMtime} {letters abc fraction 1.5 negative -5 hex 0x10 blank-sign +5
+                      exponent 1e3 quoted '5'} {
+  set configCardBody "$configMtime 'css' value 'new'\n"
+  configMalformed mtime-$configNm "config /config [string length $configCardBody]\n$configCardBody\n" 1
+}
+
+# A size that is larger than the rest of the file takes the rest.
+foreach configMethod {merge import} {
+  file copy -force c.fossil c-$configMethod.fossil
+  write_file big.cfg "config /config 100000\n$configBody"
+  configRun configuration $configMethod big.cfg -R c-$configMethod.fossil
+  test config-size-large-$configMethod {$CODE == 0 &&
+      [configSql c-$configMethod.fossil "SELECT value FROM config
+                                  WHERE name='css'"] eq "new"}
+}
+
+# A field that is not a column of the table is skipped; one that would
+# set a column that nothing outside may set is among them.
+configNew k.fossil
+fossil sql -R k.fossil "INSERT INTO user(login,pw,cap,mtime)
+    VALUES('carol','pw','o',5)"
+set configCardBody "1700000600 'carol' cap 'oj' cookie 'stolen' ipaddr '1.2.3.4'\
+    cexpire 1 uid 77 login 'mallory' bogus 'x' info 'Carol'\n"
+write_file fields.cfg [configCard user $configCardBody]
+configRun configuration merge fields.cfg -R k.fossil
+test config-field-skipped {$CODE == 0}
+test_eq config-field-skipped-row [configSql k.fossil "SELECT login, cap, info,
+    quote(cookie), quote(ipaddr), quote(cexpire), mtime FROM user
+    WHERE login IN ('carol','mallory')"] "carol|oj|Carol|NULL|NULL|NULL|1700000600"
+test_eq config-field-skipped-uid [configSql k.fossil "SELECT count(*) FROM user
+    WHERE uid=77"] 0
+
+# A card that holds more field pairs than the command keeps is read up to
+# the eleventh field, and the later ones are dropped.
+set configCardBody "1700000600 'carol'"
+for {set configI 0} {$configI < 14} {incr configI} {append configCardBody " info 'v$configI'"}
+write_file many.cfg [configCard user "$configCardBody\n"]
+configRun configuration merge many.cfg -R k.fossil
+test config-fields-many {$CODE == 0 &&
+    [configSql k.fossil "SELECT info FROM user WHERE login='carol'"] eq "Carol"}
+fossil sql -R k.fossil "UPDATE user SET mtime=5 WHERE login='carol'"
+configRun configuration merge many.cfg -R k.fossil
+test_eq config-fields-many-kept [configSql k.fossil "SELECT info FROM user
+    WHERE login='carol'"] v10
+
+# A card whose key or value is no literal does not reach the database.
+foreach {configNm configText} {
+  semicolon   {'x'; DROP TABLE shun; --}
+  quote-break {'x'');DELETE FROM user;--'}
+  subquery    {(SELECT 1)}
+  function    {char(65)}
+} {
+  set configCardBody "1700000600 $configText\n"
+  write_file inj.cfg "[configCard shun $configCardBody]"
+  configRun configuration merge inj.cfg -R k.fossil
+  test config-literal-no-sql-$configNm {$CODE == 0 &&
+      [configSql k.fossil "SELECT count(*) FROM sqlite_schema
+                           WHERE name IN ('shun','user')"] == 2}
+}
+
+###############################################################################
+# Settings that the file may not set: the ones that no area holds (the
+# identity of the repository and its schema), and those that carry commands
+# and are never exported.
+
+configNew n.fossil
+set configNBefore [configDump n.fossil]
+set configNProject [configSql n.fossil "SELECT value FROM config
+                                         WHERE name='project-code'"]
+foreach configNm {project-code server-code content-schema aux-schema rebuilt
+              th1-setup tcl-setup email-send-command diff-command editor
+              ssh-command nosuch head headers Header walias:docs interwiki
+              ticket_table} {
+  set configCardBody "1700000600 '$configNm' value 'x'\n"
+  write_file ne.cfg [configCard config $configCardBody]
+  configRun configuration import ne.cfg -R n.fossil
+  test config-not-exportable-$configNm {$CODE == 0 &&
+      [string first "Skipping non-exportable setting: '$configNm' = 'x'" \
+          $RESULT] >= 0}
+  test_eq config-not-exportable-$configNm-unchanged [configDump n.fossil] \
+      $configNBefore
+}
+test_eq config-not-exportable-project-code [configSql n.fossil "SELECT value
+    FROM config WHERE name='project-code'"] $configNProject
+foreach {configNm configCardBody} {
+  number      "1700000600 12 value 'x'\n"
+  empty       "1700000600 '' value 'x'\n"
+  blob        "1700000600 x'6373' value 'x'\n"
+  null        "1700000600 NULL value 'x'\n"
+  no-value    "1700000600 'nosuch'\n"
+} {
+  write_file ne.cfg [configCard config $configCardBody]
+  configRun configuration merge ne.cfg -R n.fossil
+  test config-not-exportable-$configNm {$CODE == 0 &&
+      [string first "Skipping non-exportable setting: " $RESULT] >= 0}
+  if {$configNm eq "no-value"} {
+    test config-not-exportable-no-value-said {[string first "= ?" $RESULT] >= 0}
+  }
+  test_eq config-not-exportable-$configNm-unchanged [configDump n.fossil] \
+      $configNBefore
+}
+
+# Names quoted as a literal are read without the quotes; a name that holds
+# a quote can still be a setting of an area.
+set configCardBody "1700000600 'walias:/it''s' value '/x'\n"
+write_file ne.cfg [configCard config $configCardBody]
+configRun configuration merge ne.cfg -R n.fossil
+test_eq config-name-quoted [configSql n.fossil "SELECT value FROM config
+    WHERE name='walias:/it''s'"] /x
+
+
+###############################################################################
+# Push, pull and sync with a repository named by its file: the client starts
+# "fossil http" on the file, so both sides speak the whole protocol and the
+# other side grants everything.  Each area that is pulled arrives as the
+# other side holds it, each that is pushed is there afterwards, and nothing
+# outside the area changes.  The users are left out of the comparison:
+# those that a repository made for itself have no time of change, and a
+# merge does not replace them.
+
+set configSrv [file join $configDir a.fossil]
+
+# The parts of AREA that a comparison looks at.
+proc configParts {area} {
+  if {$area eq "all"} {
+    return {skin project ticket xfer alias interwiki email shun subscriber
+            user}
+  }
+  return $area
+}
+
+# Test that REPO holds what EXPECTED holds, as an export of it, for AREA.
+proc configSameAs {name repo area expected} {
+  foreach part [configParts $area] {
+    if {$part eq "user"} {
+      set sql "SELECT name, value, mtime FROM config
+                   WHERE name='user-color-map';
+               SELECT login,quote(pw),cap,info,quote(photo),mtime FROM user
+                   WHERE login IN ('alice','bob') ORDER BY login"
+      test_eq $name-$part [configSql $repo $sql] [configSql $expected $sql]
+    } else {
+      test_eq $name-$part [configState $repo $part] \
+          [configState $expected $part 1]
+    }
+  }
+}
+
+foreach configArea $configAreas {
+  # Pull.
+  set configC cl-pull-$configArea.fossil
+  configNew $configC
+  set configOut [configOutside $configC $configArea]
+  set configPre [configDump $configC]
+  configRun configuration pull $configArea $configSrv -R $configC
+  test config-pull-$configArea {$CODE == 0}
+  test config-pull-$configArea-changed {[configDump $configC] ne $configPre}
+  test_eq config-pull-$configArea-outside [configOutside $configC $configArea] $configOut
+  configSameAs config-pull-$configArea-same $configC $configArea a.fossil
+  fossil test-integrity -R $configC
+  test config-pull-$configArea-integrity {$CODE == 0}
+
+  # Push.
+  set configD srv-push-$configArea.fossil
+  configNew $configD
+  set configOut [configOutside $configD $configArea]
+  set configPre [configDump $configD]
+  configRun configuration push $configArea [file join $configDir $configD] -R a.fossil
+  test config-push-$configArea {$CODE == 0}
+  test config-push-$configArea-changed {[configDump $configD] ne $configPre}
+  test_eq config-push-$configArea-outside [configOutside $configD $configArea] $configOut
+  configSameAs config-push-$configArea-same $configD $configArea a.fossil
+  fossil test-integrity -R $configD
+  test config-push-$configArea-integrity {$CODE == 0}
+}
+
+
+# Sync sends and receives.  Each side gets what only the other has, and for
+# a value that both have, the one changed last wins on both.
+configNew s1.fossil
+configNew s2.fossil
+configPut s1.fossil {walias:/only1 {'one'} walias:/both {'old-1'}
+                     walias:/tie {'tie-1'}} 1700000000
+fossil sql -R s1.fossil "UPDATE config SET mtime=1700000100
+    WHERE name='walias:/both'"
+fossil sql -R s1.fossil "UPDATE config SET mtime=1700000300
+    WHERE name='walias:/tie'"
+configPut s2.fossil {walias:/only2 {'two'} walias:/both {'new-2'}
+                     walias:/tie {'tie-2'}} 1700000000
+fossil sql -R s2.fossil "UPDATE config SET mtime=1700000200
+    WHERE name='walias:/both'"
+fossil sql -R s2.fossil "UPDATE config SET mtime=1700000300
+    WHERE name='walias:/tie'"
+configRun configuration sync alias [file join $configDir s2.fossil] -R s1.fossil
+test config-sync {$CODE == 0}
+set configAliasSql "SELECT name,value,mtime FROM config
+                    WHERE name GLOB 'walias:/*' ORDER BY name"
+# A value with the same time on both sides stays as each side has it.
+test_eq config-sync-same [configSql s1.fossil $configAliasSql] \
+    "walias:/both|new-2|1700000200\nwalias:/only1|one|1700000000\nwalias:/only2|two|1700000000\nwalias:/tie|tie-1|1700000300"
+test_eq config-sync-same-other [configSql s2.fossil $configAliasSql] \
+    "walias:/both|new-2|1700000200\nwalias:/only1|one|1700000000\nwalias:/only2|two|1700000000\nwalias:/tie|tie-2|1700000300"
+
+# Pull with --overwrite replaces the tables of the area, so a user that only
+# this side has is gone; without it the user stays.
+configNew o1.fossil
+configNew o2.fossil
+fossil sql -R o1.fossil "INSERT INTO user(login,cap,mtime) VALUES('local','o',7)"
+fossil sql -R o2.fossil "INSERT INTO user(login,cap,mtime) VALUES('remote','o',8)"
+fossil sql -R o1.fossil "INSERT INTO shun(uuid,mtime,scom) VALUES('x1',7,'l')"
+fossil sql -R o2.fossil "INSERT INTO shun(uuid,mtime,scom) VALUES('x2',8,'r')"
+configRun configuration pull shun [file join $configDir o2.fossil] -R o1.fossil
+test_eq config-pull-keeps-rows [configSql o1.fossil "SELECT group_concat(uuid)
+    FROM (SELECT uuid FROM shun ORDER BY uuid)"] "x1,x2"
+configRun configuration pull shun --overwrite [file join $configDir o2.fossil] \
+    -R o1.fossil
+test config-pull-overwrite {$CODE == 0}
+test_eq config-pull-overwrite-shun [configSql o1.fossil "SELECT group_concat(uuid)
+    FROM (SELECT uuid FROM shun ORDER BY uuid)"] "x2"
+configRun configuration pull user --overwrite [file join $configDir o2.fossil] \
+    -R o1.fossil
+test config-pull-overwrite-user {$CODE == 0 && [configSql o1.fossil "SELECT
+    group_concat(login) FROM (SELECT login FROM user ORDER BY login)"] ne ""}
+test_eq config-pull-overwrite-user-local-gone [configSql o1.fossil "SELECT
+    count(*) FROM user WHERE login='local'"] 0
+test_eq config-pull-overwrite-user-remote [configSql o1.fossil "SELECT
+    count(*) FROM user WHERE login='remote'"] 1
+
+# --overwrite is an option of pull only.
+configRun configuration push shun --overwrite [file join $configDir o2.fossil] \
+    -R o1.fossil
+test config-push-overwrite {$CODE == 1 && [string first "Usage:" $RESULT] >= 0}
+configRun configuration sync shun --overwrite [file join $configDir o2.fossil] \
+    -R o1.fossil
+test config-sync-overwrite {$CODE == 1 && [string first "Usage:" $RESULT] >= 0}
+
+# Without a URL the command uses the default server; with none it stops.
+configNew u1.fossil
+configRun configuration pull skin -R u1.fossil
+test config-pull-no-server {$CODE == 1 &&
+    [string first "no server URL specified" $RESULT] >= 0}
+configRun configuration push skin -R u1.fossil
+test config-push-no-server {$CODE == 1}
+configRun configuration sync skin -R u1.fossil
+test config-sync-no-server {$CODE == 1}
+fossil remote file://[file join $configDir a.fossil] -R u1.fossil
+configRun configuration pull skin -R u1.fossil
+test config-pull-default-server {$CODE == 0 &&
+    [configSql u1.fossil "SELECT value FROM config WHERE name='css'"] eq
+    "body { color: #123; }"}
+configRun configuration pull project --proxy off [file join $configDir a.fossil] \
+    -R u1.fossil
+test config-pull-proxy-off {$CODE == 0 &&
+    [configSql u1.fossil "SELECT value FROM config
+                          WHERE name='project-name'"] eq "Alpha"}
+configRun configuration pull skin [file join $configDir nosuch.fossil] -R u1.fossil
+test config-pull-no-such-repository {$CODE == 1}
+
+
+###############################################################################################################################################
+# The configuration that a server sends on request: an area it does not know
+# is answered with nothing, and an area it knows with its cards.
+
+configNew sv.fossil
+configPut sv.fossil {css {'hello'} header {'h'}} 1700000000
+write_file req.txt "$CLIENT_VERSION_CARD\
+reqconfig /nosuch\nreqconfig /css\nreqconfig css\nreqconfig /nosuch2\n"
+fossil_raw test-xfer -R sv.fossil req.txt
+test config-request {$CODE == 0 && [regexp -all {config /config } $RESULT] == 1 &&
+    [string first "'css' value 'hello'" $RESULT] >= 0 &&
+    [string first "'header'" $RESULT] < 0 && [string first "errors 0" $RESULT] >= 0}
+
+###############################################################################
+# A repository whose user and ticket report tables do not have the column
+# for JSON data exports them without it, and takes the cards that have no
+# such field.
+
+configNew old.fossil
+fossil sql -R old.fossil "ALTER TABLE user DROP COLUMN jx;
+    ALTER TABLE reportfmt DROP COLUMN jx;
+    UPDATE user SET mtime=5"
+configRun configuration export all old.cfg -R old.fossil
+test config-export-old-schema {$CODE == 0 &&
+    [string first " jx " [read_file old.cfg]] < 0 &&
+    [configKinds old.cfg] eq "/config /reportfmt /user"}
+configNew old2.fossil
+configRun configuration import old.cfg -R old2.fossil
+test config-import-old-schema {$CODE == 0 &&
+    [configSql old2.fossil "SELECT login FROM user WHERE login='tester'"] eq
+    "tester"}
+
+###############################################################################
+# The settings table by hand: test-var-set, test-var-get and test-var-list.
+
+configNew v.fossil
+fossil test-var-set alpha hello -R v.fossil
+test config-var-set {$CODE == 0}
+fossil test-var-get alpha -R v.fossil
+test_eq config-var-get $RESULT hello
+fossil test-var-get alpha out.txt -R v.fossil
+test_eq config-var-get-file [read_file out.txt] hello
+fossil test-var-get alpha - -R v.fossil
+test_eq config-var-get-stdout $RESULT hello
+write_file in.txt "from a file\nwith two lines\n"
+fossil test-var-set beta --file in.txt -R v.fossil
+fossil test-var-get beta -R v.fossil
+test_eq config-var-set-file $RESULT "from a file\nwith two lines"
+fossil test-var-get beta out2.txt -R v.fossil
+test_eq config-var-set-file-exact [read_file out2.txt] "from a file\nwith two lines\n"
+set configBlob "\x00\x01\xff\xfe\x80binary"
+write_file blob.bin $configBlob
+fossil test-var-set gamma --blob blob.bin -R v.fossil
+fossil test-var-get gamma out3.bin -R v.fossil
+test_eq config-var-set-blob [read_file out3.bin] $configBlob
+test_eq config-var-set-blob-type [configSql v.fossil "SELECT typeof(value) FROM
+    config WHERE name='gamma'"] blob
+fossil_raw -input "piped in\n" test-var-set delta --file - -R v.fossil
+test config-var-set-stdin {$CODE == 0}
+test_eq config-var-set-stdin-value [configSql v.fossil "SELECT length(value)
+    FROM config WHERE name='delta'"] 9
+fossil_raw test-var-set -R v.fossil
+test config-var-set-usage {$CODE == 1 && [string first "Usage:" $RESULT] >= 0}
+fossil_raw test-var-set epsilon -R v.fossil
+test config-var-set-no-value {$CODE == 1 && [string first "Usage:" $RESULT] >= 0}
+fossil_raw test-var-set epsilon --file in.txt --blob blob.bin -R v.fossil
+test config-var-set-both {$CODE == 1 &&
+    [string first "cannot do both" $RESULT] >= 0}
+fossil_raw test-var-set epsilon --file nosuch.txt -R v.fossil
+test config-var-set-no-file {$CODE == 1}
+test_eq config-var-set-none-made [configSql v.fossil "SELECT count(*) FROM
+    config WHERE name='epsilon'"] 0
+fossil_raw test-var-get nosuch -R v.fossil
+test config-var-get-none {$CODE == 1 && [string first "no match for" $RESULT] >= 0}
+fossil_raw test-var-get {[abg]*} -R v.fossil
+test config-var-get-many {$CODE == 1 &&
+    [string first "multiple matches:" $RESULT] >= 0 &&
+    [string first "'alpha'" $RESULT] >= 0 && [string first "'beta'" $RESULT] >= 0}
+fossil_raw test-var-get -R v.fossil
+test config-var-get-usage {$CODE == 1 && [string first "Usage:" $RESULT] >= 0}
+fossil test-var-get {alph?} -R v.fossil
+test_eq config-var-get-glob $RESULT hello
+
+# The list: names and values in two columns, control characters written as
+# escapes, long values cut with the count of what is left, long names on a
+# line of their own.
+set configLongValue [string repeat abcdefghij 6]
+set configLongName1 a-name-that-is-long-but-with-a-short-value
+set configLongName2 a-name-that-is-long-with-a-value-that-is-long-too-and-so-on
+set configMidName a-name-that-is-between-the-two-lengths
+configNew w.fossil
+fossil sql -R w.fossil "DELETE FROM config WHERE NOT name GLOB 'a*';
+    INSERT INTO config(name,value,mtime) VALUES
+      ('a-short','plain',1700000000),
+      ('a-ctl','x'||char(10)||char(13)||char(9)||char(1)||'y',1700000001),
+      ('a-long','$configLongValue',1700000002),
+      ('$configLongName1','v',1700000003),
+      ('$configLongName2','a value that has more than ten characters',
+       1700000004),
+      ('$configMidName','x',1700000005),
+      ('$configMidName-long','a value that has more than ten characters',
+       1700000006),
+      ('a-high','caf'||char(233)||char(127),1700000007)"
+# A line for NAME that has its value in the column that NAME's length gives.
+proc configListLine {name value pad} {
+  return "$name:[string repeat { } [expr {$pad - [string length $name]}]]$value"
+}
+configRun test-var-list -R w.fossil
+set configList $RESULT
+test config-var-list-short {[string first "[configListLine a-short plain 27]\n" \
+    $configList] >= 0}
+test config-var-list-escapes {[string first \
+    "[configListLine a-ctl {x\n\r\t\001y} 27]\n" $configList] >= 0}
+test config-var-list-long-value {[string first \
+    "[configListLine a-long [string range $configLongValue 0 39]...+20 27]\n" \
+    $configList] >= 0}
+test config-var-list-long-name-short-value {[string first \
+    "[configListLine $configLongName1 v 59]\n" $configList] >= 0}
+test config-var-list-long-name-long-value {[string first \
+    "$configLongName2:\n[string repeat { } 28]a value that has more than ten\
+ character...+1\n" $configList] >= 0}
+test config-var-list-mid-name {[string first \
+    "[configListLine $configMidName x 59]\n" $configList] >= 0}
+test config-var-list-mid-name-long-value {[string first \
+    "$configMidName-long:\n[string repeat { } 28]a value that has more than ten\
+ character...+1\n" $configList] >= 0}
+test config-var-list-high-bytes {[string first \
+    "[configListLine a-high {caf\303\251\177} 27]\n" $configList] >= 0}
+configRun test-var-list "a-s*" -R w.fossil
+test_eq config-var-list-pattern [string trimright $RESULT] \
+    [configListLine a-short plain 27]
+configRun test-var-list "a-s*" --mtime -R w.fossil
+test_eq config-var-list-mtime [string trimright $RESULT] \
+    [configListLine a-short "2023-11-14 22:13:20" 58]
+configRun test-var-list nosuch -R w.fossil
+test_eq config-var-list-none $RESULT ""
+# Delete only on an answer of y, and only with a pattern.
+set configCount [configSql w.fossil "SELECT count(*) FROM config"]
+fossil_raw -input "n\n" test-var-list "a-s*" --unset -R w.fossil
+test config-var-unset-no {$CODE == 0 && [configSql w.fossil "SELECT count(*)
+    FROM config WHERE name='a-short'"] == 1}
+fossil_raw -input "y\n" test-var-list --unset -R w.fossil
+test config-var-unset-no-pattern {[configSql w.fossil "SELECT count(*) FROM
+    config"] == $configCount}
+fossil_raw -input "Y\n" test-var-list "a-s*" --unset -R w.fossil
+test config-var-unset-capital {[configSql w.fossil "SELECT count(*) FROM config
+    WHERE name='a-short'"] == 0}
+fossil_raw -input "y\n" test-var-list "a-s*" --unset -R w.fossil
+test config-var-unset-yes {$CODE == 0 && [configSql w.fossil "SELECT count(*)
+    FROM config WHERE name='a-short'"] == 0}
+
+###############################################################################
+# The rest of the file needs a TCP connection over the loopback interface.
+
+if {![loopback_available]} {
+  unset ::env(FOSSIL_USER)
+  test_skip "no TCP connection over the loopback interface"
+}
+
+###############################################################################
+# Pull and push to a server that checks the login card.  What a pull brings
+# depends on the capabilities of the user on the server: every area comes
+# to anyone who may read, except the concealed email addresses (capability
+# e), the users and the subscribers (a).  A push needs capability a; for a
+# user without it, the server refuses and holds what it held.
+
+# Make a server repository FILE that has the configuration of a.fossil and
+# the users that these tests log in as, and return it.
+proc configServer {file} {
+  file copy -force a.fossil $file
+  fossil sql -R $file "
+    INSERT INTO user(login,pw,cap) VALUES
+      ('rdr','pw','o'), ('eml','pw','oe'), ('adm','pw','a'), ('blind','pw','j');
+  "
+  return $file
+}
+
+# Give REPO the project code of a.fossil: a client makes its login card from
+# its own project code, so it must be the server's.
+proc configShareProject {repo} {
+  global configProjectCode
+  if {![info exists configProjectCode]} {
+    set configProjectCode [configSql a.fossil "SELECT value FROM config
+                                               WHERE name='project-code'"]
+  }
+  fossil sql -R $repo "UPDATE config SET value='$configProjectCode'
+                       WHERE name='project-code'"
+}
+
+# Run VERB on repository CLIENT against the server on PORT, logged in as
+# USER, who has the password "pw", or as nobody for an empty USER.
+proc configNetRun {verb area client port user} {
+  set at [expr {$user eq "" ? "" : "$user:pw@"}]
+  configRun configuration $verb $area http://${at}127.0.0.1:$port/ -R $client
+}
+
+# Whether USER may pull PART of the configuration.
+proc configMayPull {user part} {
+  switch -- $part {
+    email {return [expr {$user in {eml adm}}]}
+    user - subscriber {return [expr {$user eq "adm"}]}
+  }
+  return [expr {$user ne "blind"}]
+}
+
+# Test that REPO holds PART as the server's repository does if WANT is true,
+# and as a new repository does if it is false.
+proc configHasPart {name repo part want} {
+  if {$part eq "user"} {
+    set sql "SELECT count(*) FROM user WHERE login IN ('alice','bob')
+             AND mtime IS NOT NULL;
+             SELECT count(*) FROM config WHERE name='user-color-map'"
+    test_eq $name-$part [configSql $repo $sql] \
+        [expr {$want ? "2\n1" : "0\n0"}]
+  } elseif {$want} {
+    test_eq $name-$part [configState $repo $part] \
+        [configState a.fossil $part 1]
+  } else {
+    test_eq $name-$part [configState $repo $part 0 1] [configDefaults $part]
+  }
+}
+
+configServer ps.fossil
+set configServerProc [test_start_server ps.fossil configStop]
+set configPort [lindex $configServerProc 1]
+# Each pair is a user and an area to pull as that user.
+foreach {configUser configArea} {{} skin {} all eml email eml user adm all
+                                 blind skin} {
+  set configLabel [expr {$configUser eq "" ? "nobody" : $configUser}]
+  if {$configUser eq "blind"} {
+    # A user whose capabilities, with those of nobody, include no reading.
+    fossil sql -R ps.fossil "UPDATE user SET cap='' WHERE login IN
+        ('nobody','anonymous')"
+  }
+  set configC cp-$configLabel-$configArea.fossil
+  configNew $configC
+  configShareProject $configC
+  set configPre [configDump $configC]
+  configNetRun pull $configArea $configC $configPort $configUser
+  test config-pull-$configLabel-$configArea {$CODE == 0}
+  foreach configPart [configParts $configArea] {
+    configHasPart config-pull-$configLabel-$configArea-has $configC $configPart \
+        [configMayPull $configUser $configPart]
+  }
+  if {$configUser ne "blind" && $configLabel ne "nobody"} {
+    test config-pull-$configLabel-$configArea-changed \
+        {[configDump $configC] ne $configPre}
+  }
+}
+test_stop_server $configStop [lindex $configServerProc 0] \
+    [lindex $configServerProc 2]
+
+configNew cs-base.fossil
+configShareProject cs-base.fossil
+fossil sql -R cs-base.fossil "INSERT INTO user(login,pw,cap) VALUES
+    ('rdr','pw','o'), ('eml','pw','oe'), ('adm','pw','a')"
+file copy -force cs-base.fossil cs.fossil
+set configServerProc [test_start_server cs.fossil configStop]
+set configPort [lindex $configServerProc 1]
+# Each pair is a user and an area to push as that user; only adm may push.
+foreach {configUser configArea} {{} skin adm email adm user adm all} {
+  set configLabel [expr {$configUser eq "" ? "nobody" : $configUser}]
+  file copy -force cs-base.fossil cs.fossil
+  set configPre [configDump cs.fossil]
+  configNetRun push $configArea a.fossil $configPort $configUser
+  if {$configUser eq "adm"} {
+    test config-push-$configLabel-$configArea {$CODE == 0}
+    foreach configPart [configParts $configArea] {
+      configHasPart config-push-$configLabel-$configArea-has cs.fossil \
+          $configPart 1
+    }
+  } else {
+    test config-push-$configLabel-$configArea-refused {
+        [string first "not authorized to push configuration" $RESULT] >= 0}
+    test config-push-refused-status {$CODE == 1}
+    test_eq config-push-$configLabel-$configArea-unchanged \
+        [configDump cs.fossil] $configPre
+  }
+}
+test_stop_server $configStop [lindex $configServerProc 0] \
+    [lindex $configServerProc 2]
+
+###############################################################################
+# Cards that a server sends for configuration that was not asked for are
+# dropped by the client, those it asked for are kept.  A server made here
+# answers the first request with a prepared reply and every later one with a
+# bare timestamp.
+
+set configFakeReply ""
+set configFakeCount 0
+set configFakeRequests {}
+proc configFakeAccept {chan address port} {
+  fconfigure $chan -translation binary -blocking 0
+  set ::configFakeBuf($chan) ""
+  fileevent $chan readable [list configFakeRead $chan]
+}
+proc configFakeRead {chan} {
+  append ::configFakeBuf($chan) [read $chan]
+  set request $::configFakeBuf($chan)
+  set end [string first "\r\n\r\n" $request]
+  set length 0
+  regexp -nocase -line {^content-length:\s*(\d+)} $request -> length
+  if {![eof $chan] &&
+      ($end < 0 || [string length $request] < $end + 4 + $length)} {
+    return
+  }
+  unset ::configFakeBuf($chan)
+  fileevent $chan readable {}
+  fconfigure $chan -blocking 1
+  # The request is the text of the cards, after four bytes of size when it
+  # is compressed.
+  set body [string range $request [expr {$end+4}] end]
+  if {[regexp -nocase {content-type:\s*application/x-fossil\s} $request]} {
+    set body [zlib decompress [string range $body 4 end]]
+  }
+  lappend ::configFakeRequests $body
+  if {[incr ::configFakeCount] == 1} {
+    set reply $::configFakeReply
+  } else {
+    set reply "# timestamp 2026-01-01T00:00:00 errors 0\n"
+  }
+  catch {
+    puts -nonewline $chan "HTTP/1.0 200 OK\r\nContent-Type:\
+        application/x-fossil-uncompressed\r\nContent-Length:\
+        [string length $reply]\r\n\r\n$reply"
+    close $chan
+  }
+}
+set configFakeServer [socket -server configFakeAccept -myaddr 127.0.0.1 0]
+set configFakePort [lindex [fconfigure $configFakeServer -sockname] 2]
+
+proc configReply {verb area reply} {
+  global configFakePort configFakeReply configFakeCount configFakeRequests
+  set configFakeReply $reply
+  set configFakeCount 0
+  set configFakeRequests {}
+  configRun configuration $verb $area http://127.0.0.1:$configFakePort/ \
+      -R rp.fossil
+}
+
+configNew rp.fossil
+set configRpReply [configCard config "1700000000 'header' value 'asked'"]
+append configRpReply [configCard config "1700000000 'project-name' value 'not'"]
+append configRpReply [configCard user "1700000000 'zed' cap 's'"]
+append configRpReply [configCard nosuch "1700000000 'zed' cap 's'"]
+append configRpReply [configCard config "1700000000 'adunit' value 'asked'"]
+configReply pull skin $configRpReply
+test config-reply-unasked {$CODE == 0}
+test_eq config-reply-asked [configSql rp.fossil "SELECT group_concat(name)
+    FROM (SELECT name FROM config WHERE name IN ('header','adunit',
+    'project-name') ORDER BY name)"] "adunit,header"
+test_eq config-reply-unasked-user [configSql rp.fossil "SELECT count(*) FROM
+    user WHERE login='zed'"] 0
+test config-reply-request-skin {[string first "reqconfig /skin\nreqconfig /css\n" \
+    [lindex $configFakeRequests 0]] >= 0}
+configReply pull css $configRpReply
+test_eq config-reply-css-only [configSql rp.fossil "SELECT count(*) FROM
+    config WHERE name='project-name'"] 0
+# How many "reqconfig" cards the first request holds.
+proc configAsked {} {
+  return [regexp -all {reqconfig [^\n]*} [lindex $::configFakeRequests 0]]
+}
+# The style sheet is part of the skin, so both are asked for; only the style
+# sheet is taken.
+test config-reply-request-css {[configAsked] == 2 &&
+    [string first "reqconfig /skin\nreqconfig /css\n" \
+        [lindex $configFakeRequests 0]] >= 0}
+configReply pull all ""
+test config-reply-request-all {[configAsked] == 1 &&
+    [string first "reqconfig /all\n" [lindex $configFakeRequests 0]] >= 0}
+configReply pull ticket ""
+test config-reply-request-ticket {[string first "reqconfig /ticket\n" \
+    [lindex $configFakeRequests 0]] >= 0}
+configReply pull user "config /user 0\n\n"
+test config-reply-empty-card {$CODE == 0}
+close $configFakeServer
+
+###############################################################################
+# "fossil init --template" copies the settings of another repository,
+# those of every area and the aliases among them, and leaves out the names
+# of the project and any setting that belongs to no area.
+
+configNew tpl.fossil
+fossil sql -R tpl.fossil "
+  INSERT OR REPLACE INTO config(name,value,mtime) VALUES
+    ('css','from-template',1700000000),
+    ('ticket-title-expr','from-template',1700000000),
+    ('walias:/tpl','/timeline',1700000000),
+    ('project-name','Template Project',1700000000),
+    ('short-project-name','tpl',1700000000),
+    ('config-test-other','from-template',1700000000)"
+configRun init --template tpl.fossil fromtpl.fossil
+test config-init-template {$CODE == 0}
+test_eq config-init-template-copied [configSql fromtpl.fossil "
+  SELECT group_concat(name||'='||value, ' ') FROM (SELECT name, value
+    FROM config WHERE name IN ('css','ticket-title-expr','walias:/tpl',
+      'project-name','short-project-name','config-test-other')
+    ORDER BY name)"] \
+  "css=from-template ticket-title-expr=from-template walias:/tpl=/timeline"
+
+test_cleanup
+unset ::env(FOSSIL_USER)

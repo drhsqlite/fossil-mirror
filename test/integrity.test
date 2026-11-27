@@ -1,7 +1,14 @@
 #
-# Tests that "fossil rebuild" and a "fossil deconstruct" and "fossil
-# reconstruct" round trip keep every artifact, and that "fossil
-# test-integrity" finds an artifact whose content is damaged.
+# Integrity of a repository.  Two kinds of test:
+#
+#   * A "fossil rebuild", and a "fossil deconstruct" and "fossil
+#     reconstruct" round trip, keep every artifact; "fossil
+#     test-integrity" reports an artifact whose content is damaged.
+#
+#   * "fossil test-integrity" and "fossil test-missing" pass on a sound
+#     repository and fail, with a non-zero exit status, on each of nine
+#     kinds of damage made with SQL; and "fossil rebuild" leaves the
+#     tables derived from the artifacts as they were, or repairs them.
 #
 
 require_no_open_checkout
@@ -9,17 +16,13 @@ require_no_open_checkout
 test_setup ""
 set ::env(FOSSIL_USER) tester
 
-# Returns the hashes of the artifacts in repository REPO that are not
-# phantoms, in order.
-#
+# The hashes of the artifacts in REPO that are not phantoms, in order.
 proc integrity_artifacts {repo} {
   fossil sql -R $repo "SELECT uuid FROM blob WHERE size>=0 ORDER BY uuid"
   return [normalize_result]
 }
 
-# Returns the check-ins in repository REPO with their parents and
-# comments, in order of hash.
-#
+# The check-ins in REPO with their parents and comments, in order of hash.
 proc integrity_checkins {repo} {
   fossil sql -R $repo "SELECT b.uuid, coalesce(p.uuid,''), e.comment\
       FROM event e JOIN blob b ON b.rid=e.objid\
@@ -28,22 +31,30 @@ proc integrity_checkins {repo} {
   return [normalize_result]
 }
 
-# Test NAME passes when "fossil test-integrity --parse" finds no
-# problems in repository REPO.
-#
+# Test NAME passes when "fossil test-integrity --parse" finds no problems.
 proc integrity_ok {name repo} {
   fossil test-integrity --parse -R $repo
   test_match $name [normalize_result] {checked: 0 errors}
 }
 
+# The derived tables of REPO as text that does not depend on record
+# numbers.  See derived.sql.
+proc integrity_derived {repo} {
+  fossil sql -R $repo ".read [file join $::testfiledir derived.sql]"
+  return $::RESULT
+}
+
+# An origin repository with three check-ins of one file (so the store
+# holds deltas), a tag and a wiki page.
 fossil new r.fossil
 file mkdir ck
 cd ck
 fossil open ../r.fossil
-foreach {file comment} {a.txt one b.txt two a.txt three c.txt four} {
-  write_file $file "$comment\n[string repeat $comment 200]\n"
-  fossil add $file
-  fossil commit -m $comment
+foreach {integrityFile integrityComment} \
+    {a.txt one b.txt two a.txt three c.txt four} {
+  write_file $integrityFile "$integrityComment\n[string repeat $integrityComment 200]\n"
+  fossil add $integrityFile
+  fossil commit -m $integrityComment
 }
 fossil tag add release current
 write_file ../wiki.txt "A page"
@@ -53,6 +64,9 @@ cd ..
 set artifacts [integrity_artifacts r.fossil]
 set checkins [integrity_checkins r.fossil]
 integrity_ok integrity-new r.fossil
+
+###############################################################################
+# Round trips keep every artifact.
 
 fossil rebuild r.fossil
 test integrity-rebuild {$CODE == 0}
@@ -65,26 +79,95 @@ fossil deconstruct -R r.fossil artifacts
 test integrity-deconstruct {$CODE == 0}
 fossil reconstruct r2.fossil artifacts
 test integrity-reconstruct {$CODE == 0}
-test_eq integrity-reconstruct-artifacts [integrity_artifacts r2.fossil] \
-    $artifacts
-test_eq integrity-reconstruct-checkins [integrity_checkins r2.fossil] \
-    $checkins
+test_eq integrity-reconstruct-artifacts [integrity_artifacts r2.fossil] $artifacts
+test_eq integrity-reconstruct-checkins [integrity_checkins r2.fossil] $checkins
 integrity_ok integrity-reconstruct-check r2.fossil
 
-# Replace the stored content of one file artifact with bytes that do not
-# decompress.
+# A file artifact whose stored content does not decompress.
 fossil sql -R r2.fossil "UPDATE blob SET content=x'00000010deadbeef'\
     WHERE rid=(SELECT fid FROM mlink JOIN filename USING(fnid)\
                WHERE name='b.txt' LIMIT 1)"
 fossil test-integrity -R r2.fossil -expectError
-test_match integrity-damaged-content [normalize_result] \
-    {wrong hash on artifact \d+}
+test_match integrity-damaged-content [normalize_result] {wrong hash on artifact \d+}
 # An undamaged artifact is still readable.
 fossil sql -R r2.fossil "SELECT uuid FROM blob JOIN mlink ON fid=rid\
     JOIN filename USING(fnid) WHERE name='c.txt'"
 fossil artifact [normalize_result] -R r2.fossil
-test_eq integrity-artifact-readable [normalize_result] \
-    "four\n[string repeat four 200]"
+test_eq integrity-artifact-readable [normalize_result] "four\n[string repeat four 200]"
+file delete r2.fossil
+
+###############################################################################
+# test-integrity and test-missing: exit 0 on a sound repository, non-zero
+# on each kind of damage.  Each kind is made to a copy.
+
+fossil sql -R r.fossil "SELECT count(*) FROM delta"
+test integrity-has-deltas {$RESULT > 0}
+fossil test-integrity --parse -R r.fossil
+test integrity-sound {$CODE == 0}
+fossil test-missing -R r.fossil
+test integrity-nothing-missing {$CODE == 0}
+
+# A file of a check-in that is neither a delta nor the source of one.
+set integrityOneFile "(SELECT fid FROM mlink WHERE fid>0\
+  AND fid NOT IN (SELECT srcid FROM delta)\
+  AND fid NOT IN (SELECT rid FROM delta) LIMIT 1)"
+
+foreach {integrityName integritySql integrityCmd} [list \
+  wrong-size \
+    "UPDATE blob SET size=size+1 WHERE rid=$integrityOneFile" \
+    test-integrity \
+  content-does-not-match-hash \
+    "UPDATE blob SET content=x'0102030405060708' WHERE rid=$integrityOneFile" \
+    test-integrity \
+  hash-does-not-match-content \
+    "UPDATE blob SET uuid=substr(uuid,1,length(uuid)-1) ||\
+     CASE substr(uuid,-1) WHEN '0' THEN '1' ELSE '0' END WHERE rid=$integrityOneFile" \
+    test-integrity \
+  delta-is-its-own-source \
+    "UPDATE delta SET srcid=rid WHERE rid=(SELECT rid FROM delta LIMIT 1)" \
+    test-integrity \
+  delta-source-gone \
+    "DELETE FROM blob WHERE rid=(SELECT srcid FROM delta LIMIT 1)" \
+    test-integrity \
+  public-delta-from-private \
+    "INSERT INTO private SELECT srcid FROM delta LIMIT 1" \
+    test-integrity \
+  checkin-is-not-a-manifest \
+    "UPDATE blob SET content=(SELECT content FROM blob WHERE rid=$integrityOneFile)\
+     WHERE rid=(SELECT max(objid) FROM event WHERE type='ci')" \
+    {test-integrity --parse} \
+  file-gone \
+    "DELETE FROM blob WHERE rid=$integrityOneFile" \
+    test-missing \
+  file-is-a-phantom \
+    "UPDATE blob SET size=-1, content=NULL WHERE rid=$integrityOneFile" \
+    test-missing \
+] {
+  set integrityDamaged [file join [pwd] damaged.fossil]
+  file copy -force r.fossil $integrityDamaged
+  fossil sql -R $integrityDamaged $integritySql
+  fossil {*}$integrityCmd -R $integrityDamaged -expectError
+  test integrity-damage-$integrityName {$CODE != 0}
+  file delete $integrityDamaged
+}
+
+###############################################################################
+# Rebuild leaves the derived tables alone, or repairs a wrong one.
+
+set integrityBefore [integrity_derived r.fossil]
+test integrity-derived-not-empty {[string length $integrityBefore] > 0}
+fossil rebuild r.fossil
+test_eq integrity-rebuild-same [integrity_derived r.fossil] $integrityBefore
+
+set integrityDamaged [file join [pwd] damaged.fossil]
+file copy -force r.fossil $integrityDamaged
+fossil sql -R $integrityDamaged \
+  "DELETE FROM plink WHERE rowid=(SELECT max(rowid) FROM plink)"
+test integrity-missing-parent-link-shows \
+  {[integrity_derived $integrityDamaged] ne $integrityBefore}
+fossil rebuild $integrityDamaged
+test_eq integrity-rebuild-repairs [integrity_derived $integrityDamaged] $integrityBefore
+file delete $integrityDamaged
 
 test_cleanup
 unset ::env(FOSSIL_USER)

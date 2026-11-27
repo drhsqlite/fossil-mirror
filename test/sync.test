@@ -54,6 +54,15 @@ proc sync_commit {dir file comment args} {
   fossil commit -m $comment --chdir $dir {*}$args
 }
 
+# N bytes of deterministic pseudo-random binary data.
+proc sync_random_bytes {n} {
+  set s ""
+  for {set syncI 0} {$syncI < $n} {incr syncI 4} {
+    append s [binary format i [expr {int(rand()*4294967296)}]]
+  }
+  return [string range $s 0 [expr {$n-1}]]
+}
+
 # The origin repository, with three check-ins, a tag and a wiki page.
 fossil new a.fossil
 fossil user capabilities nobody gio -R a.fossil
@@ -150,6 +159,47 @@ set url http://127.0.0.1:[lindex $server 1]
 fossil clone --proxy off $url e.fossil -expectError
 test sync-bad-hash-clone {$CODE != 0 && ![file exists e.fossil]} knownBug
 test_stop_server $stopArg [lindex $server 0] [lindex $server 2]
+
+###############################################################################
+# A sync that gets no reply must not report success.
+
+if {$::tcl_platform(platform) ne "windows"} {
+  fossil new nr.fossil
+  file mkdir nr
+  fossil open ../nr.fossil --chdir nr
+  sync_commit nr nf.txt one
+  set syncWrapper [file join $dir no-reply.sh]
+  write_file $syncWrapper "#!/bin/sh\n: >\"\$3\"\n"
+  file attributes $syncWrapper -permissions 0755
+  fossil sync http://sync-test.invalid/x --once \
+      --transport-command $syncWrapper --chdir nr -expectError
+  test sync-no-reply-fails {$CODE != 0}
+  test_match sync-no-reply-message [normalize_result] {empty reply}
+  fossil close --chdir nr
+}
+
+###############################################################################
+# An unversioned file pushed together with a commit that spans more than
+# one message must arrive.
+
+fossil new uva.fossil
+fossil clone [file join $dir uva.fossil] uvb.fossil
+file mkdir uvco
+fossil open ../uvb.fossil --chdir uvco
+fossil settings autosync off --chdir uvco
+expr {srand(1)}
+foreach syncI {1 2 3 4 5 6} {
+  write_file [file join uvco big$syncI.bin] [sync_random_bytes 200000]
+  fossil add big$syncI.bin --chdir uvco
+}
+fossil commit -m big --chdir uvco --no-warnings
+write_file [file join uvco note.txt] "an unversioned file\n"
+fossil uv add note.txt --chdir uvco
+fossil sync -u [file join $dir uva.fossil] --chdir uvco
+test sync-unversioned-with-large-commit {$CODE == 0}
+fossil uv list -R uva.fossil
+test_match sync-unversioned-arrived [normalize_result] {note\.txt}
+fossil close --chdir uvco
 
 test_cleanup
 unset ::env(FOSSIL_USER)

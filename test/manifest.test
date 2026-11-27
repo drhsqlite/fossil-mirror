@@ -1,0 +1,270 @@
+#
+# Reading check-ins and their files in src/manifest.c: two check-ins
+# compared with "fossil diff --from --to", the /dir and /tree pages,
+# delta manifests read through their baseline, a file named in another
+# letter case, and artifact_to_json() for every kind of artifact.
+#
+
+# These tests run only in a long pass: -assurance stress.
+if {[test_assurance] ne "stress"} {
+  test_skip "runs only with -assurance stress"
+}
+
+test_setup
+
+# The answer of one SQL statement, trimmed.
+#
+proc manifest_sql {sql} {
+  global RESULT
+  fossil sql $sql
+  return [string trim $RESULT]
+}
+
+# The hash of the check-in with the comment COMMENT.
+#
+proc manifest_ci {comment} {
+  return [manifest_sql "SELECT uuid FROM blob, event
+      WHERE objid=rid AND type='ci' AND comment='$comment'"]
+}
+
+# The reply of the server to a GET of PATH.
+#
+proc manifest_get {path} {
+  write_file request.txt "GET $path HTTP/1.1\r\nHost: x\r\n\r\n"
+  file delete reply.txt
+  fossil_raw http [file join [pwd] .rep.fossil] --in request.txt \
+      --out reply.txt --ipaddr 127.0.0.1 --localauth
+  if {[file exists reply.txt]} { return [read_file reply.txt] }
+  return ""
+}
+
+write_file a.txt "one\n"
+write_file b.txt "bee\n"
+write_file keep.txt "kept\n"
+fossil add a.txt b.txt keep.txt
+fossil commit -m first
+set manifestV1 [manifest_ci first]
+write_file a.txt "one\ntwo\n"
+fossil mv --hard b.txt c.txt
+fossil commit -m second
+set manifestV2 [manifest_ci second]
+
+###############################################################################
+# Two check-ins compared by name.
+
+fossil diff --from $manifestV1 --to $manifestV2
+test manifest-diff-versions {$CODE == 0 && [string match "*+two*" $RESULT]}
+
+# A name that is not a check-in is refused before it is looked up.
+set manifestFile [manifest_sql "SELECT uuid FROM blob, mlink
+    WHERE rid=fid AND mid=(SELECT rid FROM blob WHERE uuid='$manifestV2')
+      AND fnid=(SELECT fnid FROM filename WHERE name='a.txt')"]
+fossil diff --from $manifestFile --to $manifestV2 -expectError
+test manifest-diff-not-checkin {$CODE != 0
+    && [string match "*cannot resolve name*" $RESULT]}
+
+###############################################################################
+# The /dir and /tree pages of a check-in.
+
+set manifestReply [manifest_get "/dir?ci=$manifestV2"]
+test manifest-dir {[string match "*c.txt*" $manifestReply]
+    && ![string match "*b.txt*" $manifestReply]}
+set manifestReply [manifest_get "/tree?ci=$manifestV2"]
+test manifest-tree {[string match "*keep.txt*" $manifestReply]}
+set manifestReply [manifest_get "/dir?ci=$manifestFile"]
+test manifest-dir-not-checkin {[string match "HTTP/1.0 400 *" $manifestReply]}
+
+###############################################################################
+# A delta manifest names only what changed since its baseline.  A file it
+# does not name is read from the baseline, and one it deletes is gone.
+
+fossil settings forbid-delta-manifests 0
+write_file a.txt "one\ntwo\nthree\n"
+fossil commit --delta -m third
+set manifestV3 [manifest_ci third]
+fossil artifact $manifestV3
+test manifest-delta-made {[string match "B *" $RESULT]}
+fossil cat keep.txt -r $manifestV3
+test_eq manifest-delta-from-baseline [string trim $RESULT] kept
+fossil rm --hard keep.txt
+fossil commit --delta -m fourth
+set manifestV4 [manifest_ci fourth]
+fossil artifact $manifestV4
+test manifest-delta-deletes {[string match "B *" $RESULT]
+    && [regexp {\nF keep.txt\n} $RESULT]}
+fossil cat keep.txt -r $manifestV4 -expectError
+test manifest-delta-deleted-gone {$CODE != 0}
+fossil diff --from $manifestV2 --to $manifestV4
+test manifest-diff-delta {$CODE == 0 && [string match "*+three*" $RESULT]
+    && [string match "*DELETED keep.txt*" $RESULT]}
+
+# The JSON form of a delta manifest names its baseline in a B field.
+test_eq manifest-delta-json-baseline [manifest_sql "SELECT
+    json_extract(artifact_to_json('$manifestV3'), '\$.B') =
+    (SELECT uuid FROM blob WHERE rid=(SELECT baseid FROM plink
+      WHERE cid=(SELECT rid FROM blob WHERE uuid='$manifestV3')))"] 1
+
+###############################################################################
+# With case-sensitive off, a file named in another letter case is the file
+# the check-in holds.  test-ci-mini does not commit without --wet-run.
+
+write_file a.txt "one\ntwo\nthree\nfour\n"
+fossil settings case-sensitive off
+fossil test-ci-mini -m case -r trunk --as A.TXT a.txt
+test manifest-case-insensitive-found {$CODE == 0}
+fossil cat NONE.TXT -r $manifestV3 -expectError
+test manifest-case-insensitive-missing-in-delta {$CODE != 0
+    && [string match "*NONE.TXT*" $RESULT]}
+fossil settings case-sensitive on
+fossil test-ci-mini -m case -r trunk --as A.TXT a.txt -expectError
+test manifest-case-sensitive-new {$CODE != 0}
+test_eq manifest-case-no-commit [manifest_ci case] ""
+
+###############################################################################
+# artifact_to_json() describes every kind of artifact as JSON.
+
+write_file run.sh "#!/bin/sh\n"
+fossil add run.sh
+fossil commit -m exec
+file attributes run.sh -permissions 0755
+fossil commit -m exec-set
+fossil branch new side $manifestV2
+fossil update side
+test manifest-json-update-side {$CODE == 0}
+write_file side.txt "side\n"
+fossil add side.txt
+fossil commit -m side
+fossil update trunk
+fossil merge --cherrypick side
+fossil commit -m cherrypick
+fossil tag add release $manifestV1
+fossil tag add level $manifestV2 2
+write_file page.wiki "A page.\n"
+fossil wiki create Page page.wiki
+fossil wiki create Note page.wiki --technote 2026-01-01T00:00:00
+fossil attachment add Page c.txt
+test manifest-json-attachment {$CODE == 0}
+fossil ticket add title "A ticket" status Open
+fossil test-create-clusters
+
+set manifestJson [manifest_sql "SELECT count(*), sum(json_valid(j))
+    FROM (SELECT artifact_to_json(rid) AS j FROM blob WHERE size>=0)
+   WHERE j IS NOT NULL"]
+set manifestJson [split $manifestJson |]
+test manifest-json-all-valid {[lindex $manifestJson 0] == [lindex $manifestJson 1]
+    && [lindex $manifestJson 0] > 10}
+
+foreach {manifestName manifestPath manifestWant} [list \
+    exec "\$.F\[2\].perm" x \
+    rename "\$.F\[1\].rename" b.txt \
+    cherrypick "\$.Q\[0\].type" + \
+    tag "\$.T\[0\].name" sym-release \
+] {
+  switch $manifestName {
+    exec { set manifestOf [manifest_ci exec-set] }
+    rename { set manifestOf $manifestV2 }
+    cherrypick { set manifestOf [manifest_ci cherrypick] }
+    tag {
+      set manifestOf [manifest_sql "SELECT uuid FROM blob, tagxref, tag
+          WHERE blob.rid=srcid AND tag.tagid=tagxref.tagid
+            AND tagname='sym-release'"]
+    }
+  }
+  test_eq manifest-json-$manifestName [manifest_sql \
+      "SELECT json_extract(artifact_to_json('$manifestOf'), '$manifestPath')"] \
+      $manifestWant
+}
+
+# Content that is not an artifact gives NULL, and a value that is neither
+# a record number nor a name is an error.
+test_eq manifest-json-not-artifact [manifest_sql \
+    "SELECT artifact_to_json('$manifestFile') IS NULL"] 1
+fossil sql "SELECT artifact_to_json(1.5)" -expectError
+test manifest-json-bad-argument {[string match "*Expecting one argument*" $RESULT]}
+
+###############################################################################
+# "tag add --root" puts a tag on the first check-in of the line that a
+# check-in is on, and says so when it only tries.
+
+set manifestRoot [manifest_sql "SELECT uuid FROM blob WHERE rid=(SELECT pid
+    FROM plink WHERE pid NOT IN (SELECT cid FROM plink) LIMIT 1)"]
+fossil tag add --root --dry-run rooted $manifestV2
+test manifest-tag-root-dry-run {$CODE == 0 && [string match \
+    "*to root ancestor [string range $manifestRoot 0 9]*" $RESULT]}
+test_eq manifest-tag-root-dry-run-no-tag [manifest_sql "SELECT count(*)
+    FROM tag WHERE tagname='sym-rooted'"] 0
+fossil tag add --root rooted $manifestV2
+test manifest-tag-root {$CODE == 0}
+test_eq manifest-tag-root-on-first [manifest_sql "SELECT tagtype FROM tagxref,
+    tag, blob WHERE tag.tagid=tagxref.tagid AND tagname='sym-rooted'
+     AND tagxref.rid=blob.rid AND tagxref.srcid>0
+     AND uuid='$manifestRoot'"] 2
+fossil tag list --root $manifestV2
+test manifest-tag-root-list {$CODE == 0 && [string match "*rooted*" $RESULT]}
+
+###############################################################################
+# A repository that has lost the content of the baseline of a delta
+# manifest: a file the delta manifest leaves to its baseline cannot be
+# read.
+
+fossil artifact $manifestV3
+regexp {^B ([0-9a-f]+)} $RESULT manifestAll manifestBase
+file copy [file join [pwd] .rep.fossil] lost-base.fossil
+fossil sql -R lost-base.fossil "DELETE FROM delta WHERE rid=(SELECT rid
+      FROM blob WHERE uuid='$manifestBase');
+    UPDATE blob SET size=-1, content=NULL WHERE uuid='$manifestBase'"
+fossil cat keep.txt -r $manifestV3 -R lost-base.fossil -expectError
+test manifest-lost-baseline {$CODE != 0
+    && [string match "*cannot access baseline manifest*" $RESULT]}
+
+# A repository that has lost the content of a check-in: the check of all
+# artifacts reports it, and the check-in cannot be compared.
+file copy [file join [pwd] .rep.fossil] lost-ci.fossil
+fossil sql -R lost-ci.fossil "DELETE FROM delta WHERE rid=(SELECT rid
+      FROM blob WHERE uuid='$manifestV1');
+    UPDATE blob SET size=-1, content=NULL WHERE uuid='$manifestV1'"
+fossil test-parse-all-blobs -R lost-ci.fossil
+test manifest-lost-checkin-reported {$CODE == 0
+    && [regexp {\d+ ERROR: } $RESULT]
+    && [string match "*tests with 1 errors*" $RESULT]}
+fossil diff --from $manifestV1 --to $manifestV2 -R lost-ci.fossil -expectError
+test manifest-lost-checkin-diff {$CODE != 0
+    && [string match "*cannot parse manifest for check-in*" $RESULT]}
+
+###############################################################################
+# A signed check-in whose parent is not in the repository.  With the
+# manifest setting on, the manifest file of a checkout of it carries a
+# line that keeps the file from being an artifact, placed before the
+# signature.  "prev" names nothing that can be compared.
+
+write_file signed-body.txt "C signed
+D 2026-05-01T10:00:00.000
+F a.txt $manifestFile
+P [string repeat 3a 20]
+U alice
+"
+fossil md5sum signed-body.txt
+set manifestSigned "-----BEGIN PGP SIGNED MESSAGE-----\nHash: SHA1\n\n"
+append manifestSigned [read_file signed-body.txt] "Z [lindex $RESULT 0]\n"
+append manifestSigned "-----BEGIN PGP SIGNATURE-----\nabc\n"
+append manifestSigned "-----END PGP SIGNATURE-----\n"
+write_file signed.txt $manifestSigned
+fossil test-content-put --crosslink signed.txt
+set manifestSignedHash [manifest_ci signed]
+test manifest-signed-stored {$CODE == 0 && $manifestSignedHash ne ""}
+fossil settings manifest on
+fossil update $manifestSignedHash
+test manifest-signed-update {$CODE == 0}
+test manifest-signed-manifest-file {[string match \
+    "*\nZ *\n# Remove this line to create a well-formed Fossil manifest.\n-----BEGIN PGP SIGNATURE-----\n*" \
+    [read_file manifest]]}
+fossil diff --from prev --to current -expectError
+test manifest-prev-not-checkin {$CODE != 0
+    && [string match "*no such check-in: prev*" $RESULT]}
+fossil settings manifest off
+fossil update trunk
+test manifest-signed-update-back {$CODE == 0}
+
+###############################################################################
+
+test_cleanup

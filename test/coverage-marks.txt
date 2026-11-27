@@ -1,0 +1,30 @@
+# Branches that the tests cannot reach, and why.  Used by
+# "tools/testbuild.sh missed".  One branch per line:
+#
+#     FILE | the source line, without leading or trailing spaces | reason
+#
+# The three parts are separated by " | ", a bar with a space on each side.
+#
+# The source line must match exactly, so an entry stops applying, and
+# the branch is reported again, as soon as that line of code is changed.
+#
+delta.c | assert( (z - (const unsigned char*)0)%4==0 );  /* Four-byte alignment */ | an assert() is never false
+delta.c | if( 0==*(char*)&byteOrderTest ){ | true only on a big-endian machine
+delta.c | while( z<zEnd ){ | runs only on a big-endian machine
+xfer.c | if( blob_size(&xfer.line)==0 ) continue; | blob_line() keeps the newline, so a line it returns is never empty
+xfer.c | }else if( g.perm.Read ){ | never false: the enclosing test already requires g.perm.Read
+manifest.c | assert( pParent==0 || pChild==0 ); | an assert() is never false
+manifest.c | assert( manifest_crosslink_busy==0 ); | an assert() is never false
+manifest.c | assert( manifest_crosslink_busy==1 ); | an assert() is never false
+manifest.c | assert(p->type==CFTYPE_WIKI || | an assert() is never false
+manifest.c | assert( blob_is_reset(pContent) || pContent==0 ); | an assert() is never false
+manifest.c | assert( blob_is_reset(pContent) ); | an assert() is never false
+manifest.c | assert( manifest_event_triggers_are_enabled ); | an assert() is never false
+manifest.c | assert( 0==zUuid ); | an assert() is never false
+manifest.c | assert( VAL ); CARD_LETTER(LETTER); blob_appendf(b, "%!j", VAL) | an assert() is never false
+content.c | assert( g.repositoryOpen ); | an assert() is never false
+content.c | assert( blob_is_reset(&content) ); | an assert() is never false
+content.c | assert( pBlob!=0 ); | an assert() is never false
+content.c | assert( srcId==0 || zUuid!=0 ); | an assert() is never false
+content.c | assert( nBlob==0 ); | an assert() is never false
+content.c | assert(!"cannot happen: pBlob is always non-NULL"); | an assert() is never false

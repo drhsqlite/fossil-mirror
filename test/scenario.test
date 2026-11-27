@@ -1,0 +1,439 @@
+#
+# Random integration tests of sync.  Each scenario input in corpus/corpus.pack
+# is a list of operations to perform on three clones of a new repository:
+# commits, branches, merges, syncs and so on.  A sync can be made to lose
+# its request, lose its reply, or deliver half a reply.
+#
+# A sync, pull, push or clone that is not made to go wrong must succeed
+# and must deliver: straight afterwards the receiving clone must hold
+# everything the sending clone holds.  Any other operation may fail in
+# the ordinary way, because many random operations are not valid: a
+# commit with nothing changed, a branch that already exists.  No command
+# may crash or run for more than two minutes.
+#
+# At the end the clones are synced along the chain 0-1-2, so that
+# whatever clones 0 and 2 learn of each other has to pass through clone
+# 1.  Each must then pass test-integrity and test-missing, and all three
+# must hold the same artifacts and the same unversioned files.
+#
+# An input is a list of four-byte records: operation, clone, argument,
+# option.  See scenario_run below for what each means.
+#
+# To run random inputs as well as the files, set the environment variable
+# FOSSIL_SCENARIO_RANDOM to how many.  Each is made from a seed, which is
+# printed with its result.  FOSSIL_SCENARIO_SEED sets the first seed, so
+# that a failing run can be repeated.
+#
+# Every operation is a separate run of fossil, so this file takes about
+# a minute.
+#
+
+# These tests run only in a long pass: -assurance stress.
+if {[test_assurance] ne "stress"} {
+  test_skip "runs only with -assurance stress"
+}
+
+require_no_open_checkout
+
+test_setup ""
+
+set scenarioTop [pwd]
+set scenarioSeconds 120       ;# time allowed for any one command
+set scenarioMaxOps 64         ;# use at most this many records of an input
+
+# Make a sanitizer end the program with abort(), so that its report is
+# told from an ordinary failure, and give the commits a user name.  The
+# environment is put back at the end.
+#
+foreach {scenarioVar scenarioOpt} {
+  ASAN_OPTIONS  abort_on_error=1
+  UBSAN_OPTIONS halt_on_error=1:abort_on_error=1
+  USER          scenario
+} {
+  if {![info exists ::env($scenarioVar)]} {
+    set ::env($scenarioVar) $scenarioOpt
+    continue
+  }
+  set scenarioSaved($scenarioVar) $::env($scenarioVar)
+  if {$scenarioVar eq "USER"} {
+    set ::env(USER) $scenarioOpt
+  } elseif {![string match *abort_on_error* $::env($scenarioVar)]} {
+    append ::env($scenarioVar) :$scenarioOpt
+  }
+}
+
+# Stop the scenario because it has found a problem.
+#
+proc scenario_fail {msg} {
+  return -code error -errorcode SCENARIO $msg
+}
+
+# Run fossil with the arguments given in subdirectory $sub of the
+# scenario.  Return 0 if it succeeds and 1 if it fails in the ordinary
+# way.  A crash or a command that does not finish is a problem found.
+# The output is left in scenarioOut and added to the log.
+#
+proc scenario_fossil {sub args} {
+  global scenarioDir scenarioSeconds scenarioOut scenarioLog CODE RESULT
+  cd [file join $scenarioDir $sub]
+  fossil_raw -seconds $scenarioSeconds {*}$args
+  cd $scenarioDir
+  set scenarioOut $RESULT
+  lappend scenarioLog "+ $sub: fossil $args" $scenarioOut
+  if {$CODE eq "timeout"} {
+    scenario_fail "a command did not finish in $scenarioSeconds seconds:\
+                   fossil $args"
+  }
+  if {$CODE eq "crash"} {
+    scenario_fail "a command crashed: fossil $args"
+  }
+  return [expr {$CODE != 0}]
+}
+
+# Run a fossil command that must succeed.
+#
+proc scenario_must {sub args} {
+  if {[scenario_fossil $sub {*}$args]} {
+    scenario_fail "a command that must succeed has failed: fossil $args"
+  }
+}
+
+# The number that one SQL query on clone $i gives.
+#
+proc scenario_count {i sql} {
+  global scenarioOut
+  scenario_must . sql -R r$i.fossil $sql
+  set n [string trim $scenarioOut]
+  if {![string is integer -strict $n]} {
+    scenario_fail "a count is not a number: $n"
+  }
+  return $n
+}
+
+# Add a line to a file in checkout $i, or replace the file by the line.
+#
+proc scenario_write {i name line {mode a}} {
+  global scenarioDir
+  set fd [open [file join $scenarioDir c$i $name] $mode]
+  puts $fd $line
+  close $fd
+}
+
+# Commit whatever has changed in checkout $i.  Every commit has a later
+# date than the one before, so that the result does not depend on the
+# clock.
+#
+proc scenario_commit {i} {
+  global scenarioCommits
+  set n [incr scenarioCommits]
+  set date [format "2026-01-%02d %02d:%02d:00" \
+               [expr {2+$n/1440}] [expr {($n/60)%24}] [expr {$n%60}]]
+  return [scenario_fossil c$i commit -m "commit $n" --no-warnings \
+            --allow-fork --allow-conflict --allow-older --date-override $date]
+}
+
+# Open a checkout of clone $i in a new directory.
+#
+proc scenario_open {i} {
+  global scenarioDir
+  file mkdir [file join $scenarioDir c$i]
+  scenario_must c$i open ../r$i.fossil
+  scenario_must c$i settings autosync off
+  scenario_must c$i uv list
+}
+
+# Require that clone $have holds every public artifact that clone $of
+# holds, and every unversioned file too if $uv is true.  $when says what
+# has just been done.
+#
+# An artifact that clone $of holds only as a delta from something it is
+# still waiting for does not count: it cannot be sent until its source
+# arrives.  A sync that lost its reply can leave one behind.
+#
+proc scenario_holds {have of uv when} {
+  set n [scenario_count $have "ATTACH 'r$of.fossil' AS o;
+    WITH RECURSIVE waiting(rid) AS (
+      SELECT rid FROM o.delta
+       WHERE srcid IN (SELECT rid FROM o.blob WHERE size<0)
+      UNION SELECT d.rid FROM o.delta d, waiting w WHERE d.srcid=w.rid)
+    SELECT count(*) FROM o.blob WHERE size>=0
+     AND rid NOT IN (SELECT rid FROM o.private)
+     AND rid NOT IN waiting
+     AND uuid NOT IN (SELECT uuid FROM blob WHERE size>=0)"]
+  if {$n > 0} {
+    scenario_fail "$when, clone $have lacks $n artifacts that clone $of holds"
+  }
+  if {$uv} {
+    set n [scenario_count $have "ATTACH 'r$of.fossil' AS o;
+      SELECT count(*) FROM o.unversioned WHERE hash IS NOT NULL
+       AND name||'/'||hash NOT IN (SELECT name||'/'||hash FROM unversioned
+                                    WHERE hash IS NOT NULL)"]
+    if {$n > 0} {
+      scenario_fail "$when, clone $have lacks $n unversioned files that\
+                     clone $of holds"
+    }
+  }
+}
+
+# Run the scenario whose records are the bytes of $data.  The result is
+# an empty string, or what went wrong.
+#
+proc scenario_run {name data} {
+  global scenarioTop scenarioDir scenarioLog scenarioCommits scenarioMaxOps
+  set scenarioDir [file join $scenarioTop $name]
+  set scenarioLog {}
+  set scenarioCommits 0
+  file mkdir $scenarioDir
+  cd $scenarioDir
+  set rc [catch {scenario_steps $data} msg opts]
+  cd $scenarioTop
+  if {!$rc} {
+    file delete -force $scenarioDir
+    return ""
+  }
+  if {[dict get $opts -errorcode] ne "SCENARIO"} {
+    set msg [dict get $opts -errorinfo]
+  }
+  # The last three commands and the end of what each printed go into the
+  # report; the directory does not last.
+  foreach {cmd out} [lrange $scenarioLog end-5 end] {
+    append msg \n$cmd\n[join [lrange [split [string trim $out] \n] end-5 end] \n]
+  }
+  return $msg
+}
+
+proc scenario_steps {data} {
+  global scenarioDir scenarioMaxOps scenarioOut
+
+  # The script that carries a sync that is to go wrong
+  # It is run with tclsh, so it needs no permission to be executed.
+  set wire [file join $scenarioDir wire.tcl]
+  file copy [file join $::testfiledir standin scenario-wire.tcl] $wire
+  set wire "\"[info nameofexecutable]\" \"$wire\""
+
+  # One repository with one check-in, cloned twice
+  scenario_must . init r0.fossil -A scenario \
+                  --date-override "2026-01-01 00:00:00"
+  foreach i {0 1 2} {
+    if {$i > 0} {scenario_must . clone r0.fossil r$i.fossil}
+    scenario_open $i
+    if {$i == 0} {
+      foreach x {0 1 2} {
+        foreach y {1 2 3 4 5 6 7 8 9} {
+          scenario_write 0 f$x.txt "file $x line $y"
+        }
+      }
+      scenario_must c0 add f0.txt f1.txt f2.txt
+      if {[scenario_commit 0]} {scenario_fail "the first commit failed"}
+    }
+  }
+
+  # Do the operations
+  set nOp [expr {min([string length $data]/4, $scenarioMaxOps)}]
+  for {set i 0} {$i < $nOp} {incr i} {
+    binary scan $data "@[expr {$i*4}]cu4" rec
+    lassign $rec op me a opt
+    set me [expr {$me % 3}]
+    set ck c$me
+    set peer [expr {($me + 1 + $a%2) % 3}]
+    switch [expr {$op % 14}] {
+      0 - 1 {   ;# Change a file and commit
+        scenario_write $me f[expr {$a%3}].txt "change $i"
+        scenario_commit $me
+      }
+      2 {       ;# Add a file and commit
+        scenario_write $me n[expr {$a%8}].txt "new $i"
+        scenario_fossil $ck add n[expr {$a%8}].txt
+        scenario_commit $me
+      }
+      3 {       ;# Remove a file and commit
+        if {![scenario_fossil $ck rm --hard f[expr {$a%3}].txt]} {
+          scenario_commit $me
+        }
+      }
+      4 {       ;# Start a branch, or move to one that exists
+        scenario_fossil $ck branch new b[expr {$a%4}] current
+        scenario_fossil $ck update b[expr {$a%4}]
+      }
+      5 {       ;# Merge a branch or trunk and commit
+        if {$a & 0x80} {
+          scenario_fossil $ck merge trunk
+        } else {
+          scenario_fossil $ck merge b[expr {$a%4}]
+        }
+        scenario_commit $me
+      }
+      6 {       ;# Sync, pull or push with another clone
+        set verb [lindex {sync pull push} [expr {$opt%3}]]
+        set fault [expr {($opt/3) % 5}]
+        # Only "sync" takes -u.  The option bit is ignored otherwise.
+        set uv [expr {($opt & 0x80) && $verb eq "sync"}]
+        set args [list $verb]
+        if {$fault == 0} {
+          lappend args ../r$peer.fossil
+        } else {
+          lappend args http://scenario.invalid/x --once \
+                       --transport-command $wire
+        }
+        if {$uv} {lappend args -u}
+        if {$fault == 0} {
+          scenario_must $ck {*}$args
+        } else {
+          # Fault 4 is the script with no fault, to show that it works
+          set ::env(SCN_EXE) $::fossilexe
+          set ::env(SCN_REPO) [file join $scenarioDir r$peer.fossil]
+          set ::env(SCN_FAULT) $fault
+          set rc [catch {scenario_fossil $ck {*}$args} failed opts]
+          unset ::env(SCN_EXE) ::env(SCN_REPO) ::env(SCN_FAULT)
+          if {$rc} {return -options $opts $failed}
+          if {$fault == 4 && $failed} {
+            scenario_fail "a sync through the wire script, with no fault,\
+                           failed"
+          }
+          if {($fault == 1 || $fault == 2) && !$failed} {
+            scenario_fail "a sync that got no reply reported success"
+          }
+        }
+        if {$fault == 0 || $fault == 4} {
+          if {$verb ne "push"} {scenario_holds $me $peer $uv $verb}
+          if {$verb ne "pull"} {scenario_holds $peer $me $uv $verb}
+        }
+      }
+      7 {       ;# Update the checkout
+        if {$a & 1} {
+          scenario_fossil $ck update trunk
+        } else {
+          scenario_fossil $ck update
+        }
+      }
+      8 {       ;# Add a tag
+        scenario_fossil $ck tag add t[expr {$a%4}] current
+      }
+      9 {       ;# Rebuild
+        scenario_fossil . rebuild r$me.fossil
+      }
+      10 {      ;# Change how much this clone will send in one message
+        set limits {250000 20000 2000 300}
+        scenario_fossil . sql -R r$me.fossil "REPLACE INTO
+          config(name,value,mtime)
+          VALUES('max-upload',[lindex $limits [expr {$a%4}]],0),
+                ('max-download',[lindex $limits [expr {($a/4)%4}]],0)"
+      }
+      11 {      ;# Commit many files at once
+        file mkdir [file join $scenarioDir $ck d$i]
+        set n [expr {40 + 40*($a%4)}]
+        for {set k 0} {$k < $n} {incr k} {
+          scenario_write $me d$i/b$k.txt "bulk $i file $k"
+        }
+        scenario_fossil $ck add d$i
+        scenario_commit $me
+      }
+      12 {      ;# Add or change an unversioned file
+        scenario_write $me u[expr {$a%16}].txt "unversioned $i" w
+        scenario_fossil $ck uv add u[expr {$a%16}].txt --mtime \
+            [format "2026-01-01 %02d:%02d:%02d" [expr {$i/60}] \
+                [expr {$i%60}] $me]
+      }
+      13 {      ;# Replace this clone by a new clone of another
+        # Skip the operation if the source is waiting for anything.
+        # "fossil clone" refuses a source that holds a delta from
+        # something missing, and a check-in with a missing file cannot
+        # be checked out of the new clone.
+        if {[scenario_count $peer "SELECT count(*) FROM phantom"]} continue
+        # Also skip it if this clone holds something that neither of the
+        # others holds.  Throwing away the only copy of an artifact would
+        # leave the others waiting for it for ever, and that would be the
+        # fault of this test, not of Fossil.
+        set o1 [expr {($me+1)%3}]
+        set o2 [expr {($me+2)%3}]
+        if {[scenario_count $me "ATTACH 'r$o1.fossil' AS o1;
+              ATTACH 'r$o2.fossil' AS o2;
+              SELECT count(*) FROM blob WHERE size>=0
+               AND uuid NOT IN (SELECT uuid FROM o1.blob WHERE size>=0)
+               AND uuid NOT IN (SELECT uuid FROM o2.blob WHERE size>=0)"]} {
+          continue
+        }
+        set uv [expr {($a & 0x80) != 0}]
+        scenario_fossil $ck close --force
+        file delete -force [file join $scenarioDir $ck] \
+                           [file join $scenarioDir r$me.fossil]
+        if {$uv} {
+          scenario_must . clone r$peer.fossil r$me.fossil -u
+        } else {
+          scenario_must . clone r$peer.fossil r$me.fossil
+        }
+        scenario_open $me
+        scenario_holds $me $peer $uv clone
+      }
+    }
+  }
+
+  # Sync along the chain 0-1-2 until nothing more can move.  One pass
+  # each way is enough; two more guard the count.
+  foreach pass {1 2 3} {
+    scenario_must c0 sync -u ../r1.fossil
+    scenario_must c1 sync -u ../r2.fossil
+    scenario_must c2 sync -u ../r1.fossil
+    scenario_must c1 sync -u ../r0.fossil
+  }
+
+  # Every clone must be sound, and all must hold the same artifacts
+  foreach i {0 1 2} {
+    scenario_must . test-integrity --parse -R r$i.fossil
+    scenario_must . test-missing -R r$i.fossil
+    scenario_must . sql -R r$i.fossil "SELECT uuid FROM blob WHERE size>=0
+        AND rid NOT IN private ORDER BY 1;
+      SELECT 'uv', name, hash FROM unversioned
+       WHERE hash IS NOT NULL ORDER BY 2"
+    set held($i) [string trim $scenarioOut]
+    if {$held($i) eq ""} {scenario_fail "clone $i lists no artifacts"}
+    if {$i > 0 && $held($i) ne $held(0)} {
+      scenario_fail "clones 0 and $i hold different artifacts or\
+                     unversioned files after syncing"
+    }
+  }
+}
+
+source [file join $::testfiledir corpus.tcl]
+corpus_unpack [file join $::testfiledir corpus corpus.pack] [file join [pwd] corpus]
+foreach scenarioF [lsort [glob -nocomplain \
+                  [file join [pwd] corpus scenario *]]] {
+  set scenarioFd [open $scenarioF rb]
+  set scenarioData [read $scenarioFd]
+  close $scenarioFd
+  test_eq scenario-[file tail $scenarioF] \
+      [scenario_run [file tail $scenarioF] $scenarioData] ""
+}
+
+# Random inputs, on request.  The generator is written out here so that a
+# seed gives the same input with every version of Tcl.
+#
+if {[info exists ::env(FOSSIL_SCENARIO_RANDOM)]} {
+  set scenarioSeed [clock seconds]
+  if {[info exists ::env(FOSSIL_SCENARIO_SEED)]} {
+    set scenarioSeed $::env(FOSSIL_SCENARIO_SEED)
+  }
+  for {set scenarioN 0} {$scenarioN < $::env(FOSSIL_SCENARIO_RANDOM)} \
+      {incr scenarioN; incr scenarioSeed} {
+    set scenarioX $scenarioSeed
+    set scenarioData ""
+    for {set scenarioK 0} {$scenarioK < 4*$scenarioMaxOps} {incr scenarioK} {
+      set scenarioX [expr {($scenarioX*1103515245 + 12345) & 0x7fffffff}]
+      append scenarioData [binary format c [expr {($scenarioX>>16) & 255}]]
+    }
+    test_eq scenario-seed-$scenarioSeed \
+        [scenario_run seed-$scenarioSeed $scenarioData] ""
+  }
+}
+
+foreach scenarioVar {ASAN_OPTIONS UBSAN_OPTIONS USER} {
+  if {[info exists scenarioSaved($scenarioVar)]} {
+    set ::env($scenarioVar) $scenarioSaved($scenarioVar)
+  } else {
+    unset ::env($scenarioVar)
+  }
+}
+
+###############################################################################
+
+test_cleanup

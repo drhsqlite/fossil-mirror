@@ -1,0 +1,1240 @@
+#
+# How a name typed by a user or taken from a URL becomes an artifact:
+# src/name.c.  One small repository holds check-ins on two branches with
+# a merge between them, tags, a wiki page, a ticket, a technote, a forum
+# post, an attachment, a cluster, phantoms and pairs of artifacts whose
+# hashes begin alike.  Every kind of name is then given to
+# "fossil test-name-to-id", "fossil whatis" and other commands, and to
+# web pages through "fossil http --in".
+#
+
+# These tests run only in a long pass: -assurance stress.
+if {[test_assurance] ne "stress"} {
+  test_skip "runs only with -assurance stress"
+}
+
+require_no_open_checkout
+
+test_setup ""
+
+set nameRepo [file join [pwd] name.fossil]
+fossil new --admin-user alice --date-override "2025-01-01 00:00:00" $nameRepo
+fossil open $nameRepo
+fossil user default alice
+fossil set mtime-changes off
+
+# The answer of one SQL statement, trimmed.
+#
+proc name_sql {sql} {
+  global RESULT
+  fossil sql $sql
+  return [string trim $RESULT]
+}
+
+# The hash of the check-in whose comment is COMMENT.
+#
+proc name_checkin {comment} {
+  return [name_sql "SELECT uuid FROM event, blob
+      WHERE objid=rid AND type='ci' AND comment='$comment'"]
+}
+
+# Check in the checkout as it stands with COMMENT and DATE.  ARGS are
+# more options.  Return the hash of the check-in.
+#
+proc name_commit {comment date args} {
+  fossil commit -m $comment --date-override $date --user-override alice \
+      --no-warnings {*}$args
+  return [name_checkin $comment]
+}
+
+set nameSeq 0
+
+# Store the artifact whose cards, without the Z card, are BODY and
+# crosslink it.  Return its hash.
+#
+proc name_put {body} {
+  global nameSeq RESULT
+  set fn artifact-[incr nameSeq].txt
+  set fd [open $fn wb]
+  puts -nonewline $fd $body
+  close $fd
+  fossil md5sum $fn
+  set sum [lindex $RESULT 0]
+  set fd [open $fn ab]
+  puts -nonewline $fd "Z $sum\n"
+  close $fd
+  fossil test-content-put --crosslink $fn
+  file delete $fn
+  if {![regexp {inserted as record (\d+)} $RESULT all rid]} { return "" }
+  return [name_sql "SELECT uuid FROM blob WHERE rid=$rid"]
+}
+
+# The strings in WANTED that TEXT does not hold, and those that begin
+# with "!" that it does hold.
+#
+proc name_missing {text wanted} {
+  set missing [list]
+  foreach string $wanted {
+    if {![holds_strings $text [list $string]]} { lappend missing $string }
+  }
+  return $missing
+}
+
+# What "fossil test-name-to-id" answers for NAME: a hash, or the text of
+# an error.  TYPE is the kind of artifact wanted.
+#
+proc name_id {name {type ""}} {
+  global RESULT
+  if {$type eq ""} {
+    fossil test-name-to-id $name
+  } else {
+    fossil test-name-to-id --type $type $name
+  }
+  set at [string first " -> " $RESULT]
+  return [string range $RESULT [expr {$at + 4}] end]
+}
+
+###############################################################################
+# The repository.
+#
+#   2025-01-01  c0   first check-in of trunk
+#   2025-01-02  c1   trunk; tags rel, rel1, decade
+#   2025-01-03  c2   trunk
+#   2025-01-04  b1   first check-in of branch br, from c2
+#   2025-01-05  c3   trunk
+#   2025-01-06  b2   br, with c3 merged in
+#   2025-01-07  b3   br
+#
+# The checkout is left at c2.
+
+set nameC0 [name_sql "SELECT uuid FROM event, blob
+    WHERE objid=rid AND type='ci'"]
+
+# The hashes of p.txt and q.txt begin with the same five characters.
+write_file f.txt "one\n"
+write_file p.txt "name collide 1177\n"
+write_file q.txt "name collide 1426\n"
+set nameBig ""
+for {set nameI 0} {$nameI < 150} {incr nameI} {
+  append nameBig "line $nameI of a file long enough to be kept as a delta\n"
+}
+write_file big.txt $nameBig
+fossil add f.txt p.txt q.txt big.txt
+set nameC1 [name_commit c1 "2025-01-02 10:00:00" --tag rel --tag rel1]
+fossil sha3sum p.txt q.txt
+set nameP [lindex $RESULT 0]
+set nameQ [lindex $RESULT 2]
+set nameTwin [string range $nameP 0 4]
+test name-setup-twins {[string length $nameP] == 64 && $nameP ne $nameQ
+    && [string match $nameTwin* $nameQ]}
+
+write_file f.txt "one\ntwo\n"
+write_file big.txt "${nameBig}one more line\n"
+set nameC2 [name_commit c2 "2025-01-03 10:00:00"]
+write_file f.txt "one\ntwo\nbranch\n"
+set nameB1 [name_commit b1 "2025-01-04 10:00:00" --branch br]
+fossil update trunk
+write_file g.txt "g\n"
+fossil add g.txt
+set nameC3 [name_commit c3 "2025-01-05 10:00:00"]
+fossil update br
+fossil merge trunk
+set nameB2 [name_commit b2 "2025-01-06 10:00:00"]
+write_file f.txt "one\ntwo\nbranch\nmore\n"
+set nameB3 [name_commit b3 "2025-01-07 10:00:00"]
+
+# A private check-in after b3 that is dated before it.
+write_file h.txt "private\n"
+fossil add h.txt
+set namePriv [name_commit hidden "2025-01-07 09:00:00" --private \
+    --allow-older]
+fossil update $nameC2
+fossil tag add decade $nameC1 --date-override "2025-01-08 10:00:00" \
+    --user-override alice
+fossil tag add gone $nameC1 --date-override "2025-01-08 11:00:00" \
+    --user-override alice
+fossil tag cancel gone $nameC1 --date-override "2025-01-08 12:00:00" \
+    --user-override alice
+set nameG1 [name_sql "SELECT uuid FROM event, blob
+    WHERE objid=rid AND type='g' AND comment LIKE '%\"decade\"%'"]
+
+test name-setup-checkins {[llength [lsort -unique [list $nameC0 $nameC1 \
+    $nameC2 $nameC3 $nameB1 $nameB2 $nameB3 $nameG1]]] == 8
+    && [string length $nameG1] == 64}
+
+# A wiki page with two versions, then two versions of another page
+# whose hashes begin with the same four characters.
+set nameW1 [name_put "D 2025-01-09T10:00:00.000
+L WikiOne
+U alice
+W 5
+first
+"]
+set nameW2 [name_put "D 2025-01-09T11:00:00.000
+L WikiOne
+P $nameW1
+U alice
+W 6
+second
+"]
+set nameWa [name_put "D 2025-01-09T10:00:00.130
+L Twin
+U alice
+W 4
+twin
+"]
+set nameWb [name_put "D 2025-01-09T10:00:00.414
+L Twin
+U alice
+W 4
+twin
+"]
+set nameWtwin [string range $nameWa 0 3]
+test name-setup-wiki-twins {$nameWa ne "" && $nameWa ne $nameWb
+    && [string match $nameWtwin* $nameWb]}
+
+# A ticket whose name begins like the hash of c1, and one whose name
+# begins like nothing else.
+set nameTktLike [string range $nameC1 0 5][string repeat 0 34]
+set nameTktOnly [string repeat 7e 20]
+set nameT1 [name_put "D 2025-01-10T10:00:00.000
+J status Open
+J title Like\\sa\\scheck-in
+K $nameTktLike
+U alice
+"]
+set nameT2 [name_put "D 2025-01-10T11:00:00.000
+J status Open
+J title Alone
+K $nameTktOnly
+U alice
+"]
+
+# A technote, and a second one whose name begins like the hash of c3.
+set nameEid [string repeat e1 20]
+set nameEidLike [string range $nameC3 0 5][string repeat 1 34]
+set nameE1 [name_put "C A\\snote
+D 2025-01-11T10:00:00.000
+E 2025-01-11T09:00:00 $nameEid
+U alice
+W 4
+note
+"]
+set nameE2 [name_put "C Like\\sa\\scheck-in
+D 2025-01-11T11:00:00.000
+E 2025-01-11T09:30:00 $nameEidLike
+U alice
+W 4
+note
+"]
+
+# A forum post.
+set nameF1 [name_put "D 2025-01-12T10:00:00.000
+H A\\sthread
+U alice
+W 4
+post
+"]
+
+# A file attached to the wiki page and another attached to a ticket.
+write_file att1.txt "attached to wiki\n"
+write_file att2.txt "attached to ticket\n"
+fossil test-content-put att1.txt
+fossil test-content-put att2.txt
+fossil sha3sum att1.txt att2.txt
+set nameAtt1 [lindex $RESULT 0]
+set nameAtt2 [lindex $RESULT 2]
+set nameA1 [name_put "A att1.txt WikiOne $nameAtt1
+C on\\sthe\\spage
+D 2025-01-13T10:00:00.000
+U alice
+"]
+set nameA2 [name_put "A att2.txt $nameTktOnly $nameAtt2
+C on\\sthe\\sticket
+D 2025-01-13T11:00:00.000
+U alice
+"]
+
+# An artifact kept under its SHA1 name.
+write_file sha1.txt "kept under a SHA1 name\n"
+fossil hash-policy sha1
+fossil test-content-put sha1.txt
+fossil hash-policy sha3
+fossil sha1sum sha1.txt
+set nameSha1 [lindex $RESULT 0]
+
+# A ticket with the same name as that artifact.
+set nameT3 [name_put "D 2025-01-10T12:00:00.000
+J status Open
+J title Same\\sname
+K $nameSha1
+U alice
+"]
+
+# Artifacts that name others the repository does not hold: the parent
+# of a wiki edit, a file and a merge parent of a check-in on branch
+# side, the target of a tag, and a member of a cluster.  The first of
+# them has a name that reads as the date 2025-01-05.
+set nameGhostParent 20250105[string repeat a 32]
+set nameGhostFile   [string repeat f1 20]
+set nameGhostMerge  [string repeat f2 20]
+set nameGhostTarget [string repeat f3 20]
+set nameGhostMember [string repeat f4 20]
+set nameW3 [name_put "D 2025-01-14T10:00:00.000
+L Orphan
+P $nameGhostParent
+U alice
+W 6
+orphan
+"]
+set nameSide [name_put "C side
+D 2025-01-06T12:00:00.000
+F lost.txt $nameGhostFile
+P $nameC0 $nameGhostMerge
+T *branch * side
+T *sym-side *
+T -sym-trunk *
+U alice
+"]
+# Two check-ins whose hashes begin with the same four characters.
+set nameCa [name_put "C twin
+D 2025-01-06T13:00:00.324
+T *branch * twins
+T *sym-twins *
+U alice
+"]
+set nameCb [name_put "C twin
+D 2025-01-06T13:00:00.401
+T *branch * twins
+T *sym-twins *
+U alice
+"]
+set nameCtwin [string range $nameCa 0 3]
+fossil tag add --raw closed $nameCa --date-override "2025-01-08 08:00:00" \
+    --user-override alice
+fossil tag add --raw hidden $nameCa --date-override "2025-01-08 09:00:00" \
+    --user-override alice
+test name-setup-checkin-twins {$nameCa ne "" && $nameCa ne $nameCb
+    && [string match $nameCtwin* $nameCb]}
+set nameG2 [name_put "D 2025-01-14T11:00:00.000
+T +sym-ghost $nameGhostTarget
+U alice
+"]
+set nameCluster [name_put "M [join [lsort [list $nameC0 $nameC1 \
+    $nameGhostMember]] "\nM "]\n"]
+
+test name-setup-more {[llength [lsort -unique [list $namePriv $nameA1 \
+    $nameA2 $nameW3 $nameSide $nameG2 $nameCluster $nameAtt1 $nameAtt2]]] == 9
+    && [string length $nameCluster] == 64 && [string length $nameSha1] == 40
+    && [name_sql "SELECT count(*) FROM phantom"] == 5
+    && [name_sql "SELECT count(*) FROM delta"] > 0
+    && [name_sql "SELECT count(*) FROM blob WHERE uuid='$nameSha1'"] == 1}
+
+test name-setup-artifacts {[llength [lsort -unique [list $nameW1 $nameW2 \
+    $nameT1 $nameT2 $nameE1 $nameE2 $nameF1]]] == 7
+    && [string length $nameF1] == 64}
+
+###############################################################################
+# Names of check-ins, given in the checkout.
+
+foreach {nameCase nameName nameType nameWant} [list \
+  tip             tip                {}   $nameB3 \
+  tip-ci          tip                ci   $nameB3 \
+  tip-wiki        tip                w    {ERROR: cannot resolve name: tip} \
+  current         current            {}   $nameC2 \
+  prev            prev               {}   $nameC1 \
+  previous        previous           ci   $nameC1 \
+  next            next               {}   $nameC3 \
+  current-wiki    current            w    {ERROR: cannot resolve name: current} \
+  ckout           ckout              ci+  $nameC2 \
+  ckout-ci        ckout              ci   {ERROR: cannot resolve name: ckout} \
+  ckout-any       ckout              {}   {ERROR: cannot resolve name: ckout} \
+  current-ciplus  current            ci+  $nameC2 \
+  trunk-ciplus    trunk              ci+  $nameC3 \
+  branch          br                 {}   $nameB3 \
+  branch-start    br                 br   $nameB1 \
+  trunk           trunk              ci   $nameC3 \
+  tag             rel1               {}   $nameC1 \
+  tag-prefix      tag:rel1           {}   $nameC1 \
+  tag-hex         decade             {}   $nameC1 \
+  tag-hex-prefix  tag:decade         {}   $nameC1 \
+  tag-start       tag:br             br   $nameB1 \
+  tag-cancelled   gone               {}   {ERROR: cannot resolve name: gone} \
+  tag-none        tag:nosuch         {}   {ERROR: cannot resolve name: tag:nosuch} \
+  tag-empty       tag:               {}   {ERROR: cannot resolve name: tag:} \
+  tag-percent     tag:%              {}   {ERROR: cannot resolve name: tag:%} \
+  tag-underscore  re_1               {}   {ERROR: cannot resolve name: re_1} \
+  tag-star        rel*               {}   {ERROR: cannot resolve name: rel*} \
+  tag-wiki-type   rel1               w    {ERROR: cannot resolve name: rel1} \
+  root            root:br            {}   $nameC2 \
+  start           start:br           {}   $nameB1 \
+  merge-in        merge-in:br        {}   $nameC3 \
+  root-trunk      root:trunk         {}   $nameC0 \
+  start-trunk     start:trunk        {}   $nameC0 \
+  merge-in-trunk  merge-in:trunk     {}   $nameC3 \
+  root-first      root:$nameC0       {}   $nameC0 \
+  merge-in-first  merge-in:$nameC0   {}   $nameC0 \
+  merge-in-plain  merge-in:$nameB1   {}   $nameC2 \
+  root-of-root    root:root:br       {}   $nameC0 \
+  root-none       root:nosuch        {}   {ERROR: cannot resolve name: root:nosuch} \
+  start-none      start:nosuch       {}   {ERROR: cannot resolve name: start:nosuch} \
+  merge-in-none   merge-in:nosuch    {}   {ERROR: cannot resolve name: merge-in:nosuch} \
+  root-empty      root:              {}   {ERROR: cannot resolve name: root:} \
+] {
+  test_eq name-checkin-$nameCase [name_id $nameName $nameType] $nameWant
+}
+
+###############################################################################
+# Dates.  The timeline of the repository is in UTC.  A date names the
+# latest artifact of the wanted kind at or before the end of the day,
+# minute, second or millisecond given.
+
+set nameNoDate {ERROR: cannot resolve name: }
+foreach {nameCase nameName nameType nameWant} [list \
+  day               {date:2025-01-03}               {}  $nameC2 \
+  day-ci            {date:2025-01-03}               ci  $nameC2 \
+  day-wiki          {date:2025-01-03}               w   - \
+  day-wiki-later    {date:2025-01-09}               w   $nameW2 \
+  compact-day       {date:20250103}                 {}  $nameC2 \
+  compact-minute    {date:202501031000}             {}  $nameC2 \
+  compact-second    {date:20250103095959}           {}  $nameC1 \
+  compact-second-2  {date:20250103100000}           {}  $nameC2 \
+  compact-zulu-day  {date:20250103Z}                {}  $nameC2 \
+  compact-zulu-min  {date:202501031000z}            {}  $nameC2 \
+  compact-zulu-sec  {date:20250103095959Z}          {}  $nameC1 \
+  minute            {date:2025-01-03T09:59}         {}  $nameC1 \
+  minute-2          {date:2025-01-03 10:00}         {}  $nameC2 \
+  second            {date:2025-01-03 09:59:59}      {}  $nameC1 \
+  second-2          {date:2025-01-03 10:00:00}      {}  $nameC2 \
+  tenth             {date:2025-01-03 09:59:59.9}    {}  $nameC1 \
+  hundredth         {date:2025-01-03 09:59:59.99}   {}  $nameC1 \
+  milli-998         {date:2025-01-03 09:59:59.998}  {}  $nameC1 \
+  milli-989         {date:2025-01-03 09:59:59.989}  {}  $nameC1 \
+  milli-899         {date:2025-01-03 09:59:59.899}  {}  $nameC1 \
+  milli-999         {date:2025-01-03 09:59:59.999}  {}  $nameC1 \
+  milli-000         {date:2025-01-03 10:00:00.000}  {}  $nameC2 \
+  zulu-day          {date:2025-01-03z}              {}  $nameC2 \
+  zulu-minute       {date:2025-01-03 10:00Z}        {}  $nameC2 \
+  zulu-second       {date:2025-01-03 09:59:59Z}     {}  $nameC1 \
+  zulu-milli        {date:2025-01-03 10:00:00.000z} {}  $nameC2 \
+  zulu-short        {date:2025-01-0z}               {}  - \
+  before-all        {date:2024-12-31}               {}  - \
+  empty             {date:}                         {}  - \
+  zero              {date:0000-00-00}               {}  - \
+  negative          {date:-1}                       {}  - \
+  year-99999        {date:99999-01-01}              {}  - \
+  words             {date:yesterday}                {}  - \
+  plain-day         {2025-01-03}                    {}  $nameC2 \
+  plain-minute      {2025-01-03 09:00}              {}  $nameC1 \
+  plain-wiki        {2025-01-09}                    w   $nameW2 \
+  plain-before-all  {2024-12-31}                    {}  - \
+  plain-zero        {0000-00-00}                    {}  - \
+  plain-month-13    {2025-13-01}                    {}  - \
+  not-date-5        {2025-x1-01}                    {}  - \
+  not-date-6        {2025-0x-01}                    {}  - \
+  not-date-7        {2025-01x01}                    {}  - \
+  not-date-8        {2025-01-x1}                    {}  - \
+  not-date-9        {2025-01-0x}                    {}  - \
+  local             {local:2025-01-03 23:00}        {}  $nameC2 \
+  local-none        {local:}                        {}  - \
+  utc               {utc:2025-01-03 10:00}          {}  $nameC2 \
+  utc-day           {utc:2025-01-02}                {}  $nameC1 \
+  utc-none          {utc:%}                         {}  - \
+  number-day        {20250103}                      {}  $nameC2 \
+  number-minute     {202501031000}                  {}  $nameC2 \
+  number-second     {20250103095959}                {}  $nameC1 \
+  number-ci         {20250109}                      ci  $nameB3 \
+  number-wiki       {20250103}                      w   - \
+  number-10-digits  {2025010310}                    {}  - \
+  number-not-digit  {2025010x}                      {}  - \
+  number-zulu-bad   {2025010xZ}                     {}  - \
+  number-year-1969  {19691231}                      {}  - \
+  number-year-2101  {21010101}                      {}  - \
+  number-month-0    {20250003}                      {}  - \
+  number-month-13   {20251303}                      {}  - \
+  number-day-0      {20250100}                      {}  - \
+  number-day-32     {20250132}                      {}  - \
+  number-hour-25    {202501032500}                  {}  - \
+  number-minute-61  {202501031061}                  {}  - \
+  number-second-61  {20250103100061}                {}  - \
+  tag-day           {trunk:2025-01-04}              {}  $nameC2 \
+  tag-day-branch    {br:2025-01-05}                 {}  $nameB1 \
+  tag-day-early     {br:2025-01-03}                 {}  - \
+  tag-compact       {trunk:20250104}                {}  $nameC2 \
+  tag-minute        {trunk:2025-01-03 09:59}        {}  $nameC1 \
+  tag-utc           {trunk:2025-01-04 12:00utc}     {}  $nameC2 \
+  tag-UTC           {trunk:2025-01-02 12:00UTC}     {}  $nameC1 \
+  tag-day-wiki      {trunk:2025-01-04}              w   - \
+  tag-none          {nosuch:2025-01-04}             {}  - \
+  tag-empty         {:2025-01-04}                   {}  - \
+  tag-not-date      {trunk:2025}                    {}  - \
+  tag-colon-only    {:}                             {}  - \
+  tag-two-colons    {::}                            {}  - \
+] {
+  if {$nameWant eq "-"} { set nameWant $nameNoDate$nameName }
+  test_eq name-date-$nameCase [name_id $nameName $nameType] $nameWant
+}
+
+###############################################################################
+# Hashes and their beginnings, tags that look like hashes, record
+# numbers, and names with punctuation after them.
+
+set nameC1x [string range $nameC1 0 9]
+set nameNone {ERROR: cannot resolve name: }
+set nameTwice {ERROR: ambiguous name: }
+foreach {nameCase nameName nameType nameWant} [list \
+  full            $nameC1                        {}  $nameC1 \
+  prefix          $nameC1x                       {}  $nameC1 \
+  upper           [string toupper $nameC1x]      {}  $nameC1 \
+  prefix-ci       $nameC1x                       ci  $nameC1 \
+  prefix-wiki     $nameC1x                       w   - \
+  brackets        "\[$nameC1x\]"                 {}  $nameC1 \
+  bracket-left    "\[$nameC1x"                   {}  $nameC1 \
+  bracket-right   "$nameC1x\]"                   {}  $nameC1 \
+  bracket-alone   "\["                           {}  - \
+  bracket-pair    "\[\]"                         {}  - \
+  three           [string range $nameC1 0 2]     {}  - \
+  too-long        ${nameC1}0                     {}  - \
+  not-hex         [string range $nameC1 0 8]g    {}  - \
+  unknown         [string repeat 5a 5]           {}  - \
+  twins           $nameTwin                      {}  = \
+  twins-ci        $nameTwin                      ci  - \
+  twin-longer     [string range $nameP 0 5]      {}  $nameP \
+  wiki-twins      $nameWtwin                     w   = \
+  wiki            [string range $nameW1 0 9]     w   $nameW1 \
+  wiki-page       WikiOne                        w   $nameW2 \
+  wiki-page-none  NoPage                         w   - \
+  wiki-page-any   WikiOne                        {}  - \
+  ticket          [string range $nameT1 0 9]     t   $nameT1 \
+  technote        [string range $nameE1 0 9]     e   $nameE1 \
+  forum           [string range $nameF1 0 9]     f   $nameF1 \
+  tag-change      [string range $nameG1 0 9]     g   $nameG1 \
+  tag-change-ci   [string range $nameG1 0 9]     ci  - \
+  empty-type      $nameC1x                       ""  $nameC1 \
+  type-cx         $nameC1x                       cx  - \
+  tip-type-cx     tip                            cx  - \
+  rid             rid:1                          {}  $nameC0 \
+  rid-ci          rid:1                          ci  $nameC0 \
+  rid-wiki        rid:1                          w   - \
+  rid-not-number  rid:1x                         {}  - \
+  rid-empty       rid:                           {}  - \
+  rid-zero        rid:0                          {}  - \
+  dot             rel1.                          {}  $nameC1 \
+  underscore      rel1_                          {}  $nameC1 \
+  paren           rel1)                          {}  $nameC1 \
+  greater         rel1>                          {}  $nameC1 \
+  bang            rel1!                          {}  $nameC1 \
+  question        rel1?                          {}  $nameC1 \
+  comma           rel1,                          {}  $nameC1 \
+  two-marks       rel1.)                         {}  $nameC1 \
+  three-marks     rel1...                        {}  - \
+  mark-short      rel.                           {}  - \
+  two-marks-short rel..                          {}  - \
+  mark-inside     rel1.x                         {}  - \
+  hash-and-mark   $nameC1x.                      {}  $nameC1 \
+  semicolon       {rel1;}                        {}  - \
+  empty           {}                             {}  - \
+  dash            -                              {}  - \
+  long            [string repeat x 5000]       {}  - \
+  long-colons     [string repeat : 5000]         {}  - \
+  long-date       date:[string repeat 9 5000]    {}  - \
+] {
+  if {$nameWant eq "-"} { set nameWant $nameNone$nameName }
+  if {$nameWant eq "="} { set nameWant $nameTwice$nameName }
+  test_eq name-hash-$nameCase [name_id $nameName $nameType] $nameWant
+}
+
+###############################################################################
+# "fossil whatis".
+
+# Test NAME passes if the output of "fossil whatis ARGS" holds every
+# string in WANTED and none of those that begin with "!".
+#
+proc name_whatis {name wanted args} {
+  global RESULT
+  fossil whatis {*}$args
+  test_eq name-whatis-$name [name_missing $RESULT $wanted] {}
+}
+
+fossil whatis tip
+test_eq name-whatis-checkin $RESULT "name:       tip
+artifact:   $nameB3
+size:       [name_sql "SELECT size FROM blob WHERE uuid='$nameB3'"] bytes
+tags:       br
+type:       Check-in by alice on 2025-01-07 10:00:00
+comment:    b3"
+fossil whatis -h tip
+test_eq name-whatis-hash-only $RESULT $nameB3
+fossil whatis -v -h tip
+test_eq name-whatis-hash-only-verbose $RESULT $nameB3
+
+set nameRidC1 [name_sql "SELECT rid FROM blob WHERE uuid='$nameC1'"]
+name_whatis verbose [list "artifact:   $nameC1 ($nameRidC1)" \
+    "received:   " "tags:       decade, rel, rel1, trunk"] -v rel1
+name_whatis raw-tags [list "tags:       twins" "closed, hidden" \
+    "Check-in by alice on 2025-01-06 13:00:00"] $nameCa
+name_whatis private [list "tags:       private" "comment:    hidden"] $namePriv
+name_whatis wiki [list "artifact:   $nameW2" \
+    "type:       Wiki-edit by alice on 2025-01-09 11:00:00"] --type w WikiOne
+name_whatis wiki-any-type [list "unknown:    WikiOne"] WikiOne
+name_whatis technote [list "type:       Technote by alice on"] $nameE1
+name_whatis forum [list "type:       Forum-post by alice on"] $nameF1
+name_whatis tag-change [list "type:       Tag-change by alice on"] $nameG1
+name_whatis ticket-change [list "type:       Ticket-change by alice on" \
+    "ticket-id:  $nameTktLike"] $nameT1
+name_whatis file [list "file:       p.txt" \
+    "part of \[[string range $nameC1 0 9]\] on branch trunk by alice on"] $nameP
+name_whatis file-on-branch [list "file:       f.txt" "on branch br by alice" \
+    "!on branch trunk"] [name_sql "SELECT uuid FROM blob, mlink
+      WHERE rid=fid AND mid=(SELECT rid FROM blob WHERE uuid='$nameB1')"]
+name_whatis attachment-wiki [list "attachment: att1.txt" \
+    "attached to wiki WikiOne" "via $nameA1\n" \
+    "by user alice on 2025-01-13 10:00:00" "on the page"] $nameAtt1
+name_whatis attachment-ticket [list "attachment: att2.txt" \
+    "attached to ticket $nameTktOnly" \
+    "via $nameA2 ([name_sql "SELECT rid FROM blob WHERE uuid='$nameA2'"])"] \
+    -v $nameAtt2
+name_whatis cluster [list "artifact:   $nameCluster" "cluster"] $nameCluster
+name_whatis sha1-name [list "hash:       $nameSha1 (ambiguous)" \
+    "artifact:   $nameSha1" "artifact:   $nameT3"] $nameSha1
+
+# An artifact the repository does not hold is described by what names it.
+name_whatis phantom-parent [list "phantom:    parent of check-in" \
+    "!artifact:"] $nameGhostParent
+name_whatis phantom-merge [list "phantom:    merge parent of check-in\
+[string range $nameSide 0 15]"] $nameGhostMerge
+name_whatis phantom-file [list "file:       lost.txt" "on branch side"] \
+    $nameGhostFile
+name_whatis phantom-target [list "tags:       ghost" \
+    "phantom:    check-in referenced by \"sym-ghost\" tag\
+[string range $nameG2 0 15]"] $nameGhostTarget
+name_whatis phantom-member [list "phantom:    referenced by cluster\
+[string range $nameCluster 0 15]"] $nameGhostMember
+
+# Names that fit nothing, or more than one artifact.
+fossil whatis nosuch
+test_eq name-whatis-unknown $RESULT "unknown:    nosuch"
+fossil whatis -q nosuch
+test_eq name-whatis-unknown-quiet $RESULT ""
+fossil whatis -h nosuch
+test_eq name-whatis-unknown-hash-only $RESULT ""
+name_whatis quiet [list "repository: $nameRepo" "name:       tip"] -q tip
+name_whatis twins [list "hash:       $nameTwin (ambiguous)" \
+    "artifact:   $nameP" "---- meaning #2 ----" "artifact:   $nameQ" \
+    "file:       p.txt" "file:       q.txt" "!repository:"] $nameTwin
+name_whatis twins-quiet [list "repository: $nameRepo" "(ambiguous)"] \
+    -q $nameTwin
+name_whatis twins-hash-only [list $nameP $nameQ "!size:"] -h $nameTwin
+name_whatis twins-wiki [list "(ambiguous)" $nameWa $nameWb] \
+    --type w $nameWtwin
+name_whatis two-names [list "name:       tip" [string repeat - 79] \
+    "name:       rel1" "comment:    c1"] tip rel1
+
+# A ticket is found by the beginning of its name.  When that is also
+# the beginning of a hash, both are shown.
+name_whatis ticket-name [list "artifact:   $nameT2" \
+    "ticket-id:  $nameTktOnly"] [string range $nameTktOnly 0 7]
+name_whatis ticket-name-upper [list "artifact:   $nameT2"] \
+    [string toupper [string range $nameTktOnly 0 7]]
+name_whatis ticket-and-hash [list "(ambiguous)" "artifact:   $nameC1" \
+    "artifact:   $nameT1" "---- meaning"] [string range $nameC1 0 5]
+name_whatis three-characters [list "unknown:    [string range $nameC1 0 2]"] \
+    [string range $nameC1 0 2]
+
+# The file named, not the artifact named.
+name_whatis by-file [list "name:       f.txt" "file:       f.txt" \
+    "on branch trunk"] -f f.txt
+name_whatis by-file-unknown [list "name:       name.fossil" "unknown:    "] \
+    -f name.fossil
+name_whatis by-file-sha1 [list "name:       sha1.txt\nhash:       $nameSha1 (ambiguous)" \
+    "artifact:   $nameSha1" "artifact:   $nameT3"] -f sha1.txt
+name_whatis by-file-twin [list "name:       p.txt" "artifact:   $nameP" \
+    "!ambiguous"] -f p.txt
+fossil whatis -f nosuchfile -expectError
+test name-whatis-by-file-missing {[string match "*no such file*" $RESULT]}
+fossil whatis -expectError
+test name-whatis-usage {[string match "*Usage:*whatis NAME*" $RESULT]}
+
+# Outside a checkout the names "current", "prev" and "next" mean nothing.
+cd ..
+fossil whatis -R $nameRepo current prev next ckout tip
+test name-whatis-no-checkout {[holds_strings $RESULT [list \
+    "unknown:    current" "unknown:    prev" "unknown:    next" \
+    "unknown:    ckout" "artifact:   $nameB3"]]}
+
+# A repository with no check-in has no tip.
+file copy $nameRepo noci.fossil
+fossil sql -R noci.fossil "DELETE FROM event WHERE type='ci'"
+fossil whatis -R noci.fossil tip
+test_eq name-whatis-no-tip $RESULT "unknown:    tip"
+file delete noci.fossil
+cd [file dirname $nameRepo]
+
+# The same as JSON, from the command and from the SQL function.
+foreach {nameCase nameArgs nameWant} [list \
+  checkin [list tip] \
+    [list "\{\"rid\":" "\"artifact\":\"$nameB3\"" \
+     "\"type\":\"Check-in by alice on 2025-01-07 10:00:00\"" \
+     "\"comment\":\"b3\"\}"] \
+  raw-tags [list $nameCa] \
+    [list "\[\"twins\"\]" "\"raw-tags\":\[\"closed\",\"hidden\"\]"] \
+  many-tags [list rel1] \
+    [list "\[\"decade\",\"rel\",\"rel1\",\"trunk\"\]"] \
+  file [list $nameP] \
+    [list "\"file\":\"p.txt\",\"part-of\":\"$nameC1\"\}"] \
+  ticket [list $nameT1] \
+    [list "\"ticket-id\":\"$nameTktLike\""] \
+  attachment [list $nameAtt1] \
+    [list "\"attachment\":\"att1.txt\",\"attached-to\":\"wiki WikiOne\"\}"] \
+  unknown [list nosuch] \
+    [list "\{\"unknown\":\"nosuch\"\}"] \
+  twins [list $nameTwin] \
+    [list "\{\"ambiguous\":\[\{\"rid\":" "\},\{\"rid\":" \
+     "\"artifact\":\"$nameQ\"" "\"file\":\"p.txt\"" "\}\]\}"] \
+  ticket-and-hash [list [string range $nameC1 0 5]] \
+    [list "\{\"ambiguous\":\[" "\"artifact\":\"$nameC1\"" \
+     "\"artifact\":\"$nameT1\"" "\}\]\}"] \
+  phantom [list $nameGhostParent] \
+    [list "\"artifact\":null\}"] \
+  by-file [list -f f.txt] \
+    [list "\"file\":\"f.txt\"" "!\"name\""] \
+  hash-only [list -h tip] \
+    [list "\"artifact\":\"$nameB3\"" "\"comment\":\"b3\""] \
+  two-names [list tip nosuch] \
+    [list "\"comment\":\"b3\"\}\n[string repeat - 79]\n\{\"unknown\""] \
+] {
+  name_whatis json-$nameCase $nameWant --json {*}$nameArgs
+}
+
+test_eq name-whatis-sql-name [name_sql "SELECT whatis('nosuch')"] \
+    "\{\"unknown\":\"nosuch\"\}"
+test name-whatis-sql-rid {[holds_strings \
+    [name_sql "SELECT whatis($nameRidC1)"] \
+    [list "\{\"rid\":$nameRidC1,\"artifact\":\"$nameC1\"" "\"comment\":\"c1\"\}"]]}
+test_eq name-whatis-sql-rid-none [name_sql "SELECT whatis(99999)"] \
+    "\{\"rid\":99999,\"artifact\":null\}"
+test_eq name-whatis-sql-other [name_sql "SELECT typeof(whatis(1.5))"] null
+
+###############################################################################
+# Other commands that take a name.
+
+fossil test-name-to-id --type ci $nameCtwin
+test_eq name-command-checkin-twins $RESULT \
+    "$nameCtwin -> ERROR: ambiguous name: $nameCtwin"
+fossil test-name-to-id --count 1 rel1 nosuch
+test_eq name-command-count $RESULT "rel1 -> $nameC1
+rel1 -> $nameC1
+nosuch -> ERROR: cannot resolve name: nosuch"
+fossil test-name-to-id rel1 --count
+test_eq name-command-count-last $RESULT "rel1 -> $nameC1
+--count -> ERROR: cannot resolve name: --count"
+
+fossil_raw update -n rel1
+test name-command-update {$CODE == 0 && [string match \
+    "*updated-to:*[string range $nameC1 0 39] 2025-01-02 10:00:00 UTC*" \
+    $RESULT]}
+fossil update -n $nameCtwin -expectError
+test name-command-update-twins \
+    {[string match "*ambiguous name: $nameCtwin*" $RESULT]}
+fossil update -n nosuch -expectError
+test name-command-update-none \
+    {[string match "*cannot resolve name: nosuch*" $RESULT]}
+fossil branch close nosuch -expectError
+test name-command-branch-close-none \
+    {[string match "*Cannot resolve name: nosuch*" $RESULT]}
+fossil branch close $nameCtwin -expectError
+test name-command-branch-close-twins \
+    {[string match "*Ambiguous name: $nameCtwin*" $RESULT]}
+
+# The header of a diff shows each version and its time.  A date as the
+# first version is taken at its start, as the second at its end.
+fossil diff --versions --from rel1 --to trunk
+test name-command-diff-names {[holds_strings $RESULT [list \
+    "Fossil-Diff-From:  [string range $nameC1 0 9] 2025-01-02 10:00:00 UTC" \
+    "Fossil-Diff-To:    [string range $nameC3 0 9] 2025-01-05 10:00:00 UTC"]]}
+fossil diff --versions --from 2025-01-03 --to 2025-01-04
+test name-command-diff-dates {[holds_strings $RESULT [list \
+    "Fossil-Diff-From:  [string range $nameC2 0 9] 2025-01-03 00:00:00 UTC" \
+    "Fossil-Diff-To:    [string range $nameB1 0 9] 2025-01-04 00:00:00 UTC"]]}
+fossil diff --versions --from 20250103 --to 20250104
+test name-command-diff-numbers {[holds_strings $RESULT [list \
+    "Fossil-Diff-From:  [string range $nameC2 0 9] 2025-01-03 00:00:00 UTC" \
+    "Fossil-Diff-To:    [string range $nameB1 0 9] 2025-01-05 00:00:00 UTC"]]}
+
+# "fossil finfo --id" describes the artifact that holds a file.
+fossil finfo --id f.txt
+test name-command-finfo-id {[holds_strings $RESULT [list \
+    "mtime:      2025-01-03 10:00:00" "file:       f.txt" \
+    "part of \[[string range $nameC2 0 9]\] on branch trunk"]]}
+fossil finfo --id -r br f.txt
+test name-command-finfo-id-revision {[holds_strings $RESULT [list \
+    "mtime:      2025-01-07 10:00:00" "on branch br"]]}
+fossil finfo --id -v -r rel1 p.txt
+test name-command-finfo-id-verbose {[holds_strings $RESULT [list \
+    "artifact:   $nameP" "file:       p.txt" "!mtime:"]]}
+
+# Lists of the beginnings that more than one name shares.
+fossil test-ambiguous
+test_eq name-command-ambiguous [lsort $RESULT] [lsort [list \
+    [string range $nameC1 0 5] [string range $nameC3 0 5] $nameTwin \
+    $nameWtwin $nameCtwin]]
+fossil test-ambiguous --minsize 5
+test_eq name-command-ambiguous-minsize [lsort $RESULT] [lsort [list \
+    [string range $nameC1 0 5] [string range $nameC3 0 5] $nameTwin]]
+fossil test-ambiguous --minsize 0
+test_eq name-command-ambiguous-minsize-0 [llength $RESULT] 5
+fossil test-ambiguous --minsize 7
+test_eq name-command-ambiguous-minsize-7 $RESULT ""
+
+# One line for each artifact.
+fossil test-describe-artifacts
+set nameAll $RESULT
+test_eq name-command-describe [name_missing $nameAll [list \
+    "  [string range $nameC0 0 15] check-in to trunk by alice on 2025-01-01 00:00 " \
+    "  [string range $nameB3 0 15] check-in to br by alice on 2025-01-07 10:00 " \
+    "  [string range $namePriv 0 15] check-in to private by alice on 2025-01-07 09:00  (private)" \
+    "  [string range $nameP 0 15] file p.txt " \
+    "  [string range $nameG1 0 15] tag [string range $nameC1 0 15] " \
+    "  [string range $nameCluster 0 15] cluster " \
+    "  [string range $nameT1 0 15] ticket [string range $nameTktLike 0 20] " \
+    "  [string range $nameW3 0 15] wiki \"Orphan\" " \
+    "  [string range $nameE1 0 15] event $nameEid " \
+    "  [string range $nameA1 0 15] attachment-control for att1.txt " \
+    "  [string range $nameAtt1 0 15] attachment att1.txt " \
+    "  [string range $nameF1 0 15] forum-post [string range $nameF1 0 13] " \
+    "  [string range $nameSha1 0 15] unknown " \
+    "  [string range $nameGhostParent 0 15] parent of check-in $nameW3" \
+    "  [string range $nameGhostMerge 0 15] merge parent of check-in $nameSide" \
+    "  [string range $nameGhostFile 0 15] file lost.txt " \
+    "  [string range $nameGhostTarget 0 15] check-in referenced by \"sym-ghost\" tag $nameG2" \
+    "  [string range $nameGhostMember 0 15] referenced by cluster $nameCluster"]] {}
+test_eq name-command-describe-count [llength [split $nameAll \n]] \
+    [name_sql "SELECT count(*) FROM blob"]
+fossil test-describe-artifacts --from 3 --count 2
+test_eq name-command-describe-range [llength [split $RESULT \n]] 2
+fossil test-unsent
+test name-command-unsent {[holds_strings $RESULT [list \
+    "  [string range $nameC1 0 15] check-in to trunk" \
+    "![string range $nameCluster 0 15]"]]}
+fossil test-unclustered
+test name-command-unclustered {[holds_strings $RESULT [list \
+    "  [string range $nameC2 0 15] check-in to trunk" \
+    "  [string range $nameCluster 0 15] cluster" \
+    "![string range $nameC0 0 15]"]]}
+fossil test-phantoms
+test name-command-phantoms {[llength [split $RESULT \n]] == 5
+    && [holds_strings $RESULT [list \
+    "  [string range $nameGhostFile 0 15] file lost.txt " \
+    "  [string range $nameGhostMember 0 15] referenced by cluster"]]}
+fossil test-phantoms --list
+test name-command-phantoms-list {[holds_strings $RESULT [list \
+    "[string range $nameGhostFile 0 9] (" "20250105aa (" \
+    "Phantoms: 5    Delta-phantoms: 0"]]}
+fossil test-phantoms --count
+test_eq name-command-phantoms-count $RESULT "Phantoms: 5    Delta-phantoms: 0"
+fossil test-phantoms --delta
+test_eq name-command-phantoms-delta $RESULT ""
+fossil test-whatis-all
+test name-command-whatis-all {[holds_strings $RESULT [list \
+    "artifact:   $nameC0 (1)" "artifact:   $nameF1 (" \
+    "file:       q.txt" [string repeat - 79]]]
+    && [regexp -all {artifact:   } $RESULT]
+       == [name_sql "SELECT count(*) FROM blob WHERE size>=0"]}
+
+# A repository with no phantoms.
+fossil new nophantom.fossil
+fossil test-phantoms -R nophantom.fossil --count
+test_eq name-command-phantoms-count-none $RESULT ""
+file delete nophantom.fossil
+
+###############################################################################
+# Web pages.  Each request goes to a copy of the repository as user
+# "nobody", who is given the capabilities the case names; "admin" is a
+# request from the local administrator.
+
+file copy $nameRepo web.fossil
+set nameWeb [file join [pwd] web.fossil]
+set nameCapsNow ?
+
+# Send a GET request for PATH and return the reply.
+#
+proc name_get {path {caps gjorz}} {
+  global nameWeb nameCapsNow
+  set options [list --ipaddr 127.0.0.1]
+  if {$caps eq "admin"} {
+    lappend options --localauth
+  } elseif {$caps ne $nameCapsNow} {
+    fossil sql -R $nameWeb "UPDATE user SET cap='$caps' WHERE login='nobody'"
+    set nameCapsNow $caps
+  }
+  write_file request.txt "GET $path HTTP/1.1\r\nHost: x\r\n\r\n"
+  file delete reply.txt
+  fossil_raw http $nameWeb --in request.txt --out reply.txt {*}$options
+  if {[file exists reply.txt]} { return [read_file reply.txt] }
+  return ""
+}
+
+# Test NAME passes if the reply to a request for PATH holds every string
+# in WANTED and none of those that begin with "!".
+#
+proc name_page {name path wanted {caps gjorz}} {
+  set reply [name_get $path $caps]
+  test_eq name-page-$name [name_missing $reply $wanted] {}
+}
+
+set nameHref {<a href="/info/}
+
+# A name that could mean more than one thing gets the page that lists
+# them, or a redirect to it.
+name_page info-twins /info/$nameTwin [list "HTTP/1.0 200 OK" \
+    "The artifact hash prefix <b>$nameTwin</b> is ambiguous" \
+    "$nameHref[string range $nameP 0 15]\">" $nameQ p.txt q.txt]
+name_page info-ticket-and-hash /info/[string range $nameC1 0 5] [list \
+    "is ambiguous" $nameC1 "$nameHref[string range $nameTktLike 0 15]\">" \
+    "Ticket\n" "Like a check-in"]
+name_page info-technote-and-hash /info/[string range $nameC3 0 5] [list \
+    "is ambiguous" $nameC3 "$nameHref[string range $nameEidLike 0 15]\">"]
+name_page info-three /info/[string range $nameP 0 2] [list \
+    "!is ambiguous" "No such object: [string range $nameP 0 2]"]
+name_page info-too-long /info/${nameC1}0 [list "!is ambiguous" \
+    "No such object: ${nameC1}0"]
+name_page info-not-hex /info/trunk [list "!is ambiguous" "HTTP/1.0 200 OK" \
+    $nameC3] admin
+name_page info-prefix /info/[string range $nameC1 0 9] [list \
+    "!is ambiguous" "HTTP/1.0 200 OK" $nameC1] admin
+name_page info-date /info/date:2025-01-03 [list "HTTP/1.0 200 OK" $nameC2] admin
+name_page info-date-zulu /info/date:20250103Z [list "HTTP/1.0 200 OK" \
+    $nameC2] admin
+name_page info-escape /info/re%6c1 [list "HTTP/1.0 200 OK" $nameC1] admin
+name_page info-percent /info/% [list "No such object: %"]
+name_page info-bad-escape /info/%zz [list "No such object: "]
+name_page info-nul /info/rel1%00x [list "HTTP/1.0 200 OK" $nameC1] admin
+name_page info-long /info/[string repeat a 5000] [list "No such object: aaaa"]
+name_page hexdump-twins /hexdump/$nameTwin [list \
+    "HTTP/1.0 302 Moved Temporarily" \
+    "Location: http://x/ambiguous/$nameTwin?src=hexdump"]
+name_page hexdump-no-name /hexdump [list "HTTP/1.0 302 Moved Temporarily" \
+    "Location: http://x/index"] admin
+name_page hexdump-empty-name /hexdump?name= [list \
+    "HTTP/1.0 302 Moved Temporarily" "Location: http://x/index"] admin
+name_page artifact-twins /artifact/$nameTwin [list \
+    "HTTP/1.0 400 Bad Request" "ambiguous name: $nameTwin"] admin
+name_page ambiguous /ambiguous?name=$nameTwin&src=artifact [list \
+    "HTTP/1.0 200 OK" "<a href=\"/artifact/[string range $nameP 0 15]\">" \
+    "<a href=\"/artifact/[string range $nameQ 0 15]\">"]
+name_page ambiguous-upper /ambiguous/[string toupper $nameTwin] [list \
+    $nameP $nameQ]
+name_page ambiguous-none /ambiguous/[string repeat 5a 5] [list \
+    "HTTP/1.0 200 OK" "<ol>\n</ol>"]
+name_page ambiguous-no-name /ambiguous [list \
+    "HTTP/1.0 302 Moved Temporarily" "Location: http://x/index"]
+name_page ambiguous-empty-name /ambiguous?name= [list \
+    "HTTP/1.0 302 Moved Temporarily" "Location: http://x/index"]
+name_page ambiguous-empty-source /ambiguous?name=$nameTwin&src= [list \
+    "HTTP/1.0 302 Moved Temporarily" "Location: http://x/index"]
+
+# The page that shows the tags of an artifact says what kind it is.
+foreach {nameCase nameName nameWant} [list \
+  checkin   $nameC1   Check-in \
+  wiki      $nameW1   Wiki-edit \
+  technote  $nameE1   Technote \
+  forum     $nameF1   Forum-post \
+  ticket    $nameT1   Ticket-change \
+  tag       $nameG1   Tag-change \
+  file      $nameP    Artifact \
+] {
+  name_page ci-tags-$nameCase /ci_tags/$nameName [list \
+      "<h1>Tags and Properties for $nameWant  <a "] admin
+}
+
+# The timeline takes a second name to use when the first one names
+# nothing.
+name_page timeline-first /timeline?p=rel1&p2=tip [list "HTTP/1.0 200 OK" \
+    "ancestor of" rel1 c1 "!>b3<"] admin
+name_page timeline-second /timeline?p=nosuch&p2=tip [list "HTTP/1.0 200 OK" \
+    "ancestors of" b3] admin
+name_page timeline-neither /timeline?p=nosuch&p2=nosuch2 [list \
+    "HTTP/1.0 400 Bad Request" "cannot resolve name: nosuch2"] admin
+name_page timeline-no-second /timeline?p=nosuch [list \
+    "HTTP/1.0 400 Bad Request" "cannot resolve name: nosuch"] admin
+name_page timeline-empty-second /timeline?p=nosuch&p2= [list \
+    "HTTP/1.0 400 Bad Request" "cannot resolve name: nosuch"] admin
+name_page timeline-empty-first /timeline?p=&p2=tip [list "HTTP/1.0 200 OK" \
+    "!ancestors of"] admin
+name_page timeline-twins /timeline?p=$nameCtwin&p2=tip [list \
+    "HTTP/1.0 400 Bad Request" "ambiguous name: $nameCtwin"] admin
+
+# Times on the timeline: a date, a date without punctuation, a name.
+name_page timeline-date /timeline?c=2025-01-04&n=2 [list \
+    "occurring around 2025-01-04." b1] admin
+name_page timeline-number /timeline?c=20250104&n=2 [list \
+    "occurring around 2025-01-04." b1] admin
+name_page timeline-number-after "/timeline?a=202501041000Z&n=2" [list \
+    "occurring on or after 2025-01-04 10:00Z." b1 c3] admin
+name_page timeline-number-after-z "/timeline?a=20250104100000z&n=1" [list \
+    "occurring on or after 2025-01-04 10:00:00Z." b1 "!>c3<"] admin
+name_page timeline-number-zulu-day "/timeline?a=20250104Z&n=1" [list \
+    "HTTP/1.0 200 OK" "occurring on or after 20250104Z." b1 "!>c3<"] admin
+name_page timeline-number-is-hash /timeline?c=20250105 [list \
+    "HTTP/1.0 200 OK" "!occurring around 2025-01-05"] admin
+name_page timeline-tag /timeline?c=rel1&n=1 [list \
+    "occurring around rel1." c1] admin
+name_page timeline-technote "/timeline?c=[string range $nameEid 0 7]&n=1" \
+    [list "occurring around [string range $nameEid 0 7]."] admin
+name_page timeline-bad-date /timeline?c=2025-13-45 [list "HTTP/1.0 200 OK" \
+    "!occurring around"] admin
+name_page timeline-minute-60 /timeline?c=202501031060 [list "HTTP/1.0 200 OK" \
+    "!occurring around"] admin
+name_page timeline-no-such-name /timeline?c=nosuch [list "HTTP/1.0 200 OK" \
+    "!occurring around"] admin
+name_page timeline-back-to /timeline?p=tip&bt=rel1 [list "HTTP/1.0 200 OK" \
+    c2 "!initial empty check-in"] admin
+name_page timeline-back-to-tag /timeline?p=tip&bt=tag:rel1 [list \
+    "HTTP/1.0 200 OK" c2 "!initial empty check-in"] admin
+name_page timeline-back-to-hash "/timeline?p=tip&bt=[string range $nameC2 0 9]" \
+    [list "HTTP/1.0 200 OK" b1 "!>c1<"] admin
+name_page timeline-forward-to /timeline?d=rel1&ft=br [list "HTTP/1.0 200 OK" \
+    "descendants of" ">br</a>"] admin
+name_page timeline-forward-to-tag /timeline?d=rel1&ft=tag:br [list \
+    "HTTP/1.0 200 OK" "descendants of" ">tag:br</a>"] admin
+name_page timeline-forward-to-hash \
+    "/timeline?d=rel1&ft=[string range $nameB1 0 9]" [list "HTTP/1.0 200 OK" \
+    "descendants of" ">[string range $nameB1 0 9]</a>"] admin
+name_page timeline-forward-to-none /timeline?d=rel1&ft=nosuch [list \
+    "HTTP/1.0 200 OK" "descendants of" "!cannot resolve"] admin
+
+# A page that is given no name at all.
+name_page forum-edit-no-name /forumedit [list \
+    "Missing or invalid fpid query parameter"] admin
+
+###############################################################################
+# Pages that list artifacts.
+
+set nameHead {<tr><th>RID<th>Hash<th>Received<th>Description<th>Ref<th>Remarks}
+set nameRidMax [name_sql "SELECT max(rid) FROM blob"]
+set nameRidDelta [name_sql "SELECT rid FROM delta LIMIT 1"]
+
+# What each kind of user is shown.
+foreach {nameCase namePath nameCaps nameWant} [list \
+  bloblist-admin /bloblist admin \
+    [list "HTTP/1.0 200 OK" $nameHead \
+     "check-in to trunk by alice on 2025-01-01 00:00" "<td>phantom</td>" \
+     "<td>private</td>" "<a href='/rcvfrom?rcvid=" "href=\"bloblist?priv\">" \
+     "href=\"rcvfromlist\">" "href=\"artifact_stats\">" \
+     "href=\"bloblist?phan\">" "href=\"bloblist?unclustered\">" \
+     "href=\"bloblist?n=250&amp;recent\">" "!Select a range" \
+     "!href=\"bloblist\">" "!background-color"] \
+  bloblist-reader /bloblist gjorz \
+    [list $nameHead "file p.txt" "<td>phantom</td>" "!<td>private</td>" \
+     "!check-in to private" "!rcvfrom" "!href=\"bloblist?priv\">" \
+     "!href=\"artifact_stats\">"] \
+  bloblist-reader-private /bloblist?priv gjorz \
+    [list $nameHead "file p.txt" "!Private Artifacts" "!check-in to private"] \
+  bloblist-private-user /bloblist ox \
+    [list "check-in to private" "<td>private</td>" \
+     "href=\"bloblist?priv\">" "!rcvfrom"] \
+  bloblist-admin-user /bloblist oa \
+    [list "check-in to private" "href=\"bloblist?priv\">" \
+     "href=\"rcvfromlist\">"] \
+  bloblist-writer /bloblist oi \
+    [list "href=\"artifact_stats\">" "!check-in to private"] \
+  bloblist-no-read /bloblist {} \
+    [list "HTTP/1.0 302 Moved Temporarily" "/login?g=bloblist"] \
+  bloblist-ranges /bloblist?n=10 admin \
+    [list "Select a range of artifacts to view" \
+     "<a href=\"/bloblist?s=1&amp;n=10\">\n1..10</a>" \
+     "<a href=\"/bloblist?s=11&amp;n=10\">\n11..20</a>" \
+     "..$nameRidMax</a>" "250 most recent</a>" "All unclustered</a>" \
+     "!$nameHead" "!href=\"bloblist\">"] \
+  bloblist-range /bloblist?s=11&n=10 admin \
+    [list $nameHead "<td align=\"right\">11</td>" "<td align=\"right\">20</td>" \
+     "!<td align=\"right\">10</td>" "!<td align=\"right\">21</td>" \
+     "href=\"bloblist\">"] \
+  bloblist-private /bloblist?priv admin \
+    [list "<h2>Private Artifacts</h2>" "check-in to private" "file h.txt" \
+     "!check-in to trunk" "href=\"bloblist\">" "!href=\"bloblist?priv\">"] \
+  bloblist-private-short /bloblist?priv&n=10 admin \
+    [list "<h2>Private Artifacts</h2>" "!Select a range"] \
+  bloblist-phantoms /bloblist?phan admin \
+    [list "<h2>Phantom Artifacts</h2>" "<td align=\"left\">parent of check-in</td>" \
+     "<a href=\"/info/[string range $nameW3 0 15]\">" \
+     "<td align=\"left\">file lost.txt</td>\n<td>&nbsp;\n<td>&nbsp;\n</tr>" \
+     "!check-in to trunk" "href=\"bloblist\">" "!href=\"bloblist?phan\">"] \
+  bloblist-phantoms-short /bloblist?phan&n=10 admin \
+    [list "<h2>Phantom Artifacts</h2>" "!Select a range"] \
+  bloblist-unclustered /bloblist?unclustered&n=10 admin \
+    [list "<h2>Unclustered Artifacts</h2>" "!Select a range" \
+     "check-in to br" "!on 2025-01-01 00:00" \
+     "!href=\"bloblist?unclustered\">"] \
+  bloblist-recent /bloblist?recent&n=10 admin \
+    [list "<h2>10 Most Recent Artifacts</h2>" "!Select a range" \
+     "<td align=\"right\">$nameRidMax</td>" "!<td align=\"right\">1</td>" \
+     "href=\"bloblist?n=250&amp;recent\">"] \
+  bloblist-recent-250 /bloblist?recent&n=250 admin \
+    [list "<h2>250 Most Recent Artifacts</h2>" \
+     "!href=\"bloblist?n=250&amp;recent\">"] \
+  bloblist-colors /bloblist?hclr admin \
+    [list "<tr style='background-color:#b0ffb0;'><td align=\"right\">1</td>" \
+     "<tr style='background-color:#ebffb0;'>"] \
+  bloblist-colors-dark /bloblist?hclr&skin=darkmode admin \
+    [list "<tr style='background-color:#177117;'><td align=\"right\">1</td>" \
+     "<tr style='background-color:#714417;'>"] \
+  phantoms-admin /phantoms admin \
+    [list "<tr><th>RID<th>Description<th>Source<th>Age" \
+     "$nameGhostParent<br>parent of check-in</td>" \
+     "<a href=\"/info/[string range $nameW3 0 15]\">[string range $nameW3 0 15]</a>" \
+     "$nameGhostFile<br>file lost.txt</td>\n<td>&nbsp;<td>&nbsp;" \
+     "href=\"rcvfromlist\">" "href=\"bloblist\">" \
+     "href=\"artifact_stats\">"] \
+  phantoms-reader /phantoms gjorz \
+    [list "$nameGhostMerge<br>merge parent of check-in</td>" \
+     "!href=\"rcvfromlist\">" "!href=\"artifact_stats\">"] \
+  phantoms-no-read /phantoms {} \
+    [list "HTTP/1.0 302 Moved Temporarily" "/login?g=phantoms"] \
+  audit-phantoms /secaudit0 admin \
+    [list "$nameGhostParent<br>parent of check-in</td>"] \
+  largest /bigbloblist?n=3 admin \
+    [list "3 Largest Artifacts" "<th align=\"right\">From<th>Hash" \
+     "file big.txt" "href=\"rcvfromlist\">" "href=\"artifact_stats\">" \
+     "href=\"bloblist\">"] \
+  largest-default /bigbloblist gjorz \
+    [list "250 Largest Artifacts" "file big.txt" "check-in to trunk" \
+     "!href=\"rcvfromlist\">" "!href=\"artifact_stats\">"] \
+  largest-no-read /bigbloblist {} \
+    [list "HTTP/1.0 302 Moved Temporarily" "/login?g=bigbloblist"] \
+  delta-chain /deltachain/$nameRidDelta admin \
+    [list "Delta Chain Containing Artifact $nameRidDelta" \
+     "<tr><td align=\"right\">0</td>" "<tr><td align=\"right\">1</td>" \
+     "<td align=\"right\"><b>$nameRidDelta</b></td>" "file big.txt" \
+     "Bytes of content" "Bytes stored in repository"] \
+  delta-chain-no-name /deltachain gjorz \
+    [list "Delta Chain Containing Artifact 0" "!<b>0</b>" \
+     "<td align=\"right\">0</td></tr>"] \
+  delta-chain-not-number /deltachain/tip gjorz \
+    [list "Delta Chain Containing Artifact 0"] \
+  delta-chain-no-read /deltachain/1 {} \
+    [list "HTTP/1.0 302 Moved Temporarily" "/login?g=deltachain"] \
+  collisions /hash-collisions admin \
+    [list "<h1>Hash Prefix Collisions on Check-ins</h1>" \
+     "<p>Collisions of length 4:\n<a href=\"/ambiguous/$nameCtwin\">$nameCtwin</a>" \
+     "<h1>Hash Prefix Collisions on All Artifacts</h1>" \
+     "<p>Collisions of length 5:\n<a href=\"/ambiguous/$nameTwin\">$nameTwin</a>" \
+     "<a href=\"/ambiguous/$nameWtwin\">$nameWtwin</a>" \
+     "<p>Total number of hashes: [expr {$nameRidMax}]</p>" \
+     "!First 25 collisions"] \
+  collisions-no-read /hash-collisions {} \
+    [list "HTTP/1.0 302 Moved Temporarily" "/login?g=hash-collisions"] \
+  clusters-admin /clusterlist admin \
+    [list "<th>Compressed&nbsp;Size\n<th>User<th>IP-Address" \
+     "<tr><td align=\"right\">1\n<td><a href=\"/info/[string range $nameCluster 0 9]\">" \
+     "<td>alice\n<td>&nbsp;\n</tr>" "Total size of all clusters: " \
+     "href=\"rcvfromlist\">" "href=\"artifact_stats\">"] \
+  clusters-reader /clusterlist gjorz \
+    [list "<th>Compressed&nbsp;Size\n<tr>" "!<td>alice" \
+     "!href=\"rcvfromlist\">" "!href=\"artifact_stats\">"] \
+  clusters-no-read /clusterlist {} \
+    [list "HTTP/1.0 302 Moved Temporarily" "/login?g=clusterlist"] \
+] {
+  name_page $nameCase $namePath $nameWant $nameCaps
+}
+
+# The most recent artifacts come latest first.
+regexp {<tr><td align="right">(\d+)</td>} \
+    [name_get /bloblist?recent&n=10 admin] nameAll nameFirst
+test_eq name-page-bloblist-recent-order $nameFirst $nameRidMax
+regexp {<tr><td align="right">(\d+)</td>} [name_get /bloblist admin] \
+    nameAll nameFirst
+test_eq name-page-bloblist-order $nameFirst 1
+
+# The same pages after changes made to the copy by hand: a phantom that
+# is private, a cluster with an address and then with no record of its
+# arrival, and a phantom named by an artifact with no such record.
+fossil sql -R $nameWeb "INSERT INTO private
+    SELECT rid FROM blob WHERE uuid='$nameGhostMember';
+  UPDATE rcvfrom SET ipaddr='192.0.2.7' WHERE rcvid=
+    (SELECT rcvid FROM blob WHERE uuid='$nameCluster');"
+name_page bloblist-private-phantom /bloblist?phan [list \
+    "<td>private,phantom</td>" "<td>phantom</td>"] admin
+name_page bloblist-private-phantom-reader /bloblist?phan [list \
+    "<td>private,phantom</td>"] gjorz
+name_page clusters-address /clusterlist [list \
+    "<td>alice\n<td>192.0.2.7\n</tr>"] admin
+fossil sql -R $nameWeb "UPDATE blob SET rcvid=99999
+    WHERE uuid IN ('$nameCluster','$nameW3')"
+name_page clusters-no-record /clusterlist [list \
+    "<td>&nbsp;\n<td align=\"right\">" "<td>&nbsp;\n<td>&nbsp;\n</tr>" \
+    "!<td>alice"] admin
+name_page phantoms-no-record /phantoms [list \
+    "[string range $nameW3 0 15]</a>\n<td>&nbsp;\n</tr>"] admin
+
+# An artifact kept as a delta from a phantom.
+fossil sql -R $nameWeb "INSERT INTO delta(rid,srcid) VALUES(
+    (SELECT rid FROM blob WHERE uuid='$nameSha1'),
+    (SELECT rid FROM blob WHERE uuid='$nameGhostFile'))"
+fossil test-phantoms -R $nameWeb --list
+test name-command-phantoms-list-delta {[holds_strings $RESULT [list \
+    "[string range $nameGhostFile 0 9] (" \
+    "\n   [string range $nameSha1 0 9] (" \
+    "Phantoms: 5    Delta-phantoms: 1"]]}
+fossil test-phantoms -R $nameWeb --count
+test_eq name-command-phantoms-count-delta $RESULT \
+    "Phantoms: 5    Delta-phantoms: 1"
+fossil test-phantoms -R $nameWeb --delta
+test_eq name-command-phantoms-delta-one $RESULT \
+    "  [string range $nameSha1 0 15] unknown "
+
+# A timeline entry of a kind that is not known.
+fossil sql -R $nameWeb "UPDATE event SET type='x' WHERE objid=
+    (SELECT rid FROM blob WHERE uuid='$nameF1')"
+name_page ci-tags-unknown-kind /ci_tags/$nameF1 [list \
+    "<h1>Tags and Properties for Artifact  <a "] admin
+fossil whatis -R $nameWeb $nameF1
+test name-whatis-unknown-kind {[holds_strings $RESULT [list \
+    "type:       Unknown by alice on 2025-01-12 10:00:00"]]}
+
+# Thirty pairs of names that share four characters, then 210 pairs that
+# share five.
+fossil sql -R $nameWeb "WITH RECURSIVE c(i) AS
+    (VALUES(0) UNION ALL SELECT i+1 FROM c WHERE i<29)
+  INSERT INTO blob(rcvid,size,uuid)
+    SELECT 0, -1, printf('c%03x%d%059d',i,k,0)
+      FROM c, (SELECT 0 AS k UNION ALL SELECT 1)"
+name_page collisions-many /hash-collisions [list \
+    "<p>First 25 collisions of length 4:\n" \
+    "<a href=\"/ambiguous/c000\">c000</a>" \
+    "<a href=\"/ambiguous/c016\">c016</a>" "!<a href=\"/ambiguous/c017\">" \
+    "<p>Collisions of length 5:\n<a href=\"/ambiguous/$nameTwin\">"] admin
+fossil sql -R $nameWeb "WITH RECURSIVE c(i) AS
+    (VALUES(0) UNION ALL SELECT i+1 FROM c WHERE i<209)
+  INSERT INTO blob(rcvid,size,uuid)
+    SELECT 0, -1, printf('d%04x%d%058d',i,k,0)
+      FROM c, (SELECT 0 AS k UNION ALL SELECT 1)"
+name_page collisions-too-many /hash-collisions [list \
+    "<tr><td>5<td>211<td>" "!collisions of length 4:" \
+    "<p>Collisions of length 4:\n<a href=\"/ambiguous/$nameCtwin\">"] admin
+
+# A user with no capabilities is not shown the names of artifacts.
+set nameReply [name_get /ambiguous/[string range $nameP 0 0] {}]
+test name-page-ambiguous-no-read {![string match *$nameP* $nameReply]}
+
+###############################################################################
+# Known faults.
+
+# A request for more of the most recent artifacts than there are shows
+# them all, and a request for fewer shows as many as asked for.
+test name-page-bloblist-recent-all {[string match \
+    {*<tr><td align="right">1</td>*} [name_get /bloblist?recent&n=600 admin]]}
+test name-page-bloblist-recent-count {[regexp -all {<tr><td align="right">} \
+    [name_get /bloblist?recent&n=250 admin]] == 250}
+
+# The list of tags has a quoted key in JSON.
+fossil whatis --json tip
+test name-whatis-json-tags-key {[string match {*,"tags":\["br"\],*} $RESULT]}
+
+# The second meaning of a name is numbered 2 when it is a ticket.
+fossil whatis [string range $nameC1 0 5]
+test name-whatis-ticket-meaning-number \
+    {[string match "*---- meaning #2 ----*" $RESULT]}
+
+###############################################################################
+test_cleanup

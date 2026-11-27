@@ -1,0 +1,81 @@
+#
+# Run every input in corpus/corpus.pack, and the sample wiki and markdown pages
+# in this directory, through "fossil test-fuzz".  The pack is unpacked
+# into a directory for each fuzz type.  See corpus.tcl.
+#
+# The scenario inputs are not inputs to "test-fuzz".  They are read by
+# scenario.test.
+#
+
+# These tests run only in a long pass: -assurance stress.
+if {[test_assurance] ne "stress"} {
+  test_skip "runs only with -assurance stress"
+}
+
+require_no_open_checkout
+
+test_setup
+
+source [file join $::testfiledir corpus.tcl]
+set fuzzTypes [corpus_unpack [file join $::testfiledir corpus corpus.pack] \
+                   [file join [pwd] corpus]]
+test_eq fuzz-corpus-types $fuzzTypes [list delta-accept delta-apply \
+    delta-reject delta-roundtrip manifest manifest-body scenario xfer]
+
+foreach fuzzDir [lsort [glob -nocomplain -types d [file join corpus *]]] {
+  set fuzzType [file tail $fuzzDir]
+  if {$fuzzType eq "scenario"} continue
+  fossil test-fuzz $fuzzDir
+  test fuzz-corpus-$fuzzType {$CODE == 0}
+}
+
+foreach {fuzzType fuzzGlob} {wiki *.wiki markdown *.md wiki2 *.md} {
+  foreach fuzzF [lsort [glob -nocomplain [file join $::testfiledir $fuzzGlob]]] {
+    fossil test-fuzz --fuzztype $fuzzType $fuzzF
+    test fuzz-$fuzzType-[file tail $fuzzF] {$CODE == 0}
+  }
+}
+
+# Every input of the two manifest types must begin with the guard lines,
+# and neither the pack nor any input may be accepted by Fossil as an
+# artifact.  Otherwise a repository holding the file would act on it.
+# See corpus.tcl.
+set fuzzGuard "# test-corpus: inert on disk. "
+set fuzzNotInert {}
+foreach fuzzType {manifest manifest-body} {
+  foreach fuzzF [lsort [glob -nocomplain [file join corpus $fuzzType *]]] {
+    set fuzzFd [open $fuzzF rb]
+    set fuzzHead [read $fuzzFd [string length $fuzzGuard]]
+    close $fuzzFd
+    if {$fuzzHead ne $fuzzGuard} {
+      lappend fuzzNotInert $fuzzType/[file tail $fuzzF]
+    }
+  }
+}
+test fuzz-corpus-manifest-guarded {[llength $fuzzNotInert] == 0}
+file mkdir pack
+file copy [file join $::testfiledir corpus corpus.pack] pack
+fossil test-fuzz-inert pack
+test fuzz-corpus-pack-inert {$CODE == 0}
+foreach fuzzDir [lsort [glob -nocomplain -types d [file join corpus *]]] {
+  fossil test-fuzz-inert $fuzzDir
+  test fuzz-corpus-[file tail $fuzzDir]-inert {$CODE == 0}
+}
+
+# A fuzzing engine begins with an input of no bytes.
+write_file empty-input ""
+foreach fuzzType {manifest manifest-body xfer} {
+  fossil test-fuzz --fuzztype $fuzzType empty-input
+  test fuzz-$fuzzType-empty-input {$CODE == 0}
+}
+
+# A directory that is not named for a fuzz type must be refused, so that
+# its files are not quietly run through the wrong target.
+file mkdir not-a-fuzz-type
+write_file [file join not-a-fuzz-type x] "x\n"
+fossil test-fuzz not-a-fuzz-type -expectError
+test fuzz-misnamed-directory {$CODE != 0}
+
+###############################################################################
+
+test_cleanup
